@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Defines donor giving groupings for the Fundraising Quick Start. Each record represents one grouping with a minimum gift amount threshold, an internal key, and a branded display name. The DonorGiftSummary formula fields FQS_Donor_Level__c and FQS_Donor_Level_Name__c reference these records. Admins can adjust thresholds and names in Setup without redeployment.</description>
+    <label>FQS Donor Grouping</label>
+    <pluralLabel>FQS Donor Groupings</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

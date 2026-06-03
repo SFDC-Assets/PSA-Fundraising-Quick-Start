@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="urn:metadata.tooling.soap.sforce.com">
+    <searchLayouts>
+        <customTabListAdditionalFields>Role</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Recipient</customTabListAdditionalFields>
+        <customTabListAdditionalFields>ParentRecord</customTabListAdditionalFields>
+        <customTabListAdditionalFields>PartialPercent</customTabListAdditionalFields>
+        <searchResultsAdditionalFields>Role</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Recipient</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>ParentRecord</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>PartialPercent</searchResultsAdditionalFields>
+    </searchLayouts>
+</CustomObject>

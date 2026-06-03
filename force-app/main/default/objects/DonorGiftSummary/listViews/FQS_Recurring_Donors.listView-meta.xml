@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Recurring_Donors</fullName>
+    <columns>Name</columns>
+    <columns>Donor</columns>
+    <columns>TotalGiftsAmount</columns>
+    <columns>FQS_Donor_Level_Name__c</columns>
+    <columns>TotalPaidRcrInstallments</columns>
+    <columns>TotalPaidRcrInstlAmt</columns>
+    <columns>CurrentRecurringStartDate</columns>
+    <columns>LastRecurringPaymentDate</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>TotalPaidRcrInstallments</field>
+        <operation>greaterThan</operation>
+        <value>0</value>
+    </filters>
+    <label>FQS Recurring Donors</label>
+</ListView>

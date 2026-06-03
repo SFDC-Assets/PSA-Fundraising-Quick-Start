@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <searchLayouts>
+        <customTabListAdditionalFields>DonorId</customTabListAdditionalFields>
+        <customTabListAdditionalFields>TotalGiftsAmount</customTabListAdditionalFields>
+        <customTabListAdditionalFields>GiftCount</customTabListAdditionalFields>
+        <customTabListAdditionalFields>LastGiftDate</customTabListAdditionalFields>
+        <customTabListAdditionalFields>FQS_Donor_Level__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields>DonorId</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>TotalGiftsAmount</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>GiftCount</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>LastGiftDate</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>FQS_Donor_Level__c</searchResultsAdditionalFields>
+    </searchLayouts>
+</CustomObject>

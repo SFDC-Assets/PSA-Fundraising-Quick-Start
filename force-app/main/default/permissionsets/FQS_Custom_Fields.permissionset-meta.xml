@@ -31,6 +31,21 @@
         <field>GiftDesignation.FQS_Restriction_Type__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DonorGiftSummary.FQS_Donor_Level__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DonorGiftSummary.FQS_Donor_Level_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftDefaultDesignation.FQS_Parent_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Fundraising Quick Start Custom Fields</label>
 </PermissionSet>
