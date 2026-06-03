@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_In_Kind__c</fullName>
+    <description>Indicates this transaction is an in-kind (non-cash) gift such as goods, services, or property.</description>
+    <defaultValue>false</defaultValue>
+    <externalId>false</externalId>
+    <label>In-Kind</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

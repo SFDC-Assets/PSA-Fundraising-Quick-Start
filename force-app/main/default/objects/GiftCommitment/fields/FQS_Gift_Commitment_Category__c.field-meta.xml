@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Gift_Commitment_Category__c</fullName>
+    <description>Categorizes the gift commitment by its fundraising type. Allowed values: Pledged Gift, Recurring Gift, Grant Payout.</description>
+    <externalId>false</externalId>
+    <label>Gift Commitment Category</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Pledged Gift</fullName><default>false</default><label>Pledged Gift</label></value>
+            <value><fullName>Recurring Gift</fullName><default>false</default><label>Recurring Gift</label></value>
+            <value><fullName>Grant Payout</fullName><default>false</default><label>Grant Payout</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

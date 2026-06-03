@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Matched__c</fullName>
+    <description>Indicates this transaction has an employer or third-party match. When true and GiftType is Individual, the Matching Employer Transactions related list is shown on the record page.</description>
+    <defaultValue>false</defaultValue>
+    <externalId>false</externalId>
+    <label>Matched</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

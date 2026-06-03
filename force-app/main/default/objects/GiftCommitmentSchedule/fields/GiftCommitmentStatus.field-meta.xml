@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GiftCommitmentStatus</fullName>
+    <description>Read-only mirror of the parent Gift Commitment Status field. Allowed values: Draft (commitment not yet active), Active (installments being processed), Lapsed (past due with no recent payment), Failing (payment processing errors), Paused (installments temporarily suspended), Closed (commitment fulfilled or cancelled).</description>
+</CustomField>

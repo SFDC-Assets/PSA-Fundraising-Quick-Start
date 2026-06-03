@@ -43,3 +43,6 @@ $RECYCLE.BIN/
 **/__pycache__/
 **/.venv/
 **/venv/
+
+# Incidental Salesforce utility bar FlexiPages (not FQS work product)
+**/*_UtilityBar.flexipage-meta.xml

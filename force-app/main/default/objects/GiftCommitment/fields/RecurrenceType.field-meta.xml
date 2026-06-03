@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>RecurrenceType</fullName>
+    <description>Allowed values: OpenEnded, FixedLength.</description>
+    <inlineHelpText>Open Ended: a recurring gift with no defined end date — typical for monthly donors. Fixed Length: a recurring gift with a clear start and end date.</inlineHelpText>
+</CustomField>

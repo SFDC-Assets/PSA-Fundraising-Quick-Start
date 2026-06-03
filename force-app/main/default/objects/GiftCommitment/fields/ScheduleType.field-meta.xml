@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>ScheduleType</fullName>
+    <description>Allowed values: Recurring, Custom.</description>
+    <inlineHelpText>Set automatically when a gift commitment schedule is created. Recurring = a regular cadence; Custom = a manually defined payment schedule.</inlineHelpText>
+</CustomField>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <searchLayouts>
+        <customTabListAdditionalFields>GiftCommitment</customTabListAdditionalFields>
+        <customTabListAdditionalFields>TransactionPeriod</customTabListAdditionalFields>
+        <customTabListAdditionalFields>TransactionAmount</customTabListAdditionalFields>
+        <customTabListAdditionalFields>StartDate</customTabListAdditionalFields>
+        <customTabListAdditionalFields>EndDate</customTabListAdditionalFields>
+        <searchResultsAdditionalFields>GiftCommitment</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>TransactionPeriod</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>TransactionAmount</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>StartDate</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>EndDate</searchResultsAdditionalFields>
+    </searchLayouts>
+</CustomObject>

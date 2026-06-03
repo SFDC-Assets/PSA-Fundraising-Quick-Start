@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="urn:metadata.tooling.soap.sforce.com">
+    <searchLayouts>
+        <customTabListAdditionalFields>Status</customTabListAdditionalFields>
+        <customTabListAdditionalFields>FQS_Gift_Commitment_Category__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>ExpectedTotalCmtAmount</customTabListAdditionalFields>
+
+        <searchResultsAdditionalFields>Status</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>FQS_Gift_Commitment_Category__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>ExpectedTotalCmtAmount</searchResultsAdditionalFields>
+    </searchLayouts>
+</CustomObject>

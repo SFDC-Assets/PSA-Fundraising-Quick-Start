@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Restriction_Type__c</fullName>
+    <description>Allowed values: Without Donor Restriction, With Donor Restriction - Purpose, With Donor Restriction - Time, With Donor Restriction - Permanent.</description>
+    <externalId>false</externalId>
+    <label>Restriction Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Without Donor Restriction</fullName><default>false</default><label>Without Donor Restriction</label></value>
+            <value><fullName>With Donor Restriction - Purpose</fullName><default>false</default><label>With Donor Restriction - Purpose</label></value>
+            <value><fullName>With Donor Restriction - Time</fullName><default>false</default><label>With Donor Restriction - Time</label></value>
+            <value><fullName>With Donor Restriction - Permanent</fullName><default>false</default><label>With Donor Restriction - Permanent</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

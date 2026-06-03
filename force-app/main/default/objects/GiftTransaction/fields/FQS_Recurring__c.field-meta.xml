@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Recurring__c</fullName>
+    <description>Indicates this transaction is part of a recurring giving series linked to a Gift Commitment.</description>
+    <defaultValue>false</defaultValue>
+    <externalId>false</externalId>
+    <label>Recurring</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

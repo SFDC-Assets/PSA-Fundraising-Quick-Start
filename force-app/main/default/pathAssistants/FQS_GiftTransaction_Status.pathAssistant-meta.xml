@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PathAssistant xmlns="urn:metadata.tooling.soap.sforce.com">
+    <active>true</active>
+    <entityName>GiftTransaction</entityName>
+    <fieldName>Status</fieldName>
+    <masterLabel>FQS Gift Transaction Status Path</masterLabel>
+    <recordTypeName>__MASTER__</recordTypeName>
+    <pathAssistantSteps>
+        <fieldNames>TransactionDueDate</fieldNames>
+        <fieldNames>OriginalAmount</fieldNames>
+        <picklistValueName>Unpaid</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>TransactionDueDate</fieldNames>
+        <fieldNames>PaymentMethod</fieldNames>
+        <picklistValueName>Pending</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>TransactionDate</fieldNames>
+        <fieldNames>CurrentAmount</fieldNames>
+        <fieldNames>PaymentMethod</fieldNames>
+        <picklistValueName>Paid</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>LastGatewayErrorMessage</fieldNames>
+        <fieldNames>LastGatewayProcessedDate</fieldNames>
+        <picklistValueName>Failed</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>RefundedAmount</fieldNames>
+        <fieldNames>TransactionDate</fieldNames>
+        <picklistValueName>Fully Refunded</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <picklistValueName>Written-Off</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <picklistValueName>Canceled</picklistValueName>
+    </pathAssistantSteps>
+</PathAssistant>

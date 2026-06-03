@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FulfillmentType</fullName>
+    <description>Allowed values: Unconditional, Conditional.</description>
+    <inlineHelpText>Indicates whether the committed funds can be used immediately (Unconditional) or only after specific conditions are met (Conditional).</inlineHelpText>
+</CustomField>

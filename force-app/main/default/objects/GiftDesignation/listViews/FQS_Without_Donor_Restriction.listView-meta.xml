@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Without_Donor_Restriction</fullName>
+    <columns>Name</columns>
+    <columns>FQS_Restriction_Type__c</columns>
+    <columns>IsActive</columns>
+    <columns>IsDefault</columns>
+    <columns>TotalTransactionAmount</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>FQS_Restriction_Type__c</field>
+        <operation>equals</operation>
+        <value>Without Donor Restriction</value>
+    </filters>
+    <label>Without Donor Restriction</label>
+</ListView>

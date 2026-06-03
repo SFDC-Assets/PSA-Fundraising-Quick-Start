@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TransactionPeriod</fullName>
+    <description>Frequency unit for recurring installments. Allowed values: Monthly (one installment per month), Weekly (one per week), Daily (one per day), Yearly (one per year), Custom (interval defined by TransactionInterval and TransactionDay).</description>
+</CustomField>

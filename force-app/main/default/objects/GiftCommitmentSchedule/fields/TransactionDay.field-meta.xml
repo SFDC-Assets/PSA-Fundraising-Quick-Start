@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TransactionDay</fullName>
+    <description>Day of the month or week on which each installment transaction is created. Allowed values: 1–30 (day of month), LastDay (last day of the month). Used in conjunction with TransactionPeriod and TransactionInterval.</description>
+</CustomField>
