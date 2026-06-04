@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Bank_Debit_Instruments</fullName>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Type</field>
+        <operation>equals</operation>
+        <value>ACH</value>
+    </filters>
+    <filters>
+        <field>Type</field>
+        <operation>equals</operation>
+        <value>SEPA Direct Debit</value>
+    </filters>
+    <filters>
+        <field>Type</field>
+        <operation>equals</operation>
+        <value>BACS Debit</value>
+    </filters>
+    <filters>
+        <field>Type</field>
+        <operation>equals</operation>
+        <value>BECS Debit</value>
+    </filters>
+    <booleanFilter>1 OR 2 OR 3 OR 4</booleanFilter>
+    <label>Bank Debit Instruments</label>
+    <columns>Name</columns>
+    <columns>Type</columns>
+    <columns>Account</columns>
+    <columns>BankName</columns>
+    <columns>BankAccountType</columns>
+    <columns>AccountHolderName</columns>
+    <columns>GatewayName</columns>
+</ListView>

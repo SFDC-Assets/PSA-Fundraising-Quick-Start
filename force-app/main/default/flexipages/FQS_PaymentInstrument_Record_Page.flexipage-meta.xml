@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!-- ═══════════════════════════════════════════════════════════
+         HEADER — dynamicHighlights
+         Primary: Name
+         Secondary: Type, AccountId, Last4, CardBrand, GatewayName
+         Actions: Edit, Delete, ChangeOwnerOne
+    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -8,10 +14,10 @@
                     <value>required</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Name</fieldItem>
-                <identifier>fqs_gt_highlights_primaryName</identifier>
+                <identifier>fqs_pi_highlights_primary</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-highlights-primary</name>
+        <name>Facet-fqs-pi-highlights-primary</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -19,10 +25,10 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Status</fieldItem>
-                <identifier>fqs_gt_highlights_Status</identifier>
+                <fieldItem>Record.Type</fieldItem>
+                <identifier>fqs_pi_highlights_Type</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -31,8 +37,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.FQS_Gift_Transaction_Category__c</fieldItem>
-                <identifier>fqs_gt_highlights_Category</identifier>
+                <fieldItem>Record.AccountId</fieldItem>
+                <identifier>fqs_pi_highlights_AccountId</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -41,18 +47,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.CurrentAmount</fieldItem>
-                <identifier>fqs_gt_highlights_CurrentAmount</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>required</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.DonorId</fieldItem>
-                <identifier>fqs_gt_highlights_Donor</identifier>
+                <fieldItem>Record.Last4</fieldItem>
+                <identifier>fqs_pi_highlights_Last4</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -61,11 +57,21 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.TransactionDate</fieldItem>
-                <identifier>fqs_gt_highlights_TransactionDate</identifier>
+                <fieldItem>Record.CardBrand</fieldItem>
+                <identifier>fqs_pi_highlights_CardBrand</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-highlights-secondary</name>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.GatewayName</fieldItem>
+                <identifier>fqs_pi_highlights_GatewayName</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-fqs-pi-highlights-secondary</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -91,34 +97,50 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>primaryField</name>
-                    <value>Facet-fqs-gt-highlights-primary</value>
+                    <value>Facet-fqs-pi-highlights-primary</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>secondaryFields</name>
-                    <value>Facet-fqs-gt-highlights-secondary</value>
+                    <value>Facet-fqs-pi-highlights-secondary</value>
                 </componentInstanceProperties>
                 <componentName>record_flexipage:dynamicHighlights</componentName>
-                <identifier>fqs_gt_dynamicHighlights</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>hideUpdateButton</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>variant</name>
-                    <value>non-linear</value>
-                </componentInstanceProperties>
-                <componentName>runtime_sales_pathassistant:pathAssistant</componentName>
-                <identifier>fqs_gt_pathAssistant</identifier>
+                <identifier>fqs_pi_dynamicHighlights</identifier>
             </componentInstance>
         </itemInstances>
         <mode>Replace</mode>
         <name>header</name>
         <type>Region</type>
     </flexiPageRegions>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         DETAIL TAB CONTENT — 6 field sections
+
+         S1: Instrument Type
+           Left:  Type, CardBrand, Last4
+           Right: ExpiryMonth, ExpiryYear
+
+         S2: Bank Details
+           Left:  BankName, BankAccountType, BankAccountHolderType, BankAccountNumber
+           Right: BankCode
+
+         S3: Digital Wallet
+           Left:  DigitalWalletProvider, AccountHolderName
+           (single column)
+
+         S4: Gateway & Processor
+           Left:  GatewayName, GatewayReference, PaymentProcessorName
+           Right: ProcessorReference
+
+         S5: Account
+           Left:  AccountId, OwnerId
+           (single column)
+
+         S6: System Information
+           Left:  CreatedById (ro)
+           Right: LastModifiedById (ro)
+    ═══════════════════════════════════════════════════════════ -->
+
+    <!-- S1 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -126,8 +148,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.FQS_Gift_Transaction_Category__c</fieldItem>
-                <identifier>fqs_gt_d_fi_Category</identifier>
+                <fieldItem>Record.Type</fieldItem>
+                <identifier>fqs_pi_d_s1_Type</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -136,8 +158,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.GiftType</fieldItem>
-                <identifier>fqs_gt_d_fi_GiftType</identifier>
+                <fieldItem>Record.CardBrand</fieldItem>
+                <identifier>fqs_pi_d_s1_CardBrand</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -146,22 +168,23 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.FQS_Recurring__c</fieldItem>
-                <identifier>fqs_gt_d_fi_IsRecurring</identifier>
+                <fieldItem>Record.Last4</fieldItem>
+                <identifier>fqs_pi_d_s1_Last4</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-d-s1-left</name>
+        <name>Facet-fqs-pi-d-s1-left</name>
         <type>Facet</type>
     </flexiPageRegions>
+    <!-- S1 right -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.PaymentMethod</fieldItem>
-                <identifier>fqs_gt_d_fi_PaymentMethod</identifier>
+                <fieldItem>Record.ExpiryMonth</fieldItem>
+                <identifier>fqs_pi_d_s1_ExpiryMonth</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -170,47 +193,40 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.FQS_In_Kind__c</fieldItem>
-                <identifier>fqs_gt_d_fi_IsInKind</identifier>
+                <fieldItem>Record.ExpiryYear</fieldItem>
+                <identifier>fqs_pi_d_s1_ExpiryYear</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.FQS_Matched__c</fieldItem>
-                <identifier>fqs_gt_d_fi_IsMatched</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-fqs-gt-d-s1-right</name>
+        <name>Facet-fqs-pi-d-s1-right</name>
         <type>Facet</type>
     </flexiPageRegions>
+    <!-- S1 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-fqs-gt-d-s1-left</value>
+                    <value>Facet-fqs-pi-d-s1-left</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>fqs_gt_d_col_s1_left</identifier>
+                <identifier>fqs_pi_d_col_s1_left</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-fqs-gt-d-s1-right</value>
+                    <value>Facet-fqs-pi-d-s1-right</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>fqs_gt_d_col_s1_right</identifier>
+                <identifier>fqs_pi_d_col_s1_right</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-d-s1-cols</name>
+        <name>Facet-fqs-pi-d-s1-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
+
+    <!-- S2 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -218,8 +234,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.TransactionDate</fieldItem>
-                <identifier>fqs_gt_d_fi_TransactionDate</identifier>
+                <fieldItem>Record.BankName</fieldItem>
+                <identifier>fqs_pi_d_s2_BankName</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -228,115 +244,75 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.TransactionDueDate</fieldItem>
-                <identifier>fqs_gt_d_fi_TransactionDueDate</identifier>
+                <fieldItem>Record.BankAccountType</fieldItem>
+                <identifier>fqs_pi_d_s2_BankAccountType</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.OriginalAmount</fieldItem>
-                <identifier>fqs_gt_d_fi_OriginalAmount</identifier>
+                <fieldItem>Record.BankAccountHolderType</fieldItem>
+                <identifier>fqs_pi_d_s2_BankAccountHolderType</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-d-s2-left</name>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.BankAccountNumber</fieldItem>
+                <identifier>fqs_pi_d_s2_BankAccountNumber</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-fqs-pi-d-s2-left</name>
         <type>Facet</type>
     </flexiPageRegions>
+    <!-- S2 right -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>readonly</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.CurrentAmount</fieldItem>
-                <identifier>fqs_gt_d_fi_CurrentAmount</identifier>
+                <fieldItem>Record.BankCode</fieldItem>
+                <identifier>fqs_pi_d_s2_BankCode</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.RefundedAmount</fieldItem>
-                <identifier>fqs_gt_d_fi_RefundedAmount</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.TotalTransactionFee</fieldItem>
-                <identifier>fqs_gt_d_fi_TotalTransactionFee</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-fqs-gt-d-s2-right</name>
+        <name>Facet-fqs-pi-d-s2-right</name>
         <type>Facet</type>
     </flexiPageRegions>
+    <!-- S2 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-fqs-gt-d-s2-left</value>
+                    <value>Facet-fqs-pi-d-s2-left</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>fqs_gt_d_col_s2_left</identifier>
+                <identifier>fqs_pi_d_col_s2_left</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-fqs-gt-d-s2-right</value>
+                    <value>Facet-fqs-pi-d-s2-right</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>fqs_gt_d_col_s2_right</identifier>
+                <identifier>fqs_pi_d_col_s2_right</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-d-s2-cols</name>
+        <name>Facet-fqs-pi-d-s2-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>required</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.DonorId</fieldItem>
-                <identifier>fqs_gt_d_fi_DonorId</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.GiftCommitmentId</fieldItem>
-                <identifier>fqs_gt_d_fi_GiftCommitmentId</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.GiftCommitmentScheduleId</fieldItem>
-                <identifier>fqs_gt_d_fi_GiftCommitmentScheduleId</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-fqs-gt-d-s3-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
+
+    <!-- S3 left (single column) -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -344,8 +320,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.CampaignId</fieldItem>
-                <identifier>fqs_gt_d_fi_CampaignId</identifier>
+                <fieldItem>Record.DigitalWalletProvider</fieldItem>
+                <identifier>fqs_pi_d_s3_DigitalWalletProvider</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -354,47 +330,30 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.OutreachSourceCodeId</fieldItem>
-                <identifier>fqs_gt_d_fi_OutreachSourceCodeId</identifier>
+                <fieldItem>Record.AccountHolderName</fieldItem>
+                <identifier>fqs_pi_d_s3_AccountHolderName</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.OwnerId</fieldItem>
-                <identifier>fqs_gt_d_fi_OwnerId</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-fqs-gt-d-s3-right</name>
+        <name>Facet-fqs-pi-d-s3-left</name>
         <type>Facet</type>
     </flexiPageRegions>
+    <!-- S3 columns wrapper (single column) -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-fqs-gt-d-s3-left</value>
+                    <value>Facet-fqs-pi-d-s3-left</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>fqs_gt_d_col_s3_left</identifier>
+                <identifier>fqs_pi_d_col_s3_left</identifier>
             </componentInstance>
         </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-fqs-gt-d-s3-right</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:column</componentName>
-                <identifier>fqs_gt_d_col_s3_right</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-fqs-gt-d-s3-cols</name>
+        <name>Facet-fqs-pi-d-s3-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
+
+    <!-- S4 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -402,90 +361,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.AcknowledgementStatus</fieldItem>
-                <identifier>fqs_gt_d_fi_AcknowledgementStatus</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.AcknowledgementDate</fieldItem>
-                <identifier>fqs_gt_d_fi_AcknowledgementDate</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.TaxReceiptStatus</fieldItem>
-                <identifier>fqs_gt_d_fi_TaxReceiptStatus</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-fqs-gt-d-s4-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.TaxDeductionAmount</fieldItem>
-                <identifier>fqs_gt_d_fi_TaxDeductionAmount</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.NonTaxDeductibleAmount</fieldItem>
-                <identifier>fqs_gt_d_fi_NonTaxDeductibleAmount</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-fqs-gt-d-s4-right</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-fqs-gt-d-s4-left</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:column</componentName>
-                <identifier>fqs_gt_d_col_s4_left</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-fqs-gt-d-s4-right</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:column</componentName>
-                <identifier>fqs_gt_d_col_s4_right</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-fqs-gt-d-s4-cols</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.PaymentIdentifier</fieldItem>
-                <identifier>fqs_gt_d_fi_PaymentIdentifier</identifier>
+                <fieldItem>Record.GatewayName</fieldItem>
+                <identifier>fqs_pi_d_s4_GatewayName</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -495,43 +372,24 @@
                     <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.GatewayReference</fieldItem>
-                <identifier>fqs_gt_d_fi_GatewayReference</identifier>
+                <identifier>fqs_pi_d_s4_GatewayReference</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>readonly</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.LastGatewayProcessedDate</fieldItem>
-                <identifier>fqs_gt_d_fi_LastGatewayProcessedDate</identifier>
+                <fieldItem>Record.PaymentProcessorName</fieldItem>
+                <identifier>fqs_pi_d_s4_PaymentProcessorName</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-d-s5-left</name>
+        <name>Facet-fqs-pi-d-s4-left</name>
         <type>Facet</type>
     </flexiPageRegions>
+    <!-- S4 right -->
     <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.LastGatewayErrorMessage</fieldItem>
-                <identifier>fqs_gt_d_fi_LastGatewayErrorMessage</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.LastGatewayResponseCode</fieldItem>
-                <identifier>fqs_gt_d_fi_LastGatewayResponseCode</identifier>
-            </fieldInstance>
-        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -539,36 +397,39 @@
                     <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.ProcessorReference</fieldItem>
-                <identifier>fqs_gt_d_fi_ProcessorReference</identifier>
+                <identifier>fqs_pi_d_s4_ProcessorReference</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-d-s5-right</name>
+        <name>Facet-fqs-pi-d-s4-right</name>
         <type>Facet</type>
     </flexiPageRegions>
+    <!-- S4 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-fqs-gt-d-s5-left</value>
+                    <value>Facet-fqs-pi-d-s4-left</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>fqs_gt_d_col_s5_left</identifier>
+                <identifier>fqs_pi_d_col_s4_left</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-fqs-gt-d-s5-right</value>
+                    <value>Facet-fqs-pi-d-s4-right</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>fqs_gt_d_col_s5_right</identifier>
+                <identifier>fqs_pi_d_col_s4_right</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-d-s5-cols</name>
+        <name>Facet-fqs-pi-d-s4-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
+
+    <!-- S5 left (single column) -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -576,51 +437,40 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Description</fieldItem>
-                <identifier>fqs_gt_d_fi_Description</identifier>
+                <fieldItem>Record.AccountId</fieldItem>
+                <identifier>fqs_pi_d_s5_AccountId</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-d-s6-single</name>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.OwnerId</fieldItem>
+                <identifier>fqs_pi_d_s5_OwnerId</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-fqs-pi-d-s5-left</name>
         <type>Facet</type>
     </flexiPageRegions>
+    <!-- S5 columns wrapper (single column) -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-fqs-gt-d-s6-single</value>
+                    <value>Facet-fqs-pi-d-s5-left</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>fqs_gt_d_col_s6</identifier>
+                <identifier>fqs_pi_d_col_s5_left</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-d-s6-cols</name>
+        <name>Facet-fqs-pi-d-s5-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.CreatedDate</fieldItem>
-                <identifier>fqs_gt_d_fi_CreatedDate</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.LastModifiedDate</fieldItem>
-                <identifier>fqs_gt_d_fi_LastModifiedDate</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-fqs-gt-d-s7-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
+
+    <!-- S6 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -629,9 +479,14 @@
                     <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.CreatedById</fieldItem>
-                <identifier>fqs_gt_d_fi_CreatedById</identifier>
+                <identifier>fqs_pi_d_s6_CreatedById</identifier>
             </fieldInstance>
         </itemInstances>
+        <name>Facet-fqs-pi-d-s6-left</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <!-- S6 right -->
+    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -639,42 +494,45 @@
                     <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.LastModifiedById</fieldItem>
-                <identifier>fqs_gt_d_fi_LastModifiedById</identifier>
+                <identifier>fqs_pi_d_s6_LastModifiedById</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-d-s7-right</name>
+        <name>Facet-fqs-pi-d-s6-right</name>
         <type>Facet</type>
     </flexiPageRegions>
+    <!-- S6 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-fqs-gt-d-s7-left</value>
+                    <value>Facet-fqs-pi-d-s6-left</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>fqs_gt_d_col_s7_left</identifier>
+                <identifier>fqs_pi_d_col_s6_left</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-fqs-gt-d-s7-right</value>
+                    <value>Facet-fqs-pi-d-s6-right</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>fqs_gt_d_col_s7_right</identifier>
+                <identifier>fqs_pi_d_col_s6_right</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-d-s7-cols</name>
+        <name>Facet-fqs-pi-d-s6-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
+
+    <!-- detailTabContent: 6 fieldSection components -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
-                    <value>Facet-fqs-gt-d-s1-cols</value>
+                    <value>Facet-fqs-pi-d-s1-cols</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>horizontalAlignment</name>
@@ -682,17 +540,17 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Transaction Type</value>
+                    <value>Instrument Type</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
-                <identifier>fqs_gt_d_fieldSection_s1</identifier>
+                <identifier>fqs_pi_d_fieldSection_s1</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
-                    <value>Facet-fqs-gt-d-s2-cols</value>
+                    <value>Facet-fqs-pi-d-s2-cols</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>horizontalAlignment</name>
@@ -700,17 +558,17 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Dates &amp; Amounts</value>
+                    <value>Bank Details</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
-                <identifier>fqs_gt_d_fieldSection_s2</identifier>
+                <identifier>fqs_pi_d_fieldSection_s2</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
-                    <value>Facet-fqs-gt-d-s3-cols</value>
+                    <value>Facet-fqs-pi-d-s3-cols</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>horizontalAlignment</name>
@@ -718,17 +576,17 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Related Records</value>
+                    <value>Digital Wallet</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
-                <identifier>fqs_gt_d_fieldSection_s3</identifier>
+                <identifier>fqs_pi_d_fieldSection_s3</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
-                    <value>Facet-fqs-gt-d-s4-cols</value>
+                    <value>Facet-fqs-pi-d-s4-cols</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>horizontalAlignment</name>
@@ -736,17 +594,17 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Acknowledgment &amp; Tax</value>
+                    <value>Gateway &amp; Processor</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
-                <identifier>fqs_gt_d_fieldSection_s4</identifier>
+                <identifier>fqs_pi_d_fieldSection_s4</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
-                    <value>Facet-fqs-gt-d-s5-cols</value>
+                    <value>Facet-fqs-pi-d-s5-cols</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>horizontalAlignment</name>
@@ -754,35 +612,17 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Gateway &amp; Payment</value>
+                    <value>Account</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
-                <identifier>fqs_gt_d_fieldSection_s5</identifier>
+                <identifier>fqs_pi_d_fieldSection_s5</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
-                    <value>Facet-fqs-gt-d-s6-cols</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>horizontalAlignment</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Description</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:fieldSection</componentName>
-                <identifier>fqs_gt_d_fieldSection_s6</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>columns</name>
-                    <value>Facet-fqs-gt-d-s7-cols</value>
+                    <value>Facet-fqs-pi-d-s6-cols</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>horizontalAlignment</name>
@@ -793,130 +633,156 @@
                     <value>System Information</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
-                <identifier>fqs_gt_d_fieldSection_s7</identifier>
+                <identifier>fqs_pi_d_fieldSection_s6</identifier>
             </componentInstance>
         </itemInstances>
         <mode>Replace</mode>
         <name>detailTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         GIFT TRANSACTIONS TAB — TransactionPaymentInstruments
+         relatedListApiName: TransactionPaymentInstruments
+         Fields: Name, TransactionDate, OriginalAmount, CurrentAmount, Status, DonorId
+         (relatedTabContent wired here per parent page requirement)
+    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>actionNames</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>New</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>maxRecordsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>parentFieldApiName</name>
-                    <value>GiftTransaction.Id</value>
+                    <value>PaymentInstrument.Id</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListApiName</name>
-                    <value>GiftTransactionDesignationRelation</value>
+                    <value>TransactionPaymentInstruments</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>relatedListComponentOverride</name>
-                    <value>NONE</value>
+                    <name>relatedListDisplayType</name>
+                    <value>ADVGRID</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>rowsToDisplay</name>
-                    <value>10</value>
+                    <name>relatedListFieldAliases</name>
+                    <valueList>
+                        <valueListItems><value>Name</value></valueListItems>
+                        <valueListItems><value>TransactionDate</value></valueListItems>
+                        <valueListItems><value>OriginalAmount</value></valueListItems>
+                        <valueListItems><value>CurrentAmount</value></valueListItems>
+                        <valueListItems><value>Status</value></valueListItems>
+                        <valueListItems><value>Donor</value></valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListLabel</name>
+                    <value>Gift Transactions</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>showActionBar</name>
                     <value>true</value>
                 </componentInstanceProperties>
-                <componentName>force:relatedListSingleContainer</componentName>
-                <identifier>fqs_gt_rl_Designations</identifier>
+                <componentInstanceProperties>
+                    <name>sortFieldAlias</name>
+                    <value>__DEFAULT__</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>sortFieldOrder</name>
+                    <value>Default</value>
+                </componentInstanceProperties>
+                <componentName>lst:dynamicRelatedList</componentName>
+                <identifier>fqs_pi_tab_transactions_list</identifier>
             </componentInstance>
         </itemInstances>
         <mode>Replace</mode>
         <name>relatedTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCHEDULES TAB — SchedulePaymentInstruments
+         relatedListApiName: SchedulePaymentInstruments
+         Fields: Name, GiftCommitmentId, Type, TransactionAmount, StartDate, EndDate
+    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>actionNames</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>New</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>maxRecordsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>parentFieldApiName</name>
-                    <value>GiftTransaction.Id</value>
+                    <value>PaymentInstrument.Id</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListApiName</name>
-                    <value>GiftSoftCredits</value>
+                    <value>SchedulePaymentInstruments</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>relatedListComponentOverride</name>
-                    <value>NONE</value>
+                    <name>relatedListDisplayType</name>
+                    <value>ADVGRID</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>rowsToDisplay</name>
-                    <value>10</value>
+                    <name>relatedListFieldAliases</name>
+                    <valueList>
+                        <valueListItems><value>Name</value></valueListItems>
+                        <valueListItems><value>GiftCommitment</value></valueListItems>
+                        <valueListItems><value>Type</value></valueListItems>
+                        <valueListItems><value>TransactionAmount</value></valueListItems>
+                        <valueListItems><value>StartDate</value></valueListItems>
+                        <valueListItems><value>EndDate</value></valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListLabel</name>
+                    <value>Commitment Schedules</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>showActionBar</name>
                     <value>true</value>
                 </componentInstanceProperties>
-                <componentName>force:relatedListSingleContainer</componentName>
-                <identifier>fqs_gt_rl_SoftCredits</identifier>
+                <componentInstanceProperties>
+                    <name>sortFieldAlias</name>
+                    <value>__DEFAULT__</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>sortFieldOrder</name>
+                    <value>Default</value>
+                </componentInstanceProperties>
+                <componentName>lst:dynamicRelatedList</componentName>
+                <identifier>fqs_pi_tab_schedules_list</identifier>
             </componentInstance>
         </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>parentFieldApiName</name>
-                    <value>GiftTransaction.Id</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedListApiName</name>
-                    <value>GiftTributes</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedListComponentOverride</name>
-                    <value>NONE</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>rowsToDisplay</name>
-                    <value>10</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>showActionBar</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentName>force:relatedListSingleContainer</componentName>
-                <identifier>fqs_gt_rl_Tributes</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-fqs-gt-softcredits</name>
+        <name>Facet-fqs-pi-schedules</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>parentFieldApiName</name>
-                    <value>GiftTransaction.Id</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedListApiName</name>
-                    <value>GiftRefunds</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedListComponentOverride</name>
-                    <value>NONE</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>rowsToDisplay</name>
-                    <value>10</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>showActionBar</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentName>force:relatedListSingleContainer</componentName>
-                <identifier>fqs_gt_rl_Refunds</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-fqs-gt-refunds</name>
-        <type>Facet</type>
-    </flexiPageRegions>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         MAIN TABS
+         Tab 1 (active): Detail
+         Tab 2: Gift Transactions
+         Tab 3: Commitment Schedules
+    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -933,7 +799,7 @@
                     <value>Standard.Tab.detail</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
-                <identifier>fqs_gt_tab_detail</identifier>
+                <identifier>fqs_pi_tab_detail</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -944,38 +810,24 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Designations</value>
+                    <value>Gift Transactions</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
-                <identifier>fqs_gt_tab_Designations</identifier>
+                <identifier>fqs_pi_tab_transactions</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-fqs-gt-softcredits</value>
+                    <value>Facet-fqs-pi-schedules</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Soft Credits &amp; Tributes</value>
+                    <value>Commitment Schedules</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
-                <identifier>fqs_gt_tab_SoftCredits</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-fqs-gt-refunds</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Refunds &amp; Matching</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>fqs_gt_tab_Refunds</identifier>
+                <identifier>fqs_pi_tab_schedules</identifier>
             </componentInstance>
         </itemInstances>
         <mode>Replace</mode>
@@ -986,21 +838,24 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Tabs</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
                     <name>tabs</name>
                     <value>maintabs</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tabset</componentName>
-                <identifier>flexipage_tabset</identifier>
+                <identifier>fqs_pi_tabset</identifier>
             </componentInstance>
         </itemInstances>
         <mode>Replace</mode>
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SIDEBAR — accordion
+         Section 1: Tasks, Emails, and Events (activityPanel)
+         Section 2: Files (AttachedContentDocuments)
+         Section 3: Field History (Histories)
+    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -1009,11 +864,10 @@
                     <value>false</value>
                 </componentInstanceProperties>
                 <componentName>runtime_sales_activities:activityPanel</componentName>
-                <identifier>runtime_sales_activities_activityPanel</identifier>
+                <identifier>fqs_pi_sidebar_activityPanel</identifier>
             </componentInstance>
         </itemInstances>
-        <mode>Replace</mode>
-        <name>activityTabContent</name>
+        <name>Facet-fqs-pi-sidebar-activity</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -1021,7 +875,7 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>parentFieldApiName</name>
-                    <value>GiftTransaction.Id</value>
+                    <value>PaymentInstrument.Id</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListApiName</name>
@@ -1040,10 +894,10 @@
                     <value>true</value>
                 </componentInstanceProperties>
                 <componentName>force:relatedListSingleContainer</componentName>
-                <identifier>fqs_gt_sidebar_files</identifier>
+                <identifier>fqs_pi_sidebar_files</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-sidebar-files</name>
+        <name>Facet-fqs-pi-sidebar-files</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -1051,7 +905,7 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>parentFieldApiName</name>
-                    <value>GiftTransaction.Id</value>
+                    <value>PaymentInstrument.Id</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListApiName</name>
@@ -1070,85 +924,93 @@
                     <value>false</value>
                 </componentInstanceProperties>
                 <componentName>force:relatedListSingleContainer</componentName>
-                <identifier>fqs_gt_sidebar_fieldHistory</identifier>
+                <identifier>fqs_pi_sidebar_fieldHistory</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-fqs-gt-sidebar-fieldhistory</name>
+        <name>Facet-fqs-pi-sidebar-fieldHistory</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>active</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
                     <name>body</name>
-                    <value>activityTabContent</value>
+                    <value>Facet-fqs-pi-sidebar-activity</value>
                 </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Standard.Tab.activity</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>activityTab</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-fqs-gt-sidebar-files</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Files</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>fqs_gt_sidebarTab_files</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-fqs-gt-sidebar-fieldhistory</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Field History</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>fqs_gt_sidebarTab_fieldhistory</identifier>
-            </componentInstance>
-        </itemInstances>
-        <mode>Replace</mode>
-        <name>sidebartabs</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Tabs</value>
+                    <value>Tasks, Emails, and Events</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>tabs</name>
-                    <value>sidebartabs</value>
+                    <name>name</name>
+                    <value>accordionSection1</value>
                 </componentInstanceProperties>
-                <componentName>flexipage:tabset</componentName>
-                <identifier>flexipage_tabset2</identifier>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>fqs_pi_accordionSection1</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-fqs-pi-sidebar-files</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Files</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>name</name>
+                    <value>accordionSection2</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>fqs_pi_accordionSection2</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-fqs-pi-sidebar-fieldHistory</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Field History</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>name</name>
+                    <value>accordionSection3</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>fqs_pi_accordionSection3</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-fqs-pi-sidebar-accordionSections</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>accordionSections</name>
+                    <value>Facet-fqs-pi-sidebar-accordionSections</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>defaultSectionName</name>
+                    <value>accordionSection1</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordion</componentName>
+                <identifier>fqs_pi_accordion</identifier>
             </componentInstance>
         </itemInstances>
         <mode>Replace</mode>
         <name>sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
-    <masterLabel>FQS Gift Transaction Record Page</masterLabel>
+
+    <masterLabel>FQS_PaymentInstrument_Record_Page</masterLabel>
     <parentFlexiPage>flexipage__default_rec_L</parentFlexiPage>
-    <sobjectType>GiftTransaction</sobjectType>
+    <sobjectType>PaymentInstrument</sobjectType>
     <template>
         <name>flexipage:recordHomeTemplateDesktop</name>
     </template>

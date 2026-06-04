@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Failed_Refunds</fullName>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Status</field>
+        <operation>equals</operation>
+        <value>Failed</value>
+    </filters>
+    <label>FQS Failed Refunds</label>
+    <columns>Name</columns>
+    <columns>GiftTransaction</columns>
+    <columns>Amount</columns>
+    <columns>Date</columns>
+    <columns>LastGatewayErrorMessage</columns>
+</ListView>

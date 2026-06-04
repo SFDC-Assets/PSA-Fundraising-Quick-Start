@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <searchLayouts>
+        <customTabListAdditionalFields>SourceCode</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Status</customTabListAdditionalFields>
+        <customTabListAdditionalFields>MessageChannel</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Campaign</customTabListAdditionalFields>
+        <customTabListAdditionalFields>AudienceCount</customTabListAdditionalFields>
+        <searchResultsAdditionalFields>SourceCode</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Status</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>MessageChannel</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Campaign</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>AudienceCount</searchResultsAdditionalFields>
+    </searchLayouts>
+</CustomObject>

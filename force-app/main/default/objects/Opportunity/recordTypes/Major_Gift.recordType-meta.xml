@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Major_Gift</fullName>
+    <active>true</active>
+    <businessProcess>FQS_Opportunity_Process</businessProcess>
+    <description>Tracks a major gift opportunity through the donor cultivation and solicitation lifecycle.</description>
+    <label>Major Gift</label>
+    <picklistValues>
+        <picklist>StageName</picklist>
+        <values>
+            <fullName>Identification</fullName>
+            <default>true</default>
+        </values>
+        <values>
+            <fullName>Cultivation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Solicitation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Verbal Commitment</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pledged</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Closed Won</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Closed Lost</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Grant_Report_Due__c</fullName>
+    <description>Date the post-award grant progress or final report is due to the funder.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>When the grant report (progress or final) must be submitted to the funder after the award.</inlineHelpText>
+    <label>Grant Report Due</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

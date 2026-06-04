@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Email_Codes</fullName>
+    <columns>Name</columns>
+    <columns>SourceCode</columns>
+    <columns>Status</columns>
+    <columns>Campaign</columns>
+    <columns>AudienceCount</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>MessageChannel</field>
+        <operation>equals</operation>
+        <value>Email</value>
+    </filters>
+    <label>Email Codes</label>
+</ListView>

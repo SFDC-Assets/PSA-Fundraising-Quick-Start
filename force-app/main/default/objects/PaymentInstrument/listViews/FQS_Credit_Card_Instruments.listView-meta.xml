@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Credit_Card_Instruments</fullName>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Type</field>
+        <operation>equals</operation>
+        <value>Credit Card</value>
+    </filters>
+    <label>Credit Card Instruments</label>
+    <columns>Name</columns>
+    <columns>Type</columns>
+    <columns>Account</columns>
+    <columns>Last4</columns>
+    <columns>CardBrand</columns>
+    <columns>ExpiryMonth</columns>
+    <columns>ExpiryYear</columns>
+    <columns>GatewayName</columns>
+</ListView>

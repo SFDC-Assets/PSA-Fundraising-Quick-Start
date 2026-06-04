@@ -3,6 +3,21 @@
     <description>Grants access to all custom and patched fields on GiftCommitment for the Fundraising Quick Start.</description>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Opportunity.FQS_Grant_Deadline__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Opportunity.FQS_Grant_Report_Due__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Opportunity.FQS_Solicitation_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>GiftCommitment.FQS_Gift_Commitment_Category__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -33,6 +48,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>OutreachSourceCode.FQS_Channel_Segment__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>DonorGiftSummary.FQS_Donor_Level__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -46,6 +66,15 @@
         <field>GiftDefaultDesignation.FQS_Parent_Type__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Campaign.FQS_Campaign_Category__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <recordTypeVisibilities>
+        <recordType>Campaign.FQS_Fundraising</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Fundraising Quick Start Custom Fields</label>
 </PermissionSet>

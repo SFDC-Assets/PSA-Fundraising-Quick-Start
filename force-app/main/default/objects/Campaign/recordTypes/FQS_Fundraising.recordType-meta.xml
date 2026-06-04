@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Fundraising</fullName>
+    <active>true</active>
+    <description>Fundraising Quick Start: record type for all nonprofit fundraising campaigns. Restricts access to FQS permission set holders.</description>
+    <label>Fundraising</label>
+    <picklistValues>
+        <picklist>FQS_Campaign_Category__c</picklist>
+        <values>
+            <fullName>Fundraising Top Level Campaign</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Annual Giving</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Events</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Corporate Match</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>In-Kind</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Major Gifts</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Planned Giving</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Grants</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

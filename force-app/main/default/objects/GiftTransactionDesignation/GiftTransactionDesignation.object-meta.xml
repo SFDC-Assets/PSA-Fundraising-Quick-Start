@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <searchLayouts>
+        <customTabListAdditionalFields>GiftTransaction</customTabListAdditionalFields>
+        <customTabListAdditionalFields>GiftDesignation</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Amount</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Percent</customTabListAdditionalFields>
+        <searchResultsAdditionalFields>GiftTransaction</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>GiftDesignation</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Amount</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Percent</searchResultsAdditionalFields>
+    </searchLayouts>
+</CustomObject>

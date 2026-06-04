@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>UsageType</fullName>
+    <description>The purpose for which this source code is used. Restricted to supported NPC usage types. Currently only Fundraising is available.</description>
+    <trackHistory>false</trackHistory>
+</CustomField>

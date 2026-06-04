@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Active_Outreach</fullName>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>GiftCount</field>
+        <operation>greaterThan</operation>
+        <value>0</value>
+    </filters>
+    <label>FQS Active Outreach</label>
+    <columns>Name</columns>
+    <columns>Campaign</columns>
+    <columns>OutreachSourceCode</columns>
+    <columns>GiftCount</columns>
+    <columns>DonorCount</columns>
+    <columns>ResponseRate</columns>
+</ListView>

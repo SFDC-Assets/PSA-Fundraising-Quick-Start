@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PathAssistant xmlns="urn:metadata.tooling.soap.sforce.com">
+    <active>true</active>
+    <entityName>GiftRefund</entityName>
+    <fieldName>Status</fieldName>
+    <masterLabel>FQS Gift Refund Status Path</masterLabel>
+    <recordTypeName>__MASTER__</recordTypeName>
+    <pathAssistantSteps>
+        <fieldNames>Amount</fieldNames>
+        <fieldNames>Reason</fieldNames>
+        <fieldNames>GiftTransactionId</fieldNames>
+        <picklistValueName>Initiated</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>Amount</fieldNames>
+        <fieldNames>Date</fieldNames>
+        <picklistValueName>Completed</picklistValueName>
+    </pathAssistantSteps>
+    <pathAssistantSteps>
+        <fieldNames>LastGatewayErrorMessage</fieldNames>
+        <fieldNames>LastGatewayProcessedDate</fieldNames>
+        <picklistValueName>Failed</picklistValueName>
+    </pathAssistantSteps>
+</PathAssistant>
