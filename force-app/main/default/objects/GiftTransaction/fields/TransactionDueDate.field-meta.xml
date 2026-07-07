@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>TransactionDueDate</fullName>
+    <description>Required on insert even for gifts in Paid status. For outright gifts, set equal to TransactionDate. For pledge payments, match the parent GiftCommitmentSchedule row. Grant payouts: expected payout date from the schedule. See docs/npc-automation-notes.md.</description>
+    <inlineHelpText>The date this gift is expected. For a one-time gift being recorded now, use the same date as Transaction Date.</inlineHelpText>
     <trackHistory>false</trackHistory>
 </CustomField>

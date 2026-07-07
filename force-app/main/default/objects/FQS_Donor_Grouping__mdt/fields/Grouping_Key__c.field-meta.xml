@@ -2,6 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Grouping_Key__c</fullName>
     <description>Internal key for this donor grouping. Referenced by the DonorGiftSummary formula field FQS_Donor_Level__c to classify donors. Must match the DeveloperName of this record so the formula evaluation is consistent. Allowed values: Entry, Mid, Major.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
     <inlineHelpText>The internal identifier for this grouping tier. The FQS_Donor_Level__c formula field on Donor Gift Summary returns this value and is used for list views and reports. A single custom metadata type is recommended for each of these picklist values.</inlineHelpText>
     <label>Grouping Key</label>
     <required>false</required>

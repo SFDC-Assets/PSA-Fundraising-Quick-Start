@@ -146,6 +146,13 @@
     </layoutSections>
     <relatedLists>
         <fields>Name</fields>
+        <fields>OriginalAmount</fields>
+        <fields>TransactionDate</fields>
+        <fields>Status</fields>
+        <relatedList>MatchingEmployerTransactions</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>Name</fields>
         <fields>GiftDesignation</fields>
         <fields>Percent</fields>
         <fields>Amount</fields>
@@ -176,6 +183,9 @@
         <relatedList>RelatedFileList</relatedList>
     </relatedLists>
     <relatedLists>
+        <relatedList>RelatedEntityHistoryList</relatedList>
+    </relatedLists>
+    <relatedLists>
         <fields>TASK.SUBJECT</fields>
         <fields>TASK.WHO_NAME</fields>
         <fields>ACTIVITY.TASK</fields>
@@ -187,4 +197,10 @@
     <showEmailCheckbox>false</showEmailCheckbox>
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
+    <summaryLayout>
+        <masterLabel>00ha500000ByOUB</masterLabel>
+        <sizeX>4</sizeX>
+        <sizeY>0</sizeY>
+        <summaryLayoutStyle>Default</summaryLayoutStyle>
+    </summaryLayout>
 </Layout>

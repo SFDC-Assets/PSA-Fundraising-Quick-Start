@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
-    <!-- ═══════════════════════════════════════════════════════════
-         HEADER — dynamicHighlights
-         Primary: Name
-         Secondary: GiftCommitmentId, Type, TransactionPeriod, TransactionAmount, StartDate, EndDate
-         Actions: Edit, Delete, ChangeOwnerOne
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Name</fieldItem>
                 <identifier>fqs_gcs_highlights_primary</identifier>
@@ -25,7 +19,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>required</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.GiftCommitmentId</fieldItem>
                 <identifier>fqs_gcs_highlights_GiftCommitment</identifier>
@@ -35,7 +29,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>required</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Type</fieldItem>
                 <identifier>fqs_gcs_highlights_Type</identifier>
@@ -45,17 +39,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.TransactionPeriod</fieldItem>
-                <identifier>fqs_gcs_highlights_TransactionPeriod</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>required</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.TransactionAmount</fieldItem>
                 <identifier>fqs_gcs_highlights_TransactionAmount</identifier>
@@ -65,7 +49,17 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>required</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.TransactionPeriod</fieldItem>
+                <identifier>fqs_gcs_highlights_TransactionPeriod</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>required</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.StartDate</fieldItem>
                 <identifier>fqs_gcs_highlights_StartDate</identifier>
@@ -121,29 +115,17 @@
         <name>header</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         DETAIL TAB CONTENT — 4 field sections
-
-         S1: Schedule Definition
-           Left:  Type, TransactionPeriod, TransactionInterval, TransactionDay
-           Right: TransactionAmount, TotalScheduleAmount (ro), StartDate, EndDate
-
-         S2: Payment
-           Left:  PaymentMethod, PaymentInstrumentId
-           Right: ProcessorReference, CommitmentUpdateReason
-
-         S3: Related Records
-           Left:  GiftCommitmentId, CampaignId, OutreachSourceCodeId
-           Right: GiftCommitmentSchdBefEditId (ro), OwnerId
-
-         S4: System Information
-           Left:  CreatedById (ro)
-           Right: LastModifiedById (ro)
-    ═══════════════════════════════════════════════════════════ -->
-
-    <!-- S1 left -->
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>required</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.StartDate</fieldItem>
+                <identifier>fqs_gcs_d_s1_StartDate</identifier>
+            </fieldInstance>
+        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -170,16 +152,6 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.TransactionInterval</fieldItem>
-                <identifier>fqs_gcs_d_s1_TransactionInterval</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
                 <fieldItem>Record.TransactionDay</fieldItem>
                 <identifier>fqs_gcs_d_s1_TransactionDay</identifier>
             </fieldInstance>
@@ -187,8 +159,17 @@
         <name>Facet-fqs-gcs-d-s1-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S1 right -->
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.EndDate</fieldItem>
+                <identifier>fqs_gcs_d_s1_EndDate</identifier>
+            </fieldInstance>
+        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -203,36 +184,25 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.TransactionInterval</fieldItem>
+                <identifier>fqs_gcs_d_s1_TransactionInterval</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.TotalScheduleAmount</fieldItem>
                 <identifier>fqs_gcs_d_s1_TotalScheduleAmount</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>required</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.StartDate</fieldItem>
-                <identifier>fqs_gcs_d_s1_StartDate</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.EndDate</fieldItem>
-                <identifier>fqs_gcs_d_s1_EndDate</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-gcs-d-s1-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S1 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -257,8 +227,6 @@
         <name>Facet-fqs-gcs-d-s1-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S2 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -283,7 +251,6 @@
         <name>Facet-fqs-gcs-d-s2-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S2 right -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -308,7 +275,6 @@
         <name>Facet-fqs-gcs-d-s2-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S2 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -333,8 +299,6 @@
         <name>Facet-fqs-gcs-d-s2-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S3 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -356,20 +320,9 @@
                 <identifier>fqs_gcs_d_s3_CampaignId</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.OutreachSourceCodeId</fieldItem>
-                <identifier>fqs_gcs_d_s3_OutreachSourceCodeId</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-gcs-d-s3-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S3 right -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -381,10 +334,19 @@
                 <identifier>fqs_gcs_d_s3_GiftCommitmentSchdBefEditId</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.OutreachSourceCodeId</fieldItem>
+                <identifier>fqs_gcs_d_s3_OutreachSourceCodeId</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-gcs-d-s3-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S3 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -409,8 +371,6 @@
         <name>Facet-fqs-gcs-d-s3-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S4 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -422,11 +382,6 @@
                 <identifier>fqs_gcs_d_s4_CreatedById</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gcs-d-s4-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <!-- S4 right -->
-    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -437,10 +392,33 @@
                 <identifier>fqs_gcs_d_s4_LastModifiedById</identifier>
             </fieldInstance>
         </itemInstances>
+        <name>Facet-fqs-gcs-d-s4-left</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.CreatedDate</fieldItem>
+                <identifier>RecordCreatedDateField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.LastModifiedDate</fieldItem>
+                <identifier>RecordLastModifiedDateField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-gcs-d-s4-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S4 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -465,8 +443,6 @@
         <name>Facet-fqs-gcs-d-s4-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- detailTabContent: 4 fieldSection components consuming the column Facets above -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -544,20 +520,17 @@
         <name>detailTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         TRANSACTIONS TAB — GiftTransactionsSchedule related list
-         relatedListApiName: GiftTransactionsSchedule (confirmed via REST describe)
-         Fields: Name, TransactionDate, OriginalAmount, CurrentAmount, Status, PaymentMethod
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>actionNames</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>adminFilters</name>
                     <valueList>
                         <valueListItems>
-                            <value>New</value>
+                            <value>Status|EQUALS|[&quot;Unpaid&quot;,&quot;Pending&quot;]</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
@@ -580,17 +553,29 @@
                 <componentInstanceProperties>
                     <name>relatedListFieldAliases</name>
                     <valueList>
-                        <valueListItems><value>Name</value></valueListItems>
-                        <valueListItems><value>TransactionDate</value></valueListItems>
-                        <valueListItems><value>OriginalAmount</value></valueListItems>
-                        <valueListItems><value>CurrentAmount</value></valueListItems>
-                        <valueListItems><value>Status</value></valueListItems>
-                        <valueListItems><value>PaymentMethod</value></valueListItems>
+                        <valueListItems>
+                            <value>Name</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>TransactionDate</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>OriginalAmount</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>CurrentAmount</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Status</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>PaymentMethod</value>
+                        </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListLabel</name>
-                    <value>Gift Transactions</value>
+                    <value>Unpaid and Pending Gift Transactions</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>showActionBar</name>
@@ -608,16 +593,154 @@
                 <identifier>fqs_gcs_tab_transactions_list</identifier>
             </componentInstance>
         </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>actionNames</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>adminFilters</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>Status|EQUALS|[&quot;Paid&quot;]</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>maxRecordsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>GiftCommitmentSchedule.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>GiftTransactionsSchedule</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListDisplayType</name>
+                    <value>ADVGRID</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListFieldAliases</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>Name</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>TransactionDate</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>OriginalAmount</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>CurrentAmount</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Status</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>PaymentMethod</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListLabel</name>
+                    <value>Paid Gift Transactions</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>sortFieldAlias</name>
+                    <value>__DEFAULT__</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>sortFieldOrder</name>
+                    <value>Default</value>
+                </componentInstanceProperties>
+                <componentName>lst:dynamicRelatedList</componentName>
+                <identifier>lst_dynamicRelatedList</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>actionNames</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>adminFilters</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>Status|EQUALS|[&quot;Written-Off&quot;,&quot;Canceled&quot;,&quot;Failed&quot;,&quot;Fully Refunded&quot;]</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>maxRecordsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>GiftCommitmentSchedule.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>GiftTransactionsSchedule</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListDisplayType</name>
+                    <value>ADVGRID</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListFieldAliases</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>Name</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>TransactionDate</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>OriginalAmount</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>CurrentAmount</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Status</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>PaymentMethod</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListLabel</name>
+                    <value>Unsuccessful Gift Transactions</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>sortFieldAlias</name>
+                    <value>__DEFAULT__</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>sortFieldOrder</name>
+                    <value>Default</value>
+                </componentInstanceProperties>
+                <componentName>lst:dynamicRelatedList</componentName>
+                <identifier>lst_dynamicRelatedList2</identifier>
+            </componentInstance>
+        </itemInstances>
         <mode>Replace</mode>
         <name>relatedTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         MAIN TABS
-         Tab 1 (active): Detail
-         Tab 2: Gift Transactions
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -659,6 +782,10 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Tabs</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>tabs</name>
                     <value>maintabs</value>
                 </componentInstanceProperties>
@@ -670,13 +797,6 @@
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         SIDEBAR — accordion
-         Section 1: Tasks, Emails, and Events (activityPanel)
-         Section 2: Files (AttachedContentDocuments)
-         Section 3: Field History (Histories)
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -828,7 +948,6 @@
         <name>sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
-
     <masterLabel>FQS_GiftCommitmentSchedule_Record_Page</masterLabel>
     <parentFlexiPage>flexipage__default_rec_L</parentFlexiPage>
     <sobjectType>GiftCommitmentSchedule</sobjectType>

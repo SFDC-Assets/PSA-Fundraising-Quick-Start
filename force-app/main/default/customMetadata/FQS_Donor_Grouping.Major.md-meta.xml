@@ -3,6 +3,10 @@
     <label>Champion</label>
     <protected>false</protected>
     <values>
+        <field>Branded_Name__c</field>
+        <value xsi:type="xsd:string">Champion</value>
+    </values>
+    <values>
         <field>Grouping_Key__c</field>
         <value xsi:type="xsd:string">Major</value>
     </values>
@@ -11,11 +15,19 @@
         <value xsi:type="xsd:double">25000</value>
     </values>
     <values>
-        <field>Sort_Order__c</field>
-        <value xsi:type="xsd:double">30</value>
+        <field>One_Time_Min_Amount__c</field>
+        <value xsi:type="xsd:double">5000</value>
     </values>
     <values>
-        <field>Branded_Name__c</field>
-        <value xsi:type="xsd:string">Champion</value>
+        <field>Annual_Min_Amount__c</field>
+        <value xsi:type="xsd:double">10000</value>
+    </values>
+    <values>
+        <field>Lifetime_Min_Amount__c</field>
+        <value xsi:type="xsd:double">30000</value>
+    </values>
+    <values>
+        <field>Sort_Order__c</field>
+        <value xsi:type="xsd:double">30</value>
     </values>
 </CustomMetadata>

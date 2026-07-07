@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
-    <!-- ═══════════════════════════════════════════════════════════
-         HEADER — dynamicHighlights
-         Primary: Name
-         Secondary: TributeType, HonoreeName, GiftTransactionId, GiftCommitmentId
-         Actions: Edit, Delete, ChangeOwnerOne
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Name</fieldItem>
                 <identifier>fqs_gt2_highlights_primary</identifier>
@@ -61,6 +55,16 @@
                 <identifier>fqs_gt2_highlights_GiftCommitmentId</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.NotificationContactName</fieldItem>
+                <identifier>RecordNotificationContactNameField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-gt2-highlights-secondary</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -97,29 +101,24 @@
                 <identifier>fqs_gt2_dynamicHighlights</identifier>
             </componentInstance>
         </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>hideUpdateButton</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>variant</name>
+                    <value>linear</value>
+                </componentInstanceProperties>
+                <componentName>runtime_sales_pathassistant:pathAssistant</componentName>
+                <identifier>runtime_sales_pathassistant_pathAssistant</identifier>
+            </componentInstance>
+        </itemInstances>
         <mode>Replace</mode>
         <name>header</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         DETAIL TAB CONTENT — 3 field sections
-
-         S1: Tribute
-           Left:  TributeType, HonoreeName, HonoreeContactId, HonoreeInformation
-           Right: GiftTransactionId (req), GiftCommitmentId (req)
-
-         S2: Notification
-           Left:  NotificationChannel, NotificationStatus, NotificationContactId,
-                  NotificationEmail, NotificationDate
-           Right: NotificationContactName, NotificationInfo, NotificationMessage
-
-         S3: System Information
-           Left:  CreatedById (ro)
-           Right: LastModifiedById (ro)
-    ═══════════════════════════════════════════════════════════ -->
-
-    <!-- S1 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -137,8 +136,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.HonoreeName</fieldItem>
-                <identifier>fqs_gt2_d_s1_HonoreeName</identifier>
+                <fieldItem>Record.GiftCommitmentId</fieldItem>
+                <identifier>fqs_gt2_d_s1_GiftCommitmentId</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -151,6 +150,20 @@
                 <identifier>fqs_gt2_d_s1_HonoreeContactId</identifier>
             </fieldInstance>
         </itemInstances>
+        <name>Facet-fqs-gt2-d-s1-left</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.GiftTransactionId</fieldItem>
+                <identifier>fqs_gt2_d_s1_GiftTransactionId</identifier>
+            </fieldInstance>
+        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -161,35 +174,19 @@
                 <identifier>fqs_gt2_d_s1_HonoreeInformation</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gt2-d-s1-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <!-- S1 right -->
-    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.GiftTransactionId</fieldItem>
-                <identifier>fqs_gt2_d_s1_GiftTransactionId</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>required</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.GiftCommitmentId</fieldItem>
-                <identifier>fqs_gt2_d_s1_GiftCommitmentId</identifier>
+                <fieldItem>Record.HonoreeName</fieldItem>
+                <identifier>fqs_gt2_d_s1_HonoreeName</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-fqs-gt2-d-s1-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S1 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -214,9 +211,17 @@
         <name>Facet-fqs-gt2-d-s1-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S2 left -->
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.NotificationContactId</fieldItem>
+                <identifier>fqs_gt2_d_s2_NotificationContactId</identifier>
+            </fieldInstance>
+        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -237,14 +242,18 @@
                 <identifier>fqs_gt2_d_s2_NotificationStatus</identifier>
             </fieldInstance>
         </itemInstances>
+        <name>Facet-fqs-gt2-d-s2-left</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.NotificationContactId</fieldItem>
-                <identifier>fqs_gt2_d_s2_NotificationContactId</identifier>
+                <fieldItem>Record.NotificationContactName</fieldItem>
+                <identifier>fqs_gt2_d_s2_NotificationContactName</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -267,45 +276,9 @@
                 <identifier>fqs_gt2_d_s2_NotificationDate</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gt2-d-s2-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <!-- S2 right -->
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.NotificationContactName</fieldItem>
-                <identifier>fqs_gt2_d_s2_NotificationContactName</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.NotificationInfo</fieldItem>
-                <identifier>fqs_gt2_d_s2_NotificationInfo</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.NotificationMessage</fieldItem>
-                <identifier>fqs_gt2_d_s2_NotificationMessage</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-gt2-d-s2-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S2 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -330,9 +303,55 @@
         <name>Facet-fqs-gt2-d-s2-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S3 left -->
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.NotificationInfo</fieldItem>
+                <identifier>fqs_gt2_d_s2_NotificationInfo</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.NotificationMessage</fieldItem>
+                <identifier>fqs_gt2_d_s2_NotificationMessage</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-11a71049-d209-41e9-8a84-4eb86c16443b</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-11a71049-d209-41e9-8a84-4eb86c16443b</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-7a98ad66-c4ef-4395-9dbf-160fa75454f9</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Name</fieldItem>
+                <identifier>RecordNameField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -343,11 +362,40 @@
                 <identifier>fqs_gt2_d_s3_CreatedById</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.LastModifiedById</fieldItem>
+                <identifier>RecordLastModifiedByIdField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-gt2-d-s3-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S3 right -->
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.OwnerId</fieldItem>
+                <identifier>RecordOwnerIdField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.CreatedDate</fieldItem>
+                <identifier>RecordCreatedDateField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -361,7 +409,6 @@
         <name>Facet-fqs-gt2-d-s3-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S3 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -386,8 +433,6 @@
         <name>Facet-fqs-gt2-d-s3-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- detailTabContent: 3 fieldSection components consuming the column Facets above -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -429,6 +474,24 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
+                    <value>Facet-7a98ad66-c4ef-4395-9dbf-160fa75454f9</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Notification Information and Message</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
                     <value>Facet-fqs-gt2-d-s3-cols</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -447,32 +510,6 @@
         <name>detailTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         ACTIVITY TAB — activityPanel
-         relatedTabContent wired here (required by parent flexipage__default_rec_L)
-    ═══════════════════════════════════════════════════════════ -->
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>showLegacyActivityComposer</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentName>runtime_sales_activities:activityPanel</componentName>
-                <identifier>fqs_gt2_relatedTab_activityPanel</identifier>
-            </componentInstance>
-        </itemInstances>
-        <mode>Replace</mode>
-        <name>relatedTabContent</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         MAIN TABS
-         Tab 1 (active): Detail
-         Tab 2: Activity
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -492,20 +529,6 @@
                 <identifier>fqs_gt2_tab_detail</identifier>
             </componentInstance>
         </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>relatedTabContent</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Activity</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>fqs_gt2_tab_activity</identifier>
-            </componentInstance>
-        </itemInstances>
         <mode>Replace</mode>
         <name>maintabs</name>
         <type>Facet</type>
@@ -513,6 +536,10 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Tabs</value>
+                </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>tabs</name>
                     <value>maintabs</value>
@@ -525,13 +552,6 @@
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         SIDEBAR — accordion
-         Section 1: Tasks, Emails, and Events (activityPanel)
-         Section 2: Files (AttachedContentDocuments)
-         Section 3: Field History (Histories)
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -683,7 +703,6 @@
         <name>sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
-
     <masterLabel>FQS_GiftTribute_Record_Page</masterLabel>
     <parentFlexiPage>flexipage__default_rec_L</parentFlexiPage>
     <sobjectType>GiftTribute</sobjectType>

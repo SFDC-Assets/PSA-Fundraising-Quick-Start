@@ -6,13 +6,13 @@
     <columns>TotalGiftsAmount</columns>
     <columns>GiftCount</columns>
     <columns>LastGiftDate</columns>
-    <columns>FQS_Donor_Level__c</columns>
-    <columns>FQS_Donor_Level_Name__c</columns>
+    <columns>FQS_Lifetime_Donor_Level__c</columns>
+    <columns>FQS_Lifetime_Donor_Level_Name__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
-        <field>FQS_Donor_Level__c</field>
+        <field>FQS_Is_Major_Lifetime_Donor__c</field>
         <operation>equals</operation>
-        <value>Major</value>
+        <value>1</value>
     </filters>
     <label>FQS Major Donors</label>
 </ListView>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TributeType</fullName>
+    <inlineHelpText>Honor for a gift celebrating a living recipient (birthday, milestone, achievement). Memorial for a gift given in memory of someone who has passed.</inlineHelpText>
+</CustomField>

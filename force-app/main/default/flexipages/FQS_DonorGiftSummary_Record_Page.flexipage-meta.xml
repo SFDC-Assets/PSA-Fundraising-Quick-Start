@@ -207,8 +207,8 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.FQS_Donor_Level_Name__c</fieldItem>
-                <identifier>fqs_dgs_fi_FQS_Donor_Level_Name__c</identifier>
+                <fieldItem>Record.FQS_Lifetime_Donor_Level_Name__c</fieldItem>
+                <identifier>fqs_dgs_fi_FQS_Lifetime_Donor_Level_Name__c</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-fqs-dgs-d-s1-right</name>
@@ -237,6 +237,125 @@
             </componentInstance>
         </itemInstances>
         <name>Facet-fqs-dgs-d-s1-cols</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+
+    <!-- ═══════════════════════════════════════════════════════
+         S1b — Donor Groupings
+    ═══════════════════════════════════════════════════════ -->
+
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Lifetime_Donor_Level_Name__c</fieldItem>
+                <identifier>fqs_dgs_fi_LifetimeDonorLevelName</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Is_Entry_Lifetime_Donor__c</fieldItem>
+                <identifier>fqs_dgs_fi_IsEntryLifetime</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Is_Mid_Lifetime_Donor__c</fieldItem>
+                <identifier>fqs_dgs_fi_IsMidLifetime</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Is_Major_Lifetime_Donor__c</fieldItem>
+                <identifier>fqs_dgs_fi_IsMajorLifetime</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-fqs-dgs-d-s1b-left</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Annual_Donor_Level_Name__c</fieldItem>
+                <identifier>fqs_dgs_fi_AnnualDonorLevelName</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Is_Entry_Annual_Donor__c</fieldItem>
+                <identifier>fqs_dgs_fi_IsEntryAnnual</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Is_Mid_Annual_Donor__c</fieldItem>
+                <identifier>fqs_dgs_fi_IsMidAnnual</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Is_Major_Annual_Donor__c</fieldItem>
+                <identifier>fqs_dgs_fi_IsMajorAnnual</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-fqs-dgs-d-s1b-right</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-fqs-dgs-d-s1b-left</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>fqs_dgs_d_col_s1b_left</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-fqs-dgs-d-s1b-right</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>fqs_dgs_d_col_s1b_right</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-fqs-dgs-d-s1b-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
 
@@ -895,6 +1014,24 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>fqs_dgs_d_fieldSection_s1</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
+                    <value>Facet-fqs-dgs-d-s1b-cols</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Donor Groupings</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>fqs_dgs_d_fieldSection_s1b</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>

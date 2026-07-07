@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
-    <!-- ═══════════════════════════════════════════════════════════
-         HEADER — dynamicHighlights
-         Primary: Name (auto-number, readonly)
-         Secondary: GiftDesignationId, ParentRecordId, AllocatedPercentage, FQS_Parent_Type__c
-         Actions: Edit, Delete, ChangeOwnerOne
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -25,7 +19,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>required</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.GiftDesignationId</fieldItem>
                 <identifier>fqs_gdd_highlights_GiftDesignationId</identifier>
@@ -35,7 +29,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>required</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.ParentRecordId</fieldItem>
                 <identifier>fqs_gdd_highlights_ParentRecordId</identifier>
@@ -45,7 +39,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>required</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.AllocatedPercentage</fieldItem>
                 <identifier>fqs_gdd_highlights_AllocatedPercentage</identifier>
@@ -101,20 +95,6 @@
         <name>header</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         DETAIL TAB CONTENT — 2 field sections
-
-         S1: Designation Allocation
-           Left:  GiftDesignationId (req), AllocatedPercentage (req)
-           Right: ParentRecordId, FQS_Parent_Type__c (ro), OwnerId (ro)
-
-         S2: System Information
-           Left:  CreatedById (ro)
-           Right: LastModifiedById (ro)
-    ═══════════════════════════════════════════════════════════ -->
-
-    <!-- S1 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -136,16 +116,25 @@
                 <identifier>fqs_gdd_d_s1_AllocatedPercentage</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.OwnerId</fieldItem>
+                <identifier>fqs_gdd_d_s1_OwnerId</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-gdd-d-s1-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S1 right -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>required</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.ParentRecordId</fieldItem>
                 <identifier>fqs_gdd_d_s1_ParentRecordId</identifier>
@@ -161,20 +150,9 @@
                 <identifier>fqs_gdd_d_s1_FQS_Parent_Type__c</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.OwnerId</fieldItem>
-                <identifier>fqs_gdd_d_s1_OwnerId</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-gdd-d-s1-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S1 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -199,8 +177,6 @@
         <name>Facet-fqs-gdd-d-s1-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S2 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -212,11 +188,6 @@
                 <identifier>fqs_gdd_d_s2_CreatedById</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gdd-d-s2-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <!-- S2 right -->
-    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -227,10 +198,33 @@
                 <identifier>fqs_gdd_d_s2_LastModifiedById</identifier>
             </fieldInstance>
         </itemInstances>
+        <name>Facet-fqs-gdd-d-s2-left</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.CreatedDate</fieldItem>
+                <identifier>RecordCreatedDateField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.LastModifiedDate</fieldItem>
+                <identifier>RecordLastModifiedDateField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-gdd-d-s2-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S2 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -255,8 +249,6 @@
         <name>Facet-fqs-gdd-d-s2-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- detailTabContent: 2 fieldSection components consuming the column Facets above -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -298,32 +290,6 @@
         <name>detailTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         ACTIVITY TAB — activityPanel
-         relatedTabContent wired here (required by parent flexipage__default_rec_L)
-    ═══════════════════════════════════════════════════════════ -->
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>showLegacyActivityComposer</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentName>runtime_sales_activities:activityPanel</componentName>
-                <identifier>fqs_gdd_relatedTab_activityPanel</identifier>
-            </componentInstance>
-        </itemInstances>
-        <mode>Replace</mode>
-        <name>relatedTabContent</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         MAIN TABS
-         Tab 1 (active): Detail
-         Tab 2: Activity
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -343,20 +309,6 @@
                 <identifier>fqs_gdd_tab_detail</identifier>
             </componentInstance>
         </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>relatedTabContent</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Activity</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>fqs_gdd_tab_activity</identifier>
-            </componentInstance>
-        </itemInstances>
         <mode>Replace</mode>
         <name>maintabs</name>
         <type>Facet</type>
@@ -364,6 +316,10 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Tabs</value>
+                </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>tabs</name>
                     <value>maintabs</value>
@@ -376,13 +332,20 @@
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         SIDEBAR — accordion
-         Section 1 (default): Files (AttachedContentDocuments)
-         Section 2: Field History (Histories)
-         Note: Activity is on the main tab; not repeated in sidebar
-    ═══════════════════════════════════════════════════════════ -->
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>showLegacyActivityComposer</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentName>runtime_sales_activities:activityPanel</componentName>
+                <identifier>fqs_gdd_relatedTab_activityPanel</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-b6cecce5-a862-4b2f-979e-9a6823ac14c0</name>
+        <type>Facet</type>
+    </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -448,6 +411,24 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
+                    <value>Facet-b6cecce5-a862-4b2f-979e-9a6823ac14c0</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Emails, Tasks, and Events</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>name</name>
+                    <value>accordionSection--7qehbyhf3wk</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>flexipage_accordionSection</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
                     <value>Facet-fqs-gdd-sidebar-files</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -502,7 +483,6 @@
         <name>sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
-
     <masterLabel>FQS_GiftDefaultDesignation_Record_Page</masterLabel>
     <parentFlexiPage>flexipage__default_rec_L</parentFlexiPage>
     <sobjectType>GiftDefaultDesignation</sobjectType>

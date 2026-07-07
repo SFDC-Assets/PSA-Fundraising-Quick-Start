@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
     <fullName>FQS_Restriction_Type__c</fullName>
-    <description>Allowed values: Without Donor Restriction, With Donor Restriction - Purpose, With Donor Restriction - Time, With Donor Restriction - Permanent.</description>
+    <description>Aligned to FASB ASU 2016-14 net asset classifications. Allowed values: Without Donor Restriction, With Donor Restriction - Purpose, With Donor Restriction - Time, With Donor Restriction - Permanent.</description>
     <externalId>false</externalId>
+    <inlineHelpText>How the donor restricted the use of this designation's funds. Without Donor Restriction: usable for any program at any time. With Donor Restriction - Purpose: must be spent on a specific program or use. With Donor Restriction - Time: released only after a specified date or event. With Donor Restriction - Permanent: principal held indefinitely (endowment); only earnings are spendable.</inlineHelpText>
     <label>Restriction Type</label>
     <required>false</required>
     <trackTrending>false</trackTrending>

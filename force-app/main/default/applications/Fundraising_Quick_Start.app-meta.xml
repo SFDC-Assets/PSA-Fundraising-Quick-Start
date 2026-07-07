@@ -292,6 +292,7 @@
     <tabs>standard-GiftEntryGrid</tabs>
     <tabs>standard-Dashboard</tabs>
     <tabs>standard-report</tabs>
+    <tabs>FQS_Setup_Configuration</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>Fundraising_Quick_Start_UtilityBar</utilityBar>
 </CustomApplication>

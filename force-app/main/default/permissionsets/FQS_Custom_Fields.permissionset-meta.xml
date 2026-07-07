@@ -3,6 +3,136 @@
     <description>Grants access to all custom and patched fields on GiftCommitment for the Fundraising Quick Start.</description>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Campaign.FQS_Campaign_Category__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DonorGiftSummary.FQS_Lifetime_Donor_Level_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DonorGiftSummary.FQS_Lifetime_Donor_Level__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DonorGiftSummary.FQS_Annual_Donor_Level_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DonorGiftSummary.FQS_Annual_Donor_Level__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DonorGiftSummary.FQS_Is_Entry_Lifetime_Donor__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DonorGiftSummary.FQS_Is_Mid_Lifetime_Donor__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DonorGiftSummary.FQS_Is_Major_Lifetime_Donor__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DonorGiftSummary.FQS_Is_Entry_Annual_Donor__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DonorGiftSummary.FQS_Is_Mid_Annual_Donor__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DonorGiftSummary.FQS_Is_Major_Annual_Donor__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftTransaction.FQS_Is_Entry_Gift__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftTransaction.FQS_Is_Mid_Gift__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftTransaction.FQS_Is_Major_Gift__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftCommitment.FQS_Is_Entry_Commitment__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftCommitment.FQS_Is_Mid_Commitment__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftCommitment.FQS_Is_Major_Commitment__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>GiftCommitment.FQS_Gift_Commitment_Category__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftDefaultDesignation.FQS_Parent_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftDefaultDesignation.FQS_Restriction_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>GiftDesignation.FQS_Restriction_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftTransactionDesignation.FQS_Restriction_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>GiftTransaction.FQS_Gift_Transaction_Category__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>GiftTransaction.FQS_In_Kind__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>GiftTransaction.FQS_Matched__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>GiftTransaction.FQS_Recurring__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Opportunity.FQS_Grant_Deadline__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -17,64 +147,14 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
-        <field>GiftCommitment.FQS_Gift_Commitment_Category__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>GiftTransaction.FQS_Gift_Transaction_Category__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>GiftTransaction.FQS_Matched__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>GiftTransaction.FQS_In_Kind__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>GiftTransaction.FQS_Recurring__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>GiftDesignation.FQS_Restriction_Type__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
         <editable>false</editable>
-        <field>OutreachSourceCode.FQS_Channel_Segment__c</field>
+        <field>OutreachSourceCode.FQS_Message_Channel_Segment__c</field>
         <readable>true</readable>
     </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>DonorGiftSummary.FQS_Donor_Level__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>DonorGiftSummary.FQS_Donor_Level_Name__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>GiftDefaultDesignation.FQS_Parent_Type__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Campaign.FQS_Campaign_Category__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Fundraising Quick Start Custom Fields</label>
     <recordTypeVisibilities>
         <recordType>Campaign.FQS_Fundraising</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
-    <hasActivationRequired>false</hasActivationRequired>
-    <label>Fundraising Quick Start Custom Fields</label>
 </PermissionSet>

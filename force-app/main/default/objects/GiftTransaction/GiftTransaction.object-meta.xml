@@ -134,7 +134,7 @@
         <customTabListAdditionalFields>TransactionDate</customTabListAdditionalFields>
         <customTabListAdditionalFields>CurrentAmount</customTabListAdditionalFields>
         <customTabListAdditionalFields>Status</customTabListAdditionalFields>
-<lookupDialogsAdditionalFields>Donor</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Donor</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>TransactionDate</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>CurrentAmount</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Status</lookupDialogsAdditionalFields>

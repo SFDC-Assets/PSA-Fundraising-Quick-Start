@@ -116,16 +116,6 @@
                 <identifier>fqs_gd_d_fi_IsActive</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.IsDefault</fieldItem>
-                <identifier>fqs_gd_d_fi_IsDefault</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-gd-d-s1-left</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -138,6 +128,16 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.OwnerId</fieldItem>
                 <identifier>fqs_gd_d_fi_OwnerId</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.IsDefault</fieldItem>
+                <identifier>fqs_gd_d_fi_IsDefault</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-fqs-gd-d-s1-right</name>
@@ -172,6 +172,34 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Description</fieldItem>
+                <identifier>fqs_gd_d_fi_Description</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-fqs-gd-d-s4-single</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-fqs-gd-d-s4-single</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>fqs_gd_d_col_s4</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-fqs-gd-d-s4-cols</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.TotalTransactionAmount</fieldItem>
@@ -184,8 +212,18 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.TotalTransactionCount</fieldItem>
-                <identifier>fqs_gd_d_fi_TotalTransactionCount</identifier>
+                <fieldItem>Record.FirstPaidTransactionDate</fieldItem>
+                <identifier>fqs_gd_d_fi_FirstPaidTransactionDate</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.LowestTransactionAmount</fieldItem>
+                <identifier>fqs_gd_d_fi_LowestTransactionAmount</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -198,16 +236,6 @@
                 <identifier>fqs_gd_d_fi_AverageTransactionAmount</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.HighestTransactionAmount</fieldItem>
-                <identifier>fqs_gd_d_fi_HighestTransactionAmount</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-gd-d-s2-left</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -218,8 +246,8 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.LowestTransactionAmount</fieldItem>
-                <identifier>fqs_gd_d_fi_LowestTransactionAmount</identifier>
+                <fieldItem>Record.TotalTransactionCount</fieldItem>
+                <identifier>fqs_gd_d_fi_TotalTransactionCount</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -238,8 +266,8 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.FirstPaidTransactionDate</fieldItem>
-                <identifier>fqs_gd_d_fi_FirstPaidTransactionDate</identifier>
+                <fieldItem>Record.HighestTransactionAmount</fieldItem>
+                <identifier>fqs_gd_d_fi_HighestTransactionAmount</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-fqs-gd-d-s2-right</name>
@@ -366,38 +394,20 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Description</fieldItem>
-                <identifier>fqs_gd_d_fi_Description</identifier>
+                <fieldItem>Record.CreatedById</fieldItem>
+                <identifier>fqs_gd_d_fi_CreatedById</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gd-d-s4-single</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-fqs-gd-d-s4-single</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:column</componentName>
-                <identifier>fqs_gd_d_col_s4</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-fqs-gd-d-s4-cols</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.CreatedById</fieldItem>
-                <identifier>fqs_gd_d_fi_CreatedById</identifier>
+                <fieldItem>Record.LastModifiedById</fieldItem>
+                <identifier>fqs_gd_d_fi_LastModifiedById</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-fqs-gd-d-s5-left</name>
@@ -410,8 +420,18 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.LastModifiedById</fieldItem>
-                <identifier>fqs_gd_d_fi_LastModifiedById</identifier>
+                <fieldItem>Record.CreatedDate</fieldItem>
+                <identifier>RecordCreatedDateField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.LastModifiedDate</fieldItem>
+                <identifier>RecordLastModifiedDateField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-fqs-gd-d-s5-right</name>
@@ -464,6 +484,24 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
+                    <value>Facet-fqs-gd-d-s4-cols</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Description</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>fqs_gd_d_fieldSection_s4</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
                     <value>Facet-fqs-gd-d-s2-cols</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -494,24 +532,6 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>fqs_gd_d_fieldSection_s3</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>columns</name>
-                    <value>Facet-fqs-gd-d-s4-cols</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>horizontalAlignment</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Description</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:fieldSection</componentName>
-                <identifier>fqs_gd_d_fieldSection_s4</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>

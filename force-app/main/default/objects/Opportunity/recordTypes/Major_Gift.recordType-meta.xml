@@ -3,7 +3,7 @@
     <fullName>Major_Gift</fullName>
     <active>true</active>
     <businessProcess>FQS_Opportunity_Process</businessProcess>
-    <description>Tracks a major gift opportunity through the donor cultivation and solicitation lifecycle.</description>
+    <description>Major-gift cultivation for individuals and households above the org's major-gift threshold. Automation signal: create GiftCommitment on Closed Won — Pledged is soft and may revert. Not for grants or annual giving. See docs/npc-automation-notes.md.</description>
     <label>Major Gift</label>
     <picklistValues>
         <picklist>StageName</picklist>

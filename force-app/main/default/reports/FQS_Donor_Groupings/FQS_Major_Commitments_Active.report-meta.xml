@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>NAME</field>
+    </columns>
+    <columns>
+        <field>DonorId</field>
+    </columns>
+    <columns>
+        <field>ExpectedTotalCmtAmount</field>
+    </columns>
+    <columns>
+        <field>Status</field>
+    </columns>
+    <columns>
+        <field>FulfillmentType</field>
+    </columns>
+    <columns>
+        <field>FQS_Is_Major_Commitment__c</field>
+    </columns>
+    <columns>
+        <field>TotalPaidTransactionAmount</field>
+    </columns>
+    <description>Active Gift Commitments whose Expected Total Commitment Amount qualifies for the Major tier. Grouped by Status. Filtered to FQS_Is_Major_Commitment__c = TRUE.</description>
+    <filter>
+        <criteriaItems>
+            <column>FQS_Is_Major_Commitment__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>1</value>
+        </criteriaItems>
+    </filter>
+    <format>Summary</format>
+    <fullName>FQS_Donor_Groupings/FQS_Major_Commitments_Active</fullName>
+    <groupingsDown>
+        <dateGranularity>FiscalYear</dateGranularity>
+        <field>Status</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>FQS Major Commitments Active</name>
+    <reportType>GiftCommitment</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <sortColumn>ExpectedTotalCmtAmount</sortColumn>
+    <sortOrder>Desc</sortOrder>
+</Report>

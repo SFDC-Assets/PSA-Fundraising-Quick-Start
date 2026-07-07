@@ -3,7 +3,7 @@
     <fullName>Grant</fullName>
     <active>true</active>
     <businessProcess>FQS_Opportunity_Process</businessProcess>
-    <description>Tracks a grant application and its lifecycle from identification through award or decline.</description>
+    <description>Foundation and government grant lifecycle. Typically Organization donors. Automation signal: create GiftCommitment on Awarded, not Proposal Submitted — declines at Under Review are common. See docs/npc-automation-notes.md.</description>
     <label>Grant</label>
     <picklistValues>
         <picklist>StageName</picklist>

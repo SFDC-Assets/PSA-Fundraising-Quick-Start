@@ -6,8 +6,8 @@
     <columns>GiftsThisYearAmount</columns>
     <columns>CurrentYearGiftCount</columns>
     <columns>LastGiftDate</columns>
-    <columns>FQS_Donor_Level__c</columns>
-    <columns>FQS_Donor_Level_Name__c</columns>
+    <columns>FQS_Annual_Donor_Level__c</columns>
+    <columns>FQS_Annual_Donor_Level_Name__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
         <field>GiftsThisYearAmount</field>

@@ -10,3 +10,51 @@ package.xml
 
 # LWC Jest
 **/__tests__/**
+
+# Non-FQS permission sets, permission set groups, and profiles
+**/permissionsetgroups/force__*
+**/permissionsets/sfdcInternalInt__*
+**/profiles/Admin.profile-meta.xml
+
+# Standard Campaign fields (no FQS customization)
+**/objects/Campaign/fields/ActualCost.field-meta.xml
+**/objects/Campaign/fields/AmountAllOpportunities.field-meta.xml
+**/objects/Campaign/fields/AmountWonOpportunities.field-meta.xml
+**/objects/Campaign/fields/BudgetedCost.field-meta.xml
+**/objects/Campaign/fields/CampaignMemberRecordTypeId.field-meta.xml
+**/objects/Campaign/fields/Description.field-meta.xml
+**/objects/Campaign/fields/EndDate.field-meta.xml
+**/objects/Campaign/fields/ExpectedResponse.field-meta.xml
+**/objects/Campaign/fields/ExpectedRevenue.field-meta.xml
+**/objects/Campaign/fields/HierarchyActualCost.field-meta.xml
+**/objects/Campaign/fields/HierarchyAmountAllOpportunities.field-meta.xml
+**/objects/Campaign/fields/HierarchyAmountWonOpportunities.field-meta.xml
+**/objects/Campaign/fields/HierarchyBudgetedCost.field-meta.xml
+**/objects/Campaign/fields/HierarchyExpectedRevenue.field-meta.xml
+**/objects/Campaign/fields/HierarchyNumberOfContacts.field-meta.xml
+**/objects/Campaign/fields/HierarchyNumberOfConvertedLeads.field-meta.xml
+**/objects/Campaign/fields/HierarchyNumberOfLeads.field-meta.xml
+**/objects/Campaign/fields/HierarchyNumberOfOpportunities.field-meta.xml
+**/objects/Campaign/fields/HierarchyNumberOfResponses.field-meta.xml
+**/objects/Campaign/fields/HierarchyNumberOfWonOpportunities.field-meta.xml
+**/objects/Campaign/fields/HierarchyNumberSent.field-meta.xml
+**/objects/Campaign/fields/IsActive.field-meta.xml
+**/objects/Campaign/fields/Name.field-meta.xml
+**/objects/Campaign/fields/NumberOfContacts.field-meta.xml
+**/objects/Campaign/fields/NumberOfConvertedLeads.field-meta.xml
+**/objects/Campaign/fields/NumberOfLeads.field-meta.xml
+**/objects/Campaign/fields/NumberOfOpportunities.field-meta.xml
+**/objects/Campaign/fields/NumberOfResponses.field-meta.xml
+**/objects/Campaign/fields/NumberOfWonOpportunities.field-meta.xml
+**/objects/Campaign/fields/NumberSent.field-meta.xml
+**/objects/Campaign/fields/OwnerId.field-meta.xml
+**/objects/Campaign/fields/ParentId.field-meta.xml
+**/objects/Campaign/fields/StartDate.field-meta.xml
+**/objects/Campaign/fields/Status.field-meta.xml
+**/objects/Campaign/fields/Type.field-meta.xml
+
+# Standard Campaign list views and web links
+**/objects/Campaign/listViews/AllActiveCampaigns.listView-meta.xml
+**/objects/Campaign/listViews/MyActiveCampaigns.listView-meta.xml
+**/objects/Campaign/webLinks/ViewAllCampaignMembers.webLink-meta.xml
+**/objects/Campaign/webLinks/ViewCampaignInfluenceReport.webLink-meta.xml

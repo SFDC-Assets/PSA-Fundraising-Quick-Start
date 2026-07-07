@@ -1,20 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Gift_Transaction_Category__c</fullName>
     <description>Classifies the transaction kind. Allowed values: Outright Gift, Pledge Payment, Grant Payment, Fee/Payment.</description>
-    <externalId>false</externalId>
     <label>Gift Transaction Category</label>
     <required>false</required>
-    <trackTrending>false</trackTrending>
+    <trackHistory>false</trackHistory>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
-            <value><fullName>Outright Gift</fullName><default>false</default><label>Outright Gift</label></value>
-            <value><fullName>Pledge Payment</fullName><default>false</default><label>Pledge Payment</label></value>
-            <value><fullName>Grant Payment</fullName><default>false</default><label>Grant Payment</label></value>
-            <value><fullName>Fee/Payment</fullName><default>false</default><label>Fee/Payment</label></value>
+            <value>
+                <fullName>Outright Gift</fullName>
+                <default>false</default>
+                <label>Outright Gift</label>
+            </value>
+            <value>
+                <fullName>Pledge Payment</fullName>
+                <default>false</default>
+                <label>Pledge Payment</label>
+            </value>
+            <value>
+                <fullName>Grant Payment</fullName>
+                <default>false</default>
+                <label>Grant Payment</label>
+            </value>
+            <value>
+                <fullName>Fee/Payment</fullName>
+                <default>false</default>
+                <label>Fee/Payment</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

@@ -4,7 +4,7 @@
     <columns>Name</columns>
     <columns>Donor</columns>
     <columns>TotalGiftsAmount</columns>
-    <columns>FQS_Donor_Level_Name__c</columns>
+    <columns>FQS_Lifetime_Donor_Level_Name__c</columns>
     <columns>TotalPaidRcrInstallments</columns>
     <columns>TotalPaidRcrInstlAmt</columns>
     <columns>CurrentRecurringStartDate</columns>

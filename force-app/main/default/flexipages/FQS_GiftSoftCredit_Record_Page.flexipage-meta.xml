@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
-    <!-- ═══════════════════════════════════════════════════════════
-         HEADER — dynamicHighlights
-         Primary: Name
-         Secondary: Role, RecipientId, GiftTransactionId, SoftCreditAmount
-         Actions: Edit, Delete, ChangeOwnerOne
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Name</fieldItem>
                 <identifier>fqs_gsc_highlights_primary</identifier>
@@ -25,17 +19,7 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Role</fieldItem>
-                <identifier>fqs_gsc_highlights_Role</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>required</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.RecipientId</fieldItem>
                 <identifier>fqs_gsc_highlights_RecipientId</identifier>
@@ -45,7 +29,17 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>required</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Role</fieldItem>
+                <identifier>fqs_gsc_highlights_Role</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>required</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.GiftTransactionId</fieldItem>
                 <identifier>fqs_gsc_highlights_GiftTransactionId</identifier>
@@ -74,10 +68,13 @@
                             <value>Edit</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>Delete</value>
+                            <value>Clone</value>
                         </valueListItems>
                         <valueListItems>
                             <value>ChangeOwnerOne</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Delete</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
@@ -101,49 +98,6 @@
         <name>header</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         DETAIL TAB CONTENT — 3 field sections
-
-         S1: Soft Credit
-           Left:  Role (req), RecipientId
-           Right: GiftTransactionId (req), SoftCreditAmount (ro)
-
-         S2: Amount Allocation
-           Left:  PartialAmount, PartialPercent
-           Right: GenerationalCohort
-
-         S3: System Information
-           Left:  CreatedById (ro)
-           Right: LastModifiedById (ro)
-    ═══════════════════════════════════════════════════════════ -->
-
-    <!-- S1 left -->
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>required</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Role</fieldItem>
-                <identifier>fqs_gsc_d_s1_Role</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.RecipientId</fieldItem>
-                <identifier>fqs_gsc_d_s1_RecipientId</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-fqs-gsc-d-s1-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <!-- S1 right -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -159,6 +113,30 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
+                    <value>required</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Role</fieldItem>
+                <identifier>fqs_gsc_d_s1_Role</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-fqs-gsc-d-s1-left</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>required</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.RecipientId</fieldItem>
+                <identifier>fqs_gsc_d_s1_RecipientId</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.SoftCreditAmount</fieldItem>
@@ -168,7 +146,6 @@
         <name>Facet-fqs-gsc-d-s1-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S1 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -193,8 +170,6 @@
         <name>Facet-fqs-gsc-d-s1-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S2 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -206,6 +181,10 @@
                 <identifier>fqs_gsc_d_s2_PartialAmount</identifier>
             </fieldInstance>
         </itemInstances>
+        <name>Facet-fqs-gsc-d-s2-left</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -216,25 +195,9 @@
                 <identifier>fqs_gsc_d_s2_PartialPercent</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gsc-d-s2-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <!-- S2 right -->
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.GenerationalCohort</fieldItem>
-                <identifier>fqs_gsc_d_s2_GenerationalCohort</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-gsc-d-s2-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S2 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -259,8 +222,6 @@
         <name>Facet-fqs-gsc-d-s2-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S3 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -272,11 +233,6 @@
                 <identifier>fqs_gsc_d_s3_CreatedById</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gsc-d-s3-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <!-- S3 right -->
-    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -287,10 +243,33 @@
                 <identifier>fqs_gsc_d_s3_LastModifiedById</identifier>
             </fieldInstance>
         </itemInstances>
+        <name>Facet-fqs-gsc-d-s3-left</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.CreatedDate</fieldItem>
+                <identifier>RecordCreatedDateField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.LastModifiedDate</fieldItem>
+                <identifier>RecordLastModifiedDateField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-gsc-d-s3-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S3 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -315,8 +294,6 @@
         <name>Facet-fqs-gsc-d-s3-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- detailTabContent: 3 fieldSection components consuming the column Facets above -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -376,32 +353,6 @@
         <name>detailTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         ACTIVITY TAB — activityPanel
-         relatedTabContent wired here (required by parent flexipage__default_rec_L)
-    ═══════════════════════════════════════════════════════════ -->
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>showLegacyActivityComposer</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentName>runtime_sales_activities:activityPanel</componentName>
-                <identifier>fqs_gsc_relatedTab_activityPanel</identifier>
-            </componentInstance>
-        </itemInstances>
-        <mode>Replace</mode>
-        <name>relatedTabContent</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         MAIN TABS
-         Tab 1 (active): Detail
-         Tab 2: Activity
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -421,20 +372,6 @@
                 <identifier>fqs_gsc_tab_detail</identifier>
             </componentInstance>
         </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>relatedTabContent</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Activity</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>fqs_gsc_tab_activity</identifier>
-            </componentInstance>
-        </itemInstances>
         <mode>Replace</mode>
         <name>maintabs</name>
         <type>Facet</type>
@@ -442,6 +379,10 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Tabs</value>
+                </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>tabs</name>
                     <value>maintabs</value>
@@ -454,13 +395,20 @@
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         SIDEBAR — accordion
-         Section 1: Files (AttachedContentDocuments)
-         Section 2: Field History (Histories)
-         Note: Activity is on the main tab; not repeated in sidebar
-    ═══════════════════════════════════════════════════════════ -->
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>showLegacyActivityComposer</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentName>runtime_sales_activities:activityPanel</componentName>
+                <identifier>fqs_gsc_relatedTab_activityPanel</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-f86b42cf-3195-4597-ac82-514587b68cfb</name>
+        <type>Facet</type>
+    </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -526,6 +474,24 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
+                    <value>Facet-f86b42cf-3195-4597-ac82-514587b68cfb</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Tasks, Emails, and Events</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>name</name>
+                    <value>accordionSection--3z0fppac6dk</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>flexipage_accordionSection</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
                     <value>Facet-fqs-gsc-sidebar-files</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -580,7 +546,6 @@
         <name>sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
-
     <masterLabel>FQS_GiftSoftCredit_Record_Page</masterLabel>
     <parentFlexiPage>flexipage__default_rec_L</parentFlexiPage>
     <sobjectType>GiftSoftCredit</sobjectType>

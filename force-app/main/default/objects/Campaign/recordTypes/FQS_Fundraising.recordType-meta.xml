@@ -7,11 +7,11 @@
     <picklistValues>
         <picklist>FQS_Campaign_Category__c</picklist>
         <values>
-            <fullName>Fundraising Top Level Campaign</fullName>
+            <fullName>Annual Giving</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>Annual Giving</fullName>
+            <fullName>Corporate Match</fullName>
             <default>false</default>
         </values>
         <values>
@@ -19,7 +19,11 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Corporate Match</fullName>
+            <fullName>Fundraising Top Level Campaign</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Grants</fullName>
             <default>false</default>
         </values>
         <values>
@@ -32,10 +36,6 @@
         </values>
         <values>
             <fullName>Planned Giving</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Grants</fullName>
             <default>false</default>
         </values>
     </picklistValues>

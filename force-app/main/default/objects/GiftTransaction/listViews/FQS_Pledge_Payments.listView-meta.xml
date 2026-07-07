@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Pledge_Payments</fullName>
     <columns>Name</columns>
     <columns>Donor</columns>
