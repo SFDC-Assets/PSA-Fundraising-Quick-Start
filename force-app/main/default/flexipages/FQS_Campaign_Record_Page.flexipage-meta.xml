@@ -1,29 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
-
-    <!-- HEADER — force:highlightsPanel (reads from Campaign compact layout) -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentInstanceProperties>
+                    <name>actionNames</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>SendListEmailAction</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>CreateSourceCode</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>NewSampleManagement</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>DeepClone</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>ChangeRecordType</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>collapsed</name>
                     <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>enableActionsConfiguration</name>
-                    <value>false</value>
+                    <value>true</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>enableActionsInNative</name>
-                    <value>false</value>
+                    <value>true</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>hideChatterActions</name>
                     <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
+                    <name>hideSlackAction</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>numVisibleActions</name>
-                    <value>3</value>
+                    <value>5</value>
                 </componentInstanceProperties>
                 <componentName>force:highlightsPanel</componentName>
                 <identifier>fqs_cam_highlightsPanel</identifier>
@@ -33,14 +55,53 @@
         <name>header</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- SUBHEADER — required by recordHomeWithSubheaderTemplateDesktop -->
     <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>hideUpdateButton</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>variant</name>
+                    <value>linear</value>
+                </componentInstanceProperties>
+                <componentName>runtime_sales_pathassistant:pathAssistant</componentName>
+                <identifier>runtime_sales_pathassistant_pathAssistant</identifier>
+            </componentInstance>
+        </itemInstances>
         <name>subheader</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- DETAIL TAB — reads from Campaign page layout -->
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>displayLastUpdated</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>enableEditCreate</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>groups</name>
+                    <value>[{&quot;groupName&quot;:&quot;Top Line Numbers&quot;,&quot;index&quot;:3,&quot;allFields&quot;:[{&quot;value&quot;:&quot;DonorCount&quot;},{&quot;value&quot;:&quot;TotalGiftTransactionAmount&quot;},{&quot;value&quot;:&quot;AverageGiftAmount&quot;},{&quot;value&quot;:&quot;AttributedAmount&quot;}]},{&quot;groupName&quot;:&quot;Outwright Gifts&quot;,&quot;index&quot;:4,&quot;allFields&quot;:[{&quot;value&quot;:&quot;OnetimeDonorCount&quot;},{&quot;value&quot;:&quot;TotalOnetimeGiftAmount&quot;},{&quot;value&quot;:&quot;AverageOnetimeGiftAmount&quot;}]},{&quot;groupName&quot;:&quot;Pledged and Recurring Gifts &quot;,&quot;index&quot;:5,&quot;allFields&quot;:[{&quot;value&quot;:&quot;RecurringDonorCount&quot;},{&quot;value&quot;:&quot;TotalRecurringGiftAmount&quot;},{&quot;value&quot;:&quot;AverageRecurringGiftAmount&quot;}]},{&quot;groupName&quot;:&quot;System Information&quot;,&quot;index&quot;:6,&quot;allFields&quot;:[{&quot;value&quot;:&quot;Name&quot;},{&quot;value&quot;:&quot;LastModifiedDate&quot;},{&quot;value&quot;:&quot;SystemModstamp&quot;}]}]</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>panelName</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedEntity</name>
+                    <value>OutreachSummary:CampaignId</value>
+                </componentInstanceProperties>
+                <componentName>runtime_industries_fundraising:relatedRecordDetailDisplay</componentName>
+                <identifier>runtime_industries_fundraising_relatedRecordDetailDisplay</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-f9e00f7a-424a-4548-818d-c8581aec901e</name>
+        <type>Facet</type>
+    </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -52,8 +113,6 @@
         <name>detailTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- RELATED TAB 2: Gift Commitments (NPC child via lst:dynamicRelatedList) -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -62,61 +121,113 @@
                     <value>Campaign.Id</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>actionNames</name>
-                    <valueList>
-                        <valueListItems>
-                            <value>New</value>
-                        </valueListItems>
-                    </valueList>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>maxRecordsToDisplay</name>
-                    <value>10</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
                     <name>relatedListApiName</name>
-                    <value>GiftCommitments</value>
+                    <value>CampaignMemberStatuses</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>relatedListDisplayType</name>
-                    <value>ADVGRID</value>
+                    <name>relatedListComponentOverride</name>
+                    <value>NONE</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>relatedListFieldAliases</name>
-                    <valueList>
-                        <valueListItems><value>Name</value></valueListItems>
-                        <valueListItems><value>Status</value></valueListItems>
-                        <valueListItems><value>ExpectedTotalCmtAmount</value></valueListItems>
-                        <valueListItems><value>FQS_Gift_Commitment_Category__c</value></valueListItems>
-                        <valueListItems><value>EffectiveStartDate</value></valueListItems>
-                    </valueList>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedListLabel</name>
-                    <value>Gift Commitments</value>
+                    <name>rowsToDisplay</name>
+                    <value>10</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>showActionBar</name>
                     <value>true</value>
                 </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>sortFieldAlias</name>
-                    <value>__DEFAULT__</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>sortFieldOrder</name>
-                    <value>Default</value>
-                </componentInstanceProperties>
-                <componentName>lst:dynamicRelatedList</componentName>
-                <identifier>fqs_cam_tab_commitments_list</identifier>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer2</identifier>
             </componentInstance>
         </itemInstances>
-        <mode>Replace</mode>
-        <name>relatedTabContent</name>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Campaign.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>GiftDefaultDesignationParentRecords</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListComponentOverride</name>
+                    <value>NONE</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>rowsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer3</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Campaign.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>ChildCampaigns</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListComponentOverride</name>
+                    <value>NONE</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>rowsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Campaign_Category__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Fundraising Top Level Campaign</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Campaign.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>OutreachSourceCodes</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListComponentOverride</name>
+                    <value>NONE</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>rowsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer4</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-fqs-cam-subcampaigns</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- RELATED TAB 3: Gift Transactions (NPC child via lst:dynamicRelatedList) -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -125,62 +236,100 @@
                     <value>Campaign.Id</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>actionNames</name>
-                    <valueList>
-                        <valueListItems>
-                            <value>New</value>
-                        </valueListItems>
-                    </valueList>
+                    <name>relatedListApiName</name>
+                    <value>Opportunities</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>maxRecordsToDisplay</name>
+                    <name>relatedListComponentOverride</name>
+                    <value>NONE</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>rowsToDisplay</name>
                     <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer11</identifier>
+                <visibilityRule>
+                    <booleanFilter>1 OR 2</booleanFilter>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Campaign_Category__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Annual Giving</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Campaign_Category__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Grants</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Campaign.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>CampaignMembers</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListComponentOverride</name>
+                    <value>NONE</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>rowsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer10</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Campaign.Id</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListApiName</name>
                     <value>GiftTransactions</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>relatedListDisplayType</name>
-                    <value>ADVGRID</value>
+                    <name>relatedListComponentOverride</name>
+                    <value>NONE</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>relatedListFieldAliases</name>
-                    <valueList>
-                        <valueListItems><value>Name</value></valueListItems>
-                        <valueListItems><value>Status</value></valueListItems>
-                        <valueListItems><value>OriginalAmount</value></valueListItems>
-                        <valueListItems><value>TransactionDate</value></valueListItems>
-                    </valueList>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedListLabel</name>
-                    <value>Gift Transactions</value>
+                    <name>rowsToDisplay</name>
+                    <value>10</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>showActionBar</name>
                     <value>true</value>
                 </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>sortFieldAlias</name>
-                    <value>__DEFAULT__</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>sortFieldOrder</name>
-                    <value>Default</value>
-                </componentInstanceProperties>
-                <componentName>lst:dynamicRelatedList</componentName>
-                <identifier>fqs_cam_tab_transactions_list</identifier>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer8</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-fqs-cam-transactions</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-
-    <!-- RELATED TAB 4: Sub-Campaigns (standard CRM child) -->
-    <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Campaign.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>GiftCommitments</value>
+                </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListComponentOverride</name>
                     <value>NONE</value>
@@ -193,39 +342,13 @@
                     <name>showActionBar</name>
                     <value>true</value>
                 </componentInstanceProperties>
-                <componentName>force:relatedListContainer</componentName>
-                <identifier>fqs_cam_tab_subcampaigns_list</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-fqs-cam-subcampaigns</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-
-    <!-- RELATED TAB 5: Outreach Source Codes (standard CRM child) -->
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>relatedListComponentOverride</name>
-                    <value>NONE</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>rowsToDisplay</name>
-                    <value>10</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>showActionBar</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentName>force:relatedListContainer</componentName>
-                <identifier>fqs_cam_tab_outreach_list</identifier>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer9</identifier>
             </componentInstance>
         </itemInstances>
         <name>Facet-fqs-cam-outreach</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- MAIN TABS — Detail (active), Gift Commitments, Gift Transactions, Sub-Campaigns, Outreach Source Codes -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -235,42 +358,32 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>body</name>
+                    <value>Facet-f9e00f7a-424a-4548-818d-c8581aec901e</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>title</name>
+                    <value>Results</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:tab</componentName>
+                <identifier>flexipage_tab</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>active</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>body</name>
                     <value>detailTabContent</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Standard.Tab.detail</value>
+                    <value>Standard.Tab.fields</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>fqs_cam_tab_detail</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>relatedTabContent</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Gift Commitments</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>fqs_cam_tab_commitments</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-fqs-cam-transactions</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Gift Transactions</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>fqs_cam_tab_transactions</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -281,7 +394,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Sub-Campaigns</value>
+                    <value>Manage Campaigns</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>fqs_cam_tab_subcampaigns</identifier>
@@ -295,7 +408,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Outreach Source Codes</value>
+                    <value>Responses</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>fqs_cam_tab_outreach</identifier>
@@ -324,8 +437,6 @@
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- SIDEBAR — accordion with activity, files, field history -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -344,6 +455,14 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Campaign.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>ActionPlans</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>relatedListComponentOverride</name>
                     <value>NONE</value>
                 </componentInstanceProperties>
@@ -355,16 +474,24 @@
                     <name>showActionBar</name>
                     <value>true</value>
                 </componentInstanceProperties>
-                <componentName>force:relatedListContainer</componentName>
-                <identifier>fqs_cam_sidebar_files</identifier>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer7</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-fqs-cam-sidebar-files</name>
+        <name>Facet-80122009-37f9-4d26-a8ae-4f8cc1635165</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Campaign.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>AttachedContentDocuments</value>
+                </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListComponentOverride</name>
                     <value>NONE</value>
@@ -375,10 +502,40 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>showActionBar</name>
-                    <value>false</value>
+                    <value>true</value>
                 </componentInstanceProperties>
-                <componentName>force:relatedListContainer</componentName>
-                <identifier>fqs_cam_sidebar_fieldHistory</identifier>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer5</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-fqs-cam-sidebar-files</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Campaign.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>Histories</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListComponentOverride</name>
+                    <value>NONE</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>rowsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer6</identifier>
             </componentInstance>
         </itemInstances>
         <name>Facet-fqs-cam-sidebar-fieldHistory</name>
@@ -401,6 +558,24 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:accordionSection</componentName>
                 <identifier>fqs_cam_accordionSection1</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-80122009-37f9-4d26-a8ae-4f8cc1635165</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Project Checklists</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>name</name>
+                    <value>accordionSection--yq4sq7mhq4f</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>flexipage_accordionSection</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -461,7 +636,6 @@
         <name>sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
-
     <masterLabel>FQS Campaign Record Page</masterLabel>
     <parentFlexiPage>runtime_sales_campaign__Campaign_rec_L_s</parentFlexiPage>
     <sobjectType>Campaign</sobjectType>
