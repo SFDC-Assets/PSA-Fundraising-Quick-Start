@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Is_Entry_Gift__c</fullName>
-    <description>Boolean formula that returns TRUE when CurrentAmount meets or exceeds the Entry.One_Time_Min_Amount__c value in FQS_Donor_Grouping custom metadata, OR when the parent GiftCommitment.ExpectedTotalCmtAmount meets or exceeds Entry.Lifetime_Min_Amount__c (installment inheritance — a payment against a large commitment inherits the commitment's tier). Thresholds are configured via Setup → Custom Metadata Types → FQS Donor Grouping or the FQS Donor Grouping Configurator screen flow. Changing threshold values recalculates this field across all Gift Transaction records retroactively — no redeployment or batch job required. Reports and dashboards using this field will reflect the new values immediately.</description>
+    <description>Boolean formula that returns TRUE when CurrentAmount meets or exceeds the Entry.One_Time_Min_Amount__c value in FQS_Donor_Grouping custom metadata, OR when the parent GiftCommitment.ExpectedTotalCmtAmount meets or exceeds Entry.Lifetime_Min_Amount__c (installment inheritance — a payment against a large commitment inherits the commitment's grouping). Thresholds are configured via Setup → Custom Metadata Types → FQS Donor Grouping or the FQS Setup screen flow. Changing threshold values recalculates this field across all Gift Transaction records retroactively — no redeployment or batch job required. Reports and dashboards using this field will reflect the new values immediately.</description>
     <externalId>false</externalId>
     <formula>CurrentAmount >= $CustomMetadata.FQS_Donor_Grouping__mdt.Entry.One_Time_Min_Amount__c ||
 GiftCommitment.ExpectedTotalCmtAmount >= $CustomMetadata.FQS_Donor_Grouping__mdt.Entry.Lifetime_Min_Amount__c</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <inlineHelpText>Automatically calculated. Marked TRUE when this gift's amount qualifies for the Entry giving tier, or when it is an installment payment against an Entry-tier commitment. Your administrator controls the threshold amounts.</inlineHelpText>
+    <inlineHelpText>Automatically calculated. The field is checked when this gift's amount qualifies for the Entry donor grouping, or when it is an installment payment against an Entry-grouping commitment. Your administrator controls the threshold amounts.</inlineHelpText>
     <label>Is Entry Gift</label>
     <required>false</required>
     <type>Checkbox</type>

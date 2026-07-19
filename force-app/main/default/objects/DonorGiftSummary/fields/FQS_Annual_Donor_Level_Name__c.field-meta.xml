@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Annual_Donor_Level_Name__c</fullName>
-    <description>Boolean formula that returns the branded tier name (e.g., Friend, Partner, Champion) based on GiftsThisYearAmount against the Annual_Min_Amount__c thresholds in FQS_Donor_Grouping custom metadata. Note: GiftsThisYearAmount is a calendar-year rollup from NPC; if your org uses a non-calendar fiscal year, validate whether this aligns with your reporting expectations. Returns blank when GiftsThisYearAmount is below the Entry annual threshold. Thresholds and branded names are configured via Setup → Custom Metadata Types → FQS Donor Grouping or the FQS Donor Grouping Configurator screen flow. Changing threshold values or branded names recalculates this field retroactively — no redeployment or batch job required.</description>
+    <description>Text formula that returns the branded donor grouping name (e.g., Friend, Partner, Champion) based on GiftsThisYearAmount against the Annual_Min_Amount__c thresholds in FQS_Donor_Grouping custom metadata. Note: GiftsThisYearAmount is a calendar-year rollup from NPC; if your org uses a non-calendar fiscal year, validate whether this aligns with your reporting expectations. Returns blank when GiftsThisYearAmount is below the Entry annual threshold. Thresholds and branded names are configured via Setup → Custom Metadata Types → FQS Donor Grouping or the FQS Setup screen flow. Changing threshold values or branded names recalculates this field retroactively — no redeployment or batch job required.</description>
     <externalId>false</externalId>
     <formula>IF(GiftsThisYearAmount >= $CustomMetadata.FQS_Donor_Grouping__mdt.Major.Annual_Min_Amount__c, $CustomMetadata.FQS_Donor_Grouping__mdt.Major.Branded_Name__c,
 IF(GiftsThisYearAmount >= $CustomMetadata.FQS_Donor_Grouping__mdt.Mid.Annual_Min_Amount__c, $CustomMetadata.FQS_Donor_Grouping__mdt.Mid.Branded_Name__c,
 IF(GiftsThisYearAmount >= $CustomMetadata.FQS_Donor_Grouping__mdt.Entry.Annual_Min_Amount__c, $CustomMetadata.FQS_Donor_Grouping__mdt.Entry.Branded_Name__c,
 "")))</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <inlineHelpText>Automatically calculated. Shows the branded giving tier name for this donor based on their current-year giving (e.g., Friend, Partner, Champion). Blank means the donor is below the Entry annual threshold. Your administrator controls both the threshold amounts and tier names.</inlineHelpText>
+    <inlineHelpText>Automatically calculated. Shows the branded donor grouping name for this donor based on their current-year giving (e.g., Friend, Partner, Champion). Blank means the donor is below the Entry annual threshold. Your administrator controls both the threshold amounts and donor grouping names.</inlineHelpText>
     <label>Annual Donor Grouping Name</label>
     <required>false</required>
     <type>Text</type>

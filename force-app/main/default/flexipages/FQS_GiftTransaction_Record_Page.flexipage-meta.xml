@@ -75,6 +75,9 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
+                            <value>GiftTransaction.FQS_Find_Matching_Gift</value>
+                        </valueListItems>
+                        <valueListItems>
                             <value>ManageGiftTransactionDesignations</value>
                         </valueListItems>
                         <valueListItems>
@@ -93,7 +96,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>numVisibleActions</name>
-                    <value>3</value>
+                    <value>4</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>primaryField</name>

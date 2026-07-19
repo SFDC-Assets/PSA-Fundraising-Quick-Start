@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Branded_Name__c</fullName>
-    <description>The donor-facing display name for this grouping tier. Referenced by the DonorGiftSummary formula field FQS_Donor_Level_Name__c. Change this value to rebrand tier names (e.g., &quot;Friend&quot; to &quot;Community Member&quot;) across all Donor Gift Summary records without redeployment.</description>
+    <description>The donor-facing display name for this donor grouping. Referenced by the DonorGiftSummary formula field FQS_Donor_Level_Name__c. Change this value to rebrand donor grouping names (e.g., &quot;Friend&quot; to &quot;Community Member&quot;) across all Donor Gift Summary records without redeployment.</description>
     <externalId>false</externalId>
     <fieldManageability>DeveloperControlled</fieldManageability>
-    <inlineHelpText>The branded name of the Grouping Key shown to staff and donors in reports, dashboards, and the Donor Gift Summary record page. Changing this value here automatically updates FQS_Donor_Level_Name__c on all Donor Gift Summary records. Example values: Friend, Partner, Champion or Entry, Rising, Summit.</inlineHelpText>
+    <inlineHelpText>The organization's specific naming structure for public donor recognition. Changing this value here automatically updates FQS_Donor_Level_Name__c on all Donor Gift Summary records. Example values: Friend, Partner, Champion or Entry, Rising, Summit.</inlineHelpText>
     <label>Donor Grouping</label>
     <length>255</length>
     <required>false</required>

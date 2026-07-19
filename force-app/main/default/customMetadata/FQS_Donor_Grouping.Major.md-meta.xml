@@ -10,24 +10,25 @@
         <field>Grouping_Key__c</field>
         <value xsi:type="xsd:string">Major</value>
     </values>
-    <values>
-        <field>Min_Amount__c</field>
-        <value xsi:type="xsd:double">25000</value>
-    </values>
+
     <values>
         <field>One_Time_Min_Amount__c</field>
-        <value xsi:type="xsd:double">5000</value>
+        <value xsi:type="xsd:double">500</value>
     </values>
     <values>
         <field>Annual_Min_Amount__c</field>
-        <value xsi:type="xsd:double">10000</value>
+        <value xsi:type="xsd:double">5000</value>
     </values>
     <values>
         <field>Lifetime_Min_Amount__c</field>
-        <value xsi:type="xsd:double">30000</value>
+        <value xsi:type="xsd:double">25000</value>
     </values>
     <values>
         <field>Sort_Order__c</field>
         <value xsi:type="xsd:double">30</value>
+    </values>
+    <values>
+        <field>FQS_Auto_Acknowledgement__c</field>
+        <value xsi:type="xsd:string">Exclude All</value>
     </values>
 </CustomMetadata>
