@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Match_Ratio__c</fullName>
+    <defaultValue>1.00</defaultValue>
+    <description>Multiplier applied to an individual's OriginalAmount when comparing to a corporate match. 2.00 = 2:1 (corporate matches double), 1.00 = 1:1 (default), 0.50 = 0.5:1 (corporate matches half). Used by the FQS Find Matching Gift flow's amount scorer to know what a "correct" match amount looks like for this employer. If left blank, the flow assumes 1.00.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>The dollar ratio this employer matches at. Enter 1.00 for 1:1 matching (default), 2.00 for 2:1, 0.50 for half-match, etc. Leave blank to use 1.00.</inlineHelpText>
+    <label>Match Ratio</label>
+    <precision>4</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

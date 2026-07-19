@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Matching_Gift_Program__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Marks this business Account as running an employer matching gift program. Used by the FQS Find Matching Gift screen flow to filter Account lookups, boost candidate scores, and detect drift (a corporate donor whose gift arrives but whose Account has not yet been flagged). Mutually exclusive with FQS_Is_Match_Intermediary__c — an intermediary (Benevity, YourCause, Bright Funds, CyberGrants) is not itself a match program, it facilitates one on behalf of a true corporate. Consider adding a validation rule to prevent both from being true on the same Account.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Check when this business Account offers an employer matching gift program. Do not check for matching-gift intermediaries such as Benevity or YourCause — use FQS Is Match Intermediary for those. The Find Match flow uses this flag to prioritize this Account when searching for corporate matches.</inlineHelpText>
+    <label>Matching Gift Program</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

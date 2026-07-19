@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Is_Match_Intermediary__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Marks this Account as a matching-gift intermediary — an entity such as Benevity, YourCause, Bright Funds, or CyberGrants that is the legal donor on a check even though the giving originates from a corporate employer's match program. When the FQS Find Matching Gift flow launches from a Gift Transaction where the DonorId Account has this flag set, the flow prompts the user to identify the true corporate Account, creates or reuses a GiftCommitment on that corporate, and soft-credits the corporate on the intermediary's transaction. Mutually exclusive with FQS_Matching_Gift_Program__c. Consider adding a validation rule to prevent both from being true on the same Account.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Check when this Account is a matching-gift intermediary (Benevity, YourCause, Bright Funds, CyberGrants, etc.) rather than a true corporate donor. The Find Match flow will ask which corporate the gift is on behalf of and route credit accordingly. Do not check this on true corporate donors — use FQS Matching Gift Program instead.</inlineHelpText>
+    <label>Is Match Intermediary</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>
