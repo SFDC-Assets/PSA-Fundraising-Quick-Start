@@ -46,3 +46,9 @@ $RECYCLE.BIN/
 
 # Incidental Salesforce utility bar FlexiPages (not FQS work product)
 **/*_UtilityBar.flexipage-meta.xml
+
+# Scratch retrieve / drift artifacts (Gate C — never commit)
+.tmp-flow-drift/
+retrieve-tmp/
+compare-tmp/
+mdapi-tmp/
