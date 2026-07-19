@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Parent_Template_Key__c</fullName>
+    <description>Template_Key__c of the parent template this one links to. For Ask templates in Seasonal/Strategy models, this is the strategy template key. For Ask templates in the GivingPrograms model, this is the program rollup template key. For Strategy templates, blank (parent is the run's rollup Campaign). Some templates have model-specific parents — see the Apex builder's MODEL_PARENT_OVERRIDES map for those overrides.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Must match the Template_Key__c of an existing parent template. Apex uses this at build time to assign Campaign.ParentId. Leave blank for top-level (rollup) templates.</inlineHelpText>
+    <label>Parent Template Key</label>
+    <length>80</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Annual Celebration Sponsorship Packet</label>
+    <protected>false</protected>
+    <values>
+        <field>Template_Key__c</field>
+        <value xsi:type="xsd:string">evt_celebration_sponsor</value>
+    </values>
+    <values>
+        <field>Level__c</field>
+        <value xsi:type="xsd:string">Ask</value>
+    </values>
+    <values>
+        <field>Suggested_Name__c</field>
+        <value xsi:type="xsd:string">Annual Celebration – Sponsorship Packet</value>
+    </values>
+    <values>
+        <field>Applicable_Models__c</field>
+        <value xsi:type="xsd:string">Seasonal</value>
+    </values>
+    <values>
+        <field>Default_In_Model__c</field>
+        <value xsi:type="xsd:string">Seasonal</value>
+    </values>
+    <values>
+        <field>Function_Group__c</field>
+        <value xsi:type="xsd:string">Events</value>
+    </values>
+    <values>
+        <field>Date_Rule__c</field>
+        <value xsi:type="xsd:string">sep-nov</value>
+    </values>
+    <values>
+        <field>Parent_Template_Key__c</field>
+        <value xsi:type="xsd:string">str_annual_celebration</value>
+    </values>
+    <values>
+        <field>Sort_Order__c</field>
+        <value xsi:type="xsd:double">30</value>
+    </values>
+</CustomMetadata>

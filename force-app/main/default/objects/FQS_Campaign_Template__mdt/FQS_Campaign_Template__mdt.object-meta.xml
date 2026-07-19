@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Library of suggested Campaign templates for the FQS Campaign Hierarchy Setup flow. Each record defines one campaign template with its level, applicable models, date rule, and display name. The FQS_Campaign_Hierarchy_Setup subflow reads these records at runtime to populate its configure-tree screen. Adding a new suggested campaign is a metadata deploy only — no Apex change required.</description>
+    <label>FQS Campaign Template</label>
+    <pluralLabel>FQS Campaign Templates</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

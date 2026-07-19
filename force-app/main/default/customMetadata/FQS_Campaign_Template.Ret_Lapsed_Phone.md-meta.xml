@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Lapsed Personal Phone Call</label>
+    <protected>false</protected>
+    <values>
+        <field>Template_Key__c</field>
+        <value xsi:type="xsd:string">ret_lapsed_phone</value>
+    </values>
+    <values>
+        <field>Level__c</field>
+        <value xsi:type="xsd:string">Ask</value>
+    </values>
+    <values>
+        <field>Suggested_Name__c</field>
+        <value xsi:type="xsd:string">Lapsed – Personal Phone Call</value>
+    </values>
+    <values>
+        <field>Applicable_Models__c</field>
+        <value xsi:type="xsd:string">Strategy</value>
+    </values>
+    <values>
+        <field>Default_In_Model__c</field>
+        <value xsi:type="xsd:string">Strategy</value>
+    </values>
+    <values>
+        <field>Function_Group__c</field>
+        <value xsi:type="xsd:string">Retention</value>
+    </values>
+    <values>
+        <field>Date_Rule__c</field>
+        <value xsi:type="xsd:string">q2</value>
+    </values>
+    <values>
+        <field>Parent_Template_Key__c</field>
+        <value xsi:type="xsd:string">str_lapsed_reactivation</value>
+    </values>
+    <values>
+        <field>Sort_Order__c</field>
+        <value xsi:type="xsd:double">20</value>
+    </values>
+</CustomMetadata>
