@@ -260,3 +260,13 @@ This is optional but strongly recommended — otherwise a future naming tweak re
 - Backfill of existing records with wrong names (write a one-off Apex script if needed after flows land — should be small; run outside of this task).
 - Renaming when donor changes (e.g., someone edits `Account.Name` and the flow re-derives every GT/GC/Opp attached). Deferred — the flows only fire on the child record's create/update, not on parent Account edits. Add later if requested.
 - List-view configuration changes (Name is the anchor column already; no config changes needed).
+
+---
+
+## Explicitly excluded from scope
+
+**Campaign records are NOT covered by these auto-naming flows.** The three objects in scope are `GiftCommitment`, `GiftTransaction`, and `Opportunity` — nothing else.
+
+**Rationale (write-once conflict):** `FQS_CampaignHierarchyBuilder.expandName` composes final Campaign names at insert time (placeholders resolved against the computed fiscal-year window — e.g. `Spring Appeal {yearLabel}` → `Spring Appeal FY26`). An AfterSave record-triggered flow on Campaign would overwrite that Apex-composed name with a different pattern shortly after insert, defeating the deliberate hierarchy-shaped naming and confusing downstream `FQS_Ultimate_Parent_Campaign__c` / `FQS_Hierarchy_Depth__c` reporting that already renders those labels on record pages and dashboards.
+
+If a Campaign-side naming convention is ever needed, the correct home is inside `FQS_CampaignHierarchyBuilder` (extend `expandName` or add a helper) — not a separate flow racing the Apex insert. Reopening this decision requires updating both this plan and `.planning/fqs-campaign-hierarchy-setup-plan.md` together.

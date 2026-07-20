@@ -559,3 +559,197 @@ Called out for design coherence (it's the natural "next year" path once it exist
 - Re-run / append behavior — obsoleted by the deep-clone direction.
 - Non-standard fiscal years' quarter shapes.
 - Deleting or reorganizing existing hierarchies.
+
+---
+
+## Audit findings (2026-07-19)
+
+Cross-check of this plan against what has actually shipped in git and in FundFirst. Read-only audit performed 2026-07-19 by Opus. Follow-on session prior to release should validate the recommended fixes below.
+
+### What shipped
+
+**Committed (SHA [`7c30b24`](../) "Add FQS Campaign Hierarchy setup"):**
+- Apex: [FQS_CampaignHierarchyBuilder.cls](../force-app/main/default/classes/FQS_CampaignHierarchyBuilder.cls) + [Test](../force-app/main/default/classes/FQS_CampaignHierarchyBuilder_Test.cls) (11 tests, not 22 as v2 plan promised)
+- Utility: [FQS_CustomMetadataSaver.cls](../force-app/main/default/classes/FQS_CustomMetadataSaver.cls) + [Test](../force-app/main/default/classes/FQS_CustomMetadataSaver_Test.cls)
+- CMDT type: [FQS_Campaign_Template__mdt/](../force-app/main/default/objects/FQS_Campaign_Template__mdt/) with 10 fields
+- **53 CMDT records** in `force-app/main/default/customMetadata/FQS_Campaign_Template.*.md-meta.xml` (plan promised ~35 — over-shipped, no known issue)
+- Campaign hierarchy fields: `FQS_Child_Campaign_Count__c`, `FQS_Hierarchy_Depth__c`, `FQS_Short_Name__c`, `FQS_Ultimate_Parent_Campaign__c`
+- Permission set grants (via [FQS_Custom_Fields](../force-app/main/default/permissionsets/FQS_Custom_Fields.permissionset-meta.xml))
+
+**Rollup flows (SHA `17897c6`):** `FQS_Campaign_Child_Count_Update` + `_Delete` (siblings; maintain `FQS_Child_Campaign_Count__c`).
+
+**Campaign layout / compact layout / `FQS_Campaign_Category__c` (SHA `1c38110`):** refinements landed.
+
+**Uncommitted, held back by no-flow-commits gate:**
+- [FQS_Campaign_Hierarchy_Setup.flow-meta.xml](../force-app/main/default/flows/FQS_Campaign_Hierarchy_Setup.flow-meta.xml) — 757 lines, Active, deployed to FundFirst (`301WB000016ftftYAA`).
+
+**FundFirst org state (verified via `sf sobject describe` + `FlowDefinitionView`):**
+- All 5 Campaign FQS_* fields deployed.
+- 10-field CMDT type + 53 records present in org.
+- `Campaign.FQS_Fundraising` record type present.
+- `FQS_Campaign_Hierarchy_Setup` flow Active.
+- `FQS_Setup_Flow` Active but is the Donor Grouping flow, **not** the orchestrator the plan describes.
+
+### Plan cross-reference — item-by-item status
+
+| Plan item | Status |
+|---|---|
+| CMDT `FQS_Campaign_Template__mdt` with 10 fields | DONE |
+| ~35 seeded template records | DONE (53 shipped) |
+| `Applicable_Models__c` as Multi-Select | DIVERGENT — implemented as Text(255) with semicolon values (CMDT does not support MultiSelectPicklist). Apex uses `LIKE '%model%'`, flow uses `Contains`. Acceptable but note substring-match risk. |
+| `Default_In_Model__c` for library-picker split | DIVERGENT — field exists on all 53 CMDT records but Apex never reads it and flow does not split default vs. library. Dead metadata. |
+| Builder signature `build(model, rollupKeys, strategyKeys, askKeys)` | DONE |
+| `oct-plus-apr` date-rule fix | DONE (`endYr = topStart.year() + 1` when equal) |
+| Removal of `FQS_Campaign_Hierarchy_Setup__mdt` audit CMDT | DONE |
+| 11 Apex tests | DONE (v3 shipped 11; v2 plan listed 22 — see gaps below) |
+| Placeholder expansion `{yearLabel}` / `{yearShort}` | DONE (in Apex only) |
+| Category mapping (all three models) | DONE |
+| Duplicate-name error | PARTIAL — Apex only checks within `RecordType.DeveloperName = 'FQS_Fundraising'`; an RT-less duplicate slips through. |
+| Screen Subflow authored to run standalone | PARTIAL — flow is standalone-capable but `inLaunchedFromSetupFlow` input is declared and **never referenced** anywhere. |
+| Parent `FQS_Setup_Flow` orchestrator (Screens A / B / C + subflow calls) | MISSING — the current `FQS_Setup_Flow` is the 1001-line Donor Grouping flow. No orchestrator exists. |
+| Standalone launch surface (App Launcher / FlexiPage tile) | MISSING (plan defers to future work — acceptable) |
+| Reactive Screen 1 preview panel | MISSING — Screen 1 renders a static HTML block showing all three model examples |
+| Screen 4 conditional asks-skipped panel | MISSING — Screen_Success shows unconditional text |
+| Screen 4 `Continue Setup →` vs. `Finish` toggle by launch context | MISSING |
+
+### Gaps
+
+**Missing:**
+- Parent `FQS_Setup_Flow` orchestrator. The current `FQS_Setup_Flow` is the Donor Grouping configurator, and the `FQS_Setup_Configuration` FlexiPage routes to it. On a fresh scratch install the Campaign Hierarchy Setup flow deploys but nothing runs it.
+- Screen 0 boot logic. Apex handles fiscal-year detection, but flow-level `varYearBasis` / `varYearStart` / etc. don't exist, so nothing in the UI reflects the fiscal window.
+- `inLaunchedFromSetupFlow` behavior wiring — the input is declared but referenced nowhere.
+- `Default_In_Model__c` filtering / library picker on Screen 2 (all rows appear in one table today).
+- Screen 1 reactive preview per model choice (still a static HTML block with FY26 hardcoded).
+- Screen 4 conditional panels (asks-skipped, launch-context-aware button label).
+- Formula-level `{yearLabel}` expansion on Screen 2 — column shows raw `{yearLabel}` string in the datatable (expansion happens only in Apex).
+
+**Divergent:**
+- `Applicable_Models__c` is Text-with-LIKE-matching (CMDT constraint). A future value like `SeasonalV2` would silently substring-match `Seasonal`.
+- Screens labeled "Step 1 of 4" through "Step 4 of 4" but there are 5 user-facing screens (Model, Strategies, Asks, Confirm, Success/Error). Copy is stale.
+- Category picker's `Suggested_Name__c` column shows raw `{yearLabel}` placeholder (Apex expands only on insert).
+
+**Extra (not covered by plan):**
+- `FQS_Campaign_Category__c` picklist expanded to include `Corporate Match` and `In-Kind` values (org-authoritative, done via Donor Grouping commit). Plan never enumerated these.
+- Two Campaign rollup flows (`FQS_Campaign_Child_Count_Update` / `_Delete`) that maintain `FQS_Child_Campaign_Count__c`. Orthogonal to this plan.
+
+### Gate A findings for FQS_Campaign_Hierarchy_Setup.flow-meta.xml
+
+Only FAILs and load-bearing PASSes listed.
+
+- **UX — `allowFinish=true` on every screen** — **FAIL**. `Screen_Choose_Model`, `Screen_Choose_Strategies`, `Screen_Choose_Asks`, `Screen_Confirm` all allow Finish. Clicking Finish on any of them terminates the flow **before** `Build_Hierarchy` runs → no error, no Campaigns, silent zero-result. Only `Screen_Success` and `Screen_Error` should have Finish enabled.
+- **Design — Subflow contract not honored** — **FAIL**. `inLaunchedFromSetupFlow` declared but not referenced. No parent orchestrator calls this flow.
+- **Screen label copy vs. reality** — **FAIL** (cosmetic). "Step 1 of 4"–"Step 4 of 4" but there are 5 screens.
+- **Variable prefixing convention (`var_`, `rsv_`, `col_`)** — **FAIL** (nit). Uses `var*`/`out*`/`dt*`/`radio*` (mixed camelCase, no underscore). Inconsistent with launcher-plan convention.
+- **Duplicate protection completeness** — **PARTIAL**. SOQL scoped to `RecordType.DeveloperName = 'FQS_Fundraising'` only; RT-less duplicates slip through.
+- **UX — success screen doesn't lie** — PASS (accurate counts, honest "first-run only" note).
+- **Error message tells user next step** — PASS (`Screen_Error` shows `varErrorMessage` + Back-to-retry).
+- **Fault path on DML** — PASS (`Build_Hierarchy` has fault connector to `Screen_Error`).
+- **No DML / Get Records inside loops** — PASS (all Get Records precede loops; loops only run assignments).
+- **CMDT reads pre-fetched** — PASS (3 sequential `Get_*_Templates` before Screen 2).
+- **API version 66.0, Status=Active, runInMode=DefaultMode** — PASS.
+
+### Risks / open questions
+
+1. **No launch surface.** On a fresh scratch org the flow deploys but nothing reaches it. `FQS_Setup_Configuration` FlexiPage points to `FQS_Setup_Flow` (the Donor Grouping flow). Blocks Phase 4 install verification.
+2. **`allowFinish=true` premature-exit trap.** A user clicking Finish on Screen 1 gets zero-Campaign silent success. Production-quality bug.
+3. **Parent orchestrator plan overlaps with active work.** Building `FQS_Setup_Flow` as an orchestrator will collide with the current Donor Grouping flow that owns that name. Decision required: rename Donor Grouping flow, or split responsibilities.
+4. **CMDT LIKE-matching substring risk.** Nothing violates it today, but future `SeasonalV2`-like values would double-match. Low risk, worth documenting in the field description.
+5. **`Default_In_Model__c` is dead metadata today.** Either wire it (library picker) or delete field + values on Gate C-relevance grounds.
+6. **Test coverage narrower than v2 plan.** v2 listed 22 tests; v3 shipped 11. Missing: year-basis fiscal / calendar, mid-year backfill, no-OSCs assertion, date-rule full-window / sep-nov concrete-date checks, placeholder-expansion assertion.
+7. **Naming-flow overlap.** [fqs-record-naming-flows-plan.md](fqs-record-naming-flows-plan.md) will auto-rewrite `Campaign.Name` on AfterSave; the Apex `expandName` result is doomed to be overwritten shortly after insert. Not a bug — just noting the write-once semantics.
+
+### Recommended next steps (ranked, effort estimates)
+
+1. **[15 min] Set `allowFinish=false`** on `Screen_Choose_Model`, `Screen_Choose_Strategies`, `Screen_Choose_Asks`, `Screen_Confirm`. Only Success and Error should allow Finish. Single-flow edit + redeploy. Low risk, high value.
+2. **[10 min] Fix "Step N of 4" copy** — bump to "of 5", drop the counter, or renumber screens.
+3. **[30 min] Author launch surface** — one of: (a) build orchestrator `FQS_Setup_Flow` per plan and repoint FlexiPage; (b) rename Donor Grouping flow and split; (c) create an interim `FQS_Campaign_Hierarchy_Setup_Launcher` FlexiPage tile. **Requires a design call.**
+4. **[20 min] UI test then commit** `FQS_Campaign_Hierarchy_Setup.flow-meta.xml`. The no-flow-commits gate lifts once UI passes. Include #1 and #2 in the same commit.
+5. **[45 min] Widen test coverage** — add fiscal-year, mid-year backfill, date-rule window, placeholder-expansion tests from the v2 test plan (items 4, 5, 6, 12, 15, 17, 18, 19, 20, 21, 22 in this plan's Test section above). Straight extensions to the existing test class.
+6. **[15 min] Decide `Default_In_Model__c`'s fate.** Wire a library picker (matches original v2 spec), or delete field + values from all 53 records.
+7. **[10 min] Tighten duplicate check.** Remove the RecordType filter so any Campaign with the same name errors early.
+
+### Manual UI acceptance checklist
+
+Run against a fresh scratch org that installed everything from `main`. This is the release acceptance test for the feature.
+
+- [ ] From App Launcher → Fundraising Quick Start → Setup Configuration tab, the Campaign Hierarchy Setup flow can be reached (**blocked** until launch surface built).
+- [ ] Screen 1 (Choose Model): three radio options render, Seasonal is default, help text visible, sample outline block legible.
+- [ ] Screen 2 (Strategies), Seasonal model: `dtRollups` table renders (may be empty if no Rollup rows apply); `dtStrategies` shows 5 seasonal strategies (Spring Appeal, Annual Celebration, Year-End Push, Monthly Sustainer, Foundation Giving).
+- [ ] Screen 2 (Strategies), Giving Programs model: `dtRollups` shows 6 program rollups (Major Gifts, Planned Giving, Online Giving, Events, Foundation Giving, Annual Giving). Multi-select works.
+- [ ] Screen 2 (Strategies), Strategy model: `dtStrategies` shows 5 strategies (Lapsed, New Donor, Retention, Mid-Level, Foundation).
+- [ ] Screen 3 (Asks): table populates per model. `Suggested_Name__c` column shows literal `{yearLabel}` (expected pending flow-level formula fix).
+- [ ] Leave Asks table empty → Next → Confirm → Build. Verify **rollup + strategies created, zero asks**.
+- [ ] Click Finish on Screen 1 / 2 / 3 / 4 (not Success) — should NOT terminate flow (**fix #1 must land first**).
+- [ ] Seasonal all-defaults build: one top-level `FY26 Fundraising` (or `CY26` per fiscal year) with `FQS_Campaign_Category__c = 'Fundraising Top Level Campaign'` and `RecordType.DeveloperName = 'FQS_Fundraising'`.
+- [ ] Foundation Giving strategy has `FQS_Campaign_Category__c = 'Grants'` after Seasonal build.
+- [ ] Giving Programs build: 6 top-levels created, each has one child year-cohort strategy named `FY26`.
+- [ ] Under `Major Gifts` top-level, `FQS_Campaign_Category__c = 'Major Gifts'`.
+- [ ] Duplicate-name check: manually create `FY26 Fundraising` with `FQS_Fundraising` RT, rerun flow → `Screen_Error` surfaces the friendly duplicate message, zero new records.
+- [ ] After a successful build, `FQS_Child_Campaign_Count__c` on top-level increments (rollup flow working).
+- [ ] `FQS_Hierarchy_Depth__c` is 1 for rollup, 2 for strategy, 3 for ask.
+- [ ] `FQS_Ultimate_Parent_Campaign__c` on an ask returns the rollup's name.
+- [ ] `Screen_Success` shows correct counts and OSC / next-year copy.
+- [ ] Delete a strategy → parent's `FQS_Child_Campaign_Count__c` decrements (Delete flow).
+- [ ] Reparent a Campaign → both old and new parent counts adjust (Update flow).
+
+---
+
+## Remediation applied (2026-07-19)
+
+Justin decisions on the audit shipped in one working session. Every change deployed to FundFirst before commit.
+
+- **Fix #2 — `allowFinish` bug (deploy `0AfWB00000DTkb30AD`).** Set `<allowFinish>false</allowFinish>` on `Screen_Choose_Strategies`, `Screen_Choose_Asks`, and `Screen_Confirm` in [FQS_Campaign_Hierarchy_Setup.flow-meta.xml](../force-app/main/default/flows/FQS_Campaign_Hierarchy_Setup.flow-meta.xml). `Screen_Choose_Model` left at `allowFinish=true` because Salesforce forbids `allowBack=false` + `allowFinish=false` on the same screen (initial deploy `0AfWB00000DTkSz0AL` failed on that constraint) — acceptable because no user data has been captured at Screen 1, Finish there is functionally "cancel." `Screen_Success` / `Screen_Error` unchanged.
+- **Fix #3 — orchestrator seed (deploy `0AfWB00000DTkhV0AT`).** Copied `FQS_Setup_Flow.flow-meta.xml` → new file [FQS_Setup_Orchestrator.flow-meta.xml](../force-app/main/default/flows/FQS_Setup_Orchestrator.flow-meta.xml) with `<label>FQS Setup Orchestrator</label>` and `<status>Draft</status>`. Original `FQS_Setup_Flow` untouched; `FQS_Setup_Configuration` FlexiPage still routes to the original. Seed only — nothing wired yet.
+- **Fix #4 — Applicable_Models__c substring warning (bundled deploy — see below).** Added a WARNING sentence to `<description>` in [Applicable_Models__c.field-meta.xml](../force-app/main/default/objects/FQS_Campaign_Template__mdt/fields/Applicable_Models__c.field-meta.xml) documenting the `LIKE '%model%'` / Flow `Contains` substring-match risk. No Apex or flow logic changed.
+- **Fix #5 — `Default_In_Model__c` deletion — NOT SHIPPED, reclassified.** Halted per the plan's STOP directive: `FQS_CampaignHierarchyBuilder.cls` line 86 SELECTs the field and [FQS_CampaignHierarchyBuilder_Test.cls](../force-app/main/default/classes/FQS_CampaignHierarchyBuilder_Test.cls) line 12 uses it in a live `WHERE Default_In_Model__c LIKE :('%' + model + '%')` clause plus [FQS_Campaign_Template__mdt-FQS Campaign Template Layout.layout-meta.xml](../force-app/main/default/layouts/FQS_Campaign_Template__mdt-FQS%20Campaign%20Template%20Layout.layout-meta.xml) references it — deletion would break Apex compilation and empty a test query. Reverted the field-file delete and the value-block strip across the 53 records (`git checkout HEAD` on the field file + all 53 CMDT records) before deploying. **Decision (Justin, 2026-07-19):** reclassify `Default_In_Model__c` from "dead" to **"referenced, currently unused"** — the field is queried by Apex and filtered in tests, but no downstream UI/Screen consumes the result. It stays. If a future library-picker split lands (v2 spec), the field is already there; if not, an Apex-first cleanup would remove the SELECT + test WHERE first, then delete the field/records/layout. No further action this release.
+- **Fix #6 — naming-flow scope clarification.** Added an "Explicitly excluded from scope" section to [.planning/fqs-record-naming-flows-plan.md](fqs-record-naming-flows-plan.md) — Campaign is not covered by the auto-naming flows because `FQS_CampaignHierarchyBuilder.expandName` already writes the final Campaign name at insert, and an AfterSave flow would overwrite it.
+- **Fix #7 — step counter copy (no change needed).** Verified the four pre-terminal screen labels already read "Step 1 of 4" → "Step 4 of 4" and the Success/Error screens are correctly excluded from the count. Copy matches reality — no edit required.
+
+**Deploy 3 (field description warning):** field-level XML change only. Deploy ID recorded in the return summary. CMDT type + 53 records left as they are on `main` (fix #5 aborted before any record edits landed).
+
+**Out of scope (Justin gated) and unchanged this session:** launch surface / FQS App Home page, `FQS_Setup_Configuration` FlexiPage, `FQS_Setup_Flow` (original), duplicate-name check tightening, widened test coverage, orchestrator screen wiring, launcher / wizard / release-readiness files.
+
+**Screen_Choose_Model Finish behavior (accepted 2026-07-19):** Screen 1 keeps `allowFinish=true` because Salesforce metadata validation blocks the `allowBack=false + allowFinish=false` combination. Since Seasonal is pre-selected as default on Screen 1 (radio group defaults to first option), clicking Finish there terminates a pre-populated draft with nothing further built — functionally a cancel. UI-verified 2026-07-19. If a future UX pass wants Finish uniformly locked, options are (a) enable `allowBack=true` on Screen 1 (meaningless but unblocks the validator), or (b) redesign Screen 1 with an explicit Cancel button.
+
+**Fix #2 rescinded (2026-07-19).** The audit's premise was wrong: `allowFinish` on a screen does not mean "show a Finish button" — it means "this screen is terminal-eligible." Salesforce's footer emits **Next** when there is a downstream connector, and **Finish** only on genuine terminal screens. Setting `allowFinish=false` on Screens 2, 3, 4 changed nothing at runtime (the footer already showed Next). Flow Builder re-enables `allowFinish=true` on save-as-new-version and that is the correct state; the flow's real terminal semantics live in its connector graph, not in the `allowFinish` field. The audit misread the risk. `Screen_Confirm` currently sits at `allowFinish=false` (bounced from Flow Builder unchanged); leaving it that way is fine — Confirm has a downstream connector to Build_Hierarchy so the footer emits Next anyway. No fix required. **Note for future audits:** do not treat `allowFinish=true` on a non-terminal screen as a bug; verify via UI which button renders.
+
+**Fix #7 rescinded (implicit — the "Step N of 4" copy was correct all along).** The audit flagged this as a bug based on there being 5 physical screens. But the 5th (Success/Error) is terminal, not a step in the wizard. The 4-of-4 counter is correct.
+
+**Fix — Screen_Confirm hidden-button + selection summary (2026-07-19, deploy `0AfWB00000DTmHt0AL`).** Two changes to `Screen_Confirm`:
+- `allowFinish=true` (was `false`). Reversing my earlier misread — `Screen_Confirm` has a downstream `<connector>` to `Decide_Model_Is_GivingPrograms` (a Decision, not a Screen), and when `allowFinish=false` on a screen with only a Decision downstream, Salesforce hides the terminal action entirely. Setting `allowFinish=true` lets the footer render **Next** which the Decision then routes through — exactly the behavior needed. This is a hard bug fix, not a cosmetic one.
+- Added selection counts to `DisplayText_ConfirmIntro`: `Programs (Level 1): {!dtRollups.selectedRows.size} selected`, same for Strategies and Asks. Users can now sanity-check what they picked before building. Full row-by-row summary was considered but deferred — the counts are the minimum viable disclosure, and a real summary table needs Flow Builder authoring.
+
+**Follow-up — Screen 2 parent-context (2026-07-19).** The Choose Strategies screen's `dtStrategies` and `dtAsks` tables don't show which parent each row will roll up under. In Seasonal mode the parent is implicit (one top-level, e.g. `FY26 Fundraising`) so this is a minor issue. In Giving Programs mode each strategy rolls up to whichever program the user picked in `dtRollups` — a Parent column on Strategies would clarify this. Add a `Parent_Template_Key__c` column to the `dtStrategies` columns JSON, and consider a text-derived "Parent Program" display column that resolves the key. `dtAsks` already shows `Parent_Template_Key__c`. Not a correctness bug; a UX authoring gap.
+
+**Follow-up — Screen 4 full-row summary (2026-07-19).** The Confirm screen now shows selection **counts** but not the row identities. A "You selected: [Spring Appeal, Year-End Push]" style summary would need a Get_* + Loop + text-accumulation pattern before Screen_Confirm renders, or a Flow-Builder-authored table. Deferred to a UX iteration.
+
+**P1 BLOCKER — flowruntime:datatable selectedRows binding is broken (2026-07-19, ships with feature disabled).** Confirmed via Flow Debug log during Test 3 run. The `flowruntime:datatable` component's `selectedRows` output does NOT reflect the user's checkbox state:
+
+- Screen 2 test: user checked **2** of 5 strategy rows (Spring Appeal + Annual Celebration). `selectedRows` output returned **4** rows (added Monthly Sustainer Drive + Foundation Giving that were not checked). Year-End Push was NOT in `selectedRows` even though it was also unchecked. Non-deterministic; not "return all rows."
+- Screen 3 test: user checked **0** of 13 ask rows. `selectedRows` output returned all **13** rows.
+- `firstSelectedRow` mirrors this — reports the first row of `selectedRows`, not the first user-checked row.
+- Downstream loops iterate `selectedRows` faithfully. Apex `FQS_CampaignHierarchyBuilder` filters correctly on the keys it receives. Bug is exclusively in the component's output binding.
+
+Verified fixes that did NOT resolve this:
+- Setting `shouldDisplayLabel = true` (fixes label rendering, unrelated to selection)
+- Adding `keyField` complexValue with `fieldReferences: ["Id"]` (default emitted by Flow Builder)
+- Hand-editing `keyField.fieldReferences` from `["Id"]` to `["Template_Key__c"]` (deployed via `0AfWB00000DTmwD0AT`; no change in behavior)
+
+Salesforce docs on the component are behind a login and not accessible from CLI tooling. Community search deferred.
+
+**Impact:** The Campaign Hierarchy Setup flow is **not user-shippable** in its current form. Every run builds a partial hierarchy of records the user did not fully choose. Direct SOQL cleanup is required after any test run.
+
+**Do not release this flow to end users until the datatable binding is diagnosed and fixed.** In the interim, the Apex `FQS_CampaignHierarchyBuilder` is directly invocable from a developer console — that's the working release path for organizations that want the hierarchy built without the wizard UI.
+
+**Diagnosis paths to try later, in order of expected cost:**
+1. Salesforce Trailblazer Community + Stack Exchange search for `flowruntime:datatable selectedRows multi_select`.
+2. Rebuild the 3 datatable components from scratch in Flow Builder (delete + re-add) — fresh authoring may emit correct XML that round-tripping doesn't.
+3. Try `preselectedRows` input parameter with an empty collection — may reset default-all-selected behavior.
+4. Switch to the older `flow_datatable` Aura component instead of `flowruntime:datatable`.
+5. Wire the datatable to a `flowruntime:LookupRecord`-based multi-picker instead — less rich UI but known to work.
+
+**Fix (datatable label + keyField) applied via Flow Builder (2026-07-19).** All three `flowruntime:datatable` fields (`dtRollups`, `dtStrategies`, `dtAsks`) were missing two input parameters that Flow Builder emits but don't hand-author cleanly:
+- `<name>shouldDisplayLabel</name>` with `<booleanValue>true</booleanValue>` — the "Use Label as the table title" checkbox in Flow Builder's datatable properties. Without it, the datatable's `label` input parameter is stored but not rendered as chrome.
+- `<name>keyField</name>` with a `<complexValue>{...JSON...}</complexValue>` + `<complexValueType>ComplexObjectFieldDetails</complexValueType>` wrapper. Hand-authored `<stringValue>` was rejected: *"Input parameters of type FlowComplexObjectFieldDetails need to have a ComplexValue."* Only Flow Builder emits the correct XML shape (parity with the gotcha documented in [FQS_Find_Matching_Gift.flow-meta.xml](../force-app/main/default/flows/FQS_Find_Matching_Gift.flow-meta.xml) description).
+
+Justin applied both switches to all three datatables in Flow Builder and saved as new version. Then a `sf project retrieve start --metadata Flow:FQS_Campaign_Hierarchy_Setup` pulled the correct XML back to the repo — this is the pattern for authoring datatable configuration going forward.
