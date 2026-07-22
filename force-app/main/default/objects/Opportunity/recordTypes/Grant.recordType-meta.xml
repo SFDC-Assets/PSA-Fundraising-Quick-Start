@@ -2,37 +2,87 @@
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Grant</fullName>
     <active>true</active>
-    <businessProcess>FQS_Opportunity_Process</businessProcess>
-    <description>Foundation and government grant lifecycle. Typically Organization donors. Automation signal: create GiftCommitment on Awarded, not Proposal Submitted — declines at Under Review are common. See docs/npc-automation-notes.md.</description>
+    <businessProcess>FQS Grant Process</businessProcess>
+    <description>Foundation and government grant lifecycle. Typically Organization donors.</description>
     <label>Grant</label>
     <picklistValues>
-        <picklist>StageName</picklist>
+        <picklist>ForecastCategoryName</picklist>
         <values>
-            <fullName>Identification</fullName>
-            <default>true</default>
-        </values>
-        <values>
-            <fullName>Cultivation</fullName>
+            <fullName>Best Case</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>LOI Submitted</fullName>
+            <fullName>Closed</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>Proposal Submitted</fullName>
+            <fullName>Commit</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>Under Review</fullName>
+            <fullName>Omitted</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>Awarded</fullName>
+            <fullName>Pipeline</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>LeadSource</picklist>
+        <values>
+            <fullName>Advertisement</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>Declined</fullName>
+            <fullName>Employee Referral</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>External Referral</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Partner</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Public Relations</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Seminar - Internal</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Seminar - Partner</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Trade Show</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Web</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Word of mouth</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Type</picklist>
+        <values>
+            <fullName>Existing Business</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>New Business</fullName>
             <default>false</default>
         </values>
     </picklistValues>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPermission xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Grants a user or integration bypass of the FQS auto-naming flows on Gift Commitment, Gift Transaction, and Opportunity. Assign to integration or migration users whose upstream system is responsible for the record Name.</description>
+    <isLicensed>false</isLicensed>
+    <label>FQS Skip Record Naming</label>
+</CustomPermission>

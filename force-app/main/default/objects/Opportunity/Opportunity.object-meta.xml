@@ -154,47 +154,6 @@
         <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
-    <businessProcesses>
-        <fullName>FQS_Opportunity_Process</fullName>
-        <description>Shared Opportunity business process for FQS. Includes all nonprofit stages (Grant and Major Gift) plus standard Closed Won and Closed Lost.</description>
-        <isActive>true</isActive>
-        <values>
-            <fullName>Identification</fullName>
-        </values>
-        <values>
-            <fullName>Cultivation</fullName>
-        </values>
-        <values>
-            <fullName>LOI Submitted</fullName>
-        </values>
-        <values>
-            <fullName>Proposal Submitted</fullName>
-        </values>
-        <values>
-            <fullName>Under Review</fullName>
-        </values>
-        <values>
-            <fullName>Solicitation</fullName>
-        </values>
-        <values>
-            <fullName>Verbal Commitment</fullName>
-        </values>
-        <values>
-            <fullName>Awarded</fullName>
-        </values>
-        <values>
-            <fullName>Pledged</fullName>
-        </values>
-        <values>
-            <fullName>Declined</fullName>
-        </values>
-        <values>
-            <fullName>Closed Won</fullName>
-        </values>
-        <values>
-            <fullName>Closed Lost</fullName>
-        </values>
-    </businessProcesses>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <enableFeeds>true</enableFeeds>
     <enableHistory>false</enableHistory>

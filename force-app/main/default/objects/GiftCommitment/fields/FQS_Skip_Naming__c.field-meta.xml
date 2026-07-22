@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Skip_Naming__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>When TRUE, the FQS Auto Name Gift Commitment flow skips this record and leaves Name as-is. Use for imports or integration writes that carry an authoritative external Name.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Check to prevent the FQS auto-naming flow from overwriting the Name on this Gift Commitment.</inlineHelpText>
+    <label>Skip FQS Auto Naming</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>
