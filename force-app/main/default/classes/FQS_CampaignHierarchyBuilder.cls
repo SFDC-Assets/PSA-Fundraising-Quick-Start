@@ -19,6 +19,9 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
         @InvocableVariable(required=true label='Model' description='Seasonal | GivingPrograms | Strategy')
         public String model;
 
+        @InvocableVariable(label='Year Offset' description='-1 = last year, 0 = this year, 1 = next year. Defaults to 0.')
+        public Integer yearOffset;
+
         @InvocableVariable(label='Selected Rollup Template Keys' description='Only used when model = GivingPrograms; controls which program rollups are created.')
         public List<String> selectedRollupKeys;
 
@@ -32,6 +35,8 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
     public class BuildResult {
         @InvocableVariable(label='Created Model')         public String createdModel;
         @InvocableVariable(label='Created Top Level Ids') public List<String> createdTopLevelIds;
+        @InvocableVariable(label='Created Campaigns' description='All Campaigns inserted (rollups + strategies + asks) for downstream Flow use.')
+        public List<Campaign> createdCampaigns;
         @InvocableVariable(label='Rollup Count')          public Integer rollupCount;
         @InvocableVariable(label='Strategy Count')        public Integer strategyCount;
         @InvocableVariable(label='Ask Count')             public Integer askCount;
@@ -79,7 +84,8 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
         Set<String> selectedStrategyKeys = toSet(req.selectedStrategyKeys);
         Set<String> selectedAskKeys      = toSet(req.selectedAskKeys);
 
-        YearWindow yw = computeYearWindow();
+        Integer yearOffset = (req.yearOffset == null) ? 0 : req.yearOffset;
+        YearWindow yw = computeYearWindow(yearOffset);
 
         List<FQS_Campaign_Template__mdt> templates = [
             SELECT Template_Key__c, Suggested_Name__c, Level__c,
@@ -143,6 +149,8 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
             return new List<BuildResult>{ result };
         }
 
+        Savepoint sp = Database.setSavepoint();
+        try {
         insert rollupCampaigns;
 
         Map<String, Campaign> rollupByTemplateKey = new Map<String, Campaign>();
@@ -158,7 +166,7 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
             for (Integer i = 0; i < rollupKeys.size(); i++) {
                 Campaign rollup = rollupCampaigns[i];
                 Campaign strat = new Campaign(
-                    Name      = yw.label,
+                    Name      = yw.label + ' ' + rollup.Name,
                     ParentId  = rollup.Id,
                     StartDate = yw.startDate,
                     EndDate   = yw.endDate,
@@ -175,7 +183,7 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
                 if (t.Level__c != 'Strategy') continue;
                 if (!selectedStrategyKeys.contains(t.Template_Key__c)) continue;
                 DateWindow win = computeWindow(t.Date_Rule__c, yw.startDate, yw.endDate);
-                String stratName = expandName(t.Suggested_Name__c, yw.label);
+                String stratName = yw.label + ' ' + expandName(t.Suggested_Name__c, yw.label);
                 Campaign strat = new Campaign(
                     Name      = stratName,
                     ParentId  = parentRollup.Id,
@@ -228,10 +236,33 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
         List<String> topIds = new List<String>();
         for (Campaign c : rollupCampaigns) topIds.add(String.valueOf(c.Id));
 
+        List<Id> allIds = new List<Id>();
+        for (Campaign c : rollupCampaigns)   allIds.add(c.Id);
+        for (Campaign c : strategyCampaigns) allIds.add(c.Id);
+        for (Campaign c : askCampaigns)      allIds.add(c.Id);
+
+        List<Campaign> allCreated = allIds.isEmpty() ? new List<Campaign>() : [
+            SELECT Id, Name, StartDate, EndDate, ParentId,
+                   FQS_Hierarchy_Depth__c, FQS_Ultimate_Parent_Campaign__c
+            FROM   Campaign
+            WHERE  Id IN :allIds
+            ORDER BY FQS_Hierarchy_Depth__c ASC NULLS FIRST, Name ASC
+        ];
+
         result.rollupCount        = rollupCampaigns.size();
         result.strategyCount      = strategyCampaigns.size();
         result.askCount           = askCampaigns.size();
         result.createdTopLevelIds = topIds;
+        result.createdCampaigns   = allCreated;
+        } catch (Exception e) {
+            Database.rollback(sp);
+            result.rollupCount   = 0;
+            result.strategyCount = 0;
+            result.askCount      = 0;
+            result.createdTopLevelIds = new List<String>();
+            result.createdCampaigns   = new List<Campaign>();
+            result.errorMessage = 'Campaign build failed and was rolled back: ' + e.getMessage();
+        }
 
         return new List<BuildResult>{ result };
     }
@@ -242,7 +273,7 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
         return l == null ? new Set<String>() : new Set<String>(l);
     }
 
-    private static YearWindow computeYearWindow() {
+    private static YearWindow computeYearWindow(Integer offset) {
         Integer fyStartMonth = 1;
         try {
             fyStartMonth = [SELECT FiscalYearStartMonth FROM Organization LIMIT 1].FiscalYearStartMonth;
@@ -253,17 +284,22 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
         YearWindow yw = new YearWindow();
 
         if (isCY) {
-            yw.startDate = Date.newInstance(today.year(), 1, 1);
-            yw.endDate   = Date.newInstance(today.year(), 12, 31);
-            yw.label     = 'CY' + String.valueOf(today.year()).right(2);
+            Integer y = today.year() + offset;
+            yw.startDate = Date.newInstance(y, 1, 1);
+            yw.endDate   = Date.newInstance(y, 12, 31);
+            yw.label     = 'CY' + String.valueOf(y).right(2);
         } else if (today.month() >= fyStartMonth) {
-            yw.startDate = Date.newInstance(today.year(), fyStartMonth, 1);
-            yw.endDate   = Date.newInstance(today.year() + 1, fyStartMonth, 1).addDays(-1);
-            yw.label     = 'FY' + String.valueOf(today.year() + 1).right(2);
+            Integer startYr = today.year()     + offset;
+            Integer endYr   = today.year() + 1 + offset;
+            yw.startDate = Date.newInstance(startYr, fyStartMonth, 1);
+            yw.endDate   = Date.newInstance(endYr,   fyStartMonth, 1).addDays(-1);
+            yw.label     = 'FY' + String.valueOf(endYr).right(2);
         } else {
-            yw.startDate = Date.newInstance(today.year() - 1, fyStartMonth, 1);
-            yw.endDate   = Date.newInstance(today.year(), fyStartMonth, 1).addDays(-1);
-            yw.label     = 'FY' + String.valueOf(today.year()).right(2);
+            Integer startYr = today.year() - 1 + offset;
+            Integer endYr   = today.year()     + offset;
+            yw.startDate = Date.newInstance(startYr, fyStartMonth, 1);
+            yw.endDate   = Date.newInstance(endYr,   fyStartMonth, 1).addDays(-1);
+            yw.label     = 'FY' + String.valueOf(endYr).right(2);
         }
         return yw;
     }

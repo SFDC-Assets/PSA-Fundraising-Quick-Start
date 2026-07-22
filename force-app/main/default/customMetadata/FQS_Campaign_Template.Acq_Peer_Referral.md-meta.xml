@@ -38,4 +38,8 @@
         <field>Sort_Order__c</field>
         <value xsi:type="xsd:double">30</value>
     </values>
+    <values>
+        <field>Display_Label__c</field>
+        <value xsi:type="xsd:string">New Donor – Peer Referral Drive (under New Donor Acquisition)</value>
+    </values>
 </CustomMetadata>

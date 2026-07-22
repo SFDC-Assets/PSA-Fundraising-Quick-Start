@@ -38,4 +38,8 @@
         <field>Sort_Order__c</field>
         <value xsi:type="xsd:double">10</value>
     </values>
+    <values>
+        <field>Display_Label__c</field>
+        <value xsi:type="xsd:string">Annual Celebration – Save-the-Date Email (under Annual Celebration)</value>
+    </values>
 </CustomMetadata>

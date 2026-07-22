@@ -12,7 +12,7 @@
     </values>
     <values>
         <field>Suggested_Name__c</field>
-        <value xsi:type="xsd:string">Community Foundation Proposal {yearLabel}</value>
+        <value xsi:type="xsd:string">Community Foundation Proposal</value>
     </values>
     <values>
         <field>Applicable_Models__c</field>
@@ -37,5 +37,9 @@
     <values>
         <field>Sort_Order__c</field>
         <value xsi:type="xsd:double">10</value>
+    </values>
+    <values>
+        <field>Display_Label__c</field>
+        <value xsi:type="xsd:string">Community Foundation Proposal (under Foundation Giving)</value>
     </values>
 </CustomMetadata>

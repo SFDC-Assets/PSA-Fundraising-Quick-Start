@@ -38,4 +38,8 @@
         <field>Sort_Order__c</field>
         <value xsi:type="xsd:double">20</value>
     </values>
+    <values>
+        <field>Display_Label__c</field>
+        <value xsi:type="xsd:string">Impact Report Mailing (under Retention &amp; Stewardship)</value>
+    </values>
 </CustomMetadata>

@@ -723,7 +723,9 @@ Justin decisions on the audit shipped in one working session. Every change deplo
 
 **Follow-up — Screen 4 full-row summary (2026-07-19).** The Confirm screen now shows selection **counts** but not the row identities. A "You selected: [Spring Appeal, Year-End Push]" style summary would need a Get_* + Loop + text-accumulation pattern before Screen_Confirm renders, or a Flow-Builder-authored table. Deferred to a UX iteration.
 
-**P1 BLOCKER — flowruntime:datatable selectedRows binding is broken (2026-07-19, ships with feature disabled).** Confirmed via Flow Debug log during Test 3 run. The `flowruntime:datatable` component's `selectedRows` output does NOT reflect the user's checkbox state:
+**P1 BLOCKER — RESOLVED 2026-07-20** by [MultiSelectCheckboxes rebuild](#multiselectcheckboxes-rebuild-2026-07-20) — see section at end of file. The datatable-selectedRows binding was abandoned rather than diagnosed; three native `MultiSelectCheckboxes` screen fields replace the datatables and bind reliably.
+
+**P1 BLOCKER (historical) — flowruntime:datatable selectedRows binding is broken (2026-07-19, ships with feature disabled).** Confirmed via Flow Debug log during Test 3 run. The `flowruntime:datatable` component's `selectedRows` output does NOT reflect the user's checkbox state:
 
 - Screen 2 test: user checked **2** of 5 strategy rows (Spring Appeal + Annual Celebration). `selectedRows` output returned **4** rows (added Monthly Sustainer Drive + Foundation Giving that were not checked). Year-End Push was NOT in `selectedRows` even though it was also unchecked. Non-deterministic; not "return all rows."
 - Screen 3 test: user checked **0** of 13 ask rows. `selectedRows` output returned all **13** rows.
@@ -753,3 +755,106 @@ Salesforce docs on the component are behind a login and not accessible from CLI 
 - `<name>keyField</name>` with a `<complexValue>{...JSON...}</complexValue>` + `<complexValueType>ComplexObjectFieldDetails</complexValueType>` wrapper. Hand-authored `<stringValue>` was rejected: *"Input parameters of type FlowComplexObjectFieldDetails need to have a ComplexValue."* Only Flow Builder emits the correct XML shape (parity with the gotcha documented in [FQS_Find_Matching_Gift.flow-meta.xml](../force-app/main/default/flows/FQS_Find_Matching_Gift.flow-meta.xml) description).
 
 Justin applied both switches to all three datatables in Flow Builder and saved as new version. Then a `sf project retrieve start --metadata Flow:FQS_Campaign_Hierarchy_Setup` pulled the correct XML back to the repo — this is the pattern for authoring datatable configuration going forward.
+
+---
+
+## MultiSelectCheckboxes rebuild (2026-07-20)
+
+Abandoning the datatable approach entirely. The P1 blocker above is not diagnosed — it is *routed around* by replacing the three `flowruntime:datatable` screen fields with native Flow `MultiSelectCheckboxes` screen fields whose selection binding is a first-class Flow primitive.
+
+**Deploy ID:** `0AfWB00000DUlgL0AT` (single atomic deploy of the full rewrite).
+
+### What was removed
+
+- **Three datatable screen fields:** `dtRollups`, `dtStrategies`, `dtAsks` — all with `<extensionName>flowruntime:datatable</extensionName>`.
+- **Three loops over `selectedRows`:** `Loop_Selected_Rollups`, `Loop_Selected_Strategies`, `Loop_Selected_Asks`.
+- **Three assignments that appended `Template_Key__c` into the intermediate collection vars:** `Assign_Selected_Keys_Rollups`, `Assign_Selected_Keys_Strategies`, `Assign_Selected_Keys_Asks`.
+- **Rollup-default-for-non-GP workaround:** `Assign_Rollup_Default_For_Non_GP` (which shoved a literal `'rollup'` into `varSelectedRollupKeys` for Seasonal/Strategy) removed. Seasonal/Strategy now simply pass an empty rollup collection; the Apex builder enters the `else` branch at line 117 and hardcodes the top-level.
+- **Model gating decision** `Decide_Model_Is_GivingPrograms` — no longer needed because the empty-rollup-list path handles both cases uniformly.
+
+### What was added
+
+**Three `MultiSelectCheckboxes` screen fields:**
+
+- `msRollups` on `Screen_Choose_Strategies`, gated by `<visibilityRule>` `radioModel EqualTo 'GivingPrograms'`.
+- `msStrategies` on `Screen_Choose_Strategies`, always visible.
+- `msAsks` on `Screen_Choose_Asks`, always visible.
+
+Each MSCS field references a `<dynamicChoiceSets>` element that queries `FQS_Campaign_Template__mdt` filtered by `Applicable_Models__c Contains {!radioModel}` + `Level__c EqualTo Rollup|Strategy|Ask`, sorted by `Sort_Order__c` ASC. `<displayField>Suggested_Name__c</displayField>` renders the choice label; `<valueField>Template_Key__c</valueField>` is the value the Apex expects. `{yearLabel}` placeholders in choice labels are left un-expanded (Apex expands them at insert time — acceptable per Justin's decision).
+
+**Pre-checked defaults:**
+
+For each level, a Get Records queries the same CMDT with an extra filter `Default_In_Model__c Contains {!radioModel}` (see `Get_Default_Rollup_Templates`, `Get_Default_Strategy_Templates`, `Get_Default_Ask_Templates`). A follow-on loop (`Loop_Default_Rollups` / `_Strategies` / `_Asks`) appends each row's `Template_Key__c` plus a `;` separator into a `String` accumulator (`varDefaultRollupKeysStr` / `_Strategy_` / `_Ask_`). A trailing-semicolon-stripping formula (`formulaDefaultRollupKeysClean`, etc.) is bound to the MSCS field's `<defaultValue>` so the field renders with those choices pre-checked.
+
+The default-loading pipeline runs after `Screen_Choose_Model` and before `Screen_Choose_Strategies`. Sequence: `Get_Rollup_Templates` → `Get_Strategy_Templates` → `Get_Ask_Templates` → `Get_Default_Rollup_Templates` → `Loop_Default_Rollups` → `Get_Default_Strategy_Templates` → `Loop_Default_Strategies` → `Get_Default_Ask_Templates` → `Loop_Default_Asks` → `Screen_Choose_Strategies`. Six Get Records total in the pre-flight (three "all applicable" for the dynamic choice sets to reference, three "defaults only" to power the pre-check state). Not the leanest possible; correct.
+
+### Semicolon-string → List&lt;String&gt; boundary handling
+
+`<fieldType>MultiSelectCheckboxes</fieldType>` output type is a single `String` (semicolon-separated), not a text collection. Rather than modify the Apex `BuildRequest` (out of scope — 11 tests would need updates), the flow rebuilds the `List<String>` server-side using a Loop-plus-Decision-plus-Add pattern:
+
+For each level, after `Screen_Confirm` and before `Build_Hierarchy`:
+1. Loop over the full CMDT set for that level (`Get_Rollup_Templates` / `_Strategy_` / `_Ask_` — the same collections that already back the dynamic choice sets).
+2. On each iteration, a Decision (`Decide_Rollup_In_Selection` / etc.) tests whether the MSCS output string `Contains` the current row's `Template_Key__c`.
+3. If matched, an Assignment adds that key to the true text-collection variable (`varSelectedRollupKeys` / `varSelectedStrategyKeys` / `varSelectedAskKeys`).
+4. When the loop completes, the accumulated collection is passed to `Build_Hierarchy` on the invocable input parameter, unchanged.
+
+Why not `SPLIT()`? Flow's formula-level `SPLIT` returns a text collection in some contexts but is fragile as an inline default for an invocable input parameter — Flow Builder rejects it in some templates and there are documented cases where the return type is coerced to a single string. The loop-membership-test pattern is explicit, deploys cleanly, and stays inside patterns already in use elsewhere in FQS. Extra queries are zero because the Get Records for the dynamic choice sets are reused as the loop collection.
+
+Sequence: `Screen_Confirm` → `Loop_Rollup_Membership` → `Decide_Rollup_In_Selection` → (`Assign_Add_Rollup_Key` or fall-through) → next iteration; after loop exhaust → `Loop_Strategy_Membership` → similar → `Loop_Ask_Membership` → similar → `Build_Hierarchy`.
+
+### Screen_Confirm selection-count status
+
+**Dropped.** The stale bindings (`{!dtRollups.selectedRows.size}` etc.) were removed from the DisplayText block on `Screen_Confirm`. The counts are not rewritten to reference MSCS output because MSCS output is a single semicolon-string that has no `.size` accessor — a proper count would need either a formula that counts `;` or a wait-until-loops-run-then-bind-to-collection-size which happens after the Confirm screen renders. Kept the "Model: {!radioModel}" line and the boilerplate. Row-identity summary is deferred (was already noted as follow-up).
+
+### Screen structure
+
+Preserved (five user-facing screens, four numbered steps + terminal Success/Error):
+
+1. `Screen_Choose_Model` — unchanged. Radio buttons, intro copy, sample-shape outline.
+2. `Screen_Choose_Strategies` — rebuilt with `msRollups` (visibility-gated on `radioModel == GivingPrograms`) + `msStrategies` (always visible).
+3. `Screen_Choose_Asks` — rebuilt with `msAsks` (always visible).
+4. `Screen_Confirm` — kept, with count lines dropped. Downstream connector now goes to `Loop_Rollup_Membership` (was `Decide_Model_Is_GivingPrograms`).
+5. `Screen_Success` / `Screen_Error` — unchanged.
+
+### Divergences from the plan
+
+- **Six Get Records, not four.** The plan suggested "if the choice-set syntax lets you skip separate GetRecords elements ... delete the redundant GetRecords. Otherwise keep them." Native `<dynamicChoiceSets>` is a self-contained SOQL query — but the *loop-membership-test* selection-collection rebuild needs a Flow collection variable to iterate, and dynamic choice sets are not exposed as flow variables. So the three "all applicable" Get Records stay (as loop collections) AND the dynamic choice sets each carry their own query. Three additional "defaults only" Get Records added on top for pre-check state. Six total. Bulkified, all outside loops.
+- **`SPLIT()` formula path not used.** Justin's plan floated `SPLIT()` as the "cleaner" way to convert semicolon-string to text collection. The loop-membership pattern was chosen instead — it re-uses the CMDT collections already loaded, avoids formula/invocable parameter binding uncertainty, and is a pattern used elsewhere in FQS flows.
+
+### UI test protocol for Justin
+
+Run each test against FundFirst. Between runs, clean up created Campaigns with:
+
+```
+sf apex run --file scripts/apex/soql-adhoc.apex --target-org FundFirst
+```
+
+(or an inline `delete [SELECT Id FROM Campaign WHERE RecordType.DeveloperName = 'FQS_Fundraising']`).
+
+**Test 1 — Seasonal, all defaults, happy path.**
+1. Launch the flow. Screen 1: leave `Seasonal` selected (default). Next.
+2. Screen 2 (`Screen_Choose_Strategies`): `msRollups` should be **hidden** (visibility rule). `msStrategies` should show 5–6 strategy options with 4–5 pre-checked (Spring Appeal, Annual Celebration, Year-End Push, Monthly Sustainer, Foundation Giving). Leave all defaults. Next.
+3. Screen 3 (`Screen_Choose_Asks`): `msAsks` shows the seasonal ask templates with defaults pre-checked. Leave defaults. Next.
+4. Screen_Confirm: shows `Model: Seasonal`. Next.
+5. Screen_Success: shows Model=Seasonal, non-zero rollup/strategy/ask counts.
+6. Verify: single top-level `FY26 Fundraising` (or CY26) + N strategy children + N ask grandchildren.
+
+**Test 2 — Seasonal, custom selection.**
+1. Launch. Seasonal → Next.
+2. Screen_Choose_Strategies: **uncheck** Foundation Giving and Monthly Sustainer from `msStrategies`. Next.
+3. Screen_Choose_Asks: **uncheck ALL** asks (leave `msAsks` blank). Next.
+4. Confirm → Build.
+5. Expected: 1 top-level + only Spring Appeal / Annual Celebration / Year-End Push strategies + zero asks. Foundation Giving strategy and Monthly Sustainer must NOT exist.
+6. This is the test that would have failed under the datatable bug (bug returned rows the user didn't check).
+
+**Test 3 — Giving Programs, happy path.**
+1. Launch. Screen 1: pick `Giving Programs`. Next.
+2. Screen_Choose_Strategies: **both** MSCS fields visible. `msRollups` shows 6 program rollups pre-checked (Major Gifts, Planned Giving, Online Giving, Events, Foundation Giving, Annual Giving). `msStrategies` shows the year-cohort strategy pre-checked (single row `{yearLabel}` — leave as-is). Uncheck `Annual Giving` from `msRollups` (leave 5 programs). Next.
+3. Screen_Choose_Asks: defaults pre-checked. Leave defaults. Next.
+4. Confirm → Build.
+5. Expected: 5 top-level program Campaigns + 5 year-cohort strategies (one per program) + defaults asks under the appropriate programs. NOT 6 programs; the deselection must have taken effect.
+
+### File state
+
+Deploy `0AfWB00000DUlgL0AT` applied to FundFirst (Active). Local flow file at [FQS_Campaign_Hierarchy_Setup.flow-meta.xml](../force-app/main/default/flows/FQS_Campaign_Hierarchy_Setup.flow-meta.xml). No commits made per Justin's gate.
+

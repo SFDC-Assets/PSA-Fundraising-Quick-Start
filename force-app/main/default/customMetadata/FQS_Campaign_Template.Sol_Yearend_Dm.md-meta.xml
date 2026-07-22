@@ -38,4 +38,8 @@
         <field>Sort_Order__c</field>
         <value xsi:type="xsd:double">30</value>
     </values>
+    <values>
+        <field>Display_Label__c</field>
+        <value xsi:type="xsd:string">Year-End – Direct Mail Appeal (under Year-End Push)</value>
+    </values>
 </CustomMetadata>

@@ -12,7 +12,7 @@
     </values>
     <values>
         <field>Suggested_Name__c</field>
-        <value xsi:type="xsd:string">Annual Celebration {yearLabel}</value>
+        <value xsi:type="xsd:string">Annual Celebration</value>
     </values>
     <values>
         <field>Applicable_Models__c</field>
