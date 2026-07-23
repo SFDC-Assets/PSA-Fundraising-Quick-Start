@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DonorCount</fullName>
+    <inlineHelpText>Number of unique donors who made a paid gift attributed to this campaign or outreach source code. A donor who gave multiple times is counted once.</inlineHelpText>
+</CustomField>
