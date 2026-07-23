@@ -41,6 +41,62 @@ Both are system-calculated rollups from related `GiftTransaction` and `GiftCommi
 
 **Implication for automation:** never store computed commitment amounts on `GiftCommitment` from a flow or trigger. Push them onto the underlying transactions/schedules and let the rollup fire.
 
+### ⚠ Recurring/Scheduled commitments won't activate without a default `GiftDesignation` AND a synchronous engine call
+
+**The two-part gotcha.**
+
+**Part 1 — default designation is required.** The Fundraising engine refuses to process a `GiftCommitment` if the org has zero `GiftDesignation` records with `IsDefault = true`. Attempting `processGiftCommitment` returns:
+
+> `INVALID_API_INPUT: The org wide default designation is not yet configured or is inactive. Create a default designation or mark an existing one as default, and try again.`
+
+Confirmed 2026-07-21 in FundFirst — after populating hundreds of `GiftDesignation` records via seed, none carried `IsDefault=true`; every flow-created commitment stayed with null `CurrentGiftCmtScheduleId` / `NextTransactionAmount` / no Expected GTs. Flipping one designation on unblocked the engine immediately.
+
+**Part 2 — flow-inserted commitments don't auto-activate.** Even with a default designation set, the platform's engine runs against flow-inserted schedule rows *only* via the scheduled batch `FQS_Coordinate_Gift_Commitment_Processing` (fires daily at 01:00 UTC — dispatches to `frops_flow__GiftCmtProcessingOriginal` or `frops_flow__GiftCmtProcessingNextGen` depending on org config). Apex `insert` fires the engine post-commit; Flow's `Create Records` does not. So a commitment created via Screen Flow at 09:00 waits 16 hours before its schedule activates.
+
+**Fix in FQS launcher:** after `Create_Recurring_Schedule` and `Create_Scheduled_Schedule`, the launcher calls the standard `processGiftCommitment` invocable action against the just-inserted `GiftCommitment.Id`. This activates the schedule synchronously — before the user hits the Success screen, `CurrentGiftCmtScheduleId`, `NextTransactionAmount`, and the first Expected `GiftTransaction` are all populated.
+
+Flow action XML shape (invocable action, `CurrentTransaction` mode):
+```xml
+<actionCalls>
+    <name>Process_Recurring_Commitment</name>
+    <actionName>processGiftCommitment</actionName>
+    <actionType>processGiftCommitment</actionType>
+    <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+    <inputParameters>
+        <name>giftCommitmentId</name>
+        <value>
+            <elementReference>rsv_GiftCommitment.Id</elementReference>
+        </value>
+    </inputParameters>
+    <storeOutputAutomatically>true</storeOutputAutomatically>
+</actionCalls>
+```
+
+**Install-time contract:** FQS ships a Designation Setup flow that flips one `GiftDesignation` to `IsDefault=true` at install time. Without it, the launcher's `processGiftCommitment` call fails via `Err_Create` (fault-connected on both action calls) and the user sees the shared error screen. Symptom without the install-time setup: every flow-inserted commitment shows the `FQS_Summary__c` failsafe until the nightly batch runs.
+
+### ⚠ `CurrentGiftCmtScheduleId` is activation-gated, not insert-gated
+
+The `CurrentGiftCmtScheduleId` lookup (parent GC → active child GCS) is populated by the platform's Fundraising engine **when a schedule's `StartDate` arrives**, not when the schedule is inserted. Future-dated schedules leave the field null on the parent commitment until the first scheduled payment date is reached. Verified 2026-07-21 in FundFirst: every past-dated flow-created commitment had the lookup populated; every future-dated one had it null (Payments2Us tooling shipping against the same NPC API surfaces the same behavior — see their FAQ).
+
+**Positive-logic reading:** the lookup means "which schedule is currently in force," not "which schedule was most recently attached." A commitment with a future-dated schedule has no *current* schedule — it has a *scheduled-to-start* schedule. That's exactly how reports filtering on `CurrentGiftCmtScheduleId != null` can identify actively giving commitments in one field.
+
+**What else stays null until activation:**
+- `NextTransactionAmount` — derived from the current schedule
+- `NextTransactionDate` — derived from the current schedule
+- The first Expected `GiftTransaction` fan-out (materialized by the same nightly job)
+
+**Do NOT back-fill `CurrentGiftCmtScheduleId` in a flow or Apex.** Overriding it fills the field cosmetically but breaks the semantic — reports believe the schedule is active when it isn't, `NextTransactionAmount` stays null so the record still looks half-broken, and you're second-guessing the schedule engine on when to materialize the first payment.
+
+**FQS pattern:** `FQS_Summary__c` (formula field) detects the "ScheduleType set but CurrentGiftCmtSchedule null" state and renders a "Schedule starts in the future" failsafe message instead of falsely reporting a single payment. See the field's description for the exact logic.
+
+**Design implication for entry flows:** Recurring Gift (`RecurrenceType = 'OpenEnded'`) is retroactive data entry — the donor is *already* giving. Restrict Recurring `StartDate` to today-or-past. Future-dated commitments should be entered as Pledges (Simple or Scheduled), whose "Schedule starts in the future" failsafe is expected and correct.
+
+### `GiftCommitmentSchedule.TransactionDay` inference
+
+`GiftCommitmentSchedule.TransactionDay` controls the day-of-month (Monthly) / day-of-week (Weekly) that subsequent Expected `GiftTransaction` rows are stamped with. When left null on a Monthly schedule, the engine falls back to **day 1** for the second and later payments regardless of what `StartDate` was — so a schedule starting on the 18th produces payments on the 18th (initial), 1st, 1st, 1st…
+
+**Correct pattern:** on GCS insert, set `TransactionDay = DAY(StartDate)`. FQS launcher flow and seed generator both do this.
+
 ---
 
 ## GiftTransaction

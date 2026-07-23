@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
     <fullName>RecurrenceType</fullName>
-    <description>Allowed values: OpenEnded, FixedLength.</description>
-    <inlineHelpText>Open Ended: a recurring gift with no defined end date — typical for monthly donors. Fixed Length: a recurring gift with a clear start and end date.</inlineHelpText>
+    <description>Allowed values: OpenEnded, FixedLength. Set explicitly by the launcher flow / seed generator; the platform does not derive this from the child schedule. OpenEnded is reserved for recurring gifts with no defined end (FQS Gift Entry restricts these to today-or-past Start Dates — a future-dated recurring is a Pledge, not a Recurring Gift). FixedLength is used for scheduled pledges and grants with a defined end date, and for simple single-payment pledges.</description>
+    <inlineHelpText>Open Ended: a recurring gift with no defined end date — the donor gives on a regular cadence until they cancel. Only use for gifts that have already started; future-dated recurring commitments should be recorded as pledges. Fixed Length: a pledge, grant, or scheduled gift with a clear start and end date.</inlineHelpText>
 </CustomField>

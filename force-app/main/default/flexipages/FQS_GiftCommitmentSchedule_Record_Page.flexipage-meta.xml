@@ -37,12 +37,8 @@
         </itemInstances>
         <itemInstances>
             <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>required</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.TransactionAmount</fieldItem>
-                <identifier>fqs_gcs_highlights_TransactionAmount</identifier>
+                <fieldItem>Record.GiftCommitment.Status</fieldItem>
+                <identifier>RecordGiftCommitmentStatusField2</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -51,8 +47,8 @@
                     <name>uiBehavior</name>
                     <value>required</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.TransactionPeriod</fieldItem>
-                <identifier>fqs_gcs_highlights_TransactionPeriod</identifier>
+                <fieldItem>Record.TransactionAmount</fieldItem>
+                <identifier>fqs_gcs_highlights_TransactionAmount</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -120,6 +116,16 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Name</fieldItem>
+                <identifier>RecordNameField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
                     <value>required</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.StartDate</fieldItem>
@@ -160,6 +166,16 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.GiftCommitmentStatus</fieldItem>
+                <identifier>RecordGiftCommitmentStatusField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
