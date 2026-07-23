@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Gift_Transaction_Category__c</fullName>
-    <description>Classifies the transaction kind. Allowed values: Outright Gift, Pledge Payment, Grant Payment, Fee/Payment.</description>
+    <description>Classifies the transaction kind. Allowed values: Outright Gift, Pledge Payment, Recurring Gift Payment, Grant Payment, Fee/Payment.</description>
     <label>Gift Transaction Category</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
@@ -19,6 +19,11 @@
                 <fullName>Pledge Payment</fullName>
                 <default>false</default>
                 <label>Pledge Payment</label>
+            </value>
+            <value>
+                <fullName>Recurring Gift Payment</fullName>
+                <default>false</default>
+                <label>Recurring Gift Payment</label>
             </value>
             <value>
                 <fullName>Grant Payment</fullName>
