@@ -170,7 +170,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
         </schedule>
         <triggerType>Scheduled</triggerType>
     </start>
-    <status>InvalidDraft</status>
+    <status>Active</status>
     <variables>
         <name>varBatchJobIds</name>
         <dataType>String</dataType>
@@ -188,7 +188,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
         </defaultConnector>
         <defaultConnectorLabel>Default Path</defaultConnectorLabel>
         <waitEvents>
-            <name>Batch_Job_Complete</name>
+            <name>BatchJobComplete</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>Batch_Job_Loop</leftValueReference>
@@ -212,17 +212,16 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
         <waitEvents>
             <name>Time_Out_After_A_Day</name>
             <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>Batch_Job_Loop</leftValueReference>
-                <operator>NotEqualTo</operator>
-                <rightValue>
-                    <stringValue></stringValue>
-                </rightValue>
-            </conditions>
             <connector>
                 <targetReference>Batch_Job_Loop</targetReference>
             </connector>
             <eventType>AlarmEvent</eventType>
+            <inputParameters>
+                <name>AlarmTime</name>
+                <value>
+                    <elementReference>$Flow.InterviewStartTime</elementReference>
+                </value>
+            </inputParameters>
             <inputParameters>
                 <name>TimeOffset</name>
                 <value>
@@ -233,12 +232,6 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
                 <name>TimeOffsetUnit</name>
                 <value>
                     <stringValue>Hours</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>BaseTime</name>
-                <value>
-                    <stringValue>$Flow.InterviewStartTime</stringValue>
                 </value>
             </inputParameters>
             <label>Time Out After A Day</label>
