@@ -4,7 +4,7 @@
 **Target org:** `FundFirst`
 **Status:** design-drafted, not-implemented (2026-07-18)
 **Priority:** P1 follow-up to `fqs-account-launcher-flow-parity-plan.md`
-**Origin:** surfaced 2026-07-18 during FeeForService UI test on Anthony Cohen FQS #42. Justin: *"there is a potential improvement to have a specific category of designation for this type... this needs to be labeled Fee for Good or Service."*
+**Origin:** surfaced 2026-07-18 during FeeForService UI test on Anthony Cohen FQS #42. Justin: *"there is a potential improvement to have a specific category of designation for this type... this needs to be labeled Earned Revenue."*
 
 ---
 
@@ -16,7 +16,7 @@ The launcher's FeeForService branch currently routes into `Screen_Pick_Designati
 - **Makes fee revenue hard to separate.** The transaction-level tag exists (`GiftTransaction.FQS_Gift_Transaction_Category__c = 'Fee/Payment'`), but the designation-level tag doesn't. Reports that join through `GiftDesignation` or `GiftDefaultDesignation` (i.e., most restriction reports) lose the distinction.
 - **UX is wrong.** The Designation picker shows the user all their unrestricted gift designations when they're recording, say, a workshop registration fee. They have to know which of those designations is the "right" one to book fee revenue against.
 
-The right cut is: a **dedicated `Fee for Good or Service` value** on the restriction-type picklist, with at least one seeded `GiftDesignation` bearing that restriction. FeeForService transactions get auto-designated to that GD (or one of several if the org creates multiple); reports naturally separate fee revenue from gift revenue.
+The right cut is: a **dedicated `Earned Revenue` value** on the restriction-type picklist, with at least one seeded `GiftDesignation` bearing that restriction. FeeForService transactions get auto-designated to that GD (or one of several if the org creates multiple); reports naturally separate fee revenue from gift revenue.
 
 ---
 
@@ -28,13 +28,13 @@ Add one value to [`GiftDesignation.FQS_Restriction_Type__c`](../force-app/main/d
 
 ```xml
 <value>
-    <fullName>Fee for Good or Service</fullName>
+    <fullName>Earned Revenue</fullName>
     <default>false</default>
-    <label>Fee for Good or Service</label>
+    <label>Earned Revenue</label>
 </value>
 ```
 
-**Naming rationale (locked by Justin 2026-07-18):** `Fee for Good or Service` — covers both goods (e.g., merchandise, event ticketing) and services (workshop fees, advisory retainers). Sits alongside the four FASB values without pretending to be one of them.
+**Naming rationale (locked by Justin 2026-07-23):** `Earned Revenue` — the accounting/nonprofit-standard term for exchange-transaction revenue (goods sold, services rendered, event registrations, workshop fees, program service fees). Preferred over the earlier working name `Fee for Good or Service` because it's shorter, familiar to finance/GL staff, and doesn't wobble on singular-vs-plural ("Fee for Goods or Services"). Sits alongside the four FASB values without pretending to be one of them.
 
 **No changes needed on:**
 - `GiftDefaultDesignation.FQS_Restriction_Type__c` — formula field, `TEXT(GiftDesignation.FQS_Restriction_Type__c)` — auto-picks up the new value.
@@ -42,10 +42,10 @@ Add one value to [`GiftDesignation.FQS_Restriction_Type__c`](../force-app/main/d
 
 ### Field description / help-text update
 
-The current description reads *"Aligned to FASB ASU 2016-14 net asset classifications."* — accurate for the four existing values, misleading after we add `Fee for Good or Service` (which is exchange-transaction revenue, not a donor restriction under FASB). Update both:
+The current description reads *"Aligned to FASB ASU 2016-14 net asset classifications."* — accurate for the four existing values, misleading after we add `Earned Revenue` (which is exchange-transaction revenue, not a donor restriction under FASB). Update both:
 
-- **description:** *"Categorizes designations for filtering and reporting. Four values align to FASB ASU 2016-14 donor-restriction classifications (Without Donor Restriction, With Donor Restriction — Purpose / Time / Permanent). A fifth value, Fee for Good or Service, tags designations used for exchange-transaction revenue (fees, ticketing, workshop registrations) so it can be separated from contribution revenue in reports."*
-- **inlineHelpText:** append *"Fee for Good or Service: revenue from selling goods or providing services — not a donor contribution."*
+- **description:** *"Categorizes designations for filtering and reporting. Four values align to FASB ASU 2016-14 donor-restriction classifications (Without Donor Restriction, With Donor Restriction — Purpose / Time / Permanent). A fifth value, Earned Revenue, tags designations used for exchange-transaction revenue (fees, ticketing, workshop registrations) so it can be separated from contribution revenue in reports."*
+- **inlineHelpText:** append *"Earned Revenue: revenue from selling goods or providing services — not a donor contribution."*
 
 ### Launcher flow wiring
 
@@ -54,7 +54,7 @@ Currently the FeeForService branch flows through the same restriction chain as O
 Two options, in ascending cost:
 
 **Option A — auto-select (cheapest, recommended for v1).**
-Add an `Assign_Restriction_FeeForService` element (mirrors `Assign_Restriction_Unrestricted`) that sets `var_RestrictionType = 'Fee for Good or Service'`. Add a rule to `Decide_Restriction_Path` that fires when `pkAskType == 'FeeForService'` and routes to the new assignment. Then `Get_Filtered_Designations` narrows to fee-eligible GDs and the picker either shows just those or (if there's only one) the picker still opens — no auto-skip.
+Add an `Assign_Restriction_FeeForService` element (mirrors `Assign_Restriction_Unrestricted`) that sets `var_RestrictionType = 'Earned Revenue'`. Add a rule to `Decide_Restriction_Path` that fires when `pkAskType == 'FeeForService'` and routes to the new assignment. Then `Get_Filtered_Designations` narrows to fee-eligible GDs and the picker either shows just those or (if there's only one) the picker still opens — no auto-skip.
 
 **Option B — auto-select + skip picker.**
 Same as A, but also add a downstream Decide element: if `Get_Filtered_Designations` returns exactly one row, skip `Screen_Pick_Designation` entirely and auto-assign that GD to `rsv_SelectedDesignation`. Reduces click count when the org has a single fee designation (the common case).
@@ -63,11 +63,11 @@ Same as A, but also add a downstream Decide element: if `Get_Filtered_Designatio
 
 ### Seed generator changes
 
-The seed must produce at least one `GiftDesignation` with `FQS_Restriction_Type__c = 'Fee for Good or Service'` so the launcher's picker has data on a fresh org. See [`FQSSeedGenerator.cls`](../force-app/main/default/classes/FQSSeedGenerator.cls) — the designation-creation block around line 700 (where the four FASB-restriction GDs are seeded). Add a fifth:
+The seed must produce at least one `GiftDesignation` with `FQS_Restriction_Type__c = 'Earned Revenue'` so the launcher's picker has data on a fresh org. See [`FQSSeedGenerator.cls`](../force-app/main/default/classes/FQSSeedGenerator.cls) — the designation-creation block around line 700 (where the four FASB-restriction GDs are seeded). Add a fifth:
 
 - Name: `Event Registration Fees` (or similar generic label — Justin to confirm; also acceptable: `General Program Fees`, `Fee Revenue`).
 - Description: *"Default designation for exchange-transaction revenue — event ticketing, workshop registrations, program service fees. Not a donor contribution."*
-- `FQS_Restriction_Type__c = 'Fee for Good or Service'`
+- `FQS_Restriction_Type__c = 'Earned Revenue'`
 - `IsActive = true`
 - `IsDefault = false` (only one GD org-wide should be the org-default unrestricted — the fee GD is a category default, not org default)
 
@@ -75,7 +75,7 @@ The seed must produce at least one `GiftDesignation` with `FQS_Restriction_Type_
 
 ### Restriction-picker screen update (Pledge Conditional path)
 
-`Screen_Pick_Restriction` on the Pledge Conditional branch renders four choices matching the four FASB values. Do NOT add `Fee for Good or Service` here — pledges are contribution transactions by definition; a pledge can't be a "fee for good or service." The new value is filter-scoped to the launcher's FeeForService branch and to whatever list views / reports care about it, not user-selectable on Pledge screens.
+`Screen_Pick_Restriction` on the Pledge Conditional branch renders four choices matching the four FASB values. Do NOT add `Earned Revenue` here — pledges are contribution transactions by definition; a pledge can't be a "fee for good or service." The new value is filter-scoped to the launcher's FeeForService branch and to whatever list views / reports care about it, not user-selectable on Pledge screens.
 
 ---
 
@@ -101,7 +101,7 @@ The seed must produce at least one `GiftDesignation` with `FQS_Restriction_Type_
 1. Deploy picklist change + flow change + seed change.
 2. Run `sf apex run --file scripts/apex/seed/fqs-seed-small.apex` (or equivalent) — verify: (a) one new `Event Registration Fees` GD created, (b) any Fee/Payment GT in the seed has its GTD pointing at that GD.
 3. UI test — launcher from any Account → FeeForService → complete flow → verify the Designation picker shows only fee-eligible designations (should be at least the one seeded).
-4. Verify the resulting `GiftTransaction` has `FQS_Gift_Transaction_Category__c = 'Fee/Payment'` AND its `GiftTransactionDesignation.FQS_Restriction_Type__c = 'Fee for Good or Service'`.
+4. Verify the resulting `GiftTransaction` has `FQS_Gift_Transaction_Category__c = 'Fee/Payment'` AND its `GiftTransactionDesignation.FQS_Restriction_Type__c = 'Earned Revenue'`.
 5. Report smoke test — build a simple GT report grouped by `GiftDesignation.FQS_Restriction_Type__c` — verify fee revenue lands in its own bucket, not the unrestricted-gifts bucket.
 
 ---
