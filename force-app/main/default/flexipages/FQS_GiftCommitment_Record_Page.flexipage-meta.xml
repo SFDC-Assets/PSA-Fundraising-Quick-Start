@@ -241,6 +241,16 @@
                 <identifier>fqs_d_s1_FulfillmentType</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Match_Eligible__c</fieldItem>
+                <identifier>RecordFQS_Match_Eligible_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-52a03adf-02a2-4daa-ad48-2f8b50474901</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -312,7 +322,6 @@
         <name>Facet-821ab111-acdd-414a-86c2-d7b3dd2df55c</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- Donor Groupings section facets -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -330,21 +339,25 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.FQS_Is_Mid_Commitment__c</fieldItem>
-                <identifier>fqs_d_fi_IsMidCommitment</identifier>
+                <fieldItem>Record.FQS_Is_Major_Commitment__c</fieldItem>
+                <identifier>fqs_d_fi_IsMajorCommitment</identifier>
             </fieldInstance>
         </itemInstances>
+        <name>Facet-fqs-d-s0-tiers</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.FQS_Is_Major_Commitment__c</fieldItem>
-                <identifier>fqs_d_fi_IsMajorCommitment</identifier>
+                <fieldItem>Record.FQS_Is_Mid_Commitment__c</fieldItem>
+                <identifier>fqs_d_fi_IsMidCommitment</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-d-s0-tiers</name>
+        <name>Facet-2039dcf6-234d-41f3-a830-1386af79a720</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -358,10 +371,19 @@
                 <identifier>fqs_d_col_s0_tiers</identifier>
             </componentInstance>
         </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-2039dcf6-234d-41f3-a830-1386af79a720</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column9</identifier>
+            </componentInstance>
+        </itemInstances>
         <name>Facet-fqs-d-s0-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
