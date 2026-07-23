@@ -58,3 +58,59 @@ package.xml
 **/objects/Campaign/listViews/MyActiveCampaigns.listView-meta.xml
 **/objects/Campaign/webLinks/ViewAllCampaignMembers.webLink-meta.xml
 **/objects/Campaign/webLinks/ViewCampaignInfluenceReport.webLink-meta.xml
+
+# --- CRMA / Wave bloat (org has CRMA enabled) ---
+# When CRM Analytics for Nonprofit Cloud / Fundraising Cloud is enabled in the
+# source org, a plain `sf project retrieve start` pulls ~100+ Wave/CRMA components
+# that are not owned by FQS. Ignore the entire family so the repo stays clean.
+# NOTE: **/contentassets/** is NOT ignored globally — a broad ContentAsset ignore
+# would drop legitimate assets. If Wave-scoped ContentAssets leak into retrieves,
+# they live under the wave* paths below and are already filtered.
+**/waveApplications/**
+**/waveComponents/**
+**/waveDashboards/**
+**/waveDatasets/**
+**/waveLenses/**
+**/waveRecipes/**
+**/waveTemplateBundles/**
+**/waveXmds/**
+**/wave/**
+
+# --- Agentforce companion metadata ---
+# Every FQS flow deployed against an Agentforce-enabled org generates a matching
+# GenOpAgentConfig ("Gen Op Agent Config") metadata file — 1:1 twin noise the
+# accelerator does not own. Ignore the folder so retrieves don't pull it back in.
+# genAi* companions (genAiPlanners / genAiPlugins / genAiFunctions) have not been
+# observed in this repo's retrieves yet; the globs below are prophylactic.
+**/genOpAgentConfigs/**
+**/genAiPlanners/**
+**/genAiPlugins/**
+**/genAiFunctions/**
+
+# --- SFDX retrieve noise ---
+# Full-profile retrieves pull hundreds of standard-object field references that
+# have nothing to do with FQS. Ignore all profiles as a class — FQS delivers
+# permission sets, not profiles. (The Admin.profile-meta.xml line above is now
+# redundant but kept for clarity.)
+**/profiles/**
+
+# Orphan email templates: unfiled$public is a legitimate Salesforce folder for
+# templates authored outside a Public folder. FQS_Gift_Acknowledgement lives here
+# by design, so we do NOT ignore the whole folder — leaving this comment as a
+# reminder that noise in unfiled$public should be reviewed, not globbed away.
+
+# PermissionSetGroup for the force__* namespace is Salesforce-managed platform
+# noise; the specific pattern is already covered above under "Non-FQS permission
+# sets…". Keeping this comment as a marker so future contributors know it lives
+# there and shouldn't be duplicated here.
+
+# BatchCalcJobDefinitions: no auto-modified definitions have been observed in
+# this repo yet. If a future retrieve pulls one, add:
+#   **/batchCalcJobDefinitions/**
+# below this comment. Left as a placeholder pending evidence.
+
+# Standard-object field noise: if you find yourself repeatedly adding standard
+# field-meta.xml paths to this file, scope your retrieve instead. Use
+# `sf project retrieve start -m <MetadataType>:<ApiName>` with an explicit list
+# rather than a full-object retrieve — that way you never pull the noise in the
+# first place.
