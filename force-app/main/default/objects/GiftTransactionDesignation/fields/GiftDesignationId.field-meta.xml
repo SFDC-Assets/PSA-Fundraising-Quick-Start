@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GiftDesignationId</fullName>
+    <description>Lookup filter restricts the picker to Gift Designations where IsActive = True. Filter is deployed as Optional (not Required) so users can uncheck the "Filter by:" toggle in the lookup dialog to see all designations. Override is allowed for two reasons: (1) back-dated corrections to gifts that were originally posted against a designation that has since been retired, and (2) uncertainty about upstream integrations — an inbound integration may legitimately need to attach a gift transaction to a designation that is not currently active. Change to Required only if your organization has full control over the sources of gift data and no back-dating scenarios.</description>
+    <inlineHelpText>By default this picker only shows active Gift Designations. If you need to attach this record to a retired designation (for example, to correct a back-dated gift or to match an inbound integration), uncheck the "Filter by:" checkbox at the top of the lookup dialog to see all designations.</inlineHelpText>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>GiftDesignation.IsActive</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </filterItems>
+        <isOptional>true</isOptional>
+    </lookupFilter>
+    <trackHistory>false</trackHistory>
+    <type>Lookup</type>
+</CustomField>
