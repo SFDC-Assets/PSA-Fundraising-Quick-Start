@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>FQS Gift Acknowledgement — shell template. Placeholder copy is intentional; marketing should replace body text before go-live. Merge fields reference the related GiftTransaction record passed by the flow.</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>FQS Gift Acknowledgement</name>
+    <style>none</style>
+    <subject>Thank you for your gift!</subject>
+    <type>text</type>
+</EmailTemplate>
