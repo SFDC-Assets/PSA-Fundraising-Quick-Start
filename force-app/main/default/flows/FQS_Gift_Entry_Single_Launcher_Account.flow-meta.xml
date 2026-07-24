@@ -863,6 +863,13 @@
             </value>
         </assignmentItems>
         <assignmentItems>
+            <assignToReference>rsv_GiftCommitment.FQS_Match_Eligible__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaMatchEligible_Pledge</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
             <assignToReference>rsv_GiftCommitment.Name</assignToReference>
             <operator>Assign</operator>
             <value>
@@ -971,6 +978,13 @@
             <operator>Assign</operator>
             <value>
                 <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftCommitment.FQS_Match_Eligible__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaMatchEligible_Recurring</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -1191,6 +1205,13 @@
             </value>
         </assignmentItems>
         <assignmentItems>
+            <assignToReference>rsv_GiftCommitment.FQS_Match_Eligible__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaMatchEligible_Scheduled</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
             <assignToReference>rsv_GiftCommitment.Name</assignToReference>
             <operator>Assign</operator>
             <value>
@@ -1296,6 +1317,134 @@
         </assignmentItems>
         <connector>
             <targetReference>Update_Gift_Transaction</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Phase F2 (wizard plan §Matching-gift branch). Stages rsv_MatchEmployerGT ahead of Create_Employer_GT. DonorId = employer Account (from lkpMatchEmployer.recordId). OriginalAmount = numMatchAmount. GiftType = Organizational (employer Account is always org / non-Person). TransactionDate + TransactionDueDate mirror the donor GT&apos;s TransactionDate. FQS_Gift_Transaction_Category__c = &apos;Outright Gift&apos; because the employer&apos;s payment is a fresh outright gift from their perspective, not a pledge payment even when the donor GT is. PaymentMethod = &apos;Check&apos; is the pragmatic default; user can edit downstream. TaxReceiptStatus = &apos;Don&apos;t Send&apos;. Name is left null so the FQS_Auto_Name_Gift_Transaction before-save flow fills it (parity with the Custom-branch installments). GiftCommitmentId is NOT assigned here — it&apos;s stamped downstream by Assign_Employer_GT_ParentToCommitment for the Pledge Payment / Recurring branches; on Outright + match it stays null (wizard plan lines 92-104: Outright Gift+match leaves both GTs orphan). Deliberately does NOT read rsv_GiftTransaction.GiftCommitmentId — that field is never set on the Outright branch, and any Flow read of an un-assigned SObject field throws &quot;field hasn&apos;t been set or assigned.&quot;</description>
+        <name>Assign_Employer_GT_Fields</name>
+        <label>Stage Employer Match GT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_MatchEmployerGT.DonorId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>lkpMatchEmployer.recordId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchEmployerGT.OriginalAmount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>numMatchAmount</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchEmployerGT.Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Paid</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchEmployerGT.TransactionDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_GiftTransaction.TransactionDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchEmployerGT.TransactionDueDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_GiftTransaction.TransactionDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchEmployerGT.GiftType</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Organizational</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchEmployerGT.FQS_Gift_Transaction_Category__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Outright Gift</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchEmployerGT.FQS_In_Kind__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchEmployerGT.PaymentMethod</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Check</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchEmployerGT.TaxReceiptStatus</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Don&apos;t Send</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchEmployerGT.FQS_Matched__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_Employer_GT_Parent_To_Commitment</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Phase F2 (wizard plan §Matching-gift branch, lines 92-104). Stamps rsv_MatchEmployerGT.GiftCommitmentId = rsv_SelectedCommitment.Id on the Pledge Payment + match branch (both branches — Fresh Insert and Update Existing — always populate rsv_SelectedCommitment before Screen_Gift_Details, so this read is always safe here). On Recurring Gift + match (Phase F3) this Assign will be extended to also handle the new-commitment Id (rsv_GiftCommitment.Id after Create_Pledge lands). On Outright Gift + match, the flow bypasses this Assign entirely via Decide_Employer_GT_Parent_To_Commitment (both GTs stay orphan per wizard plan).</description>
+        <name>Assign_Employer_GT_ParentToCommitment</name>
+        <label>Employer GT parent → Commitment</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_MatchEmployerGT.GiftCommitmentId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_SelectedCommitment.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_Employer_GT</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Phase F2 (wizard plan §Matching-gift branch §Amount, line 124). Runs after Create_Employer_GT lands so rsv_MatchEmployerGT.Id is populated. Writes the returned employer GT Id onto rsv_GiftTransaction.MatchingEmployerTransactionId — the native GT-to-GT lookup that pairs a donor gift to its employer match (verified via describe: reference field, referenceTo=GiftTransaction, updateable=true, lives on the donor row and points UP to the paired employer row). Followed by Update_Donor_With_Pair to persist the pair (donor GT is already in the DB — insert path just wrote it, update path is about to be overwritten by Update_Gift_Transaction anyway; this Assign only mutates the record variable, DML happens in Update_Donor_With_Pair).</description>
+        <name>Assign_Pair_Onto_Donor_GT</name>
+        <label>Pair Donor GT with Employer GT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.MatchingEmployerTransactionId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_MatchEmployerGT.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.FQS_Matched__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Donor_With_Pair</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1601,6 +1750,22 @@
         <dataType>String</dataType>
         <value>
             <stringValue>Simple</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_MatchEligible_No</name>
+        <choiceText>No — the donor is not employed at a match-program organization.</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>No</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_MatchEligible_Yes</name>
+        <choiceText>Yes — the donor is employed at a match-program organization.</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Yes</stringValue>
         </value>
     </choices>
     <choices>
@@ -2622,7 +2787,144 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Phase F1 (wizard plan §Match branch). Routes after Screen_Gift_Details: if user opted in to an employer match on either the standard or PP-match-eligible radio, jump to Screen_Match_Employer to collect the employer + match amount. Otherwise fall through to Screen_Pick_Campaign unchanged. In-Kind and Fee-for-Service never reach here with pkNeedsMatch set because their visibility rule on the radio requires pkLeafSpecial IsNull.</description>
+        <description>Phase F2 (wizard plan §Matching-gift branch). Post-Create_Gift_Transaction gate. Routes the Insert donor-GT path (Outright / Recurring first-payment / Pledge-Payment-Fresh-Insert) — if the user opted in to a match on Screen_Match_Employer via pkNeedsMatch, enter the employer-GT chain; otherwise default straight to Decide_Create_InKind_SelfCredit so the existing terminal chain runs unchanged. Companion decision Decide_Insert_Employer_GT_Update handles the Update branch of Pledge Payment. Phase F2.1: pkNeedsMatchPP was removed — single pkNeedsMatch radio now covers all monetary leaves (Outright, PP fresh, PP update, Recurring first).</description>
+        <name>Decide_Insert_Employer_GT_Insert</name>
+        <label>Insert Employer Match GT (Insert path)?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Decide_Create_InKind_SelfCredit</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No — continue terminal chain</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Insert_Employer_GT_Insert_MatchOptedIn</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkNeedsMatch</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_NeedsMatch_Yes</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Employer_GT_Fields</targetReference>
+            </connector>
+            <label>Yes — insert employer GT + pair</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Phase F2 (wizard plan §Matching-gift branch). Post-Update_Gift_Transaction gate for the Pledge-Payment-Update path. Reads pkNeedsMatch (Phase F2.1 unified all monetary branches on the single radio; the old pkNeedsMatchPP variant was retired). If user opted in on Screen_Gift_Details, enter the employer-GT chain; otherwise default straight to Screen_Success (matching Phase E2 behavior — the schedule engine already fanned out designations, so no re-run of terminal chain).</description>
+        <name>Decide_Insert_Employer_GT_Update</name>
+        <label>Insert Employer Match GT (Update path)?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Success</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No — Screen_Success</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Insert_Employer_GT_Update_MatchOptedIn</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkNeedsMatch</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_NeedsMatch_Yes</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Employer_GT_Fields</targetReference>
+            </connector>
+            <label>Yes — insert employer GT + pair</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Phase F2 (wizard plan §Matching-gift branch, lines 92-104). After Assign_Employer_GT_Fields stages the base employer GT, decide whether to parent it to the donor&apos;s commitment. Pledge Payment (fresh or update) → Assign_Employer_GT_ParentToCommitment reads rsv_SelectedCommitment.Id — always populated on this branch since Screen_Pick_Commitment ran upstream. Everything else (Outright Gift + match; Recurring Gift + match doesn&apos;t reach here yet, that&apos;s Phase F3) → default straight to Create_Employer_GT with GiftCommitmentId null. Prevents the &quot;field hasn&apos;t been set or assigned&quot; runtime error that fires when Assign_Employer_GT_Fields reads rsv_GiftTransaction.GiftCommitmentId on the Outright branch (Flow throws on any read of an un-touched SObject field — same gotcha class as [[fundfirst-custom-schedule-shape]]).</description>
+        <name>Decide_Employer_GT_Parent_To_Commitment</name>
+        <label>Employer GT parent to Commitment?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Create_Employer_GT</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No — Outright (orphan)</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Employer_GT_Parent_To_Commitment_IsPledgePayment</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_PledgePayment</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Employer_GT_ParentToCommitment</targetReference>
+            </connector>
+            <label>Pledge Payment — parent to picked commitment</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Phase F2 (wizard plan §Matching-gift branch). Post-Update_Donor_With_Pair terminal router. After the pair is persisted on the donor GT, split back to the correct terminal per branch: Update path (pkPledgePaymentMode=Update) → Screen_Success (schedule engine already handled designation fan-out — do NOT re-run); Insert path (default) → Decide_Create_InKind_SelfCredit → existing terminal chain (In-Kind self-credit → designation → soft credit → Screen_Success). This keeps the employer-GT chain a single shared segment rather than duplicating it per branch.</description>
+        <name>Decide_Match_Post_Route</name>
+        <label>Post-Match Route</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Decide_Create_InKind_SelfCredit</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Insert path — terminal chain</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Match_Post_Route_IsUpdate</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkPledgePaymentMode</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_PledgePayment_Update</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Success</targetReference>
+            </connector>
+            <label>Update path — Screen_Success</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Phase F2.1 (wizard plan §Matching-gift schema wire-up). Gate after Screen_Set_Match_Amount collects numMatchAmount. If the employer&apos;s FQS_Match_Annual_Individual_Maximum__c is set and numMatchAmount exceeds it, show Screen_Warning_Match_Max_Exceeded (informational — the match still posts as entered; this is a heads-up, not a block, mirroring the amount-mismatch warning pattern from Phase E2). Otherwise skip straight to Screen_Pick_Campaign. Null annual-max means &quot;no cap defined,&quot; so the rule doesn&apos;t fire — accepts any amount silently.</description>
+        <name>Decide_Match_Max_Exceeded</name>
+        <label>Match exceeds annual max?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Pick_Campaign</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No — continue to campaign picker</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Match_Max_Exceeded_OverMax</name>
+            <conditionLogic>1 AND 2</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>numMatchAmount</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <elementReference>Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Warning_Match_Max_Exceeded</targetReference>
+            </connector>
+            <label>Exceeds — show warning</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Phase F2.1 (was F1). Routes after Screen_Gift_Details: if user opted in to an employer match via pkNeedsMatch=Yes, jump to Screen_Match_Employer. Otherwise fall through to Screen_Pick_Campaign unchanged. In-Kind and Fee-for-Service never reach the Yes branch because pkNeedsMatch&apos;s visibility rule requires pkLeafSpecial IsNull. Phase F2.1: pkNeedsMatchPP retired — single radio covers all monetary leaves.</description>
         <name>Decide_Match_Needed</name>
         <label>User wants employer match?</label>
         <locationX>0</locationX>
@@ -2633,7 +2935,7 @@
         <defaultConnectorLabel>No match — skip employer picker</defaultConnectorLabel>
         <rules>
             <name>Decide_Match_Needed_Yes</name>
-            <conditionLogic>1 OR 2</conditionLogic>
+            <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>pkNeedsMatch</leftValueReference>
                 <operator>EqualTo</operator>
@@ -2641,15 +2943,8 @@
                     <stringValue>Yes</stringValue>
                 </rightValue>
             </conditions>
-            <conditions>
-                <leftValueReference>pkNeedsMatchPP</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Yes</stringValue>
-                </rightValue>
-            </conditions>
             <connector>
-                <targetReference>Screen_Match_Employer</targetReference>
+                <targetReference>Screen_Pick_Match_Employer</targetReference>
             </connector>
             <label>Yes — collect employer + match amount</label>
         </rules>
@@ -3004,6 +3299,36 @@
         <expression>{!Get_Account.Name} &amp; &quot; - $&quot; &amp; TEXT({!Loop_Build_Custom_GTs.field_Custom_Amount}) &amp; &quot; due &quot; &amp; TEXT({!Loop_Build_Custom_GTs.field_Custom_Date})</expression>
     </formulas>
     <formulas>
+        <description>Phase F2.1: maps the Simple-Pledge Match-Eligible radio (pkMatchEligible_Pledge) to a Boolean for rsv_GiftCommitment.FQS_Match_Eligible__c. Yes → true; No or null → false. Used by Assign_Pledge_Defaults so the three commitment leaves (Simple Pledge / Recurring / Scheduled) can convert their Yes/No radios into the underlying Boolean without introducing shared variables. Radio replaces the ObjectProvided Boolean field the screen used to bind directly, per Justin&apos;s F2 feedback (consistency with other Yes/No prompts).</description>
+        <name>formulaMatchEligible_Pledge</name>
+        <dataType>Boolean</dataType>
+        <expression>{!pkMatchEligible_Pledge} = &quot;Yes&quot;</expression>
+    </formulas>
+    <formulas>
+        <description>Phase F2.1: maps the Recurring Match-Eligible radio (pkMatchEligible_Recurring) to a Boolean for rsv_GiftCommitment.FQS_Match_Eligible__c. See formulaMatchEligible_Pledge.</description>
+        <name>formulaMatchEligible_Recurring</name>
+        <dataType>Boolean</dataType>
+        <expression>{!pkMatchEligible_Recurring} = &quot;Yes&quot;</expression>
+    </formulas>
+    <formulas>
+        <description>Phase F2.1: maps the Scheduled Match-Eligible radio (pkMatchEligible_Scheduled) to a Boolean for rsv_GiftCommitment.FQS_Match_Eligible__c. See formulaMatchEligible_Pledge.</description>
+        <name>formulaMatchEligible_Scheduled</name>
+        <dataType>Boolean</dataType>
+        <expression>{!pkMatchEligible_Scheduled} = &quot;Yes&quot;</expression>
+    </formulas>
+    <formulas>
+        <description>Phase F2.1: default value for numMatchAmount on Screen_Set_Match_Amount. If the selected employer has FQS_Match_Ratio__c populated, default = numGiftAmount × ratio (e.g., 1:1 = $50 → $50, 2:1 = $50 → $100). Otherwise default = numGiftAmount (1:1 assumption). User can still override on the screen. Uses BLANKVALUE to null-coalesce the ratio because Flow formulas cannot ISNULL a lookup-result Number field without the parent Get_Match_Employer having run — BLANKVALUE returns the fallback on null / blank without throwing. See [[flow-screen-authoring-gotchas]] on BLANKVALUE-vs-NVL and [[flow-unread-sobject-field-throws]].</description>
+        <name>formulaMatchAmountDefault</name>
+        <dataType>Number</dataType>
+        <expression>{!numGiftAmount} * BLANKVALUE({!Get_Match_Employer.FQS_Match_Ratio__c}, 1)</expression>
+    </formulas>
+    <formulas>
+        <description>Phase F2.1: display-text merge that renders the annual-max warning body when numMatchAmount &gt; employer&apos;s FQS_Match_Annual_Individual_Maximum__c. Referenced by Screen_Warning_Match_Max_Exceeded.</description>
+        <name>formulaMatchMaxWarningBody</name>
+        <dataType>String</dataType>
+        <expression>&quot;You entered &quot; &amp; TEXT({!numMatchAmount}) &amp; &quot;, but this employer&apos;s annual match maximum per employee is &quot; &amp; TEXT({!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}) &amp; &quot;. The match will still post as entered — this is a heads-up, not a block. If the donor has already received matches this year, coordinate with the employer before finalizing.&quot;</expression>
+    </formulas>
+    <formulas>
         <description>Phase E (wizard plan) IsNull-gate: returns rsv_GiftTransaction.PaymentMethod if already populated (e.g., prefilled to &apos;ACH&apos; from Get_Commitment_Schedule.PaymentMethod by Assign_Prefill_From_Schedule), else &apos;Cash&apos;. Used by Assign_Gift_Details_Defaults to avoid stomping schedule-supplied payment methods on the update-existing-GT branch of Pledge Payment. See .planning/fqs-gift-entry-wizard-plan.md §State at handoff prefill IsNull-gate policy.</description>
         <name>formulaDefault_PaymentMethod</name>
         <dataType>String</dataType>
@@ -3187,13 +3512,27 @@
         <inputReference>col_CustomGTs</inputReference>
     </recordCreates>
     <recordCreates>
-        <description>Creates the GiftTransaction via inputReference on rsv_GiftTransaction. All fields set through prior Assignments and ObjectProvided screen bindings.</description>
+        <description>Phase F2 (wizard plan §Matching-gift branch). Inserts the paired employer-match GiftTransaction via rsv_MatchEmployerGT. Reached from Decide_Insert_Employer_GT_Insert (fresh-donor-insert path) or Decide_Insert_Employer_GT_Update (pledge-payment-update path) when pkNeedsMatch=Yes. After insert, Assign_Pair_Onto_Donor_GT stages rsv_MatchEmployerGT.Id onto rsv_GiftTransaction.MatchingEmployerTransactionId and Update_Donor_With_Pair persists the pair on the donor GT. Fault path shares Err_Create — if the employer GT insert fails, the donor GT and any commitment/schedule already exist in the org and users must clean up manually (parity with all other Create_* fault contracts).</description>
+        <name>Create_Employer_GT</name>
+        <label>Create Employer Match GT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Assign_Pair_Onto_Donor_GT</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Create</targetReference>
+        </faultConnector>
+        <inputReference>rsv_MatchEmployerGT</inputReference>
+    </recordCreates>
+    <recordCreates>
+        <description>Creates the GiftTransaction via inputReference on rsv_GiftTransaction. All fields set through prior Assignments and ObjectProvided screen bindings. Phase F2: connector now routes to Decide_Insert_Employer_GT_Insert (was Decide_Create_InKind_SelfCredit). When no match is opted-in, that decision defaults straight through to Decide_Create_InKind_SelfCredit so the existing terminal chain (In-Kind self-credit → designation → soft credit → Screen_Success) is unchanged.</description>
         <name>Create_Gift_Transaction</name>
         <label>Create Gift Transaction</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Decide_Create_InKind_SelfCredit</targetReference>
+            <targetReference>Decide_Insert_Employer_GT_Insert</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Err_Create</targetReference>
@@ -3296,13 +3635,27 @@
         <inputReference>rsv_GiftCommitmentSchedule</inputReference>
     </recordCreates>
     <recordUpdates>
-        <description>Phase E2 (wizard plan §Pledge Payment logic). Posts an existing Expected GiftTransaction as paid. Runs on the Update branch of Pledge Payment (pkPledgePaymentMode=Update AND rsv_SelectedGT.Id set). rsv_GiftTransaction.Id is stamped by Assign_Update_GT_Fields to point at rsv_SelectedGT.Id, so this recordUpdates targets the selected row rather than inserting. After the update, jumps straight to Screen_Success — the platform engine already fanned out GiftDefaultDesignation / GTDesignation when it materialized the Expected GT, so we do NOT re-run Decide_Create_Designation / Decide_Create_SoftCredit / Create_GTDesignation on this path (would duplicate designation rows).</description>
+        <description>Phase F2 (wizard plan §Matching-gift branch §Amount, line 124). Persists the MatchingEmployerTransactionId pair on the donor GT after Create_Employer_GT returns the employer row&apos;s Id. Runs on both the Insert and Update donor-GT branches — reached from Assign_Pair_Onto_Donor_GT. rsv_GiftTransaction.Id was populated by Create_Gift_Transaction (Insert path) or Assign_Update_GT_Fields → Update_Gift_Transaction (Update path), so this recordUpdates always targets the correct donor row. Only rsv_GiftTransaction.MatchingEmployerTransactionId is changed since Save at Insert; on the Update path the earlier Update_Gift_Transaction already wrote Status=Paid + user-editable fields, so this second write is idempotent for those. After this update the flow branches at Decide_Match_Post_Route back to the shared terminal chain.</description>
+        <name>Update_Donor_With_Pair</name>
+        <label>Update Donor GT with Employer Pair</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Decide_Match_Post_Route</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Create</targetReference>
+        </faultConnector>
+        <inputReference>rsv_GiftTransaction</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Phase E2 (wizard plan §Pledge Payment logic). Posts an existing Expected GiftTransaction as paid. Runs on the Update branch of Pledge Payment (pkPledgePaymentMode=Update AND rsv_SelectedGT.Id set). rsv_GiftTransaction.Id is stamped by Assign_Update_GT_Fields to point at rsv_SelectedGT.Id, so this recordUpdates targets the selected row rather than inserting. Phase F2: connector routes to Decide_Insert_Employer_GT_Update (was Screen_Success). When no match is opted-in (pkNeedsMatch=No), that decision defaults straight to Screen_Success — the platform engine already fanned out GiftDefaultDesignation / GTDesignation when it materialized the Expected GT, so we do NOT re-run designation / soft credit fan-out on this path.</description>
         <name>Update_Gift_Transaction</name>
         <label>Update Gift Transaction</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Screen_Success</targetReference>
+            <targetReference>Decide_Insert_Employer_GT_Update</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Err_Create</targetReference>
@@ -3792,6 +4145,31 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
+        <description>Phase F2.1 (§Matching-gift schema wire-up). Loads FQS_Match_Ratio__c, FQS_Match_Annual_Individual_Maximum__c, and FQS_Matching_Gift_Program__c off the employer Account picked on Screen_Pick_Match_Employer. Consumed by formulaMatchAmountDefault (default numMatchAmount = donor amount × ratio) and by Decide_Match_Max_Exceeded (warn if entered match &gt; annual max). Falls through to Screen_Set_Match_Amount regardless of whether the fields are populated — nulls are handled by the downstream formulas / decisions. Fault path routes to Err_Load matching all other lookups in this flow.</description>
+        <name>Get_Match_Employer</name>
+        <label>Get Match Employer</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Screen_Set_Match_Amount</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Load</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>lkpMatchEmployer.recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <description>Active Campaigns for which any Contact on this Account is a CampaignMember. Empty collection is fine — the picker screen shows only the lookup escape hatch in that case.</description>
         <name>Get_Member_Campaigns</name>
         <label>Get Member Campaigns</label>
@@ -4179,7 +4557,7 @@
         </fields>
         <fields>
             <name>MatchEligibleHint</name>
-            <fieldText>&lt;p&gt;&lt;i&gt;This commitment is flagged match-eligible. If this payment should be paired with an employer match, check the box below.&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;i&gt;This commitment is flagged match-eligible — consider pairing this payment with an employer match.&lt;/i&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -4190,14 +4568,7 @@
                 </width>
             </styleProperties>
             <visibilityRule>
-                <conditionLogic>1 AND 2 AND 3</conditionLogic>
-                <conditions>
-                    <leftValueReference>Get_Account.IsPersonAccount</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <booleanValue>true</booleanValue>
-                    </rightValue>
-                </conditions>
+                <conditionLogic>1 AND 2</conditionLogic>
                 <conditions>
                     <leftValueReference>pkLeafMonetary</leftValueReference>
                     <operator>EqualTo</operator>
@@ -4233,7 +4604,7 @@
                 </width>
             </styleProperties>
             <visibilityRule>
-                <conditionLogic>1 AND 2 AND 3</conditionLogic>
+                <conditionLogic>1 AND 2</conditionLogic>
                 <conditions>
                     <leftValueReference>Get_Account.IsPersonAccount</leftValueReference>
                     <operator>EqualTo</operator>
@@ -4248,76 +4619,26 @@
                         <booleanValue>true</booleanValue>
                     </rightValue>
                 </conditions>
-                <conditions>
-                    <leftValueReference>pkLeafMonetary</leftValueReference>
-                    <operator>NotEqualTo</operator>
-                    <rightValue>
-                        <elementReference>Choice_Leaf_PledgePayment</elementReference>
-                    </rightValue>
-                </conditions>
-            </visibilityRule>
-        </fields>
-        <fields>
-            <name>pkNeedsMatchPP</name>
-            <choiceReferences>Choice_NeedsMatch_No</choiceReferences>
-            <choiceReferences>Choice_NeedsMatch_Yes</choiceReferences>
-            <dataType>String</dataType>
-            <defaultSelectedChoiceReference>Choice_NeedsMatch_No</defaultSelectedChoiceReference>
-            <fieldText>Pair this gift with an employer match?</fieldText>
-            <fieldType>RadioButtons</fieldType>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>true</isRequired>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-            <visibilityRule>
-                <conditionLogic>1 AND 2 AND 3</conditionLogic>
-                <conditions>
-                    <leftValueReference>Get_Account.IsPersonAccount</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <booleanValue>true</booleanValue>
-                    </rightValue>
-                </conditions>
-                <conditions>
-                    <leftValueReference>pkLeafMonetary</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <elementReference>Choice_Leaf_PledgePayment</elementReference>
-                    </rightValue>
-                </conditions>
-                <conditions>
-                    <leftValueReference>rsv_SelectedCommitment.FQS_Match_Eligible__c</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <booleanValue>true</booleanValue>
-                    </rightValue>
-                </conditions>
             </visibilityRule>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
     </screens>
     <screens>
-        <description>Phase F1 (wizard plan §Match branch — smoke-test slice). Reached from Decide_Match_Needed when the user opted in to an employer match. Renders: help text, an Employer Account lookup (flowruntime:lookup on GT.MatchingEmployerTransactionId — actually a lookup binding on Account since MatchingEmployerTransactionId points at a *pair* GT, so we surface an Account lookup and store selection in rsv_SelectedMatchEmployer), and a Match Amount currency input defaulting to the donor gift amount. F1 wires this screen as a pass-through — after next, routes straight to Screen_Pick_Campaign. F2 replaces the pass-through with Create_Employer_GT + MatchingEmployerTransactionId pairing.</description>
-        <name>Screen_Match_Employer</name>
-        <label>Employer Match — Pick Employer + Match Amount</label>
+        <description>Phase F2.1 (split from Screen_Match_Employer). Screen 1 of 2 in the match-employer collect flow: pick the employer only. Reached from Decide_Match_Needed when pkNeedsMatch=Yes. After Next → recordLookup Get_Match_Employer loads the Account&apos;s FQS_Match_Ratio__c / FQS_Match_Annual_Individual_Maximum__c / FQS_Matching_Gift_Program__c so Screen_Set_Match_Amount can default numMatchAmount from the ratio and warn on annual max. Separating from amount screen is necessary because Flow can&apos;t read lkpMatchEmployer.recordId&apos;s related fields on the same screen the lookup lives on.</description>
+        <name>Screen_Pick_Match_Employer</name>
+        <label>Employer Match — Pick Employer</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
-            <targetReference>Screen_Pick_Campaign</targetReference>
+            <targetReference>Get_Match_Employer</targetReference>
         </connector>
         <fields>
             <name>MatchHelp</name>
-            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Employer Match&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Pick the employer that will match this gift and confirm the match amount. F1 smoke test: values collected but no employer transaction is created yet — that lands in F2.&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Employer Match&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Pick the employer that will match this gift. On the next screen, confirm the match amount.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -4387,14 +4708,66 @@
                 </width>
             </styleProperties>
         </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Phase F2.1 (split from Screen_Match_Employer). Screen 2 of 2 in the match-employer collect flow: confirm match amount. Runs after Get_Match_Employer loads the employer&apos;s FQS_Match_Ratio__c / FQS_Match_Annual_Individual_Maximum__c. numMatchAmount defaults to formulaMatchAmountDefault (donor gift × ratio, fallback = donor amount if ratio null). MatchProgramMissingHint renders when the picked employer is NOT flagged as a match-program org — user still allowed to proceed but the system flags the choice. After Next → Decide_Match_Max_Exceeded gates whether the annual-max warning interstitial shows.</description>
+        <name>Screen_Set_Match_Amount</name>
+        <label>Employer Match — Confirm Match Amount</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Decide_Match_Max_Exceeded</targetReference>
+        </connector>
+        <fields>
+            <name>MatchAmountHelp</name>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Confirm Match Amount&lt;/b&gt;&lt;/p&gt;&lt;p&gt;The default is calculated from the employer&apos;s configured match ratio. Adjust if this specific gift qualifies for a different match amount.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>MatchProgramMissingHint</name>
+            <fieldText>&lt;p&gt;&lt;i&gt;Note: this Account is not currently flagged as a match-program organization (Account.Matching Gift Program). Confirm with the donor or the organization before finalizing. If this is a legitimate match, consider flagging the Account so future gifts benefit.&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>Get_Match_Employer.FQS_Matching_Gift_Program__c</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>false</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
         <fields>
             <name>numMatchAmount</name>
             <dataType>Currency</dataType>
             <defaultValue>
-                <elementReference>numGiftAmount</elementReference>
+                <elementReference>formulaMatchAmountDefault</elementReference>
             </defaultValue>
             <fieldText>Match Amount</fieldText>
             <fieldType>InputField</fieldType>
+            <helpText>Default = donor gift amount × the employer&apos;s FQS_Match_Ratio__c (e.g., 1.0 = 1:1, 2.0 = 2:1). Fallback to the donor gift amount if no ratio configured. Adjust manually if this gift qualifies for a different match.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <scale>2</scale>
@@ -5607,10 +5980,16 @@
             </styleProperties>
         </fields>
         <fields>
-            <fieldType>ObjectProvided</fieldType>
+            <name>pkMatchEligible_Pledge</name>
+            <choiceReferences>Choice_MatchEligible_No</choiceReferences>
+            <choiceReferences>Choice_MatchEligible_Yes</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>Choice_MatchEligible_No</defaultSelectedChoiceReference>
+            <fieldText>Is this donor employed at a match-program organization? (Match Eligible)</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <helpText>Flag this commitment so payment posts will default the employer-match prompt to Yes. Written to FQS_Match_Eligible__c on the GiftCommitment record.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>false</isRequired>
-            <objectFieldReference>rsv_GiftCommitment.FQS_Match_Eligible__c</objectFieldReference>
+            <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
                     <stringValue>top</stringValue>
@@ -5619,6 +5998,16 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>Get_Account.IsPersonAccount</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
         </fields>
         <fields>
             <name>SimpleSchedulePreview</name>
@@ -5706,10 +6095,16 @@
             </styleProperties>
         </fields>
         <fields>
-            <fieldType>ObjectProvided</fieldType>
+            <name>pkMatchEligible_Recurring</name>
+            <choiceReferences>Choice_MatchEligible_No</choiceReferences>
+            <choiceReferences>Choice_MatchEligible_Yes</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>Choice_MatchEligible_No</defaultSelectedChoiceReference>
+            <fieldText>Is this donor employed at a match-program organization? (Match Eligible)</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <helpText>Flag this commitment so payment posts will default the employer-match prompt to Yes. Written to FQS_Match_Eligible__c on the GiftCommitment record.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>false</isRequired>
-            <objectFieldReference>rsv_GiftCommitment.FQS_Match_Eligible__c</objectFieldReference>
+            <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
                     <stringValue>top</stringValue>
@@ -5718,6 +6113,16 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>Get_Account.IsPersonAccount</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
         </fields>
         <fields>
             <name>pkRecurringPaymentMethod</name>
@@ -5957,10 +6362,16 @@
             </styleProperties>
         </fields>
         <fields>
-            <fieldType>ObjectProvided</fieldType>
+            <name>pkMatchEligible_Scheduled</name>
+            <choiceReferences>Choice_MatchEligible_No</choiceReferences>
+            <choiceReferences>Choice_MatchEligible_Yes</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>Choice_MatchEligible_No</defaultSelectedChoiceReference>
+            <fieldText>Is this donor employed at a match-program organization? (Match Eligible)</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <helpText>Flag this commitment so payment posts will default the employer-match prompt to Yes. Written to FQS_Match_Eligible__c on the GiftCommitment record.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>false</isRequired>
-            <objectFieldReference>rsv_GiftCommitment.FQS_Match_Eligible__c</objectFieldReference>
+            <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
                     <stringValue>top</stringValue>
@@ -5969,6 +6380,16 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>Get_Account.IsPersonAccount</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
         </fields>
         <fields>
             <name>dtScheduledEffectiveStart</name>
@@ -6427,7 +6848,48 @@
         </fields>
         <fields>
             <name>WarningBody</name>
-            <fieldText>&lt;p&gt;You entered &lt;b&gt;${!numGiftAmount}&lt;/b&gt;, but the scheduled amount on this payment is &lt;b&gt;${!rsv_SelectedGT.OriginalAmount}&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;This payment will post as-entered. The scheduled amount on the commitment will &lt;b&gt;not&lt;/b&gt; change. If this reflects a permanent change to the commitment, manage the schedule on the Gift Commitment record itself.&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to post the payment, or &lt;b&gt;Previous&lt;/b&gt; to adjust the amount.&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;You entered &lt;b&gt;{!numGiftAmount}&lt;/b&gt;, but the scheduled amount on this payment is &lt;b&gt;{!rsv_SelectedGT.OriginalAmount}&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;This payment will post as-entered. The scheduled amount on the commitment will &lt;b&gt;not&lt;/b&gt; change. If this reflects a permanent change to the commitment, manage the schedule on the Gift Commitment record itself.&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to post the payment, or &lt;b&gt;Previous&lt;/b&gt; to adjust the amount.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Phase F2.1 (§Matching-gift schema wire-up). Informational-only interstitial when the user&apos;s entered match amount exceeds the employer&apos;s FQS_Match_Annual_Individual_Maximum__c. Explains that this employer caps annual matches per employee at that amount. The match still posts as-entered — this is a heads-up, not a block, mirroring Screen_Warning_Amount_Mismatch. Single Next button → Screen_Pick_Campaign.</description>
+        <name>Screen_Warning_Match_Max_Exceeded</name>
+        <label>Match Amount Exceeds Employer Annual Max</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Screen_Pick_Campaign</targetReference>
+        </connector>
+        <fields>
+            <name>MatchMaxWarningHeader</name>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Match amount exceeds employer&apos;s annual per-employee maximum&lt;/b&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>MatchMaxWarningBody</name>
+            <fieldText>&lt;p&gt;You entered &lt;b&gt;{!numMatchAmount}&lt;/b&gt;, but this employer&apos;s annual match maximum per employee is &lt;b&gt;{!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;The match will still post as-entered — this is a heads-up, not a block. If the donor has already received matches from this employer this year, coordinate with the employer before finalizing.&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to continue, or &lt;b&gt;Previous&lt;/b&gt; to adjust the amount.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -6772,6 +7234,15 @@
     <variables>
         <description>Record variable bound to Screen_Gift_Details via ObjectProvided fields. All GiftTransaction inserts use this via inputReference.</description>
         <name>rsv_GiftTransaction</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftTransaction</objectType>
+    </variables>
+    <variables>
+        <description>Phase F2 (wizard plan §Matching-gift branch). Record variable staged by Assign_Employer_GT_Fields and inserted by Create_Employer_GT. Represents the paired employer-match GiftTransaction — DonorId = employer Account, OriginalAmount = numMatchAmount, GiftType = Organizational, Status = Paid, GiftCommitmentId inherited from donor GT (null on Outright, populated on Pledge Payment / Recurring per wizard plan §Amount). Pairing to the donor GT lives on the donor GT&apos;s MatchingEmployerTransactionId lookup (GT→GT self-reference on the donor row), populated by Assign_Pair_Donor_GT + Update_Donor_With_Pair after this row&apos;s Id lands.</description>
+        <name>rsv_MatchEmployerGT</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
