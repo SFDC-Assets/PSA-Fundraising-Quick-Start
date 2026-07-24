@@ -1424,6 +1424,37 @@
         </connector>
     </assignments>
     <assignments>
+        <description>Phase F3a (wizard plan §Employer picker line 117). Stages rsv_MatchACR ahead of Create_MatchACR. AccountId = employer Account (from lkpMatchEmployer.recordId), ContactId = donor PersonContact (Get_Account.PersonContactId — safe here because Decide_Match_Needed gates on IsPersonAccount=true). Roles = &apos;Employee&apos; (native ACR picklist value; standard value set exists on AccountContactRelation.Roles across all orgs). IsActive left to platform default (true). No other fields stamped — no need to guess Title / StartDate; user can enrich on the ACR record if desired.</description>
+        <name>Assign_ACR_Fields</name>
+        <label>Stage ACR Fields</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_MatchACR.AccountId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>lkpMatchEmployer.recordId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchACR.ContactId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Account.PersonContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchACR.Roles</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Employee</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_MatchACR</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <description>Phase F2 (wizard plan §Matching-gift branch §Amount, line 124). Runs after Create_Employer_GT lands so rsv_MatchEmployerGT.Id is populated. Writes the returned employer GT Id onto rsv_GiftTransaction.MatchingEmployerTransactionId — the native GT-to-GT lookup that pairs a donor gift to its employer match (verified via describe: reference field, referenceTo=GiftTransaction, updateable=true, lives on the donor row and points UP to the paired employer row). Followed by Update_Donor_With_Pair to persist the pair (donor GT is already in the DB — insert path just wrote it, update path is about to be overwritten by Update_Gift_Transaction anyway; this Assign only mutates the record variable, DML happens in Update_Donor_With_Pair).</description>
         <name>Assign_Pair_Onto_Donor_GT</name>
         <label>Pair Donor GT with Employer GT</label>
@@ -2924,6 +2955,32 @@
         </rules>
     </decisions>
     <decisions>
+        <description>Phase F3a (wizard plan §Employer picker line 117). Post-Get_Existing_ACR gate. If a live AccountContactRelation between donor PersonContact and employer Account already exists → skip ahead to Assign_Pair_Onto_Donor_GT unchanged. If no ACR was found (Get_Existing_ACR returned zero rows, so Get_Existing_ACR.Id is blank) → route through Assign_ACR_Fields + Create_MatchACR to insert one. This is the &quot;inline ACR create&quot; escape-hatch behavior called for in the plan without reshaping the picker. Rule fires on Get_Existing_ACR.Id IsNull=true (no row found); default (row found) advances straight to the pair.</description>
+        <name>Decide_ACR_Exists</name>
+        <label>ACR already exists?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Assign_Pair_Onto_Donor_GT</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Yes — pair immediately</defaultConnectorLabel>
+        <rules>
+            <name>Decide_ACR_Exists_NotFound</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Existing_ACR.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_ACR_Fields</targetReference>
+            </connector>
+            <label>No — create ACR</label>
+        </rules>
+    </decisions>
+    <decisions>
         <description>Phase F2.1 (was F1). Routes after Screen_Gift_Details: if user opted in to an employer match via pkNeedsMatch=Yes, jump to Screen_Match_Employer. Otherwise fall through to Screen_Pick_Campaign unchanged. In-Kind and Fee-for-Service never reach the Yes branch because pkNeedsMatch&apos;s visibility rule requires pkLeafSpecial IsNull. Phase F2.1: pkNeedsMatchPP retired — single radio covers all monetary leaves.</description>
         <name>Decide_Match_Needed</name>
         <label>User wants employer match?</label>
@@ -3512,18 +3569,32 @@
         <inputReference>col_CustomGTs</inputReference>
     </recordCreates>
     <recordCreates>
-        <description>Phase F2 (wizard plan §Matching-gift branch). Inserts the paired employer-match GiftTransaction via rsv_MatchEmployerGT. Reached from Decide_Insert_Employer_GT_Insert (fresh-donor-insert path) or Decide_Insert_Employer_GT_Update (pledge-payment-update path) when pkNeedsMatch=Yes. After insert, Assign_Pair_Onto_Donor_GT stages rsv_MatchEmployerGT.Id onto rsv_GiftTransaction.MatchingEmployerTransactionId and Update_Donor_With_Pair persists the pair on the donor GT. Fault path shares Err_Create — if the employer GT insert fails, the donor GT and any commitment/schedule already exist in the org and users must clean up manually (parity with all other Create_* fault contracts).</description>
+        <description>Phase F2 (wizard plan §Matching-gift branch). Inserts the paired employer-match GiftTransaction via rsv_MatchEmployerGT. Reached from Decide_Insert_Employer_GT_Insert (fresh-donor-insert path) or Decide_Insert_Employer_GT_Update (pledge-payment-update path) when pkNeedsMatch=Yes. Phase F3a: connector now routes to Get_Existing_ACR (was Assign_Pair_Onto_Donor_GT) so the flow can insert an AccountContactRelation between donor PersonContact and employer Account when one doesn&apos;t already exist. Fault path shares Err_Create — if the employer GT insert fails, the donor GT and any commitment/schedule already exist in the org and users must clean up manually (parity with all other Create_* fault contracts).</description>
         <name>Create_Employer_GT</name>
         <label>Create Employer Match GT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Existing_ACR</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Create</targetReference>
+        </faultConnector>
+        <inputReference>rsv_MatchEmployerGT</inputReference>
+    </recordCreates>
+    <recordCreates>
+        <description>Phase F3a (wizard plan §Employer picker line 117, §Decisions locked #2). Inserts an AccountContactRelation between the donor PersonContact and the picked employer Account so future gifts see the employer relationship. Reached only from Decide_ACR_Exists when Get_Existing_ACR returns zero rows (no prior employment relationship recorded). Fault path routes to Assign_Pair_Onto_Donor_GT instead of Err_Create — an ACR insert failure is non-critical (the paired GTs are already in the DB and the pair still succeeds); the user can add the ACR manually later. This is the &quot;inline ACR create&quot; escape-hatch behavior called for in the plan without requiring the picker itself to be reshaped into a datatable + fallback.</description>
+        <name>Create_MatchACR</name>
+        <label>Create Match ACR</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Assign_Pair_Onto_Donor_GT</targetReference>
         </connector>
         <faultConnector>
-            <targetReference>Err_Create</targetReference>
+            <targetReference>Assign_Pair_Onto_Donor_GT</targetReference>
         </faultConnector>
-        <inputReference>rsv_MatchEmployerGT</inputReference>
+        <inputReference>rsv_MatchACR</inputReference>
     </recordCreates>
     <recordCreates>
         <description>Creates the GiftTransaction via inputReference on rsv_GiftTransaction. All fields set through prior Assignments and ObjectProvided screen bindings. Phase F2: connector now routes to Decide_Insert_Employer_GT_Insert (was Decide_Create_InKind_SelfCredit). When no match is opted-in, that decision defaults straight through to Decide_Create_InKind_SelfCredit so the existing terminal chain (In-Kind self-credit → designation → soft credit → Screen_Success) is unchanged.</description>
@@ -4142,6 +4213,38 @@
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Account</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Phase F3a (wizard plan §Employer picker line 117, §Decisions locked #2). Checks whether an AccountContactRelation already links the donor PersonContact (Get_Account.PersonContactId) to the picked employer Account (lkpMatchEmployer.recordId). Reached from Create_Employer_GT. If found, Decide_ACR_Exists skips ahead to Assign_Pair_Onto_Donor_GT unchanged. If empty, the flow routes into Assign_ACR_Fields + Create_MatchACR so the relationship persists for future gifts. Match branch is Person-Account-only (Decide_Match_Needed gates on Get_Account.IsPersonAccount), so PersonContactId is always populated here. Fault path routes straight to Assign_Pair_Onto_Donor_GT — an ACR-lookup failure shouldn&apos;t abort the pair. Filter uses IsActive=true to avoid short-circuiting on soft-deleted relationships (verified via describe: AccountContactRelation.IsActive is a filterable boolean, default true).</description>
+        <name>Get_Existing_ACR</name>
+        <label>Get Existing ACR</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decide_ACR_Exists</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Assign_Pair_Onto_Donor_GT</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>AccountId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>lkpMatchEmployer.recordId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>ContactId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Get_Account.PersonContactId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>AccountContactRelation</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -7248,6 +7351,15 @@
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <objectType>GiftTransaction</objectType>
+    </variables>
+    <variables>
+        <description>Phase F3a (wizard plan §Employer picker line 117). Record variable staged by Assign_ACR_Fields and inserted by Create_MatchACR. Represents the AccountContactRelation persisted between donor PersonContact and picked employer Account when Get_Existing_ACR finds no prior row. AccountId = employer, ContactId = donor PersonContact, Roles = &apos;Employee&apos;. Insert fault is best-effort (routes past to Assign_Pair_Onto_Donor_GT so the pair still succeeds).</description>
+        <name>rsv_MatchACR</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>AccountContactRelation</objectType>
     </variables>
     <variables>
         <description>Record variable for the GiftTransactionDesignation created after a GiftTransaction insert.</description>
