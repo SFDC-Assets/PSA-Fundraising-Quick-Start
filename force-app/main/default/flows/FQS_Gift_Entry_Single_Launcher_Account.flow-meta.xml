@@ -1479,6 +1479,82 @@
         </connector>
     </assignments>
     <assignments>
+        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Stages rsv_MatchSoftCredit_OnDonor ahead of Create_MatchSoftCredit_OnDonor. Recognizes the corporate Account on the donor&apos;s GT — GiftTransactionId = donor GT (rsv_GiftTransaction.Id), RecipientId = employer Account (lkpMatchEmployer.recordId), Role = &apos;Matched Donor&apos; (native picklist value verified via describe), PartialAmount = numMatchAmount. SoftCreditAmount is a platform-derived field (not writable — populated from PartialAmount on insert). Legal donor is never soft-credited to their own transaction (parity with corporate-match-plan §Core rules) — that&apos;s handled by placing the corporate on the DONOR GT, not by attributing the donor to themselves.</description>
+        <name>Assign_MatchSoftCredit_OnDonor</name>
+        <label>Stage Match SoftCredit (Donor GT)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_MatchSoftCredit_OnDonor.GiftTransactionId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_GiftTransaction.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchSoftCredit_OnDonor.RecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>lkpMatchEmployer.recordId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchSoftCredit_OnDonor.Role</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Matched Donor</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchSoftCredit_OnDonor.PartialAmount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>numMatchAmount</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_MatchSoftCredit_OnDonor</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Stages rsv_MatchSoftCredit_OnEmployer ahead of Create_MatchSoftCredit_OnEmployer. Recognizes the donor Person Account on the employer&apos;s GT — GiftTransactionId = employer GT (rsv_MatchEmployerGT.Id), RecipientId = donor Account (recordId — the launcher context Account, always the donor Person Account on the match branch because Decide_Match_Needed gates on IsPersonAccount=true). Role and PartialAmount mirror the donor-side row.</description>
+        <name>Assign_MatchSoftCredit_OnEmployer</name>
+        <label>Stage Match SoftCredit (Employer GT)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_MatchSoftCredit_OnEmployer.GiftTransactionId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_MatchEmployerGT.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchSoftCredit_OnEmployer.RecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchSoftCredit_OnEmployer.Role</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Matched Donor</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_MatchSoftCredit_OnEmployer.PartialAmount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>numMatchAmount</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_MatchSoftCredit_OnEmployer</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Assign_SoftCredit_From_Lookup</name>
         <label>Use Looked-Up Soft-Credit Account</label>
         <locationX>0</locationX>
@@ -3597,6 +3673,34 @@
         <inputReference>rsv_MatchACR</inputReference>
     </recordCreates>
     <recordCreates>
+        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Inserts the corporate-Account recognition GiftSoftCredit on the donor&apos;s GT (Role = &apos;Matched Donor&apos;, Recipient = employer Account). Fault path routes forward to Assign_MatchSoftCredit_OnEmployer — a soft-credit insert failure is non-critical (both paired GTs are already in the DB); the user can add the missing soft credit manually. Success advances to the employer-side soft credit.</description>
+        <name>Create_MatchSoftCredit_OnDonor</name>
+        <label>Create Match SoftCredit (Donor GT)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Assign_MatchSoftCredit_OnEmployer</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Assign_MatchSoftCredit_OnEmployer</targetReference>
+        </faultConnector>
+        <inputReference>rsv_MatchSoftCredit_OnDonor</inputReference>
+    </recordCreates>
+    <recordCreates>
+        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Inserts the donor-Person-Account recognition GiftSoftCredit on the employer&apos;s GT (Role = &apos;Matched Donor&apos;, Recipient = donor Account). Fault path routes forward to Decide_Match_Post_Route (best-effort — the pair itself is already persisted; a soft-credit insert failure doesn&apos;t abort the flow). Success also routes to Decide_Match_Post_Route which handles the branch back to Screen_Success or the terminal chain.</description>
+        <name>Create_MatchSoftCredit_OnEmployer</name>
+        <label>Create Match SoftCredit (Employer GT)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Decide_Match_Post_Route</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Decide_Match_Post_Route</targetReference>
+        </faultConnector>
+        <inputReference>rsv_MatchSoftCredit_OnEmployer</inputReference>
+    </recordCreates>
+    <recordCreates>
         <description>Creates the GiftTransaction via inputReference on rsv_GiftTransaction. All fields set through prior Assignments and ObjectProvided screen bindings. Phase F2: connector now routes to Decide_Insert_Employer_GT_Insert (was Decide_Create_InKind_SelfCredit). When no match is opted-in, that decision defaults straight through to Decide_Create_InKind_SelfCredit so the existing terminal chain (In-Kind self-credit → designation → soft credit → Screen_Success) is unchanged.</description>
         <name>Create_Gift_Transaction</name>
         <label>Create Gift Transaction</label>
@@ -3706,13 +3810,13 @@
         <inputReference>rsv_GiftCommitmentSchedule</inputReference>
     </recordCreates>
     <recordUpdates>
-        <description>Phase F2 (wizard plan §Matching-gift branch §Amount, line 124). Persists the MatchingEmployerTransactionId pair on the donor GT after Create_Employer_GT returns the employer row&apos;s Id. Runs on both the Insert and Update donor-GT branches — reached from Assign_Pair_Onto_Donor_GT. rsv_GiftTransaction.Id was populated by Create_Gift_Transaction (Insert path) or Assign_Update_GT_Fields → Update_Gift_Transaction (Update path), so this recordUpdates always targets the correct donor row. Only rsv_GiftTransaction.MatchingEmployerTransactionId is changed since Save at Insert; on the Update path the earlier Update_Gift_Transaction already wrote Status=Paid + user-editable fields, so this second write is idempotent for those. After this update the flow branches at Decide_Match_Post_Route back to the shared terminal chain.</description>
+        <description>Phase F2 (wizard plan §Matching-gift branch §Amount, line 124). Persists the MatchingEmployerTransactionId pair on the donor GT after Create_Employer_GT returns the employer row&apos;s Id. Runs on both the Insert and Update donor-GT branches — reached from Assign_Pair_Onto_Donor_GT. rsv_GiftTransaction.Id was populated by Create_Gift_Transaction (Insert path) or Assign_Update_GT_Fields → Update_Gift_Transaction (Update path), so this recordUpdates always targets the correct donor row. Only rsv_GiftTransaction.MatchingEmployerTransactionId is changed since Save at Insert; on the Update path the earlier Update_Gift_Transaction already wrote Status=Paid + user-editable fields, so this second write is idempotent for those. Phase F3b: connector now routes to Assign_MatchSoftCredit_OnDonor (was → Decide_Match_Post_Route) to insert the two paired GiftSoftCredit rows before the post-match terminal split.</description>
         <name>Update_Donor_With_Pair</name>
         <label>Update Donor GT with Employer Pair</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Decide_Match_Post_Route</targetReference>
+            <targetReference>Assign_MatchSoftCredit_OnDonor</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Err_Create</targetReference>
@@ -7360,6 +7464,24 @@
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <objectType>AccountContactRelation</objectType>
+    </variables>
+    <variables>
+        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Record variable staged by Assign_MatchSoftCredit_OnDonor and inserted by Create_MatchSoftCredit_OnDonor. Represents the corporate-Account recognition on the donor GT (Role = &apos;Matched Donor&apos;, Recipient = employer Account, GiftTransactionId = donor GT). Separate from rsv_GiftSoftCredit / rsv_InKind_SoftCredit so the manual soft-credit and in-kind self-credit paths don&apos;t stomp on this row.</description>
+        <name>rsv_MatchSoftCredit_OnDonor</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftSoftCredit</objectType>
+    </variables>
+    <variables>
+        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Record variable staged by Assign_MatchSoftCredit_OnEmployer and inserted by Create_MatchSoftCredit_OnEmployer. Represents the donor-Person-Account recognition on the employer GT (Role = &apos;Matched Donor&apos;, Recipient = donor Account, GiftTransactionId = employer GT).</description>
+        <name>rsv_MatchSoftCredit_OnEmployer</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftSoftCredit</objectType>
     </variables>
     <variables>
         <description>Record variable for the GiftTransactionDesignation created after a GiftTransaction insert.</description>
