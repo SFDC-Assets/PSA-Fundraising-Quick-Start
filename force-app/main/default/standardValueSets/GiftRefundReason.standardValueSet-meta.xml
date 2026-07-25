@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StandardValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sorted>false</sorted>
+    <standardValue>
+        <fullName>Incorrect Amount</fullName>
+        <default>false</default>
+        <label>Incorrect Amount</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Donor Request</fullName>
+        <default>false</default>
+        <label>Donor Request</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Duplicate Gift</fullName>
+        <default>false</default>
+        <label>Duplicate Gift</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Fraudulent</fullName>
+        <default>false</default>
+        <label>Fraudulent</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Test Transaction</fullName>
+        <default>false</default>
+        <label>Test Transaction</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Match Correction</fullName>
+        <default>false</default>
+        <label>Match Correction</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Bounced Check</fullName>
+        <default>false</default>
+        <label>Bounced Check</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Chargeback</fullName>
+        <default>false</default>
+        <label>Chargeback</label>
+    </standardValue>
+</StandardValueSet>
