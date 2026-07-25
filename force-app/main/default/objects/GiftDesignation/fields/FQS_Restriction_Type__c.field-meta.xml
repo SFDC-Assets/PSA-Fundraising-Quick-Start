@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Restriction_Type__c</fullName>
-    <description>Categorizes designations for filtering and reporting. Four values align to FASB ASU 2016-14 donor-restriction classifications (Without Donor Restriction, With Donor Restriction - Purpose / Time / Permanent). A fifth value, Earned Revenue, tags designations used for exchange-transaction revenue (fees, ticketing, workshop registrations, program service fees) so it can be separated from contribution revenue in reports.</description>
-    <inlineHelpText>How the donor restricted the use of this designation&apos;s funds. Without Donor Restriction: usable for any program at any time. With Donor Restriction - Purpose: must be spent on a specific program or use. With Donor Restriction - Time: released only after a specified date or event. With Donor Restriction - Permanent: principal held indefinitely (endowment); only earnings are spendable. Earned Revenue: exchange-transaction revenue from selling goods or providing services — not a donor contribution.</inlineHelpText>
+    <description>Categorizes designations for filtering and reporting. Restriction dimensions: Without Donor Restriction (unrestricted, incl. internal board designations); With Donor Restriction - Purpose (donor restricted to a specific use); With Donor Restriction - Permanent (endowment principal, held indefinitely); Earned Revenue (exchange-transaction revenue, not a contribution). Time restrictions are NOT represented here — record time boundaries on the gift&apos;s FQS_Restriction_Release_Date field on GiftCommitment or GiftTransaction.</description>
+    <inlineHelpText>How the donor restricted the funds. Without Donor Restriction: usable for any program (incl. board-designated). Purpose: must be spent on a specific use. Permanent: endowment principal — only earnings spendable. Earned Revenue: exchange-transaction revenue (fees, ticket sales), not a contribution. Time restrictions live on the gift (see Restriction Release Date on GC / GT).</inlineHelpText>
     <label>Restriction Type</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
@@ -20,11 +20,6 @@
                 <fullName>With Donor Restriction - Purpose</fullName>
                 <default>false</default>
                 <label>With Donor Restriction - Purpose</label>
-            </value>
-            <value>
-                <fullName>With Donor Restriction - Time</fullName>
-                <default>false</default>
-                <label>With Donor Restriction - Time</label>
             </value>
             <value>
                 <fullName>With Donor Restriction - Permanent</fullName>

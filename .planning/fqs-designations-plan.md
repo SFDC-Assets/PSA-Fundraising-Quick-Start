@@ -2,7 +2,7 @@
 
 **Repo:** `/Users/justin.gilmore/GitHubRepos/PSA-Fundraising-Quick-Start-DEV`
 **Target org:** FundFirst (Nonprofit Cloud Fundraising, **not** NPSP)
-**Status:** partially shipped — Phase 6.1 + 6.2 landed 2026-07-25 (release-date fields on GC + GT, permset). Phase 6.3+ (picklist reshape, setup flow, launcher edits, flexipages) still parked.
+**Status:** partially shipped — Phase 6.0 (reclassify + rename 2 legacy Time GDs) + 6.1 + 6.2 + 6.3 (picklist reshape) landed 2026-07-25. Phase 6.4+ (setup flow, launcher edits, flexipages) still parked.
 **Created:** 2026-07-22
 **Owner:** Justin (solo)
 
@@ -575,7 +575,16 @@ CustomField:GiftTransaction.FQS_Restriction_Release_Date__c" \
 # Phase 6.2 — permset (grants edit on new fields) [SHIPPED 2026-07-25, deploy 0AfWB00000Dbcek0AB]
 sf project deploy start --metadata "PermissionSet:FQS_Custom_Fields" --target-org FundFirst
 
-# Phase 6.3 — picklist reshape on GD (remove Time value + refresh description/help).
+# Phase 6.3 — picklist reshape on GD (remove Time value + refresh description/help). [SHIPPED 2026-07-25, deploy 0AfWB00000DbcoP0AR]
+# Pre-req: reclassified the 2 legacy Time-restricted GDs to Purpose in-place on FundFirst (no teardown needed):
+#   FQS-GD-BUILDING-2026 → FQS-GD-BUILDING       (FQS 2026 Building Fund   → FQS Building Fund)
+#   FQS-GD-EXPANSION-2027 → FQS-GD-EXPANSION     (FQS 2027 Expansion Fund  → FQS Program Expansion Fund)
+# One-off script: /tmp/reclassify-time-gds.apex. The 13 GDDs + 131 GTDs referencing these GDs kept
+# pointing at the same records — their restriction classification just changed. No downstream impact.
+# Same rename was mirrored in fqs-seed-foundation.apex (line 192-193) for future reseeds.
+# InlineHelpText hit the 510-char cap on first deploy; trimmed to fit.
+#
+# Original (planned) command:
 # The description update rewrites the field description to no longer imply time-restriction is a designation attribute:
 #   "Categorizes designations for filtering and reporting. Restriction dimensions:
 #    Without Donor Restriction (unrestricted, incl. internal board designations);
