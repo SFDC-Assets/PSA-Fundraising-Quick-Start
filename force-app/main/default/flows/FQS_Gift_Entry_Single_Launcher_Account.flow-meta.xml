@@ -415,7 +415,7 @@
             <assignToReference>rsv_GiftTransaction.Status</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Pending</stringValue>
+                <stringValue>Paid</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -466,7 +466,7 @@
             <assignToReference>rsv_GiftTransaction.Status</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Pending</stringValue>
+                <stringValue>Paid</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -524,7 +524,7 @@
             <assignToReference>rsv_GiftTransaction.Status</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Pending</stringValue>
+                <stringValue>Paid</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -575,7 +575,7 @@
             <assignToReference>rsv_GiftTransaction.Status</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Pending</stringValue>
+                <stringValue>Paid</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
