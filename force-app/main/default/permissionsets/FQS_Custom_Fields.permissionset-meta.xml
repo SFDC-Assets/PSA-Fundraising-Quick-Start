@@ -73,6 +73,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>DonorGiftSummary.External_Id__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>DonorGiftSummary.FQS_Annual_Donor_Level_Name__c</field>
         <readable>true</readable>
@@ -110,6 +115,26 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>DonorGiftSummary.FQS_Is_Mid_Lifetime_Donor__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DonorGiftSummary.FQS_Legacy_First_Gift_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DonorGiftSummary.FQS_Legacy_Gift_Count__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DonorGiftSummary.FQS_Legacy_Soft_Credit_Total__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>DonorGiftSummary.FQS_Legacy_Total_Gifts_Amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

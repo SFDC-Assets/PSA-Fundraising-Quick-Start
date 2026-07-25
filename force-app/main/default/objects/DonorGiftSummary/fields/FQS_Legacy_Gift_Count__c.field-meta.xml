@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Legacy_Gift_Count__c</fullName>
+    <description>Count of hard-credit gifts from legacy or external systems (archived CRM, spreadsheet migration, prior fundraising platform). Populated once during import and preserved thereafter — NPC rollups do not touch this field. FQS reports and dashboards add this to the standard GiftCount rollup so migrated donors show their true lifetime gift frequency. Leave blank for donors with no pre-system giving history.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Count of hard-credit gifts from a legacy or external system. Adds to the standard GiftCount rollup for reporting.</inlineHelpText>
+    <label>Legacy Gift Count</label>
+    <precision>10</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

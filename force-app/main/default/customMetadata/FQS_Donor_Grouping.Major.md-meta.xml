@@ -31,4 +31,8 @@
         <field>FQS_Auto_Acknowledgement__c</field>
         <value xsi:type="xsd:string">Exclude All</value>
     </values>
+    <values>
+        <field>Credit_Type__c</field>
+        <value xsi:type="xsd:string">Hard Credits Only</value>
+    </values>
 </CustomMetadata>

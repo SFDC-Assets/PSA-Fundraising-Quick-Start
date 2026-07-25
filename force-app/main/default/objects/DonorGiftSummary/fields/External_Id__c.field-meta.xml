@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>External_Id__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description>Stable external identifier for the Donor Gift Summary. Used to upsert historical / legacy giving totals from prior systems (archived CRM, spreadsheet migration, data lake) into this record. Format is free-form but should match the External_Id__c on the parent Account (e.g., LEGACY-CRM-A00123) so cross-system reconciliation stays traceable. Not required on records created by NPC rollups — those are keyed on DonorId.</description>
+    <externalId>true</externalId>
+    <inlineHelpText>External identifier from the legacy or source system this donor's historical giving was imported from. Used to upsert legacy totals without overwriting standard NPC rollups.</inlineHelpText>
+    <label>External Id</label>
+    <length>64</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

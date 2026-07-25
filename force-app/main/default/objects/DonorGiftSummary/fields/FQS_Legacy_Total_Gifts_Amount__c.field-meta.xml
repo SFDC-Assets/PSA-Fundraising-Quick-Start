@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Legacy_Total_Gifts_Amount__c</fullName>
+    <description>Sum of hard-credit giving from legacy or external systems (archived CRM, spreadsheet migration, prior fundraising platform). Populated once during import and preserved thereafter — NPC rollups do not touch this field. FQS donor-grouping formulas add this to the standard TotalGiftsAmount rollup so migrated donors retain their true lifetime giving picture. Leave blank for donors with no pre-system giving history.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Total hard-credit giving from a legacy or external system. Adds to the standard TotalGiftsAmount rollup for donor-grouping calculations.</inlineHelpText>
+    <label>Legacy Total Gifts Amount</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>
