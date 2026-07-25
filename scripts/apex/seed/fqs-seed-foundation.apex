@@ -355,6 +355,29 @@ for (Integer i = 0; i < employers.size(); i++) {
 Database.upsert(corpAccounts, Account.External_Id__c, true);
 System.debug('Corporate employer accounts upserted: ' + corpAccounts.size());
 
+// -------- CORP EMPLOYER PARTY RELATIONSHIP GROUPS (Phase G4) --------
+// Every non-Person Account gets a PRG anchored at that Account with Type=&apos;Group&apos;
+// so the FQS Gift Entry launcher&apos;s two-stage employer picker can filter donor
+// ACRs through PRG.Type=&apos;Group&apos; (as opposed to Household). One PRG per corp
+// employer Account, Name mirrors Account.Name for readability. Idempotent — the
+// query short-circuits when a PRG already exists for the Account.
+List<Account> corpAccountsForPrg = [SELECT Id, Name FROM Account WHERE External_Id__c LIKE 'FQS-ACC-CORP-%'];
+Set<Id> corpAccountIdsWithPrg = new Set<Id>();
+for (PartyRelationshipGroup existingPrg : [SELECT AccountId FROM PartyRelationshipGroup WHERE AccountId IN :corpAccountsForPrg]) {
+    corpAccountIdsWithPrg.add(existingPrg.AccountId);
+}
+List<PartyRelationshipGroup> corpPrgs = new List<PartyRelationshipGroup>();
+for (Account a : corpAccountsForPrg) {
+    if (corpAccountIdsWithPrg.contains(a.Id)) continue;
+    corpPrgs.add(new PartyRelationshipGroup(AccountId = a.Id, Name = a.Name, Type = 'Group'));
+}
+if (!corpPrgs.isEmpty()) {
+    insert corpPrgs;
+    System.debug('Corporate employer PRGs inserted: ' + corpPrgs.size());
+} else {
+    System.debug('Corporate employer PRGs already present — skipped.');
+}
+
 // -------- MATCHING-GIFT INTERMEDIARIES --------
 // Third-party facilitators (Benevity, YourCause, etc.) that appear as the legal
 // donor on a GiftTransaction while the giving originates from a corporate match
@@ -385,6 +408,25 @@ if (hasIntermediary) {
     }
     Database.upsert(intAccounts, Account.External_Id__c, true);
     System.debug('Match intermediary accounts upserted: ' + intAccounts.size());
+
+    // Phase G4: same PRG treatment as corp employers so intermediaries surface in the
+    // employer datatable when a donor has an ACR pointing at them.
+    List<Account> intAccountsForPrg = [SELECT Id, Name FROM Account WHERE External_Id__c LIKE 'FQS-ACC-INT-%'];
+    Set<Id> intAccountIdsWithPrg = new Set<Id>();
+    for (PartyRelationshipGroup existingPrg : [SELECT AccountId FROM PartyRelationshipGroup WHERE AccountId IN :intAccountsForPrg]) {
+        intAccountIdsWithPrg.add(existingPrg.AccountId);
+    }
+    List<PartyRelationshipGroup> intPrgs = new List<PartyRelationshipGroup>();
+    for (Account a : intAccountsForPrg) {
+        if (intAccountIdsWithPrg.contains(a.Id)) continue;
+        intPrgs.add(new PartyRelationshipGroup(AccountId = a.Id, Name = a.Name, Type = 'Group'));
+    }
+    if (!intPrgs.isEmpty()) {
+        insert intPrgs;
+        System.debug('Match intermediary PRGs inserted: ' + intPrgs.size());
+    } else {
+        System.debug('Match intermediary PRGs already present — skipped.');
+    }
 } else {
     System.debug('FQS_Is_Match_Intermediary__c not deployed; skipping intermediary account seeding.');
 }

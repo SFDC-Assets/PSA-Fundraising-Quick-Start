@@ -41,11 +41,27 @@ if (slot > 0) {
 }
 
 // 0d. AccountContactRelation — must go before Accounts.
+// Phase G4: widened External Id pattern from CORP/INT-only to all FQS-ACC-* so seed-generator-
+// authored donor ↔ employer ACRs (created for match-eligible Person-Account donors) are also
+// removed. The seed only creates ACRs on the employer Account side (AccountId = corp employer),
+// so filtering on Account.External_Id__c LIKE 'FQS-ACC-%' catches every seeded row.
 slot = Math.min(5000, DML_BUDGET - totalDeleted);
 if (slot > 0) {
     List<AccountContactRelation> acrs = Database.query(
-        'SELECT Id FROM AccountContactRelation WHERE Account.External_Id__c LIKE \'FQS-ACC-CORP-%\' OR Account.External_Id__c LIKE \'FQS-ACC-INT-%\' LIMIT ' + slot);
+        'SELECT Id FROM AccountContactRelation WHERE Account.External_Id__c LIKE \'FQS-ACC-%\' LIMIT ' + slot);
     if (!acrs.isEmpty()) { delete acrs; counts.put('AccountContactRelation', acrs.size()); totalDeleted += acrs.size(); }
+}
+
+// 0e. PartyRelationshipGroup — must go before Accounts.
+// Phase G4: seeded PRGs anchor at every non-Person FQS Account (Type='Group'). PRG holds
+// a cascade-delete relationship on Account so if this deletion is skipped, the Account
+// delete below still succeeds, but the org keeps orphaned PRGs. Explicit delete first
+// keeps counts accurate.
+slot = Math.min(5000, DML_BUDGET - totalDeleted);
+if (slot > 0) {
+    List<PartyRelationshipGroup> prgs = Database.query(
+        'SELECT Id FROM PartyRelationshipGroup WHERE Account.External_Id__c LIKE \'FQS-ACC-%\' LIMIT ' + slot);
+    if (!prgs.isEmpty()) { delete prgs; counts.put('PartyRelationshipGroup', prgs.size()); totalDeleted += prgs.size(); }
 }
 
 // 1. GiftRefund
@@ -147,11 +163,19 @@ if (slot > 0) {
     if (!oscs.isEmpty()) { delete oscs; counts.put('OutreachSourceCode', oscs.size()); totalDeleted += oscs.size(); }
 }
 
-// 13. GiftDesignation — must be deactivated before delete.
+// 13. GiftDesignation — must be un-defaulted AND deactivated before delete.
+// The org-level default GD (IsDefault=true) cannot be deactivated until the flag is cleared;
+// the platform blocks the update with "You can't deactivate the gift designation because it's
+// set as default." Clear IsDefault first in its own DML pass, then deactivate, then delete.
 slot = Math.min(5000, DML_BUDGET - totalDeleted);
 if (slot > 0) {
-    List<GiftDesignation> gds = Database.query('SELECT Id, IsActive FROM GiftDesignation WHERE External_Id__c LIKE \'FQS-GD-%\' LIMIT ' + slot);
+    List<GiftDesignation> gds = Database.query('SELECT Id, IsActive, IsDefault FROM GiftDesignation WHERE External_Id__c LIKE \'FQS-GD-%\' LIMIT ' + slot);
     if (!gds.isEmpty()) {
+        List<GiftDesignation> toUndefault = new List<GiftDesignation>();
+        for (GiftDesignation gd : gds) {
+            if (gd.IsDefault) { gd.IsDefault = false; toUndefault.add(gd); }
+        }
+        if (!toUndefault.isEmpty()) update toUndefault;
         List<GiftDesignation> toDeactivate = new List<GiftDesignation>();
         for (GiftDesignation gd : gds) {
             if (gd.IsActive) { gd.IsActive = false; toDeactivate.add(gd); }

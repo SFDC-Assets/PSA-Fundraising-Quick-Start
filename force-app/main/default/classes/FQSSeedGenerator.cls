@@ -48,7 +48,16 @@ public with sharing class FQSSeedGenerator {
     public static Integer MATCH_ROLL_PENDING_MAX         = 85;
     // §13.1 — Status weights for recurring commitments only (Active / Failing / Lapsed / Paused).
     // Pledged + Grant commitments stay Active — no domain reason to distribute them.
-    public static List<Integer> RECURRING_STATUS_WEIGHTS = new List<Integer>{70, 10, 10, 10};
+    // Note: Paused weight is set to 0 because the real "paused" shape produced by managed
+    // frops_flow__PauseResumeSchedule (existing GCS truncated + PauseTransactions row + resume-tail
+    // CreateTransactions row) fights with the platform's gift-transaction aggregation trigger
+    // during seed inserts — the aggregation flips GC.CurrentGiftCmtScheduleId to whatever row
+    // is currently "live" (the pause row), then the aggregation itself rejects the flip
+    // because PauseTransactions isn't a valid current-schedule type. To exercise the router's
+    // RECURRING_PAUSED branch, run the Pause action from the router flow on any seeded
+    // Active-status recurring GC — that creates the pause shape via the managed subflow
+    // itself, matching production behavior exactly.
+    public static List<Integer> RECURRING_STATUS_WEIGHTS = new List<Integer>{80, 10, 10, 0};
 
     // Hard clamps applied on top of CMT-derived amount bands.
     public static Decimal ENTRY_MIN_FLOOR   = 25;
@@ -337,6 +346,21 @@ public with sharing class FQSSeedGenerator {
         }
         insert newAccounts;
 
+        // Phase G4: PartyRelationshipGroup per donor-Org Account (non-Person). One PRG per
+        // Account with Type='Group' so the launcher's two-stage employer picker can filter
+        // Donor ACRs through PRG.Type='Group' (as opposed to Household). Person Accounts
+        // are skipped by design — donors, not employers. Idempotent-safe within a chunk
+        // because these Accounts are freshly inserted and cannot already have a PRG.
+        List<PartyRelationshipGroup> donorOrgPrgs = new List<PartyRelationshipGroup>();
+        for (Integer i = 0; i < donorCount; i++) {
+            if (donorTypes[i] == 0) continue;
+            donorOrgPrgs.add(new PartyRelationshipGroup(
+                AccountId = newAccounts[i].Id,
+                Name = newAccounts[i].Name,
+                Type = 'Group'));
+        }
+        if (!donorOrgPrgs.isEmpty()) insert donorOrgPrgs;
+
         // GC Name conventions:
         //   Recurring (OpenEnded)   → "<Donor> - $<amt> Monthly"           (amt = the monthly commitment)
         //   Pledged  (FixedLength)  → "<Donor> - $<total> over N years"    (total = full pledge amount)
@@ -440,28 +464,61 @@ public with sharing class FQSSeedGenerator {
         }
         if (!newCommitments.isEmpty()) insert newCommitments;
 
-        // §12.2 — insert GiftDefaultDesignation on every Conditional (non-grant) commitment.
-        // Restricted designations get round-robin'd across Purpose/Time/Permanent restriction
-        // subtypes so the launcher's Restriction picker sees a mix. Grants intentionally skip
-        // this — their default-designation semantics are different in the app.
+        // §12.2 — insert GiftDefaultDesignation on every commitment. Conditional (non-grant)
+        // commitments round-robin across restricted designations so the launcher's Restriction
+        // picker sees a mix; unconditional and grant commitments pull from the full designation
+        // pool. Every GC lands with at least one GDD so the Manage Designations action, gift
+        // ladder walker, and reports all have coverage on every seeded record.
         List<GiftDefaultDesignation> newGDDs = new List<GiftDefaultDesignation>();
-        if (!restrictedDesignationIds.isEmpty()) {
-            for (Integer i = 0; i < newCommitments.size(); i++) {
-                if (commitmentKind[i].startsWith('grant')) continue;
-                if (!commitmentIsConditional[i]) continue;
-                Integer di = commitmentDonorIdx[i];
-                Integer globalIdx = batchOffset + di;
-                Id designationId = restrictedDesignationIds[Math.mod(prng(globalIdx, 26), restrictedDesignationIds.size())];
-                newGDDs.add(new GiftDefaultDesignation(
-                    ParentRecordId = newCommitments[i].Id,
-                    GiftDesignationId = designationId,
-                    AllocatedPercentage = 100
-                ));
+        for (Integer i = 0; i < newCommitments.size(); i++) {
+            Integer di = commitmentDonorIdx[i];
+            Integer globalIdx = batchOffset + di;
+            Id designationId;
+            if (commitmentIsConditional[i] && !commitmentKind[i].startsWith('grant') && !restrictedDesignationIds.isEmpty()) {
+                designationId = restrictedDesignationIds[Math.mod(prng(globalIdx, 26), restrictedDesignationIds.size())];
+            } else if (!allDesignationIds.isEmpty()) {
+                designationId = allDesignationIds[Math.mod(prng(globalIdx, 26), allDesignationIds.size())];
+            } else {
+                continue;
             }
+            newGDDs.add(new GiftDefaultDesignation(
+                ParentRecordId = newCommitments[i].Id,
+                GiftDesignationId = designationId,
+                AllocatedPercentage = 100
+            ));
         }
         if (!newGDDs.isEmpty()) insert newGDDs;
 
+        // §13.1a — pause-shape emitter.
+        // Managed Fundraising Cloud Pause action leaves GC.Status=Active and inserts 3 GCS rows:
+        // original CreateTransactions row (truncated to end just before the pause window),
+        // PauseTransactions row spanning the window, and a resume-tail CreateTransactions row
+        // starting the day after the window ends. The router flow detects "paused" by querying
+        // for a live-or-indefinite PauseTransactions GCS — NOT by GC.Status. If we seed
+        // Status=Paused with just one CreateTransactions row, the managed Resume subflow finds
+        // nothing to resume. So for every recurring GC that pickRecurringStatus() picked as
+        // "Paused" above, we (a) restore Status=Active and (b) build the 3-row pause shape.
+        Set<Integer> pausedIdxs = new Set<Integer>();
+        for (Integer i = 0; i < newCommitments.size(); i++) {
+            if (commitmentKind[i] == 'recurring' && newCommitments[i].Status == 'Paused') {
+                pausedIdxs.add(i);
+            }
+        }
+        if (!pausedIdxs.isEmpty()) {
+            List<GiftCommitment> gcStatusFix = new List<GiftCommitment>();
+            for (Integer i : pausedIdxs) {
+                gcStatusFix.add(new GiftCommitment(Id = newCommitments[i].Id, Status = 'Active'));
+            }
+            update gcStatusFix;
+        }
+
+        Date todaySched = Date.today();
         List<GiftCommitmentSchedule> newSchedules = new List<GiftCommitmentSchedule>();
+        Map<Id, Id> pauseOriginalGcsIdByGcId = new Map<Id, Id>();
+        // Track parallel index of each newSchedules row to its source commitment index so the
+        // pause-row + resume-tail siblings can be identified by GcId after insert (they don't
+        // occupy the same list slots).
+        List<Integer> newSchedulesCommitmentIdx = new List<Integer>();
         for (Integer i = 0; i < newCommitments.size(); i++) {
             GiftCommitment gc = newCommitments[i];
             String kind = commitmentKind[i];
@@ -481,6 +538,8 @@ public with sharing class FQSSeedGenerator {
                 Integer years = Math.max(1, gc.ExpectedEndDate.year() - gc.EffectiveStartDate.year());
                 schedAmt = roundTo5((gc.ExpectedTotalCmtAmount / years).setScale(2));
             }
+            Boolean isPaused = pausedIdxs.contains(i);
+            String paymentMethod = kind.startsWith('grant') ? 'Check' : (Math.mod(i, 3) == 0 ? 'ACH' : 'Credit Card');
             GiftCommitmentSchedule sched = new GiftCommitmentSchedule(
                 External_Id__c = 'FQS-GCS-' + RUN_STAMP + '-' + globalIdx + '-' + kind,
                 GiftCommitmentId = gc.Id,
@@ -488,12 +547,108 @@ public with sharing class FQSSeedGenerator {
                 TransactionPeriod = (kind == 'recurring') ? 'Monthly' : 'Yearly',
                 StartDate = gc.EffectiveStartDate,
                 TransactionDay = String.valueOf(gc.EffectiveStartDate.day()),
-                PaymentMethod = kind.startsWith('grant') ? 'Check' : (Math.mod(i, 3) == 0 ? 'ACH' : 'Credit Card')
+                PaymentMethod = paymentMethod
             );
             if (kind != 'recurring' && gc.ExpectedEndDate != null) sched.EndDate = gc.ExpectedEndDate;
+            // §13.1b — Paused GCs get the real 3-row shape managed Pause action produces.
+            // Original CreateTransactions row is truncated to end just before the pause window;
+            // Pause + resume-tail rows are added to the SAME batch so the async aggregation
+            // trigger (which flips GC status based on the current schedule) sees the final
+            // shape once, not the intermediate pause-less state.
+            if (isPaused) {
+                sched.EndDate = todaySched.addDays(-1);
+            }
             newSchedules.add(sched);
+            newSchedulesCommitmentIdx.add(i);
+            if (isPaused) {
+                Integer txDay = gc.EffectiveStartDate.day();
+                Date pauseStart = todaySched;
+                Date pauseEnd = todaySched.addDays(90);
+                newSchedules.add(new GiftCommitmentSchedule(
+                    External_Id__c = 'FQS-GCS-' + RUN_STAMP + '-' + globalIdx + '-recurring-pause',
+                    GiftCommitmentId = gc.Id,
+                    Type = 'PauseTransactions',
+                    TransactionAmount = schedAmt,
+                    TransactionPeriod = 'Monthly',
+                    StartDate = pauseStart,
+                    EndDate = pauseEnd,
+                    TransactionDay = String.valueOf(txDay),
+                    PaymentMethod = paymentMethod
+                ));
+                newSchedulesCommitmentIdx.add(i);
+                newSchedules.add(new GiftCommitmentSchedule(
+                    External_Id__c = 'FQS-GCS-' + RUN_STAMP + '-' + globalIdx + '-recurring-resume',
+                    GiftCommitmentId = gc.Id,
+                    Type = 'CreateTransactions',
+                    TransactionAmount = schedAmt,
+                    TransactionPeriod = 'Monthly',
+                    StartDate = pauseEnd.addDays(1),
+                    TransactionDay = String.valueOf(txDay),
+                    PaymentMethod = paymentMethod
+                ));
+                newSchedulesCommitmentIdx.add(i);
+            }
         }
         if (!newSchedules.isEmpty()) insert newSchedules;
+        for (Integer j = 0; j < newSchedules.size(); j++) {
+            Integer ci = newSchedulesCommitmentIdx[j];
+            if (pausedIdxs.contains(ci) && newSchedules[j].Type != 'PauseTransactions'
+                && newSchedules[j].StartDate == newCommitments[ci].EffectiveStartDate) {
+                pauseOriginalGcsIdByGcId.put(newCommitments[ci].Id, newSchedules[j].Id);
+            }
+        }
+
+        // Back-fill GC.CurrentGiftCmtScheduleId + NextTransactionDate. The platform's async
+        // activation batch is meant to stamp these when StartDate <= today, but in practice
+        // it lags (hours-to-days) or never fires for seed inserts. Downstream router flows
+        // and reports depend on the current-schedule reference being live, so we write it
+        // directly. Both fields are user-writable.
+        //
+        // Paused GCs are handled specially: CurrentGiftCmtScheduleId points at the ORIGINAL
+        // truncated CreateTransactions row (stale-but-stable, matching managed Pause behavior);
+        // NextTransactionDate points at the first tx date after the pause window ends.
+        Date today = Date.today();
+        Set<Id> pausedGcIds = pauseOriginalGcsIdByGcId.keySet();
+        List<GiftCommitment> gcActivations = new List<GiftCommitment>();
+        for (GiftCommitmentSchedule s : newSchedules) {
+            if (pausedGcIds.contains(s.GiftCommitmentId)) continue;  // handled below
+            if (s.StartDate > today) continue;
+            Date nextTx;
+            Integer txDay = Integer.valueOf(s.TransactionDay);
+            if (s.TransactionPeriod == 'Monthly') {
+                nextTx = Date.newInstance(today.year(), today.month(), Math.min(txDay, Date.daysInMonth(today.year(), today.month())));
+                if (nextTx <= today) {
+                    Date nm = today.addMonths(1);
+                    nextTx = Date.newInstance(nm.year(), nm.month(), Math.min(txDay, Date.daysInMonth(nm.year(), nm.month())));
+                }
+            } else {
+                nextTx = Date.newInstance(today.year(), s.StartDate.month(), Math.min(txDay, Date.daysInMonth(today.year(), s.StartDate.month())));
+                if (nextTx <= today) nextTx = nextTx.addYears(1);
+            }
+            if (s.EndDate != null && nextTx > s.EndDate) continue;
+            gcActivations.add(new GiftCommitment(
+                Id = s.GiftCommitmentId,
+                CurrentGiftCmtScheduleId = s.Id,
+                NextTransactionDate = nextTx
+            ));
+        }
+        for (Id gcId : pauseOriginalGcsIdByGcId.keySet()) {
+            Id originalGcsId = pauseOriginalGcsIdByGcId.get(gcId);
+            // NextTx = first tx date after the 90-day pause ends
+            Date resumeStart = today.addDays(91);
+            Integer txDay = today.day();
+            Date nextTx = Date.newInstance(resumeStart.year(), resumeStart.month(), Math.min(txDay, Date.daysInMonth(resumeStart.year(), resumeStart.month())));
+            if (nextTx <= resumeStart) {
+                Date nm = resumeStart.addMonths(1);
+                nextTx = Date.newInstance(nm.year(), nm.month(), Math.min(txDay, Date.daysInMonth(nm.year(), nm.month())));
+            }
+            gcActivations.add(new GiftCommitment(
+                Id = gcId,
+                CurrentGiftCmtScheduleId = originalGcsId,
+                NextTransactionDate = nextTx
+            ));
+        }
+        if (!gcActivations.isEmpty()) update gcActivations;
 
         List<Opportunity> newOpps = new List<Opportunity>();
         List<String> grantStages = new List<String>{'Identification','Cultivation','LOI Submitted','Proposal Submitted','Under Review','Awarded'};
@@ -987,6 +1142,35 @@ public with sharing class FQSSeedGenerator {
         for (Account pa : [SELECT Id, PersonContactId FROM Account WHERE Id IN :donorAccountIds AND PersonContactId != null]) {
             personContactByAccount.put(pa.Id, pa.PersonContactId);
         }
+
+        // Phase G4: seed AccountContactRelation rows for a fraction of match-eligible
+        // Person-Account donors so the launcher's employer-picker datatable has real
+        // ACR → PRG.Type='Group' data on fresh seeds. Not every eligible donor gets one:
+        // ACR_COVERAGE_PCT (65%) leaves some donors ACR-less so the fallback lookup path
+        // remains realistic in demos and QA. Roles='Employee' (native ACR picklist),
+        // IsActive left to platform default (true). Uses Database.insert allOrNone=false
+        // in case the platform auto-creates certain ACRs from other flows (defensive).
+        Integer ACR_COVERAGE_PCT = 65;
+        List<AccountContactRelation> matchAcrs = new List<AccountContactRelation>();
+        for (Integer i = 0; i < donorCount; i++) {
+            if (donorTypes[i] != 0 || !employerEligible[i]) continue;
+            Integer globalIdx = batchOffset + i;
+            if (Math.mod(prng(globalIdx, 604), 100) >= ACR_COVERAGE_PCT) continue;
+            Id contactId = personContactByAccount.get(newAccounts[i].Id);
+            if (contactId == null) continue;
+            Id employerAccountId = corpEmployers[employerIdxByDonor[i]].Id;
+            matchAcrs.add(new AccountContactRelation(
+                AccountId = employerAccountId,
+                ContactId = contactId,
+                Roles = 'Employee'));
+        }
+        if (!matchAcrs.isEmpty()) {
+            Database.SaveResult[] acrResults = Database.insert(matchAcrs, false);
+            Integer acrOk = 0;
+            for (Database.SaveResult sr : acrResults) if (sr.isSuccess()) acrOk++;
+            System.debug('Match ACRs inserted: ' + acrOk + ' / ' + acrResults.size() + ' attempted.');
+        }
+
         Map<Id, String> campaignCategoryById = new Map<Id, String>();
         for (Campaign c : campaigns) campaignCategoryById.put(c.Id, c.FQS_Campaign_Category__c);
         // Build (donorAccountId → set of gift CampaignIds), excluding event campaigns.
@@ -1145,7 +1329,10 @@ public with sharing class FQSSeedGenerator {
 
         List<GiftRefund> newRefunds = new List<GiftRefund>();
         List<String> refundStatuses = new List<String>{'Initiated','Completed','Completed','Failed'};
-        List<String> refundReasons = new List<String>{'Donor Request','Incorrect Amount'};
+        List<String> refundReasons = new List<String>{
+            'Donor Request','Incorrect Amount','Duplicate Gift',
+            'Match Correction','Bounced Check','Chargeback'
+        };
         for (Integer i = 0; i < newGifts.size(); i++) {
             if (!giftIsPaid[i]) continue;
             Integer di = giftDonorIdx[i];
