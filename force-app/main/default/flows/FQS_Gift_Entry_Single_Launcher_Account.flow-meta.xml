@@ -1785,7 +1785,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Stages rsv_MatchSoftCredit_OnDonor ahead of Create_MatchSoftCredit_OnDonor. Recognizes the corporate Account on the donor&apos;s GT — GiftTransactionId = donor GT (rsv_GiftTransaction.Id), RecipientId = employer Account (lkpMatchEmployer.recordId), Role = &apos;Matched Donor&apos; (native picklist value verified via describe), PartialAmount = numMatchAmount. SoftCreditAmount is a platform-derived field (not writable — populated from PartialAmount on insert). Legal donor is never soft-credited to their own transaction (parity with corporate-match-plan §Core rules) — that&apos;s handled by placing the corporate on the DONOR GT, not by attributing the donor to themselves.</description>
+        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Stages rsv_MatchSoftCredit_OnDonor ahead of Create_MatchSoftCredit_OnDonor. Recognizes the corporate Account on the donor&apos;s GT — GiftTransactionId = donor GT (rsv_GiftTransaction.Id), RecipientId = employer Account (lkpMatchEmployer.recordId), Role = &apos;Matched Donor&apos; (native picklist value verified via describe). Phase G3: PartialAmount = formulaDonorGiftAmount (BLANKVALUE(numGiftAmount, numRecurringAmount)) — the DONOR GT&apos;s amount, not the match amount. Previously used numMatchAmount which is only correct on the employer-side row. SoftCreditAmount is a platform-derived field (not writable — populated from PartialAmount on insert). Legal donor is never soft-credited to their own transaction (parity with corporate-match-plan §Core rules) — that&apos;s handled by placing the corporate on the DONOR GT, not by attributing the donor to themselves.</description>
         <name>Assign_MatchSoftCredit_OnDonor</name>
         <label>Stage Match SoftCredit (Donor GT)</label>
         <locationX>0</locationX>
@@ -1815,7 +1815,7 @@
             <assignToReference>rsv_MatchSoftCredit_OnDonor.PartialAmount</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>numMatchAmount</elementReference>
+                <elementReference>formulaDonorGiftAmount</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -3890,6 +3890,12 @@
         <name>formulaMatchAmountDefault</name>
         <dataType>Number</dataType>
         <expression>BLANKVALUE({!numGiftAmount}, {!numRecurringAmount}) * BLANKVALUE({!Get_Match_Employer.FQS_Match_Ratio__c}, 1)</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G3: donor GT amount across leaves. Outright/PP use numGiftAmount (Screen_Gift_Details); Recurring uses numRecurringAmount (Screen_Recurring_Details, no numGiftAmount collected). BLANKVALUE picks whichever is populated on the current branch. Used by Assign_MatchSoftCredit_OnDonor.PartialAmount so the donor-side soft credit reflects the donor GT amount, not the match amount.</description>
+        <name>formulaDonorGiftAmount</name>
+        <dataType>Number</dataType>
+        <expression>BLANKVALUE({!numGiftAmount}, {!numRecurringAmount})</expression>
     </formulas>
     <formulas>
         <description>Phase F2.1: display-text merge that renders the annual-max warning body when numMatchAmount &gt; employer&apos;s FQS_Match_Annual_Individual_Maximum__c. Referenced by Screen_Warning_Match_Max_Exceeded.</description>
