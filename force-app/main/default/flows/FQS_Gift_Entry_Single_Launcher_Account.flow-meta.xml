@@ -2663,9 +2663,9 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Assign_Update_GT_Fields</targetReference>
+            <targetReference>Screen_Confirm_Pledge_Payment_Update</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>Match — proceed</defaultConnectorLabel>
+        <defaultConnectorLabel>Match — confirm</defaultConnectorLabel>
         <rules>
             <name>Decide_Amount_Mismatch_Differs</name>
             <conditionLogic>and</conditionLogic>
@@ -4030,10 +4030,52 @@
         <expression>BEGINS({!pkMatchEligible_Scheduled}, &quot;Yes&quot;)</expression>
     </formulas>
     <formulas>
-        <description>Phase F2.1: display-text merge that renders the annual-max warning body when numMatchAmount &gt; employer&apos;s FQS_Match_Annual_Individual_Maximum__c. Referenced by Screen_Warning_Match_Max_Exceeded.</description>
-        <name>formulaMatchMaxWarningBody</name>
+        <description>Phase G5 (mismatch-warning polish). Renders numGiftAmount as &quot;$250.00&quot; for the amount-mismatch warning and the PP-update confirmation screen. Wraps ROUND(amt, 2) in TEXT() to force two-decimal display; without this, Flow&apos;s default TEXT() emits &quot;250&quot; for round amounts and drops trailing zeros. Consumed inline as {!formulaDisplay_NumGiftAmount} in Screen_Warning_Amount_Mismatch and Screen_Confirm_Pledge_Payment_Update.</description>
+        <name>formulaDisplay_NumGiftAmount</name>
         <dataType>String</dataType>
-        <expression>&quot;You entered &quot; &amp; TEXT({!numMatchAmount}) &amp; &quot;, but this employer&apos;s annual match maximum per employee is &quot; &amp; TEXT({!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}) &amp; &quot;. The match will still post as entered — this is a heads-up, not a block. If the donor has already received matches this year, coordinate with the employer before finalizing.&quot;</expression>
+        <expression>IF(ISBLANK({!numGiftAmount}), &quot;$0.00&quot;, &quot;$&quot; &amp; TEXT(ROUND({!numGiftAmount}, 2)))</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G5 (mismatch-warning polish). Renders rsv_SelectedGT.OriginalAmount as &quot;$250.00&quot; for the amount-mismatch warning. Same ROUND/TEXT trick as formulaDisplay_NumGiftAmount. Guard against un-set OriginalAmount is defensive — Decide_Amount_Mismatch only fires when the datatable selected a row with OriginalAmount populated, but Flow throws on any unread SObject field read (see [[flow-unread-sobject-field-throws]]).</description>
+        <name>formulaDisplay_OriginalAmount</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!rsv_SelectedGT.OriginalAmount}), &quot;$0.00&quot;, &quot;$&quot; &amp; TEXT(ROUND({!rsv_SelectedGT.OriginalAmount}, 2)))</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G5 (mismatch-warning polish). Renders numMatchAmount as &quot;$250.00&quot; for the match-max warning. See formulaDisplay_NumGiftAmount.</description>
+        <name>formulaDisplay_NumMatchAmount</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!numMatchAmount}), &quot;$0.00&quot;, &quot;$&quot; &amp; TEXT(ROUND({!numMatchAmount}, 2)))</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G5 (mismatch-warning polish). Renders Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c as &quot;$5,000.00&quot; for the match-max warning. See formulaDisplay_NumGiftAmount.</description>
+        <name>formulaDisplay_MatchAnnualMax</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}), &quot;$0.00&quot;, &quot;$&quot; &amp; TEXT(ROUND({!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}, 2)))</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G5 (mismatch-warning polish). Actionable delta line for the amount-mismatch warning — tells the user &quot;That&apos;s $50.00 more than the scheduled amount.&quot; or &quot;That&apos;s $50.00 less than the scheduled amount.&quot; Guarded on both operands non-blank (Decide_Amount_Mismatch only fires when both are set, but the formula is defensive).</description>
+        <name>formulaAmountMismatchDelta</name>
+        <dataType>String</dataType>
+        <expression>IF(OR(ISBLANK({!numGiftAmount}), ISBLANK({!rsv_SelectedGT.OriginalAmount})), &quot;&quot;, IF({!numGiftAmount} &gt; {!rsv_SelectedGT.OriginalAmount}, &quot;That&apos;s $&quot; &amp; TEXT(ROUND({!numGiftAmount} - {!rsv_SelectedGT.OriginalAmount}, 2)) &amp; &quot; more than the scheduled amount.&quot;, &quot;That&apos;s $&quot; &amp; TEXT(ROUND({!rsv_SelectedGT.OriginalAmount} - {!numGiftAmount}, 2)) &amp; &quot; less than the scheduled amount.&quot;))</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G5 (mismatch-warning polish). Actionable delta line for the match-max warning — tells the user &quot;That&apos;s $500.00 over the annual cap.&quot; Only fires when the entered match exceeds the employer&apos;s cap (Decide_Match_Max_Exceeded already gated on numMatchAmount &gt; FQS_Match_Annual_Individual_Maximum__c).</description>
+        <name>formulaMatchMaxDelta</name>
+        <dataType>String</dataType>
+        <expression>IF(OR(ISBLANK({!numMatchAmount}), ISBLANK({!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c})), &quot;&quot;, &quot;That&apos;s $&quot; &amp; TEXT(ROUND({!numMatchAmount} - {!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}, 2)) &amp; &quot; over the annual cap.&quot;)</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G5 (PP-update confirmation). Renders rsv_SelectedGT.TransactionDueDate as &quot;Mon DD, YYYY&quot; for the confirmation summary. Same date-format shape as formulaRecurringStartDateDisplay. TransactionDueDate is guaranteed present because dtExistingGTs declares it as a column (see line ~5261 in this file) — Flow throws on any unread SObject field so the ISBLANK guard is defensive, not paranoid.</description>
+        <name>formulaDisplay_TransactionDueDate</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!rsv_SelectedGT.TransactionDueDate}), &quot;___&quot;, CASE(MONTH({!rsv_SelectedGT.TransactionDueDate}), 1, &quot;Jan&quot;, 2, &quot;Feb&quot;, 3, &quot;Mar&quot;, 4, &quot;Apr&quot;, 5, &quot;May&quot;, 6, &quot;Jun&quot;, 7, &quot;Jul&quot;, 8, &quot;Aug&quot;, 9, &quot;Sep&quot;, 10, &quot;Oct&quot;, 11, &quot;Nov&quot;, 12, &quot;Dec&quot;, &quot;&quot;) &amp; &quot; &quot; &amp; TEXT(DAY({!rsv_SelectedGT.TransactionDueDate})) &amp; &quot;, &quot; &amp; TEXT(YEAR({!rsv_SelectedGT.TransactionDueDate})))</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G5 (PP-update confirmation). Renders rsv_GiftTransaction.PaymentMethod picklist as a plain string for the confirmation summary. Wraps in TEXT() because picklist fields require it. IsNull-gated fallback = &quot;Cash&quot; matching the flow-wide default set in Assign_Gift_Details_Defaults.</description>
+        <name>formulaDisplay_PaymentMethod</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK(TEXT({!rsv_GiftTransaction.PaymentMethod})), &quot;Cash&quot;, TEXT({!rsv_GiftTransaction.PaymentMethod}))</expression>
     </formulas>
     <formulas>
         <description>Phase C.3: Auto-generated Name for a Recurring Gift commitment. No fixed total (recurring is open-ended); prints the installment amount + period word so the record is scannable in list views. Category is literal &quot;Recurring Gift&quot; from Assign_Recurring_Defaults.</description>
@@ -4517,7 +4559,7 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Active GiftCommitments for this donor. Used only on the Pledge Payment branch; on other transaction branches the result is unused (empty table skipped).</description>
+        <description>Active GiftCommitments for this donor. Used only on the Pledge Payment branch; on other transaction branches the result is unused (empty table skipped). Phase G5 (2026-07-25): filter excludes Recurring Gift commitments — recurring payments materialize on schedule via the platform engine or gateway; hand-recording an off-cycle payment against a recurring stream is a distinct use case that routes through Outright Gift (or a dedicated future leaf), not Pledge Payment.</description>
         <name>Get_Active_Commitments</name>
         <label>Get Active Commitments</label>
         <locationX>0</locationX>
@@ -4529,7 +4571,7 @@
         <faultConnector>
             <targetReference>Err_Load</targetReference>
         </faultConnector>
-        <filterLogic>1 AND (2 OR 3 OR 4 OR 5) AND (6 OR 7)</filterLogic>
+        <filterLogic>1 AND (2 OR 3 OR 4 OR 5) AND 6</filterLogic>
         <filters>
             <field>DonorId</field>
             <operator>EqualTo</operator>
@@ -4570,13 +4612,6 @@
             <operator>EqualTo</operator>
             <value>
                 <stringValue>Pledged Gift</stringValue>
-            </value>
-        </filters>
-        <filters>
-            <field>FQS_Gift_Commitment_Category__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>Recurring Gift</stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>
@@ -7849,6 +7884,47 @@
         <showHeader>true</showHeader>
     </screens>
     <screens>
+        <description>Phase G5 (mismatch-warning polish). Confirmation summary interstitial on the Pledge Payment Update branch when the entered amount MATCHES the scheduled OriginalAmount (no mismatch to warn about). Reached only from Decide_Amount_Mismatch&apos;s default connector. Skipped on the mismatch path — Screen_Warning_Amount_Mismatch already summarizes amount + delta and this would be a redundant second interstitial. Single Next button → Assign_Update_GT_Fields → Update_Gift_Transaction.</description>
+        <name>Screen_Confirm_Pledge_Payment_Update</name>
+        <label>Confirm Payment</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Assign_Update_GT_Fields</targetReference>
+        </connector>
+        <fields>
+            <name>ConfirmPPUpdateHeader</name>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Ready to post this payment?&lt;/b&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>ConfirmPPUpdateBody</name>
+            <fieldText>&lt;p&gt;Posting &lt;b&gt;{!formulaDisplay_NumGiftAmount}&lt;/b&gt; on the scheduled payment due &lt;b&gt;{!formulaDisplay_TransactionDueDate}&lt;/b&gt; as &lt;b&gt;{!formulaDisplay_PaymentMethod}&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to record the payment, or &lt;b&gt;Previous&lt;/b&gt; to adjust the details.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
         <description>Phase E2 (wizard plan §Pledge Payment logic, lines 160-162). Informational-only interstitial on the Pledge Payment Update branch when the user&apos;s entered amount differs from the selected scheduled row&apos;s OriginalAmount. Explains that the payment will post as-entered and that OriginalAmount stays untouched; user manages any commitment upgrade on the GC record itself. Single Next button — the flow continues to Assign_Update_GT_Fields → Update_Gift_Transaction regardless (this is a warning, not a confirmation). Reached only from Decide_Amount_Mismatch.</description>
         <name>Screen_Warning_Amount_Mismatch</name>
         <label>Amount Mismatch — Confirm</label>
@@ -7875,7 +7951,7 @@
         </fields>
         <fields>
             <name>WarningBody</name>
-            <fieldText>&lt;p&gt;You entered &lt;b&gt;{!numGiftAmount}&lt;/b&gt;, but the scheduled amount on this payment is &lt;b&gt;{!rsv_SelectedGT.OriginalAmount}&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;This payment will post as-entered. The scheduled amount on the commitment will &lt;b&gt;not&lt;/b&gt; change. If this reflects a permanent change to the commitment, manage the schedule on the Gift Commitment record itself.&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to post the payment, or &lt;b&gt;Previous&lt;/b&gt; to adjust the amount.&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;You entered &lt;b&gt;{!formulaDisplay_NumGiftAmount}&lt;/b&gt;, but the scheduled amount on this payment is &lt;b&gt;{!formulaDisplay_OriginalAmount}&lt;/b&gt;. {!formulaAmountMismatchDelta}&lt;/p&gt;&lt;p&gt;This payment will post as-entered. The scheduled amount on the commitment will &lt;b&gt;not&lt;/b&gt; change. If this reflects a permanent change to the commitment, manage the schedule on the Gift Commitment record itself.&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to post the payment, or &lt;b&gt;Previous&lt;/b&gt; to adjust the amount.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -7916,7 +7992,7 @@
         </fields>
         <fields>
             <name>MatchMaxWarningBody</name>
-            <fieldText>&lt;p&gt;You entered &lt;b&gt;{!numMatchAmount}&lt;/b&gt;, but this employer&apos;s annual match maximum per employee is &lt;b&gt;{!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;The match will still post as-entered — this is a heads-up, not a block. If the donor has already received matches from this employer this year, coordinate with the employer before finalizing.&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to continue, or &lt;b&gt;Previous&lt;/b&gt; to adjust the amount.&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;You entered &lt;b&gt;{!formulaDisplay_NumMatchAmount}&lt;/b&gt;, but this employer&apos;s annual match maximum per employee is &lt;b&gt;{!formulaDisplay_MatchAnnualMax}&lt;/b&gt;. {!formulaMatchMaxDelta}&lt;/p&gt;&lt;p&gt;The match will still post as-entered — this is a heads-up, not a block. If the donor has already received matches from this employer this year, coordinate with the employer before finalizing.&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to continue, or &lt;b&gt;Previous&lt;/b&gt; to adjust the amount.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
