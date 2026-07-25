@@ -995,7 +995,87 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Screen_Pick_Campaign_Pledge</targetReference>
+            <targetReference>Decide_Match_Needed_Recurring</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Phase F3c (wizard plan §Recurring Gift, lines 246-249). Stages rsv_GiftTransaction for the first-payment GT that the Recurring leaf posts today. GiftCommitmentId = rsv_GiftCommitment.Id (safe — Create_Pledge already returned it). Status=Paid because FQS is retroactive: the donor already paid today. TransactionDate + TransactionDueDate = dtRecurringStart (the schedule&apos;s Effective Start; validated ≤ TODAY on Screen_Recurring_Details). OriginalAmount = numRecurringAmount, PaymentMethod = pkRecurringPaymentMethod (mirroring the pattern on every schedule-fanned Expected GT). Category=&apos;Recurring Gift Payment&apos; per FQS_Gift_Transaction_Category__c value set. Name left null so FQS_Auto_Name_Gift_Transaction fills it. Deliberately does NOT write GiftType or CampaignId — the platform derives GiftType from DonorId; CampaignId propagates via GC.CampaignId if the picker filled it (reading rsv_GiftCommitment.CampaignId is unsafe if the campaign screen was skipped — [[flow-unread-sobject-field-throws]]).</description>
+        <name>Assign_Recurring_First_Payment_Defaults</name>
+        <label>Defaults: Recurring First Payment GT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.DonorId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.GiftCommitmentId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_GiftCommitment.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.FQS_Gift_Transaction_Category__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Recurring Gift Payment</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.FQS_In_Kind__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Paid</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.PaymentMethod</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>pkRecurringPaymentMethod</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.TaxReceiptStatus</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>To Be Sent</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.OriginalAmount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>numRecurringAmount</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.TransactionDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dtRecurringStart</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.TransactionDueDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dtRecurringStart</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_Recurring_First_Payment_GT</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -2402,9 +2482,9 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Screen_Success</targetReference>
+            <targetReference>Decide_Recurring_First_Payment_Or_Success</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>No designation — skip</defaultConnectorLabel>
+        <defaultConnectorLabel>No designation — check recurring first-payment</defaultConnectorLabel>
         <rules>
             <name>Decide_Create_Default_Designation_HasDesignation</name>
             <conditionLogic>and</conditionLogic>
@@ -2590,7 +2670,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Unconditional → auto-select default designation (may be null). Conditional → ask user for restriction, then filtered designation picker.</description>
+        <description>Unconditional → auto-select default designation (may be null). Conditional → ask user for restriction, then filtered designation picker. Phase F3c.1: Recurring Gift leaf always prompts for restriction + designation regardless of FulfillmentType — recurring commitments back the same designation on every fanned-out payment, so picking it once matters. Rule order matters: Recurring is evaluated first so it wins if a future recurring commitment is ever authored as Conditional (both rules would match; Recurring UX is the same).</description>
         <name>Decide_Fulfillment</name>
         <label>Fulfillment Type</label>
         <locationX>0</locationX>
@@ -2599,6 +2679,21 @@
             <targetReference>Get_Default_Designation</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Unconditional</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Fulfillment_IsRecurring</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_RecurringGift</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Pick_Restriction</targetReference>
+            </connector>
+            <label>Recurring — prompt for designation</label>
+        </rules>
         <rules>
             <name>Decide_Fulfillment_IsConditional</name>
             <conditionLogic>and</conditionLogic>
@@ -2918,6 +3013,28 @@
             </connector>
             <label>Yes — insert employer GT + pair</label>
         </rules>
+        <rules>
+            <name>Decide_Insert_Employer_GT_Insert_Recurring_MatchOptedIn</name>
+            <conditionLogic>1 AND 2</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_RecurringGift</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>pkMatchEligible_Recurring</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_MatchEligible_Yes</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Employer_GT_Fields</targetReference>
+            </connector>
+            <label>Recurring — MatchEligible=Yes — insert employer GT + pair</label>
+        </rules>
     </decisions>
     <decisions>
         <description>Phase F2 (wizard plan §Matching-gift branch). Post-Update_Gift_Transaction gate for the Pledge-Payment-Update path. Reads pkNeedsMatch (Phase F2.1 unified all monetary branches on the single radio; the old pkNeedsMatchPP variant was retired). If user opted in on Screen_Gift_Details, enter the employer-GT chain; otherwise default straight to Screen_Success (matching Phase E2 behavior — the schedule engine already fanned out designations, so no re-run of terminal chain).</description>
@@ -2946,7 +3063,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Phase F2 (wizard plan §Matching-gift branch, lines 92-104). After Assign_Employer_GT_Fields stages the base employer GT, decide whether to parent it to the donor&apos;s commitment. Pledge Payment (fresh or update) → Assign_Employer_GT_ParentToCommitment reads rsv_SelectedCommitment.Id — always populated on this branch since Screen_Pick_Commitment ran upstream. Everything else (Outright Gift + match; Recurring Gift + match doesn&apos;t reach here yet, that&apos;s Phase F3) → default straight to Create_Employer_GT with GiftCommitmentId null. Prevents the &quot;field hasn&apos;t been set or assigned&quot; runtime error that fires when Assign_Employer_GT_Fields reads rsv_GiftTransaction.GiftCommitmentId on the Outright branch (Flow throws on any read of an un-touched SObject field — same gotcha class as [[fundfirst-custom-schedule-shape]]).</description>
+        <description>Phase F2 (wizard plan §Matching-gift branch, lines 92-104). After Assign_Employer_GT_Fields stages the base employer GT, decide whether to parent it to the donor&apos;s commitment. Pledge Payment (fresh or update) → Assign_Employer_GT_ParentToCommitment reads rsv_SelectedCommitment.Id — always populated on this branch since Screen_Pick_Commitment ran upstream. Everything else (Outright Gift + match; Recurring Gift + match — the employer GT is a fresh outright gift from the employer to the org, not part of the donor&apos;s pledge/recurring commitment) → default straight to Create_Employer_GT with GiftCommitmentId null; only ACR + soft credits link the pair. Prevents the &quot;field hasn&apos;t been set or assigned&quot; runtime error that fires when Assign_Employer_GT_Fields reads rsv_GiftTransaction.GiftCommitmentId on the Outright branch (Flow throws on any read of an un-touched SObject field — same gotcha class as [[fundfirst-custom-schedule-shape]]).</description>
         <name>Decide_Employer_GT_Parent_To_Commitment</name>
         <label>Employer GT parent to Commitment?</label>
         <locationX>0</locationX>
@@ -3004,7 +3121,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Screen_Pick_Campaign</targetReference>
+            <targetReference>Decide_PostMatch_Campaign_Router</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>No — continue to campaign picker</defaultConnectorLabel>
         <rules>
@@ -3028,6 +3145,84 @@
                 <targetReference>Screen_Warning_Match_Max_Exceeded</targetReference>
             </connector>
             <label>Exceeds — show warning</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Phase F3c. Post-match campaign-picker router. After the shared match-employer collection completes (Screen_Set_Match_Amount → Decide_Match_Max_Exceeded, or the warning interstitial), route to the correct campaign screen for the branch: Recurring Gift → Screen_Pick_Campaign_Pledge (the pledge-branch flavor Screen_Recurring_Details is already wired to on the No-match path); everything else → Screen_Pick_Campaign unchanged. Necessary because Screen_Recurring_Details / Assign_Recurring_Defaults use the _Pledge campaign screen while Outright uses the plain one; the shared match subflow can only re-enter one.</description>
+        <name>Decide_PostMatch_Campaign_Router</name>
+        <label>Post-Match Campaign Router</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Pick_Campaign</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default — Outright/PP campaign picker</defaultConnectorLabel>
+        <rules>
+            <name>Decide_PostMatch_Campaign_Router_IsRecurring</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_RecurringGift</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Pick_Campaign_Pledge</targetReference>
+            </connector>
+            <label>Recurring — use Pledge campaign screen</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Phase F3c. Gates the Recurring leaf on Screen_Recurring_Details&apos; pkMatchEligible_Recurring radio. Yes → Screen_Pick_Match_Employer (the shared employer picker; downstream Decide_Insert_Employer_GT_Insert has a Recurring rule that fires on pkMatchEligible_Recurring=Yes so we don&apos;t need to mutate the screen-scoped pkNeedsMatch variable). No → Screen_Pick_Campaign_Pledge unchanged.</description>
+        <name>Decide_Match_Needed_Recurring</name>
+        <label>Recurring — Match Eligible?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Pick_Campaign_Pledge</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No — skip match subflow</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Match_Needed_Recurring_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkMatchEligible_Recurring</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_MatchEligible_Yes</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Pick_Match_Employer</targetReference>
+            </connector>
+            <label>Yes — enter match subflow</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Phase F3c. After Process_Recurring_Commitment activates the schedule + designation fan-out has completed (via existing terminal chain), branch: if this is the Recurring leaf, post the first-payment GT (Assign_Recurring_First_Payment_Defaults → Create_Recurring_First_Payment_GT) → shared match chain via Decide_Insert_Employer_GT_Insert. Otherwise → Screen_Success unchanged. Reached from Create_GiftDefaultDesignation (was → Screen_Success). Rule uses pkLeafMonetary; no risk of unassigned-field read since pkLeafMonetary is a top-level flow radio.</description>
+        <name>Decide_Recurring_First_Payment_Or_Success</name>
+        <label>Recurring — post first payment?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Success</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No — Screen_Success</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Recurring_First_Payment_Or_Success_IsRecurring</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_RecurringGift</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Recurring_First_Payment_Defaults</targetReference>
+            </connector>
+            <label>Yes — post first-payment GT + wire match</label>
         </rules>
     </decisions>
     <decisions>
@@ -3435,25 +3630,25 @@
         <description>Phase F2.1: maps the Simple-Pledge Match-Eligible radio (pkMatchEligible_Pledge) to a Boolean for rsv_GiftCommitment.FQS_Match_Eligible__c. Yes → true; No or null → false. Used by Assign_Pledge_Defaults so the three commitment leaves (Simple Pledge / Recurring / Scheduled) can convert their Yes/No radios into the underlying Boolean without introducing shared variables. Radio replaces the ObjectProvided Boolean field the screen used to bind directly, per Justin&apos;s F2 feedback (consistency with other Yes/No prompts).</description>
         <name>formulaMatchEligible_Pledge</name>
         <dataType>Boolean</dataType>
-        <expression>{!pkMatchEligible_Pledge} = &quot;Yes&quot;</expression>
+        <expression>BEGINS({!pkMatchEligible_Pledge}, &quot;Yes&quot;)</expression>
     </formulas>
     <formulas>
         <description>Phase F2.1: maps the Recurring Match-Eligible radio (pkMatchEligible_Recurring) to a Boolean for rsv_GiftCommitment.FQS_Match_Eligible__c. See formulaMatchEligible_Pledge.</description>
         <name>formulaMatchEligible_Recurring</name>
         <dataType>Boolean</dataType>
-        <expression>{!pkMatchEligible_Recurring} = &quot;Yes&quot;</expression>
+        <expression>BEGINS({!pkMatchEligible_Recurring}, &quot;Yes&quot;)</expression>
     </formulas>
     <formulas>
         <description>Phase F2.1: maps the Scheduled Match-Eligible radio (pkMatchEligible_Scheduled) to a Boolean for rsv_GiftCommitment.FQS_Match_Eligible__c. See formulaMatchEligible_Pledge.</description>
         <name>formulaMatchEligible_Scheduled</name>
         <dataType>Boolean</dataType>
-        <expression>{!pkMatchEligible_Scheduled} = &quot;Yes&quot;</expression>
+        <expression>BEGINS({!pkMatchEligible_Scheduled}, &quot;Yes&quot;)</expression>
     </formulas>
     <formulas>
-        <description>Phase F2.1: default value for numMatchAmount on Screen_Set_Match_Amount. If the selected employer has FQS_Match_Ratio__c populated, default = numGiftAmount × ratio (e.g., 1:1 = $50 → $50, 2:1 = $50 → $100). Otherwise default = numGiftAmount (1:1 assumption). User can still override on the screen. Uses BLANKVALUE to null-coalesce the ratio because Flow formulas cannot ISNULL a lookup-result Number field without the parent Get_Match_Employer having run — BLANKVALUE returns the fallback on null / blank without throwing. See [[flow-screen-authoring-gotchas]] on BLANKVALUE-vs-NVL and [[flow-unread-sobject-field-throws]].</description>
+        <description>Phase F2.1: default value for numMatchAmount on Screen_Set_Match_Amount. If the selected employer has FQS_Match_Ratio__c populated, default = donor amount × ratio (e.g., 1:1 = $50 → $50, 2:1 = $50 → $100). Otherwise default = donor amount (1:1 assumption). Phase F3c: donor amount source varies by leaf — Outright/PP use numGiftAmount (Screen_Gift_Details), Recurring uses numRecurringAmount (Screen_Recurring_Details, no numGiftAmount collected). BLANKVALUE(numGiftAmount, numRecurringAmount) picks whichever is populated on the current branch. User can still override on the screen. Uses BLANKVALUE to null-coalesce the ratio because Flow formulas cannot ISNULL a lookup-result Number field without the parent Get_Match_Employer having run — BLANKVALUE returns the fallback on null / blank without throwing. See [[flow-screen-authoring-gotchas]] on BLANKVALUE-vs-NVL and [[flow-unread-sobject-field-throws]].</description>
         <name>formulaMatchAmountDefault</name>
         <dataType>Number</dataType>
-        <expression>{!numGiftAmount} * BLANKVALUE({!Get_Match_Employer.FQS_Match_Ratio__c}, 1)</expression>
+        <expression>BLANKVALUE({!numGiftAmount}, {!numRecurringAmount}) * BLANKVALUE({!Get_Match_Employer.FQS_Match_Ratio__c}, 1)</expression>
     </formulas>
     <formulas>
         <description>Phase F2.1: display-text merge that renders the annual-max warning body when numMatchAmount &gt; employer&apos;s FQS_Match_Annual_Individual_Maximum__c. Referenced by Screen_Warning_Match_Max_Exceeded.</description>
@@ -3715,12 +3910,26 @@
         <inputReference>rsv_GiftTransaction</inputReference>
     </recordCreates>
     <recordCreates>
+        <description>Phase F3c (wizard plan §Recurring Gift, lines 246-249). Posts the Recurring commitment&apos;s first payment as a Paid GiftTransaction dated dtRecurringStart. Runs after Process_Recurring_Commitment has activated the schedule and after Decide_Create_Default_Designation has run the designation fan-out. Connector routes to Decide_Insert_Employer_GT_Insert so pkNeedsMatch=Yes drops into the same employer-GT + ACR + soft-credit chain that Outright and PP use. Fault path shares Err_Create — a failed first-payment GT insert leaves the GC + GCS activated in the org (schedule engine will still fan out Expected GTs) and the user has to clean up manually or re-record the first payment, matching all other Create_* fault contracts.</description>
+        <name>Create_Recurring_First_Payment_GT</name>
+        <label>Create Recurring First Payment GT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Decide_Insert_Employer_GT_Insert</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Create</targetReference>
+        </faultConnector>
+        <inputReference>rsv_GiftTransaction</inputReference>
+    </recordCreates>
+    <recordCreates>
         <name>Create_GiftDefaultDesignation</name>
         <label>Create Gift Default Designation</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Screen_Success</targetReference>
+            <targetReference>Decide_Recurring_First_Payment_Or_Success</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Err_Create</targetReference>
@@ -7079,7 +7288,7 @@
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
-            <targetReference>Screen_Pick_Campaign</targetReference>
+            <targetReference>Decide_PostMatch_Campaign_Router</targetReference>
         </connector>
         <fields>
             <name>MatchMaxWarningHeader</name>
