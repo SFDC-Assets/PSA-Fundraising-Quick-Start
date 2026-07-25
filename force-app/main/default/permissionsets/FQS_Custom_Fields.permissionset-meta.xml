@@ -179,6 +179,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>GiftCommitment.FQS_Restriction_Release_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>GiftCommitment.FQS_Skip_Naming__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -265,6 +270,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>GiftTransaction.FQS_Recurring__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>GiftTransaction.FQS_Restriction_Release_Date__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

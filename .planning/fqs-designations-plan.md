@@ -2,7 +2,7 @@
 
 **Repo:** `/Users/justin.gilmore/GitHubRepos/PSA-Fundraising-Quick-Start-DEV`
 **Target org:** FundFirst (Nonprofit Cloud Fundraising, **not** NPSP)
-**Status:** design-locked, not-implemented
+**Status:** partially shipped — Phase 6.1 + 6.2 landed 2026-07-25 (release-date fields on GC + GT, permset). Phase 6.3+ (picklist reshape, setup flow, launcher edits, flexipages) still parked.
 **Created:** 2026-07-22
 **Owner:** Justin (solo)
 
@@ -566,13 +566,13 @@ sf data query --query "SELECT Id FROM GiftDesignation WHERE FQS_Restriction_Type
 # Blocked on: fqs-fee-designation-plan.md deployment.
 # If not yet deployed: pause this plan here until fee-designation ships. See OQ3.
 
-# Phase 6.1 — new fields on GC and GT
+# Phase 6.1 — new fields on GC and GT [SHIPPED 2026-07-25, deploy 0AfWB00000DbcYH0AZ]
 sf project deploy start --metadata \
   "CustomField:GiftCommitment.FQS_Restriction_Release_Date__c,\
 CustomField:GiftTransaction.FQS_Restriction_Release_Date__c" \
   --target-org FundFirst
 
-# Phase 6.2 — permset (grants edit on new fields)
+# Phase 6.2 — permset (grants edit on new fields) [SHIPPED 2026-07-25, deploy 0AfWB00000Dbcek0AB]
 sf project deploy start --metadata "PermissionSet:FQS_Custom_Fields" --target-org FundFirst
 
 # Phase 6.3 — picklist reshape on GD (remove Time value + refresh description/help).
