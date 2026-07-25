@@ -26,6 +26,31 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
     <actionCalls>
+        <description>Phase G2. Mirrors Process_Recurring_Commitment but targets the employer&apos;s parallel Recurring GC (rsv_EmployerRecurring_GC). Activates the employer schedule so CurrentGiftCmtScheduleId + NextTransaction fields populate. Runs after Create_Employer_Recurring_GCS. Connector routes to Create_Employer_Recurring_GDD to persist the employer&apos;s default designation.</description>
+        <name>Process_Employer_Recurring_Commitment</name>
+        <label>Activate Employer Recurring Commitment</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>processGiftCommitment</actionName>
+        <actionType>processGiftCommitment</actionType>
+        <connector>
+            <targetReference>Assign_Employer_Recurring_GDD</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Create</targetReference>
+        </faultConnector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>giftCommitmentId</name>
+            <value>
+                <elementReference>rsv_EmployerRecurring_GC.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>processGiftCommitment</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <actionCalls>
         <description>Phase C.2a fix: after Create_Scheduled_Schedule, synchronously invokes Salesforce&apos;s processGiftCommitment standard action against the just-created GC. This activates the schedule (populates GC.CurrentGiftCmtScheduleId, NextTransactionDate, NextTransactionAmount) and fans out the first Expected GT. Without this the record waits for the once-daily FQS_Coordinate_Gift_Commitment_Processing batch at 01:00 UTC. Fault path routes to Err_Create — if the org has no default GiftDesignation the action returns INVALID_API_INPUT (&quot;The org wide default designation is not yet configured...&quot;), which surfaces via the shared error screen. Once flowed to a healthy org, the action succeeds silently and the connector routes to Decide_Create_Default_Designation to continue the launcher.</description>
         <name>Process_Scheduled_Commitment</name>
         <label>Activate Scheduled Commitment</label>
@@ -1497,6 +1522,207 @@
             <operator>Assign</operator>
             <value>
                 <elementReference>rsv_SelectedCommitment.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_Employer_GT</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Phase G2 (wizard plan §Matching-gift branch, Recurring leaf). Stages the parallel Recurring GiftCommitment on the employer Account. Mirrors Assign_Recurring_Defaults one-for-one with two swaps: DonorId=lkpMatchEmployer.recordId (employer Account) and Name=formulaEmployerRecurringCommitmentName (employer-name-based). Cadence (RecurrenceType=OpenEnded, FulfillmentType=Unconditional, FormalCommitmentType=Verbal, EffectiveStartDate=dtRecurringStart, IsAssetTransferExpected=false) matches the donor GC. FQS_Match_Eligible__c is deliberately false — this IS the match commitment, not one that would itself be matched. CampaignId inherited from rsv_SelectedCampaign.Id (safe: on Recurring + match branch, Screen_Pick_Campaign_Pledge runs before we reach here via Decide_PostMatch_Campaign_Router → Screen_Pick_Campaign_Pledge → downstream flow lands the campaign on rsv_SelectedCampaign). GC.ScheduleType is intentionally NOT set on insert (platform-managed).</description>
+        <name>Assign_Employer_Recurring_GC</name>
+        <label>Defaults: Employer Recurring GC</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GC.DonorId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>lkpMatchEmployer.recordId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GC.FQS_Gift_Commitment_Category__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Recurring Gift</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GC.Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Active</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GC.FulfillmentType</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Unconditional</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GC.FormalCommitmentType</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Verbal</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GC.RecurrenceType</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>OpenEnded</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GC.EffectiveStartDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dtRecurringStart</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GC.IsAssetTransferExpected</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GC.FQS_Match_Eligible__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GC.CampaignId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_SelectedCampaign.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GC.Name</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaEmployerRecurringCommitmentName</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_Employer_Recurring_GC</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Phase G2. Stages the open-ended GiftCommitmentSchedule row for the employer's parallel Recurring GC. Same cadence as the donor's schedule (TransactionPeriod=pkRecurringPeriod, TransactionInterval=numRecurringInterval, StartDate=dtRecurringStart, TransactionDay=formulaRecurringTransactionDay) but TransactionAmount=numMatchAmount so expected match GTs fan out at the match value. PaymentMethod defaults to Check (employer payment method typically differs from donor; user can edit later). Type=CreateTransactions engages the NPC fan-out. No EndDate — open-ended per the donor's cadence.</description>
+        <name>Assign_Employer_Recurring_GCS</name>
+        <label>Build Employer Recurring Schedule Row</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GCS.GiftCommitmentId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_EmployerRecurring_GC.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GCS.Type</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>CreateTransactions</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GCS.TransactionPeriod</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>pkRecurringPeriod</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GCS.TransactionInterval</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>numRecurringInterval</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GCS.TransactionAmount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>numMatchAmount</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GCS.StartDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dtRecurringStart</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GCS.TransactionDay</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaRecurringTransactionDay</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GCS.PaymentMethod</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Check</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_Employer_Recurring_GCS</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Phase G2. Stages the GiftDefaultDesignation on the employer's Recurring GC. GiftDesignationId mirrors the donor's picked designation (rsv_SelectedDesignation.Id) so employer expected GTs fan out to the same fund. AllocatedPercentage=100 (single default; user can add more later).</description>
+        <name>Assign_Employer_Recurring_GDD</name>
+        <label>Build Employer Default Designation</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GDD.ParentRecordId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_EmployerRecurring_GC.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GDD.GiftDesignationId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_SelectedDesignation.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_EmployerRecurring_GDD.AllocatedPercentage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>100.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_Employer_Recurring_GDD</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Phase G2. Stamps rsv_MatchEmployerGT.GiftCommitmentId = rsv_EmployerRecurring_GC.Id so the employer's first-payment GT parents to the newly created employer Recurring GC (parity with the donor's Create_Recurring_First_Payment_GT pattern).</description>
+        <name>Assign_Employer_GT_ParentToEmployerRecurringGC</name>
+        <label>Employer GT parent → Employer Recurring GC</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_MatchEmployerGT.GiftCommitmentId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_EmployerRecurring_GC.Id</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -3087,6 +3313,21 @@
             </connector>
             <label>Pledge Payment — parent to picked commitment</label>
         </rules>
+        <rules>
+            <name>Decide_Employer_GT_Parent_To_Commitment_IsRecurring</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_RecurringGift</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Employer_Recurring_GC</targetReference>
+            </connector>
+            <label>Recurring — spin up parallel employer Recurring GC</label>
+        </rules>
     </decisions>
     <decisions>
         <description>Phase F2 (wizard plan §Matching-gift branch). Post-Update_Donor_With_Pair terminal router. After the pair is persisted on the donor GT, split back to the correct terminal per branch: Update path (pkPledgePaymentMode=Update) → Screen_Success (schedule engine already handled designation fan-out — do NOT re-run); Insert path (default) → Decide_Create_InKind_SelfCredit → existing terminal chain (In-Kind self-credit → designation → soft credit → Screen_Success). This keeps the employer-GT chain a single shared segment rather than duplicating it per branch.</description>
@@ -3693,6 +3934,12 @@
         <expression>{!Get_Account.Name} &amp; &quot; - Recurring Gift &quot; &amp; TEXT({!numRecurringAmount}) &amp; &quot; &quot; &amp; {!formulaRecurringPeriodWord}</expression>
     </formulas>
     <formulas>
+        <description>Phase G2 (wizard plan §Matching-gift branch, Recurring leaf). Auto-generated Name for the employer's parallel Recurring GC. Same skeleton as formulaRecurringCommitmentName but reads the employer Name (Get_Match_Employer.Name) and the match amount (numMatchAmount). Period word reused from the donor's schedule since employer schedule mirrors donor cadence one-for-one.</description>
+        <name>formulaEmployerRecurringCommitmentName</name>
+        <dataType>String</dataType>
+        <expression>{!Get_Match_Employer.Name} &amp; &quot; - Recurring Gift &quot; &amp; TEXT({!numMatchAmount}) &amp; &quot; &quot; &amp; {!formulaRecurringPeriodWord}</expression>
+    </formulas>
+    <formulas>
         <description>Phase C.3-derive: interval word for the Recurring plain-English summary (mirrors formulaScheduledIntervalWord).</description>
         <name>formulaRecurringIntervalWord</name>
         <dataType>String</dataType>
@@ -4003,6 +4250,48 @@
             <targetReference>Err_Create</targetReference>
         </faultConnector>
         <inputReference>rsv_GiftCommitmentSchedule</inputReference>
+    </recordCreates>
+    <recordCreates>
+        <description>Phase G2. Inserts the employer's parallel Recurring GiftCommitment (rsv_EmployerRecurring_GC). Runs on Recurring + match=Yes ahead of the employer GT insert so the employer GT can parent to it. Same platform contract as Create_Pledge — do NOT stamp ScheduleType (platform-managed). Shares Err_Create fault path.</description>
+        <name>Create_Employer_Recurring_GC</name>
+        <label>Create Employer Recurring GiftCommitment</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Assign_Employer_Recurring_GCS</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Create</targetReference>
+        </faultConnector>
+        <inputReference>rsv_EmployerRecurring_GC</inputReference>
+    </recordCreates>
+    <recordCreates>
+        <description>Phase G2. Inserts the employer's open-ended GiftCommitmentSchedule (rsv_EmployerRecurring_GCS). Connector routes to Process_Employer_Recurring_Commitment to activate the schedule immediately (mirrors donor pattern). Fault path shares Err_Create.</description>
+        <name>Create_Employer_Recurring_GCS</name>
+        <label>Create Employer Recurring GiftCommitmentSchedule</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Process_Employer_Recurring_Commitment</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Create</targetReference>
+        </faultConnector>
+        <inputReference>rsv_EmployerRecurring_GCS</inputReference>
+    </recordCreates>
+    <recordCreates>
+        <description>Phase G2. Inserts the employer's GiftDefaultDesignation (rsv_EmployerRecurring_GDD) so future employer expected GTs fan out to the same designation the donor picked. Runs after Process_Employer_Recurring_Commitment activates the schedule. Connector proceeds to Assign_Employer_GT_ParentToEmployerRecurringGC to stamp the employer GT&apos;s parent GC and continue into Create_Employer_GT. Fault path shares Err_Create.</description>
+        <name>Create_Employer_Recurring_GDD</name>
+        <label>Create Employer Default Designation</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Assign_Employer_GT_ParentToEmployerRecurringGC</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Create</targetReference>
+        </faultConnector>
+        <inputReference>rsv_EmployerRecurring_GDD</inputReference>
     </recordCreates>
     <recordCreates>
         <description>Phase C.2a: inserts the GiftCommitmentSchedule row for a Regular Scheduled Pledge/Grant. Runs only when pkLeafFuture = Choice_Leaf_ScheduledPledgeGrant AND pkScheduledEqualInstallments = Yes (see Decide_Insert_Schedule). GC.ScheduleType back-fills from this GCS on the platform side after insert. Fault path shares Err_Create — a GCS insert failure leaves the parent GC orphaned in the org; users must clean up manually, matching the existing Create_Pledge fault contract. Connector routes to Process_Scheduled_Commitment to synchronously fire the Fundraising engine (activates the schedule, populates CurrentGiftCmtScheduleId + NextTransaction fields, fans out the first Expected GT) — without this, the record would wait for the once-daily FQS_Coordinate_Gift_Commitment_Processing batch at 01:00 UTC.</description>
@@ -7632,6 +7921,33 @@
     <variables>
         <description>Record variable for the GiftDefaultDesignation created after a new GiftCommitment (Pledge) insert.</description>
         <name>rsv_GiftDefaultDesignation</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftDefaultDesignation</objectType>
+    </variables>
+    <variables>
+        <description>Phase G2 (wizard plan §Matching-gift branch, Recurring leaf). Record variable staged by Assign_Employer_Recurring_GC and inserted by Create_Employer_Recurring_GC. Represents the parallel Recurring GiftCommitment on the employer Account that mirrors the donor's recurring GC one-for-one — same TransactionPeriod/Interval/StartDate; TransactionAmount=numMatchAmount; DonorId=lkpMatchEmployer.recordId; CampaignId=rsv_SelectedCampaign.Id; RecurrenceType=OpenEnded. The employer's paired GT (rsv_MatchEmployerGT) parents to this new GC so future expected match payments fan out on the employer's side. Runs only on Recurring + match=Yes.</description>
+        <name>rsv_EmployerRecurring_GC</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftCommitment</objectType>
+    </variables>
+    <variables>
+        <description>Phase G2. Record variable staged by Assign_Employer_Recurring_GCS and inserted by Create_Employer_Recurring_GCS. Open-ended GiftCommitmentSchedule row parented to rsv_EmployerRecurring_GC; drives the employer's future-expected-match-payment fan-out via Process_Employer_Recurring_Commitment.</description>
+        <name>rsv_EmployerRecurring_GCS</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftCommitmentSchedule</objectType>
+    </variables>
+    <variables>
+        <description>Phase G2. Record variable staged by Assign_Employer_Recurring_GDD and inserted by Create_Employer_Recurring_GDD. GiftDefaultDesignation on the employer's Recurring GC; mirrors the donor's designation choice so the employer's expected GTs fan out to the same fund.</description>
+        <name>rsv_EmployerRecurring_GDD</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
