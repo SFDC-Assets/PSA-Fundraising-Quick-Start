@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
-        <description>Sends the FQS Gift Acknowledgement email template to the donor&apos;s PersonContact using the emailSimple v3 template-aware action. recipientId is the PersonContactId so template merge fields resolve against the Contact record and the email is addressed to the correct individual. The template selection is configured in Flow Builder on this action element.</description>
-        <name>Send_Email_Action_3</name>
-        <label>Send Acknowledgement Email (Template)</label>
+        <description>Sends the FQS Gift Acknowledgement template (full deduction) to the donor&apos;s PersonContact using the emailSimple v3 template-aware action. recipientId is the PersonContactId so template merge fields resolve against the Contact record. relatedRecordId is the current GiftTransaction so amount/date merge fields resolve.</description>
+        <name>Send_Email_Full</name>
+        <label>Send Acknowledgement Email (Full Deduction Template)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <actionName>emailSimple</actionName>
@@ -26,7 +26,7 @@
             <name>emailTemplateName</name>
             <value>
                 <inputConfiguratorMode>Custom</inputConfiguratorMode>
-                <setupReference>FQS Donor Acknowledgment</setupReference>
+                <setupReference>FQS Gift Acknowledgement</setupReference>
                 <setupReferenceType>EmailTemplate</setupReferenceType>
             </value>
         </inputParameters>
@@ -56,8 +56,8 @@
         <versionString>3.0.1</versionString>
     </actionCalls>
     <actionCalls>
-        <description>Sends the FQS Gift Acknowledgement (Partial Deduction) email template to the donor&apos;s PersonContact. Used when TaxDeductionAmount is less than CurrentAmount — the template states the specific deductible amount rather than the no-goods-or-services blanket statement. recipientId is the PersonContactId; relatedRecordId is the GiftTransaction for merge context.</description>
-        <name>Send_Email_Action_Partial</name>
+        <description>Sends the FQS Gift Acknowledgement (Partial Deduction) template. Used when TaxDeductionAmount is less than CurrentAmount — the template states the specific deductible amount rather than the no-goods-or-services blanket statement.</description>
+        <name>Send_Email_Partial</name>
         <label>Send Acknowledgement Email (Partial Deduction Template)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
@@ -111,7 +111,7 @@
         <versionString>3.0.1</versionString>
     </actionCalls>
     <actionCalls>
-        <description>Catch-all fault handler — mirrors the pattern in FQS_Automatic_Rollup_Updates. On any critical element failure, sends $Flow.FaultMessage to the running user&apos;s email so errors surface immediately without silently skipping records. Reached via isGoTo fault connectors so a single fault element handles all paths.</description>
+        <description>Catch-all fault handler. On any critical element failure, sends $Flow.FaultMessage to the running user&apos;s email.</description>
         <name>Send_Fault_Email</name>
         <label>Send Fault Email</label>
         <locationX>0</locationX>
@@ -153,79 +153,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
-        <description>Default branch — reached when neither FQS_Is_Major_Gift__c nor FQS_Is_Mid_Gift__c is TRUE. Covers Entry-threshold gifts and sub-Entry gifts below the one-time minimum. Sets varResolvedTier to Entry and loads the Entry CMDT row&apos;s FQS_Auto_Acknowledgement__c (fetched pre-loop) into varAutoAckSetting. Both values drive the Route decision and task-field formulas downstream.</description>
-        <name>Set_Tier_Entry</name>
-        <label>Set Tier — Entry</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>varResolvedTier</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Entry</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varAutoAckSetting</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>Get_Entry_CMDT.FQS_Auto_Acknowledgement__c</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Route_Email_Or_Task</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <description>Reached when FQS_Is_Major_Gift__c is TRUE. Sets varResolvedTier to Major and loads the Major CMDT row&apos;s FQS_Auto_Acknowledgement__c (fetched pre-loop) into varAutoAckSetting. Major is seeded to Exclude All so this tier always creates a Task by default.</description>
-        <name>Set_Tier_Major</name>
-        <label>Set Tier — Major</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>varResolvedTier</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Major</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varAutoAckSetting</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>Get_Major_CMDT.FQS_Auto_Acknowledgement__c</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Route_Email_Or_Task</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <description>Reached when FQS_Is_Mid_Gift__c is TRUE and FQS_Is_Major_Gift__c is FALSE. Sets varResolvedTier to Mid and loads the Mid CMDT row&apos;s FQS_Auto_Acknowledgement__c (fetched pre-loop) into varAutoAckSetting. Mid is seeded to Exclude Lifetime so lifetime Major donors at this tier are escalated to the task path.</description>
-        <name>Set_Tier_Mid</name>
-        <label>Set Tier — Mid</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>varResolvedTier</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Mid</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varAutoAckSetting</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>Get_Mid_CMDT.FQS_Auto_Acknowledgement__c</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Route_Email_Or_Task</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <description>Reached when no open opportunity exists for the donor. Falls back to the donor Account as the task WhatId so the task still appears on the donor record and is visible to the gift officer.</description>
+        <description>No open opportunity found — task WhatId falls back to the donor Account.</description>
         <name>Set_WhatId_To_Account</name>
         <label>Set WhatId to Account</label>
         <locationX>0</locationX>
@@ -242,7 +170,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
         </connector>
     </assignments>
     <assignments>
-        <description>Reached when Get_Open_Opportunity found a record. Sets varTaskWhatId to the open opportunity Id so the acknowledgement task surfaces alongside active pipeline for the donor, giving the gift officer the most relevant context for the outreach.</description>
+        <description>Open opportunity found — task WhatId is the soonest-closing open opportunity Id so the acknowledgement task surfaces alongside active pipeline.</description>
         <name>Set_WhatId_To_Opportunity</name>
         <label>Set WhatId to Opportunity</label>
         <locationX>0</locationX>
@@ -259,7 +187,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
         </connector>
     </assignments>
     <decisions>
-        <description>Determines the WhatId for the acknowledgement task. If an open opportunity exists (Get_Open_Opportunity returned a non-null Id), the task is linked to that opportunity to surface alongside active pipeline. If no open opportunity exists, falls back to the donor Account. Opportunity is ordered by soonest CloseDate to prioritise the most time-sensitive pipeline record.</description>
+        <description>WhatId resolution. Open opportunity if found (soonest CloseDate); donor Account otherwise.</description>
         <name>Opp_Found</name>
         <label>Open Opportunity Found?</label>
         <locationX>0</locationX>
@@ -285,54 +213,13 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
         </rules>
     </decisions>
     <decisions>
-        <description>Determines the donor grouping tier for the current GiftTransaction using the pre-calculated formula fields on GiftTransaction. Evaluated in priority order: Major first (highest tier wins), then Mid, then Entry as the default. Sub-Entry gifts — amounts below the Entry one-time minimum where no Is_*_Gift field fires — fall through to Entry. The resolved tier drives varAutoAckSetting (loaded from the pre-fetched CMDT row), task priority, activity date, and subject.</description>
-        <name>Resolve_Gift_Tier</name>
-        <label>Resolve Gift Tier</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Set_Tier_Entry</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Entry / Sub-Entry (default)</defaultConnectorLabel>
-        <rules>
-            <name>Is_Major_Gift</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>Loop_GiftTransactions.FQS_Is_Major_Gift__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Set_Tier_Major</targetReference>
-            </connector>
-            <label>Major</label>
-        </rules>
-        <rules>
-            <name>Is_Mid_Gift</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>Loop_GiftTransactions.FQS_Is_Mid_Gift__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Set_Tier_Mid</targetReference>
-            </connector>
-            <label>Mid</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <description>Selects the correct acknowledgement email template based on whether the gift is fully deductible. When TaxDeductionAmount equals CurrentAmount (or TaxDeductionAmount is null, meaning the full gift is deductible), uses the standard FQS Gift Acknowledgement template which states &quot;no goods or services were provided.&quot; When TaxDeductionAmount is less than CurrentAmount, uses the FQS Gift Acknowledgement (Partial Deduction) template which states the specific deductible amount. Only reached from the Email path in Route_Email_Or_Task.</description>
+        <description>Full-vs-partial-deduction template selection. Uses partial template when TaxDeductionAmount is non-null and less than CurrentAmount; otherwise uses the full-deduction template.</description>
         <name>Route_Email_Template</name>
         <label>Route: Full or Partial Deduction Template?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Send_Email_Action_Partial</targetReference>
+            <targetReference>Send_Email_Partial</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Partial Deduction (TaxDeductionAmount &lt; CurrentAmount)</defaultConnectorLabel>
         <rules>
@@ -353,13 +240,13 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Send_Email_Action_3</targetReference>
+                <targetReference>Send_Email_Full</targetReference>
             </connector>
             <label>Full Deduction (TaxDeductionAmount = CurrentAmount or null)</label>
         </rules>
     </decisions>
     <decisions>
-        <description>Central routing decision. Email path requires ALL three conditions: (1) Contact has not opted out of email, (2) CMDT setting for this tier is not Exclude All, and (3) the lifetime-escalation rule does not block — i.e., setting is not Exclude Lifetime OR donor is not yet a lifetime Major donor (frmEmailOkByLifetime). Any single failing condition routes to the Task path. Email opt-out forces Task regardless of CMDT setting, with [OPT-OUT — send by mail] prepended to the task subject by frmTaskSubject.</description>
+        <description>Universal acknowledgement routing rule — every donor gets a receipt. Email path requires: (1) Contact has not opted out of email, AND (2) Contact has a non-blank Email address. Any single failing condition routes to the Task path so the queue member can send the acknowledgement by mail or another channel. No donor-grouping / CMDT / lifetime-donor filtering here — acknowledgement is universal; those tier considerations live in the FQS_Stewardship_Response flow.</description>
         <name>Route_Email_Or_Task</name>
         <label>Route: Email or Task?</label>
         <locationX>0</locationX>
@@ -379,17 +266,10 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>varAutoAckSetting</leftValueReference>
-                <operator>NotEqualTo</operator>
+                <leftValueReference>Get_Contact.Email</leftValueReference>
+                <operator>IsNull</operator>
                 <rightValue>
-                    <stringValue>Exclude All</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>frmEmailOkByLifetime</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
+                    <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -398,74 +278,56 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
             <label>Email Path</label>
         </rules>
     </decisions>
-    <description>Scheduled flow that runs daily and processes all GiftTransaction records where Status = Paid, TransactionDate is at least 3 days in the past, and AcknowledgementStatus is blank or To Be Sent. The 3-day window (frmThreeDaysAgo) lets digital-platform ingest and refunds/reversals settle before an acknowledgement fires.
+    <description>Scheduled flow that runs daily and processes GiftTransaction records where Status = Paid, TransactionDate is at least 3 days in the past, and AcknowledgementStatus is blank or To Be Sent. The 3-day window lets digital-platform ingest and refunds/reversals settle before an acknowledgement fires. Fee/Payment category is excluded — donors don&apos;t get receipts for processing fees.
 
-For each qualifying gift the flow: (1) fetches the donor Account, Contact, and DonorGiftSummary; (2) resolves the gift tier from formula fields on GiftTransaction; (3) loads the FQS_Auto_Acknowledgement__c setting from the pre-fetched FQS_Donor_Grouping__mdt row for that tier; (4) routes to email or task based on the setting, the donor&apos;s lifetime tier, and the Contact email opt-out flag; (5) stamps AcknowledgementStatus accordingly.
+Acknowledgement is the universal &quot;we got your gift, thanks, here is your deduction info&quot; touch — every donor with a valid email address receives one. No donor-grouping / CMDT / lifetime-donor filtering; every eligible gift gets a receipt. Tier-based routing lives in the FQS_Stewardship_Response flow, which is a separate follow-up touch that reinforces mission and deepens the donor relationship.
 
-Email path: sends the FQS Gift Acknowledgement template via the emailSimple v3 template-aware action (Send_Email_Action_3) to the donor PersonContact; sets AcknowledgementStatus = Sent and AcknowledgementDate = today.
-Task path: creates a Task owned by the FQS Gift Acknowledgements queue; sets AcknowledgementStatus = To Be Sent. Queue member completes the personal outreach and closes the task manually, then sets AcknowledgementStatus = Sent.
+For each qualifying gift the flow: (1) fetches the donor Account and PersonContact; (2) routes to email or task on a universal rule — email if HasOptedOutOfEmail=FALSE AND Email is present, task otherwise; (3) stamps AcknowledgementStatus and AcknowledgementDate accordingly.
 
-Opt-out override: if Contact.HasOptedOutOfEmail is TRUE, the flow always takes the task path. The task subject is prefixed [OPT-OUT — send by mail] so the queue member knows immediately to use a non-email channel.
+Email path: sends the FQS Gift Acknowledgement template (or the Partial Deduction variant when TaxDeductionAmount &lt; CurrentAmount) via the emailSimple v3 template-aware action to the donor PersonContact; sets AcknowledgementStatus = Sent and AcknowledgementDate = today.
 
-CMDT rows and the Queue Id are fetched once before the loop to minimise SOQL queries per iteration. All record lookups have assignNullValuesIfNoRecordsFound = true so missing related records produce nulls rather than faults. Fault connectors on all action and DML elements route to Send_Fault_Email which notifies $User.Email.</description>
+Task path: creates a Task owned by the FQS Gift Acknowledgements queue with WhatId set to the soonest open opportunity (or donor Account fallback); sets AcknowledgementStatus = To Be Sent. Queue member completes the personal outreach and closes the task manually, then sets AcknowledgementStatus = Sent.
+
+External-tool contract: donation-form integrations that send their own acknowledgement MUST write GiftTransaction.AcknowledgementStatus = &apos;Sent&apos; back to the record. This flow&apos;s filter (AcknowledgementStatus IS NULL OR = To Be Sent) then naturally excludes those gifts.
+
+Year-end tax receipting is out of scope for automation; see FQS_Tax_Receipt_Date__c for the manual capture field.
+
+Fault connectors on all action and DML elements route to Send_Fault_Email which notifies $User.Email. See .planning/fqs-gift-followup-redesign.md.</description>
     <environments>Default</environments>
     <formulas>
-        <description>Returns TRUE when sending an email is not blocked by the Exclude Lifetime rule. Returns FALSE only when varAutoAckSetting = &quot;Exclude Lifetime&quot; AND the donor is already a lifetime Major donor per DonorGiftSummary.FQS_Is_Major_Lifetime_Donor__c. All other combinations return TRUE. Exclude All is handled separately as condition 2 in Route_Email_Or_Task and never reaches this formula check.</description>
-        <name>frmEmailOkByLifetime</name>
-        <dataType>Boolean</dataType>
-        <expression>NOT(
-  {!varAutoAckSetting} = &quot;Exclude Lifetime&quot; &amp;&amp;
-  {!Get_DonorGiftSummary.FQS_Is_Major_Lifetime_Donor__c}
-)</expression>
-    </formulas>
-    <formulas>
-        <description>Sets the task due date relative to today (the scheduled run date, already at least 3 days after the gift). Major: +3 days (urgent — prompt personal outreach). Mid: +7 days. Entry: +14 days. These windows give queue members reasonable SLAs scaled to the significance of the gift.</description>
-        <name>frmTaskActivityDate</name>
-        <dataType>Date</dataType>
-        <expression>IF({!varResolvedTier} = &quot;Major&quot;,
-  {!$Flow.CurrentDate} + 3,
-  IF({!varResolvedTier} = &quot;Mid&quot;,
-    {!$Flow.CurrentDate} + 7,
-    {!$Flow.CurrentDate} + 14
-  )
-)</expression>
-    </formulas>
-    <formulas>
-        <description>Populates the task Description with context the queue member needs to personalise the outreach: the donor&apos;s lifetime giving tier name, whether email is blocked (so they know why this wasn&apos;t auto-emailed), and the name of the related open opportunity if one exists. Evaluated after Get_Open_Opportunity has run so the opportunity name is available.</description>
-        <name>frmTaskDescription</name>
-        <dataType>String</dataType>
-        <expression>&quot;Personal acknowledgement needed. Donor lifetime tier: &quot; &amp;
-IF(ISBLANK({!Get_DonorGiftSummary.FQS_Lifetime_Donor_Level_Name__c}),
-  &quot;None on record&quot;,
-  {!Get_DonorGiftSummary.FQS_Lifetime_Donor_Level_Name__c}
-) &amp; &quot;. Email opt-out: &quot; &amp; IF({!Get_Contact.HasOptedOutOfEmail}, &quot;Yes&quot;, &quot;No&quot;) &amp;
-&quot;. Related open opportunity: &quot; &amp;
-IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportunity.Name}) &amp; &quot;.&quot;</expression>
-    </formulas>
-    <formulas>
-        <description>Sets Task.Priority based on gift tier. Major gifts are High priority to prompt immediate personal outreach. Mid and Entry gifts are Normal priority.</description>
-        <name>frmTaskPriority</name>
-        <dataType>String</dataType>
-        <expression>IF({!varResolvedTier} = &quot;Major&quot;, &quot;High&quot;, &quot;Normal&quot;)</expression>
-    </formulas>
-    <formulas>
-        <description>Builds the task subject. Prepends [OPT-OUT — send by mail] when the donor has opted out of email so the queue member immediately knows to use a non-email channel. Format: [opt-out prefix] Acknowledge [Tier] gift: [Donor Name] — $[Amount].</description>
-        <name>frmTaskSubject</name>
-        <dataType>String</dataType>
-        <expression>IF({!Get_Contact.HasOptedOutOfEmail}, &quot;[OPT-OUT — send by mail] &quot;, &quot;&quot;) &amp;
-&quot;Acknowledge &quot; &amp; {!varResolvedTier} &amp; &quot; gift: &quot; &amp;
-{!Get_Donor_Account.Name} &amp; &quot; — $&quot; &amp; TEXT({!Loop_GiftTransactions.CurrentAmount})</expression>
-    </formulas>
-    <formulas>
-        <description>The date boundary used in the Get_GiftTransactions filter. Only gifts whose TransactionDate is on or before this date are included, preserving the 3-day settling window for refunds, reversals, and digital-platform ingest to clear before an acknowledgement fires.</description>
+        <description>The date boundary used in the Get_GiftTransactions filter. Only gifts whose TransactionDate is on or before this date are included, preserving the 3-day settling window.</description>
         <name>frmThreeDaysAgo</name>
         <dataType>Date</dataType>
         <expression>{!$Flow.CurrentDate} - 3</expression>
     </formulas>
+    <formulas>
+        <description>Task activity date. +7 days from today — a standard SLA for personal acknowledgement outreach on gifts that couldn&apos;t receive an auto-email. Tier-scaled SLAs (Major +3, Mid +7, Entry +14) live in the stewardship flow, not here.</description>
+        <name>frmTaskActivityDate</name>
+        <dataType>Date</dataType>
+        <expression>{!$Flow.CurrentDate} + 7</expression>
+    </formulas>
+    <formulas>
+        <description>Task Description. Explains why the acknowledgement couldn&apos;t be auto-emailed (opt-out or missing email) and surfaces related open opportunity context if any.</description>
+        <name>frmTaskDescription</name>
+        <dataType>String</dataType>
+        <expression>&quot;Personal acknowledgement needed — automated email could not be sent. Reason: &quot; &amp;
+IF({!Get_Contact.HasOptedOutOfEmail}, &quot;Contact opted out of email.&quot;,
+   IF(ISBLANK({!Get_Contact.Email}), &quot;No email address on Contact.&quot;, &quot;Unknown.&quot;)) &amp;
+&quot; Related open opportunity: &quot; &amp;
+IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportunity.Name}) &amp; &quot;.&quot;</expression>
+    </formulas>
+    <formulas>
+        <description>Task subject. Prepends [OPT-OUT — send by mail] when the donor has opted out of email so the queue member knows immediately to use a non-email channel.</description>
+        <name>frmTaskSubject</name>
+        <dataType>String</dataType>
+        <expression>IF({!Get_Contact.HasOptedOutOfEmail}, &quot;[OPT-OUT — send by mail] &quot;, &quot;&quot;) &amp;
+&quot;Acknowledge gift: &quot; &amp;
+{!Get_Donor_Account.Name} &amp; &quot; — $&quot; &amp; TEXT({!Loop_GiftTransactions.CurrentAmount})</expression>
+    </formulas>
     <interviewLabel>FQS Gift Acknowledgement {!$Flow.CurrentDateTime}</interviewLabel>
     <label>FQS Gift Acknowledgement</label>
     <loops>
-        <description>Iterates over all qualifying GiftTransaction records returned by Get_GiftTransactions. For each record: fetches the donor Account, Contact, and DonorGiftSummary; resolves the gift tier; then routes to the email or task path. Both terminal update elements (Update_GT_Sent and Update_GT_To_Be_Sent) connect back here so the loop advances to the next record automatically.</description>
+        <description>Iterates over all qualifying GiftTransaction records. For each: fetches Account, Contact, opportunity; routes to email or task; stamps AcknowledgementStatus.</description>
         <name>Loop_GiftTransactions</name>
         <label>Loop: Gift Transactions to Acknowledge</label>
         <locationX>0</locationX>
@@ -496,7 +358,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordCreates>
-        <description>Creates the personal-outreach Task assigned to the FQS Gift Acknowledgements queue (Id fetched pre-loop). WhoId is the donor PersonContactId so the task appears on the Contact timeline. WhatId is the open opportunity (if found) or the donor Account. Subject, Priority, ActivityDate, and Description are all formula-driven and vary by tier and opt-out status.</description>
+        <description>Creates the personal-outreach Task assigned to the FQS Gift Acknowledgements queue. WhoId = donor PersonContactId; WhatId = open opportunity Id or donor Account Id.</description>
         <name>Create_Acknowledgement_Task</name>
         <label>Create Acknowledgement Task</label>
         <locationX>0</locationX>
@@ -529,7 +391,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <inputAssignments>
             <field>Priority</field>
             <value>
-                <elementReference>frmTaskPriority</elementReference>
+                <stringValue>Normal</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -559,14 +421,14 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <object>Task</object>
     </recordCreates>
     <recordLookups>
-        <description>Fetches the PersonContact for the donor Account. HasOptedOutOfEmail is the opt-out signal in Route_Email_Or_Task — TRUE forces the task path regardless of CMDT setting. Email and name fields are available for the template via the recipientId binding.</description>
+        <description>Fetches the PersonContact for the donor Account. HasOptedOutOfEmail and Email drive Route_Email_Or_Task.</description>
         <name>Get_Contact</name>
         <label>Get Donor Contact</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_DonorGiftSummary</targetReference>
+            <targetReference>Route_Email_Or_Task</targetReference>
         </connector>
         <faultConnector>
             <isGoTo>true</isGoTo>
@@ -585,7 +447,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Fetches the donor Account for the current loop GiftTransaction. PersonContactId is required for the email recipient (Send_Email_Action_3 recipientId) and task WhoId. Account.Id is the task WhatId fallback when no open opportunity exists. Account.Name populates the task subject via frmTaskSubject.</description>
+        <description>Fetches the donor Account. PersonContactId is required for email recipient and task WhoId; Id is task WhatId fallback; Name populates the task subject.</description>
         <name>Get_Donor_Account</name>
         <label>Get Donor Account</label>
         <locationX>0</locationX>
@@ -611,55 +473,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Fetches the DonorGiftSummary for the current donor. FQS_Is_Major_Lifetime_Donor__c feeds frmEmailOkByLifetime — it controls the Exclude Lifetime escalation that routes lifetime Major donors at the Mid tier to the task path. FQS_Lifetime_Donor_Level_Name__c populates the task Description so queue members have full lifetime context for the outreach.</description>
-        <name>Get_DonorGiftSummary</name>
-        <label>Get Donor Gift Summary</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Resolve_Gift_Tier</targetReference>
-        </connector>
-        <faultConnector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Send_Fault_Email</targetReference>
-        </faultConnector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>DonorId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Loop_GiftTransactions.DonorId</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>DonorGiftSummary</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <description>Fetches the FQS_Donor_Grouping__mdt record for the Entry tier before the loop starts. FQS_Auto_Acknowledgement__c is read by Set_Tier_Entry inside the loop. Fetching once pre-loop avoids one SOQL call per iteration. If the row is missing, assignNullValuesIfNoRecordsFound ensures the output is null and varAutoAckSetting retains its default of Include All.</description>
-        <name>Get_Entry_CMDT</name>
-        <label>Get Entry Tier CMDT Row</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_Mid_CMDT</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Grouping_Key__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>Entry</stringValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>FQS_Donor_Grouping__mdt</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <description>Queries all GiftTransaction records that qualify for acknowledgement: Status = Paid, TransactionDate on or before frmThreeDaysAgo (today minus 3 days), and AcknowledgementStatus blank or To Be Sent. Records with AcknowledgementStatus = Sent or Don&apos;t Send are excluded. The 3-day window preserves the settling period for refunds, reversals, and digital-platform ingest. Results feed Loop_GiftTransactions.</description>
+        <description>Queries all GiftTransaction records that qualify for acknowledgement: Status = Paid, TransactionDate on or before frmThreeDaysAgo, AcknowledgementStatus blank or To Be Sent, and category is not Fee/Payment. External-tool integrations that already sent their own thank-you should have written AcknowledgementStatus = Sent to opt out of this flow.</description>
         <name>Get_GiftTransactions</name>
         <label>Get Gift Transactions to Acknowledge</label>
         <locationX>0</locationX>
@@ -709,51 +523,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Fetches the FQS_Donor_Grouping__mdt record for the Major tier before the loop starts. FQS_Auto_Acknowledgement__c is read by Set_Tier_Major inside the loop. Fetching once pre-loop avoids one SOQL call per iteration.</description>
-        <name>Get_Major_CMDT</name>
-        <label>Get Major Tier CMDT Row</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_Queue_Id</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Grouping_Key__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>Major</stringValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>FQS_Donor_Grouping__mdt</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <description>Fetches the FQS_Donor_Grouping__mdt record for the Mid tier before the loop starts. FQS_Auto_Acknowledgement__c is read by Set_Tier_Mid inside the loop. Fetching once pre-loop avoids one SOQL call per iteration.</description>
-        <name>Get_Mid_CMDT</name>
-        <label>Get Mid Tier CMDT Row</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_Major_CMDT</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Grouping_Key__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>Mid</stringValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>FQS_Donor_Grouping__mdt</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <description>Fetches the open Opportunity on the donor Account with the soonest CloseDate, to use as the task WhatId. Surfacing the task on the most time-sensitive pipeline record gives gift officers the most relevant context for outreach. assignNullValuesIfNoRecordsFound is true because most Entry-tier donors will not have an open opportunity — this must not fault and the Opp_Found decision downstream handles the null case gracefully.</description>
+        <description>Fetches the soonest open Opportunity on the donor Account for the task WhatId. Most donors — especially one-time entry donors — will have no open opportunity; the null case is handled by Opp_Found downstream.</description>
         <name>Get_Open_Opportunity</name>
         <label>Get Soonest Open Opportunity</label>
         <locationX>0</locationX>
@@ -786,7 +556,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Fetches the FQS_Gift_Acknowledgements queue Group record by DeveloperName so its Id can be used as Task.OwnerId in Create_Acknowledgement_Task inside the loop. Fetching once pre-loop avoids one SOQL call per iteration. If the queue does not exist the fault path surfaces the error before the loop starts.</description>
+        <description>Fetches the FQS_Gift_Acknowledgements queue Group record by DeveloperName so its Id can be used as Task.OwnerId. Fetched once pre-loop.</description>
         <name>Get_Queue_Id</name>
         <label>Get FQS Gift Acknowledgements Queue</label>
         <locationX>0</locationX>
@@ -819,7 +589,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
-        <description>Stamps AcknowledgementStatus = Sent and AcknowledgementDate = today on the current GiftTransaction after the email has been dispatched. Filter on Id ensures only this loop record is updated. Connects back to Loop_GiftTransactions so the next record is processed.</description>
+        <description>Stamps AcknowledgementStatus = Sent and AcknowledgementDate = today on the current GiftTransaction after the email has been dispatched.</description>
         <name>Update_GT_Sent</name>
         <label>Update GT — Acknowledged (Sent)</label>
         <locationX>0</locationX>
@@ -853,7 +623,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <object>GiftTransaction</object>
     </recordUpdates>
     <recordUpdates>
-        <description>Stamps AcknowledgementStatus = To Be Sent on the current GiftTransaction after the personal-outreach Task has been created. Signals that the gift is in the manual acknowledgement queue awaiting a queue member. The queue member sets AcknowledgementStatus = Sent and AcknowledgementDate after completing the outreach. Connects back to Loop_GiftTransactions so the next record is processed.</description>
+        <description>Stamps AcknowledgementStatus = To Be Sent on the current GiftTransaction after the personal-outreach Task has been created. Queue member sets AcknowledgementStatus = Sent and AcknowledgementDate after completing the outreach.</description>
         <name>Update_GT_To_Be_Sent</name>
         <label>Update GT — Pending Personal Acknowledgement (To Be Sent)</label>
         <locationX>0</locationX>
@@ -886,42 +656,20 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Get_Entry_CMDT</targetReference>
+            <targetReference>Get_Queue_Id</targetReference>
         </connector>
         <schedule>
             <dayOfMonthToRun>0</dayOfMonthToRun>
             <frequency>Daily</frequency>
             <frequencyNumber>0</frequencyNumber>
-            <startDate>2026-07-09</startDate>
+            <startDate>2026-07-27</startDate>
             <startTime>06:00:00.000Z</startTime>
         </schedule>
         <triggerType>Scheduled</triggerType>
     </start>
     <status>Active</status>
     <variables>
-        <description>Holds the FQS_Auto_Acknowledgement__c value from the CMDT row for the current gift&apos;s resolved tier. Assigned by Set_Tier_Major/Mid/Entry at the start of each loop iteration from the pre-fetched CMDT record variables. Default is Include All so a missing CMDT row results in email rather than silently skipping the gift.</description>
-        <name>varAutoAckSetting</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <value>
-            <stringValue>Include All</stringValue>
-        </value>
-    </variables>
-    <variables>
-        <description>Holds the resolved gift tier string (Major, Mid, or Entry) for the current loop iteration. Drives frmTaskPriority, frmTaskActivityDate, and frmTaskSubject. Assigned by Set_Tier_Major/Mid/Entry in Resolve_Gift_Tier. Default is Entry so sub-Entry gifts (where no Is_*_Gift formula field fires) follow Entry tier rules.</description>
-        <name>varResolvedTier</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <value>
-            <stringValue>Entry</stringValue>
-        </value>
-    </variables>
-    <variables>
-        <description>Holds the WhatId for the acknowledgement Task for the current loop iteration. Set by Set_WhatId_To_Opportunity (open opportunity Id) or Set_WhatId_To_Account (donor Account Id) based on the Opp_Found decision. Implicitly reset each iteration as the assignment elements always write a new value before Create_Acknowledgement_Task runs.</description>
+        <description>Holds the WhatId for the acknowledgement Task for the current loop iteration. Set by Set_WhatId_To_Opportunity or Set_WhatId_To_Account.</description>
         <name>varTaskWhatId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
