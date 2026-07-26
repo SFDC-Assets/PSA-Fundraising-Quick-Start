@@ -2,11 +2,13 @@
 
 ## What it does
 
-The **FQS Gift Acknowledgement** flow runs on a daily schedule. It queries all `GiftTransaction` records where `Status = Paid`, `TransactionDate` is at least 3 days in the past, and `AcknowledgementStatus` is blank or `To Be Sent`. The 3-day window lets digital-platform ingest and any refunds or reversals settle before an acknowledgement fires.
+The **FQS Gift Acknowledgement** flow runs on a daily schedule (06:00 UTC). It queries all `GiftTransaction` records where `Status = Paid`, `TransactionDate` is at least 3 days in the past, `AcknowledgementStatus` is blank or `To Be Sent`, and `Category != Fee/Payment`. The 3-day window lets digital-platform ingest and any refunds or reversals settle before an acknowledgement fires. `Fee/Payment` transactions (event tickets, service fees) are excluded because they are not gifts.
 
-For each qualifying gift it routes to one of two acknowledgement paths:
+Acknowledgement is a **universal rule** — every donor with a valid email receives one, regardless of donor tier or lifetime giving. Its job is to confirm receipt: "we got your gift, thanks, here is your deduction info." Tier-differentiated relationship-building lives in the separate **FQS Stewardship Response** flow (see `docs/gift-stewardship-flow.md`), which fires ~14 days after acknowledgement is sent.
 
-- **Email path** — sends the FQS Gift Acknowledgement email template to the donor's contact.
+For each qualifying gift the flow routes to one of two paths:
+
+- **Email path** — sends either the FQS Gift Acknowledgement (full deduction) or FQS Gift Acknowledgement (Partial Deduction) email template to the donor's contact.
 - **Task path** — creates a Task owned by the **FQS Gift Acknowledgements** queue so a team member can send a personal acknowledgement (physical letter, phone call, etc.).
 
 After the email is sent, `AcknowledgementStatus` is set to `Sent` and `AcknowledgementDate` is stamped. After a Task is created, `AcknowledgementStatus` is set to `To Be Sent`; the queue member flips it to `Sent` and sets `AcknowledgementDate` after the personal outreach is complete.
@@ -15,54 +17,52 @@ After the email is sent, `AcknowledgementStatus` is set to `Sent` and `Acknowled
 
 ## Routing logic
 
-Routing is controlled by a picklist field — **Auto Acknowledgement** (`FQS_Auto_Acknowledgement__c`) — on the **FQS Donor Grouping** Custom Metadata Type. Each tier row (Entry / Mid / Major) carries its own setting.
+Routing is intentionally simple — no CMDT lookup, no lifetime-donor check:
 
-| Auto Acknowledgement setting | Donor is lifetime Major? | Route |
-|---|---|---|
-| Include All | — | Email |
-| Exclude Lifetime | No | Email |
-| Exclude Lifetime | Yes | Task |
-| Exclude All | — | Task |
-
-**Additional override:** if `Contact.HasOptedOutOfEmail = TRUE`, the flow always takes the Task path regardless of the CMDT setting. The Task subject is prefixed `[OPT-OUT — send by mail]` so the queue member knows to use a non-email channel.
-
-**Default seeded values:**
-
-| Tier | Setting |
+| Condition | Route |
 |---|---|
-| Entry (Friend) | Include All |
-| Mid (Partner) | Exclude Lifetime |
-| Major (Champion) | Exclude All |
+| `Contact.HasOptedOutOfEmail = FALSE` AND `Contact.Email IS NOT NULL` | Email |
+| Otherwise | Task |
+
+The Task path handles: opted-out donors, donors with no email address on file, and any gift where the flow can't resolve the donor Contact.
 
 ---
 
-## How to tune routing per tier
+## Full vs partial deduction
 
-The easiest way is the **FQS Setup Flow** (admin-friendly, no Setup deep-dive):
+Two templates ship because tax deduction rules differ by gift shape:
 
-1. Open the **Fundraising Quick Start** Lightning app.
-2. Click the **Setup** tab (or the **Setup** item in the utility bar) — the FQS Setup Flow launches.
-3. Screen 1 lets you tune the giving thresholds for all three tiers. Screen 2 lets you pick the acknowledgement routing for each tier, with a "Apply one setting to all three tiers" shortcut if you want a single choice across the board.
-4. Finish the flow. Changes are queued as a Custom Metadata deployment and take up to a minute to appear.
+| Condition | Template |
+|---|---|
+| `TaxDeductionAmount IS NULL` OR `TaxDeductionAmount = CurrentAmount` | FQS Gift Acknowledgement (full deduction) |
+| `TaxDeductionAmount < CurrentAmount` | FQS Gift Acknowledgement (Partial Deduction) |
 
-**Reminder:** these settings only take effect once the **FQS Gift Acknowledgement** scheduled flow is activated (Setup → Flows → activate). Deactivating the flow stops all automatic acknowledgements regardless of what's set here.
-
-The classic path also still works — Setup → Custom Metadata Types → FQS Donor Grouping → Manage Records — and is the **only** way to add a *new* tier beyond Entry / Mid / Major.
+The partial-deduction variant covers in-kind gifts, event tickets, and any contribution where the donor received something of value in return. The flow only handles the routing — marketing owns the actual body copy in both templates.
 
 ---
 
-## Email template
+## Overriding the automation
 
-File: `force-app/main/default/email/unfiled$public/FQS_Gift_Acknowledgement.email`
+If your org uses an external tool (Marketing Cloud, HubSpot, a payment processor's built-in receipt engine, etc.) to send acknowledgements, see `docs/external-tool-integration.md` for the contract. The short version: write back `GiftTransaction.AcknowledgementStatus = 'Sent'` from your external system, and FQS's ack flow will naturally skip those gifts.
 
-The shipped template contains placeholder copy (clearly marked). Before go-live, update the `.email` body file with final marketing copy. Merge fields available in the body:
+To turn the automation off entirely: **Setup → Flows → FQS Gift Acknowledgement → Deactivate**. Stewardship is a separate flow (`FQS_Stewardship_Response`) and remains active independently.
+
+---
+
+## Email templates
+
+Files:
+- `force-app/main/default/email/unfiled$public/FQS_Gift_Acknowledgement.email` (full deduction)
+- `force-app/main/default/email/unfiled$public/FQS_Gift_Acknowledgement_Partial.email` (partial deduction)
+
+Both shipped templates contain placeholder copy (clearly marked). Before go-live, replace the `.email` body files with final marketing copy. Merge fields available in the body:
 
 - `{!Contact.Salutation}` / `{!Contact.FirstName}` — donor greeting
 - `{!GiftTransaction.CurrentAmount}` / `{!GiftTransaction.TransactionDate}` — gift details
-- `{!GiftTransaction.TaxDeductionAmount}` — for the tax acknowledgement line
+- `{!GiftTransaction.TaxDeductionAmount}` — tax-deduction line (populate only on the partial template — the full template implies deduction = gift amount)
 - `{!Organization.Name}` — your org's name
 
-After editing the file, redeploy with `sf project deploy start`.
+After editing the files, redeploy with `sf project deploy start`.
 
 ---
 
@@ -87,10 +87,10 @@ The queue's routing email address in the metadata (`fqs-gift-acknowledgements@pl
 | Owner | FQS Gift Acknowledgements queue |
 | Who (WhoId) | Donor's PersonContactId |
 | What (WhatId) | Soonest open Opportunity on the donor Account; falls back to the donor Account if none exists |
-| Subject | `Acknowledge <Tier> gift: <Donor Name> — $<Amount>` (opt-out prefix prepended if applicable) |
-| Priority | High (Major gifts) / Normal (all others) |
-| Activity Date | Today + 3 days (Major) / +7 days (Mid) / +14 days (Entry) |
-| Description | Lifetime tier, email opt-out flag, related opportunity name |
+| Subject | `Acknowledge gift: <Donor Name> — $<Amount>` |
+| Priority | Normal (all gifts — tier-based priority now lives on stewardship tasks) |
+| Activity Date | Today + 7 days |
+| Description | Email-on-file flag, opt-out flag, related opportunity name |
 
 ---
 
@@ -102,8 +102,17 @@ To re-process a gift that was already acknowledged (e.g., the original email bou
 2. Clear **Acknowledgement Status** (set it back to blank or `To Be Sent`).
 3. The flow will pick it up on its next daily run — no further action needed. If you need it processed sooner, go to **Setup → Flows → FQS Gift Acknowledgement** and click **Run** to trigger an immediate execution.
 
+Note: re-clearing `AcknowledgementStatus` does NOT reset `FQS_Stewardship_Status__c`. If you want stewardship to re-fire, clear that field too — but read `docs/gift-stewardship-flow.md` first to understand the sequencing.
+
 ---
 
 ## Fault handling
 
 If any critical step fails (record lookups, email send, task creation), the flow sends an error email to the running user with the `$Flow.FaultMessage`. Check **Setup → Apex Jobs** and **Setup → Email Log Files** to investigate failures.
+
+---
+
+## Related documentation
+
+- `docs/gift-stewardship-flow.md` — the tier-differentiated follow-up that fires after acknowledgement
+- `docs/external-tool-integration.md` — contract for suppressing FQS automation when a third-party tool owns acknowledgement or stewardship
