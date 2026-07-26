@@ -28,7 +28,7 @@
         <value xsi:type="xsd:double">10</value>
     </values>
     <values>
-        <field>FQS_Auto_Acknowledgement__c</field>
+        <field>FQS_Auto_Stewardship__c</field>
         <value xsi:type="xsd:string">Include All</value>
     </values>
     <values>

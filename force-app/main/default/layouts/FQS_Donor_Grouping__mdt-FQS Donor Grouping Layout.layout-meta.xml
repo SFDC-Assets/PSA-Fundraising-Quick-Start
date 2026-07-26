@@ -54,7 +54,7 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>FQS_Auto_Acknowledgement__c</field>
+                <field>FQS_Auto_Stewardship__c</field>
             </layoutItems>
         </layoutColumns>
         <style>TwoColumnsTopToBottom</style>

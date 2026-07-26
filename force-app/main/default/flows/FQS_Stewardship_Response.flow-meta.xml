@@ -98,7 +98,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
-        <description>Default branch — reached when neither FQS_Is_Major_Gift__c nor FQS_Is_Mid_Gift__c is TRUE. Covers Entry-threshold gifts and sub-Entry gifts below the one-time minimum. Sets varResolvedTier to Entry and loads the Entry CMDT row&apos;s FQS_Auto_Acknowledgement__c (semantics now govern stewardship; CMDT rename is a follow-up) into varAutoStewardshipSetting. Both values drive the Route decision and task-field formulas downstream.</description>
+        <description>Default branch — reached when neither FQS_Is_Major_Gift__c nor FQS_Is_Mid_Gift__c is TRUE. Covers Entry-threshold gifts and sub-Entry gifts below the one-time minimum. Sets varResolvedTier to Entry and loads the Entry CMDT row&apos;s FQS_Auto_Stewardship__c into varAutoStewardshipSetting. Both values drive the Route decision and task-field formulas downstream.</description>
         <name>Set_Tier_Entry</name>
         <label>Set Tier — Entry</label>
         <locationX>0</locationX>
@@ -114,7 +114,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
             <assignToReference>varAutoStewardshipSetting</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Get_Entry_CMDT.FQS_Auto_Acknowledgement__c</elementReference>
+                <elementReference>Get_Entry_CMDT.FQS_Auto_Stewardship__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -122,7 +122,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
         </connector>
     </assignments>
     <assignments>
-        <description>Reached when FQS_Is_Major_Gift__c is TRUE. Sets varResolvedTier to Major and loads the Major CMDT row&apos;s FQS_Auto_Acknowledgement__c (semantics now govern stewardship) into varAutoStewardshipSetting. Major is seeded to Exclude All so this tier always creates a Task for personal stewardship outreach.</description>
+        <description>Reached when FQS_Is_Major_Gift__c is TRUE. Sets varResolvedTier to Major and loads the Major CMDT row&apos;s FQS_Auto_Stewardship__c into varAutoStewardshipSetting. Major is seeded to Exclude All so this tier always creates a Task for personal stewardship outreach.</description>
         <name>Set_Tier_Major</name>
         <label>Set Tier — Major</label>
         <locationX>0</locationX>
@@ -138,7 +138,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
             <assignToReference>varAutoStewardshipSetting</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Get_Major_CMDT.FQS_Auto_Acknowledgement__c</elementReference>
+                <elementReference>Get_Major_CMDT.FQS_Auto_Stewardship__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -146,7 +146,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
         </connector>
     </assignments>
     <assignments>
-        <description>Reached when FQS_Is_Mid_Gift__c is TRUE and FQS_Is_Major_Gift__c is FALSE. Sets varResolvedTier to Mid and loads the Mid CMDT row&apos;s FQS_Auto_Acknowledgement__c (semantics now govern stewardship) into varAutoStewardshipSetting. Mid is seeded to Exclude Lifetime so lifetime Major donors at this tier are escalated to the task path for personal stewardship.</description>
+        <description>Reached when FQS_Is_Mid_Gift__c is TRUE and FQS_Is_Major_Gift__c is FALSE. Sets varResolvedTier to Mid and loads the Mid CMDT row&apos;s FQS_Auto_Stewardship__c into varAutoStewardshipSetting. Mid is seeded to Exclude Lifetime so lifetime Major donors at this tier are escalated to the task path for personal stewardship.</description>
         <name>Set_Tier_Mid</name>
         <label>Set Tier — Mid</label>
         <locationX>0</locationX>
@@ -162,7 +162,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
             <assignToReference>varAutoStewardshipSetting</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Get_Mid_CMDT.FQS_Auto_Acknowledgement__c</elementReference>
+                <elementReference>Get_Mid_CMDT.FQS_Auto_Stewardship__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -312,7 +312,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
     </decisions>
     <description>Scheduled flow that runs daily and processes all GiftTransaction records where Status = Paid, AcknowledgementStatus = Sent (only steward gifts that were successfully acknowledged first), TransactionDate is at least 14 days in the past, and FQS_Stewardship_Status__c is blank or To Be Sent. The 14-day gap between acknowledgement and stewardship gives the initial thank-you time to land before the mission-oriented follow-up arrives; the window is tunable.
 
-For each qualifying gift the flow: (1) fetches the donor Account, Contact, and DonorGiftSummary; (2) resolves the gift tier from formula fields on GiftTransaction; (3) loads the FQS_Auto_Acknowledgement__c setting from the pre-fetched FQS_Donor_Grouping__mdt row for that tier (the CMDT&apos;s picklist semantics — Include All / Exclude Lifetime / Exclude All — now govern stewardship routing since the acknowledgement flow uses a universal rule; renaming the CMDT field to FQS_Auto_Stewardship__c is a documented follow-up); (4) routes to email or task based on the setting, the donor&apos;s lifetime tier, and the Contact email opt-out flag; (5) stamps FQS_Stewardship_Status__c accordingly and, on send, FQS_Stewardship_Date__c.
+For each qualifying gift the flow: (1) fetches the donor Account, Contact, and DonorGiftSummary; (2) resolves the gift tier from formula fields on GiftTransaction; (3) loads the FQS_Auto_Stewardship__c setting from the pre-fetched FQS_Donor_Grouping__mdt row for that tier (picklist semantics — Include All / Exclude Lifetime / Exclude All — govern stewardship routing; the acknowledgement flow uses a universal rule and does not consult this field); (4) routes to email or task based on the setting, the donor&apos;s lifetime tier, and the Contact email opt-out flag; (5) stamps FQS_Stewardship_Status__c accordingly and, on send, FQS_Stewardship_Date__c.
 
 Email path: sends the FQS Stewardship Response (Standard) template via the emailSimple v3 template-aware action to the donor PersonContact; sets FQS_Stewardship_Status__c = Sent and FQS_Stewardship_Date__c = today.
 Task path: creates a Task owned by the FQS Stewardship Response queue; sets FQS_Stewardship_Status__c = To Be Sent. Queue member completes the personal outreach and closes the task manually, then sets FQS_Stewardship_Status__c = Sent and FQS_Stewardship_Date__c.
@@ -549,7 +549,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Fetches the FQS_Donor_Grouping__mdt record for the Entry tier before the loop starts. FQS_Auto_Acknowledgement__c is read by Set_Tier_Entry inside the loop; its picklist semantics (Include All / Exclude Lifetime / Exclude All) now govern stewardship routing. Fetching once pre-loop avoids one SOQL call per iteration.</description>
+        <description>Fetches the FQS_Donor_Grouping__mdt record for the Entry tier before the loop starts. FQS_Auto_Stewardship__c is read by Set_Tier_Entry inside the loop; picklist semantics (Include All / Exclude Lifetime / Exclude All) govern stewardship routing. Fetching once pre-loop avoids one SOQL call per iteration.</description>
         <name>Get_Entry_CMDT</name>
         <label>Get Entry Tier CMDT Row</label>
         <locationX>0</locationX>
@@ -628,7 +628,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Fetches the FQS_Donor_Grouping__mdt record for the Major tier before the loop starts. FQS_Auto_Acknowledgement__c is read by Set_Tier_Major inside the loop; picklist semantics govern stewardship routing. Fetching once pre-loop avoids one SOQL call per iteration.</description>
+        <description>Fetches the FQS_Donor_Grouping__mdt record for the Major tier before the loop starts. FQS_Auto_Stewardship__c is read by Set_Tier_Major inside the loop; picklist semantics govern stewardship routing. Fetching once pre-loop avoids one SOQL call per iteration.</description>
         <name>Get_Major_CMDT</name>
         <label>Get Major Tier CMDT Row</label>
         <locationX>0</locationX>
@@ -650,7 +650,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Fetches the FQS_Donor_Grouping__mdt record for the Mid tier before the loop starts. FQS_Auto_Acknowledgement__c is read by Set_Tier_Mid inside the loop; picklist semantics govern stewardship routing. Fetching once pre-loop avoids one SOQL call per iteration.</description>
+        <description>Fetches the FQS_Donor_Grouping__mdt record for the Mid tier before the loop starts. FQS_Auto_Stewardship__c is read by Set_Tier_Mid inside the loop; picklist semantics govern stewardship routing. Fetching once pre-loop avoids one SOQL call per iteration.</description>
         <name>Get_Mid_CMDT</name>
         <label>Get Mid Tier CMDT Row</label>
         <locationX>0</locationX>
@@ -818,7 +818,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
     </start>
     <status>Active</status>
     <variables>
-        <description>Holds the FQS_Auto_Acknowledgement__c value from the CMDT row for the current gift&apos;s resolved tier. Assigned by Set_Tier_Major/Mid/Entry at the start of each loop iteration from the pre-fetched CMDT record variables. The CMDT field&apos;s picklist semantics (Include All / Exclude Lifetime / Exclude All) now govern stewardship routing; renaming the CMDT field to FQS_Auto_Stewardship__c is a documented follow-up. Default is Include All so a missing CMDT row results in email rather than silently skipping the gift.</description>
+        <description>Holds the FQS_Auto_Stewardship__c value from the CMDT row for the current gift&apos;s resolved tier. Assigned by Set_Tier_Major/Mid/Entry at the start of each loop iteration from the pre-fetched CMDT record variables. Picklist semantics (Include All / Exclude Lifetime / Exclude All) govern stewardship routing. Default is Include All so a missing CMDT row results in email rather than silently skipping the gift.</description>
         <name>varAutoStewardshipSetting</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>

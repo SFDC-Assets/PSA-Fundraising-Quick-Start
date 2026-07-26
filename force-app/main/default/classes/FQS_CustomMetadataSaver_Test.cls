@@ -14,19 +14,19 @@ private class FQS_CustomMetadataSaver_Test {
             DeveloperName = 'Entry', MasterLabel = 'Entry',
             Branded_Name__c = 'Friend',
             One_Time_Min_Amount__c = 25, Annual_Min_Amount__c = 100, Lifetime_Min_Amount__c = 300,
-            Sort_Order__c = 10, FQS_Auto_Acknowledgement__c = 'Include All'
+            Sort_Order__c = 10, FQS_Auto_Stewardship__c = 'Include All'
         );
         FQS_Donor_Grouping__mdt mid = new FQS_Donor_Grouping__mdt(
             DeveloperName = 'Mid', MasterLabel = 'Mid',
             Branded_Name__c = 'Partner',
             One_Time_Min_Amount__c = 500, Annual_Min_Amount__c = 1000, Lifetime_Min_Amount__c = 3000,
-            Sort_Order__c = 20, FQS_Auto_Acknowledgement__c = 'Exclude Lifetime'
+            Sort_Order__c = 20, FQS_Auto_Stewardship__c = 'Exclude Lifetime'
         );
         FQS_Donor_Grouping__mdt major = new FQS_Donor_Grouping__mdt(
             DeveloperName = 'Major', MasterLabel = 'Major',
             Branded_Name__c = 'Champion',
             One_Time_Min_Amount__c = 5000, Annual_Min_Amount__c = 10000, Lifetime_Min_Amount__c = 30000,
-            Sort_Order__c = 30, FQS_Auto_Acknowledgement__c = 'Exclude All'
+            Sort_Order__c = 30, FQS_Auto_Stewardship__c = 'Exclude All'
         );
 
         FQS_CustomMetadataSaver.FlowInput input = new FQS_CustomMetadataSaver.FlowInput();
@@ -57,20 +57,20 @@ private class FQS_CustomMetadataSaver_Test {
     static void picklistValueIsStringCast() {
         FQS_Donor_Grouping__mdt entry = new FQS_Donor_Grouping__mdt(
             DeveloperName = 'Entry', MasterLabel = 'Entry',
-            FQS_Auto_Acknowledgement__c = 'Include All'
+            FQS_Auto_Stewardship__c = 'Include All'
         );
         FQS_CustomMetadataSaver.deploy(new List<SObject>{ entry });
 
         Metadata.CustomMetadata built = (Metadata.CustomMetadata) FQS_CustomMetadataSaver.lastBuiltContainer.getMetadata()[0];
-        Metadata.CustomMetadataValue ackValue;
+        Metadata.CustomMetadataValue stewardshipValue;
         for (Metadata.CustomMetadataValue v : built.values) {
-            if (v.field == 'FQS_Auto_Acknowledgement__c') {
-                ackValue = v;
+            if (v.field == 'FQS_Auto_Stewardship__c') {
+                stewardshipValue = v;
             }
         }
-        System.assertNotEquals(null, ackValue, 'Auto-ack field written');
-        System.assertEquals('Include All', ackValue.value, 'Picklist value present');
-        System.assert(ackValue.value instanceof String, 'Picklist value must be cast to String for Metadata API');
+        System.assertNotEquals(null, stewardshipValue, 'Auto-stewardship field written');
+        System.assertEquals('Include All', stewardshipValue.value, 'Picklist value present');
+        System.assert(stewardshipValue.value instanceof String, 'Picklist value must be cast to String for Metadata API');
     }
 
     @IsTest
