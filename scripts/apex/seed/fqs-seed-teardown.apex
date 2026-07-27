@@ -191,6 +191,18 @@ if (slot > 0) {
 // Also sweeps the older Master/Categories/Leaves taxonomy so a mid-migration org can be
 // cleared without leftover records. Order: ASKS, then STRATEGIES, then LEGACY CAT/LEAF,
 // then ROLLUPS, then LEGACY MASTER. The "ParentId != null" heuristic handles legacy rows.
+// Level 5 first (children of level 4), then level 4, then asks — bottom-up avoids the
+// "cannot delete because child records exist" error since Campaign.ParentId is restricted-delete.
+slot = Math.min(5000, DML_BUDGET - totalDeleted);
+if (slot > 0) {
+    List<Campaign> level5s = Database.query('SELECT Id FROM Campaign WHERE External_Id__c LIKE \'FQS-CMP-SUBASK2-%\' LIMIT ' + slot);
+    if (!level5s.isEmpty()) { delete level5s; counts.put('Campaign (level 5)', level5s.size()); totalDeleted += level5s.size(); }
+}
+slot = Math.min(5000, DML_BUDGET - totalDeleted);
+if (slot > 0) {
+    List<Campaign> level4s = Database.query('SELECT Id FROM Campaign WHERE External_Id__c LIKE \'FQS-CMP-SUBASK-%\' LIMIT ' + slot);
+    if (!level4s.isEmpty()) { delete level4s; counts.put('Campaign (level 4)', level4s.size()); totalDeleted += level4s.size(); }
+}
 slot = Math.min(5000, DML_BUDGET - totalDeleted);
 if (slot > 0) {
     List<Campaign> asks = Database.query('SELECT Id FROM Campaign WHERE External_Id__c LIKE \'FQS-CMP-ASK-%\' LIMIT ' + slot);

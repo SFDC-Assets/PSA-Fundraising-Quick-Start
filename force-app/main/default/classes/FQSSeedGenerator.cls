@@ -346,20 +346,23 @@ public with sharing class FQSSeedGenerator {
         }
         insert newAccounts;
 
-        // Phase G4: PartyRelationshipGroup per donor-Org Account (non-Person). One PRG per
-        // Account with Type='Group' so the launcher's two-stage employer picker can filter
-        // Donor ACRs through PRG.Type='Group' (as opposed to Household). Person Accounts
-        // are skipped by design — donors, not employers. Idempotent-safe within a chunk
-        // because these Accounts are freshly inserted and cannot already have a PRG.
-        List<PartyRelationshipGroup> donorOrgPrgs = new List<PartyRelationshipGroup>();
+        // Phase G4: PartyRelationshipGroup per donor Account. Org donors get Type='Group'
+        // (employer/foundation shape); Person Account donors get Type='Household' (single-person
+        // household shape — sufficient for the launcher's Household-vs-Employer picker to see a
+        // PRG on every donor). Two shapes so the picker's PRG.Type filter has coverage on both
+        // branches. Idempotent-safe within a chunk — Accounts are freshly inserted.
+        List<PartyRelationshipGroup> donorPrgs = new List<PartyRelationshipGroup>();
         for (Integer i = 0; i < donorCount; i++) {
-            if (donorTypes[i] == 0) continue;
-            donorOrgPrgs.add(new PartyRelationshipGroup(
+            String prgType = (donorTypes[i] == 0) ? 'Household' : 'Group';
+            String prgName = (donorTypes[i] == 0)
+                ? (newAccounts[i].LastName != null ? newAccounts[i].LastName + ' Household' : 'FQS Household')
+                : newAccounts[i].Name;
+            donorPrgs.add(new PartyRelationshipGroup(
                 AccountId = newAccounts[i].Id,
-                Name = newAccounts[i].Name,
-                Type = 'Group'));
+                Name = prgName,
+                Type = prgType));
         }
-        if (!donorOrgPrgs.isEmpty()) insert donorOrgPrgs;
+        if (!donorPrgs.isEmpty()) insert donorPrgs;
 
         // GC Name conventions:
         //   Recurring (OpenEnded)   → "<Donor> - $<amt> Monthly"           (amt = the monthly commitment)
@@ -447,7 +450,11 @@ public with sharing class FQSSeedGenerator {
                     grantKind = 'grant-onetime';
                     grantNameSuffix = '';
                 }
-                newCommitments.add(new GiftCommitment(
+                // Phase D6 (shipped 2026-07-25): FQS_Restriction_Release_Date__c on multi-year grants
+                // stamps the final year of the restriction window at the parent-commitment level.
+                // Per memory [[seed-release-date-followup]]. Single-year grants leave it null (no
+                // time restriction beyond the natural install window).
+                GiftCommitment grantGc = new GiftCommitment(
                     External_Id__c = 'FQS-GC-' + RUN_STAMP + '-' + globalIdx + '-grant',
                     Name = dLabel + ' - ' + fmtAmt(grantAmt) + grantNameSuffix,
                     DonorId = donorId, Status = 'Active',
@@ -458,7 +465,9 @@ public with sharing class FQSSeedGenerator {
                     EffectiveStartDate = startDate,
                     ExpectedEndDate = endDate,
                     FQS_Match_Eligible__c = randBool(globalIdx, 47, PROB_COMMITMENT_MATCH_ELIGIBLE),
-                    CampaignId = campId));
+                    CampaignId = campId);
+                if (grantIsMultiYear) grantGc.FQS_Restriction_Release_Date__c = endDate;
+                newCommitments.add(grantGc);
                 commitmentDonorIdx.add(i); commitmentKind.add(grantKind); commitmentIsConditional.add(true);
             }
         }
@@ -948,6 +957,12 @@ public with sharing class FQSSeedGenerator {
                     OutreachSourceCodeId = chosenOscId,
                     GiftCommitmentId = gc.Id
                 );
+                // Phase D6 (shipped 2026-07-25): stamp per-installment restriction release
+                // date on multi-year grant GTs — one year past the installment date.
+                // Per memory [[seed-release-date-followup]].
+                if (kind == 'grant-multiyear') {
+                    gt.FQS_Restriction_Release_Date__c = txnDate.addYears(1);
+                }
                 if (kind == 'recurring') gt.FQS_Recurring__c = true;
                 if (scenario == 1 || scenario == 3) {
                     gt.FQS_Matched__c = true;
@@ -1265,27 +1280,52 @@ public with sharing class FQSSeedGenerator {
         // FQS_Restriction_Type__c separate exchange-transaction revenue from contribution
         // revenue. All other GTs round-robin across allDesignationIds (contribution
         // designations only — Earned Revenue designations are excluded from that pool).
+        // ~15% of contribution GTs split across two designations (60/40) to exercise the
+        // launcher's split-designation shape and multi-GTD report groupings. Fee/Payment
+        // GTs always stay single-designation (exchange transactions aren't split in practice).
         List<GiftTransactionDesignation> newGTDs = new List<GiftTransactionDesignation>();
         for (Integer i = 0; i < newGifts.size(); i++) {
             GiftTransaction gt = newGifts[i];
             Integer di = giftDonorIdx[i];
-            Integer g = giftIndexInDonor[i];
             Integer globalIdx = batchOffset + di;
-            Id gdId;
-            if ('Fee/Payment'.equals(giftCategory[i]) && !feeDesignationIds.isEmpty()) {
-                gdId = feeDesignationIds[Math.mod(prng(globalIdx, 201 + i), feeDesignationIds.size())];
+            Boolean isFee = 'Fee/Payment'.equals(giftCategory[i]);
+            Boolean splitDesignation = !isFee && allDesignationIds.size() >= 2
+                && randBool(globalIdx, 220 + i, 0.15);
+            if (splitDesignation) {
+                Id gdA = allDesignationIds[Math.mod(prng(globalIdx, 221 + i), allDesignationIds.size())];
+                Id gdB = allDesignationIds[Math.mod(prng(globalIdx, 222 + i), allDesignationIds.size())];
+                if (gdA == gdB) gdB = allDesignationIds[Math.mod(prng(globalIdx, 222 + i) + 1, allDesignationIds.size())];
+                Decimal amtA = (gt.OriginalAmount * 0.60).setScale(2);
+                Decimal amtB = (gt.OriginalAmount - amtA).setScale(2);
+                newGTDs.add(new GiftTransactionDesignation(
+                    External_Id__c = 'FQS-GTD-' + RUN_STAMP + '-' + globalIdx + '-' + i + '-a',
+                    GiftTransactionId = gt.Id,
+                    GiftDesignationId = gdA,
+                    Amount = amtA,
+                    Percent = 60));
+                newGTDs.add(new GiftTransactionDesignation(
+                    External_Id__c = 'FQS-GTD-' + RUN_STAMP + '-' + globalIdx + '-' + i + '-b',
+                    GiftTransactionId = gt.Id,
+                    GiftDesignationId = gdB,
+                    Amount = amtB,
+                    Percent = 40));
             } else {
-                gdId = allDesignationIds[Math.mod(prng(globalIdx, 200 + i), allDesignationIds.size())];
+                Id gdId;
+                if (isFee && !feeDesignationIds.isEmpty()) {
+                    gdId = feeDesignationIds[Math.mod(prng(globalIdx, 201 + i), feeDesignationIds.size())];
+                } else {
+                    gdId = allDesignationIds[Math.mod(prng(globalIdx, 200 + i), allDesignationIds.size())];
+                }
+                // External_Id must be globally unique per GTD. The ladder + one-off refactor
+                // introduced overlapping `giftIndexInDonor` values (both restart at 0), so key
+                // off the flat newGifts index `i` instead of `g` to guarantee uniqueness.
+                newGTDs.add(new GiftTransactionDesignation(
+                    External_Id__c = 'FQS-GTD-' + RUN_STAMP + '-' + globalIdx + '-' + i,
+                    GiftTransactionId = gt.Id,
+                    GiftDesignationId = gdId,
+                    Amount = gt.OriginalAmount,
+                    Percent = 100));
             }
-            // External_Id must be globally unique per GTD. The ladder + one-off refactor
-            // introduced overlapping `giftIndexInDonor` values (both restart at 0), so key
-            // off the flat newGifts index `i` instead of `g` to guarantee uniqueness.
-            newGTDs.add(new GiftTransactionDesignation(
-                External_Id__c = 'FQS-GTD-' + RUN_STAMP + '-' + globalIdx + '-' + i,
-                GiftTransactionId = gt.Id,
-                GiftDesignationId = gdId,
-                Amount = gt.OriginalAmount,
-                Percent = 100));
         }
         insert newGTDs;
 

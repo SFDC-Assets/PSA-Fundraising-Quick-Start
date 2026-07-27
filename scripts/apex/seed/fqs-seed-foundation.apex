@@ -181,6 +181,45 @@ for (List<Object> row : askSpec) {
 Database.upsert(asks, Campaign.External_Id__c, true);
 System.debug('Ask campaigns upserted: ' + asks.size());
 
+// --- Tier 4/5: Sub-ask + Sub-sub-ask (hierarchy depth coverage) ---
+// Two extra campaigns so FQS_Hierarchy_Depth__c yields 4 and 5 for at least one
+// record each. Keeps the packaged hierarchy small (rollup/strategy/ask remains
+// the canonical shape) but proves the depth formula and lookup filter behavior
+// across the full 1-5 range.
+Map<String, Id> askIdByExtIdSeed = new Map<String, Id>();
+for (Campaign c : [SELECT Id, External_Id__c FROM Campaign WHERE External_Id__c IN ('FQS-CMP-ASK-YEAREND-EM-FY26', 'FQS-CMP-ASK-SPRING-EM-FY26')]) {
+    askIdByExtIdSeed.put(c.External_Id__c, c.Id);
+}
+List<Campaign> deepChildren = new List<Campaign>();
+if (askIdByExtIdSeed.containsKey('FQS-CMP-ASK-YEAREND-EM-FY26')) {
+    Campaign level4 = new Campaign(
+        Name = 'FQS Year-End Email FY26 - Sustainers Segment',
+        External_Id__c = 'FQS-CMP-SUBASK-YEAREND-SUST-FY26',
+        ParentId = askIdByExtIdSeed.get('FQS-CMP-ASK-YEAREND-EM-FY26'),
+        Description = 'FQS Seed — level-4 sub-ask (hierarchy depth coverage)',
+        IsActive = true, Status = 'In Progress',
+        StartDate = fy26Start, EndDate = fy26End,
+        FQS_Campaign_Category__c = 'Annual Giving');
+    if (campaignFqsRT != null) level4.RecordTypeId = campaignFqsRT;
+    deepChildren.add(level4);
+}
+Database.upsert(deepChildren, Campaign.External_Id__c, true);
+List<Campaign> level5s = new List<Campaign>();
+for (Campaign c : [SELECT Id FROM Campaign WHERE External_Id__c = 'FQS-CMP-SUBASK-YEAREND-SUST-FY26']) {
+    Campaign level5 = new Campaign(
+        Name = 'FQS Year-End Email FY26 - Sustainers - Reactivation Wave',
+        External_Id__c = 'FQS-CMP-SUBASK2-YEAREND-REACT-FY26',
+        ParentId = c.Id,
+        Description = 'FQS Seed — level-5 sub-sub-ask (hierarchy depth coverage)',
+        IsActive = true, Status = 'In Progress',
+        StartDate = fy26Start, EndDate = fy26End,
+        FQS_Campaign_Category__c = 'Annual Giving');
+    if (campaignFqsRT != null) level5.RecordTypeId = campaignFqsRT;
+    level5s.add(level5);
+}
+if (!level5s.isEmpty()) Database.upsert(level5s, Campaign.External_Id__c, true);
+System.debug('Deep-hierarchy campaigns upserted: ' + (deepChildren.size() + level5s.size()));
+
 // -------- GIFT DESIGNATIONS --------
 // {extId, name, restrictionType}
 List<List<String>> designationSpec = new List<List<String>>{
@@ -209,6 +248,37 @@ for (List<String> row : designationSpec) {
 }
 Database.upsert(designations, GiftDesignation.External_Id__c, true);
 System.debug('Designations upserted: ' + designations.size());
+
+// -------- ORG-WIDE DEFAULT DESIGNATION --------
+// Managed frops_flow__ProcessGiftCommitment aborts with "org wide default designation is
+// not yet configured" if no GiftDesignation carries IsDefault=true. Flag the seeded General
+// Operating GD as the org-wide default. Idempotent: query the row after upsert so we have
+// its Id, then update IsDefault to TRUE only if it's not already set. Also clears IsDefault
+// on any OTHER FQS-* GD that might have been flagged in a prior run (defensive — the
+// platform enforces at most one IsDefault=true per org).
+// Per memory [[fqs-orgwide-default-designation]].
+List<GiftDesignation> defaultFlagWrites = new List<GiftDesignation>();
+for (GiftDesignation gd : [SELECT Id, External_Id__c, IsDefault FROM GiftDesignation WHERE External_Id__c LIKE 'FQS-GD-%']) {
+    if ('FQS-GD-GENERAL-OPERATING'.equals(gd.External_Id__c)) {
+        if (gd.IsDefault != true) defaultFlagWrites.add(new GiftDesignation(Id = gd.Id, IsDefault = true));
+    } else if (gd.IsDefault == true) {
+        defaultFlagWrites.add(new GiftDesignation(Id = gd.Id, IsDefault = false));
+    }
+}
+if (!defaultFlagWrites.isEmpty()) {
+    // Two-pass: first clear any stale IsDefault=true rows, then set the canonical one. Doing
+    // both in a single update can trip the platform's at-most-one-default validation.
+    List<GiftDesignation> clears = new List<GiftDesignation>();
+    List<GiftDesignation> sets = new List<GiftDesignation>();
+    for (GiftDesignation gd : defaultFlagWrites) {
+        if (gd.IsDefault == true) sets.add(gd); else clears.add(gd);
+    }
+    if (!clears.isEmpty()) update clears;
+    if (!sets.isEmpty()) update sets;
+    System.debug('Org-wide default designation flagged: FQS-GD-GENERAL-OPERATING (cleared ' + clears.size() + ' stale, set ' + sets.size() + ')');
+} else {
+    System.debug('Org-wide default designation already correct — no change.');
+}
 
 // -------- OUTREACH SOURCE CODES --------
 if (SKIP_OSCS) {
