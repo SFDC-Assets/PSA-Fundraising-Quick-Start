@@ -1,26 +1,14 @@
-// FQS Seed Foundation — creates shared records used by all donor datasets.
-// Idempotent via External_Id__c upserts. Safe to run repeatedly.
-//
-// Produces:
-//   - 3 rollup campaigns (FY24/FY25/FY26) + 9 strategy campaigns + 15 ask campaigns
-//     (3-level rollup/strategy/ask hierarchy per FQS setup-flow spec — depth capped at 3)
-//   - 14 GiftDesignations mirroring the FQS_Suggest_Designations flow catalog
-//   - One OutreachSourceCode per depth-3 ask campaign (SourceCode derived from ext-id)
-//   - 15 Corporate Employer Accounts (FQS-ACC-CORP-01..15) for matching-gift scenarios
-//   - 5 PartyRoleRelation records (Spouse, Parent/Child, Sibling, Friend, Neighbor)
-//
-// Knob: SKIP_OSCS — set true to skip the OutreachSourceCode block. The donor generator
-// falls back to ask-campaign assignment (no OSC link) when the OSC pool is empty.
-// Useful when demoing / testing paths that shouldn't be muddied by attribution codes.
+// FQS Seed Foundation — shared records for all donor datasets. Idempotent via External_Id__c.
+// Produces: 3 rollups + 9 strategies + 15 asks; 14 GDs (mirror FQS_Suggest_Designations);
+// 1 OSC/ask; 15 corp employers; 5 PRRs (Spouse/Parent-Child/Sibling/Friend/Neighbor).
+// SKIP_OSCS=true bypasses the OSC block (donor generator falls back to campaign-only).
 
 Boolean SKIP_OSCS = false;
 
 System.debug('=== FQS Seed Foundation starting ===');
 
 // -------- CAMPAIGN HIERARCHY (rollup / strategy / ask) --------
-// Reads Organization.FiscalYearStartMonth so FY windows mirror the setup flow. FY26 is
-// the fiscal year containing today; FY25/FY24 are the two prior. Prior-year rollups
-// exist only to parent the FY25/FY24 asks that back YoY reporting.
+// FY windows follow Organization.FiscalYearStartMonth.
 Id campaignFqsRT;
 try {
     campaignFqsRT = [SELECT Id FROM RecordType WHERE SobjectType='Campaign' AND DeveloperName='FQS_Fundraising' LIMIT 1].Id;
@@ -182,32 +170,27 @@ for (List<Object> row : askSpec) {
 Database.upsert(asks, Campaign.External_Id__c, true);
 System.debug('Ask campaigns upserted: ' + asks.size());
 
-// NOTE: Hierarchy is intentionally capped at depth 3 (rollup / strategy / ask). Prior seed
-// versions inserted level-4 (SUBASK) + level-5 (SUBASK2) campaigns to prove the depth
-// formula end-to-end; that shape has been rolled back — real orgs rarely go past ask level
-// and the extra branches added teardown complexity without a live test target. Teardown
-// still sweeps any legacy SUBASK-* / SUBASK2-* rows for orgs mid-migration.
+// Depth capped at 3. Teardown still sweeps legacy SUBASK-*/SUBASK2-* for migrations.
 
 // -------- GIFT DESIGNATIONS --------
-// Names, order, and restriction-type mirror the FQS_Suggest_Designations flow catalog
-// exactly (14 entries) so that a subsequent re-run of the suggester flow finds every
-// designation by Name and idempotently skips (per its Loop_Existing_Designations dedupe).
+// 14 entries mirror the FQS_Suggest_Designations flow catalog exactly; suggester re-runs
+// dedupe by Name. Descriptions are short — the flow carries the full copy.
 // {extId, name, restrictionType, description}
 List<List<String>> designationSpec = new List<List<String>>{
-    new List<String>{'FQS-GD-GENERAL-OPERATING', 'FQS General Operating Fund',    'Without Donor Restriction',           'The unrestricted org default. Every FQS install ships with this as the org-wide default so the platform\'s activate-schedule action has a fallback designation.'},
-    new List<String>{'FQS-GD-BOARD-DESIGNATED',  'FQS Board Designated Fund',     'Without Donor Restriction',           'Internal designation, not a donor restriction. The board has earmarked these funds internally but can undesignate at will. The donor imposed no restriction.'},
-    new List<String>{'FQS-GD-CASH-RESERVE',      'FQS Cash Reserve',              'Without Donor Restriction',           'A reserve is money held back for future need, spendable if the board votes to release. Distinct from Board Designated Fund. Teaches that Without Donor Restriction does not mean unspoken for.'},
-    new List<String>{'FQS-GD-GENERAL-PROGRAM',   'FQS General Program',           'With Donor Restriction - Purpose',    'Catch-all for gifts a donor restricted to programs broadly without naming a specific program.'},
-    new List<String>{'FQS-GD-PROGRAM-A',         'FQS Program A',                 'With Donor Restriction - Purpose',    'Generic placeholder for a purpose-restricted program designation. Rename to one of your actual programs after install.'},
-    new List<String>{'FQS-GD-PROGRAM-B',         'FQS Program B',                 'With Donor Restriction - Purpose',    'Second generic placeholder purpose-restricted program designation. Rename to one of your actual programs after install.'},
-    new List<String>{'FQS-GD-PROGRAM-EXPANSION', 'FQS Program Expansion Fund',    'With Donor Restriction - Purpose',    'Distinct purpose from ongoing programs: growth or new-initiative capacity. Donors give here specifically to launch something new.'},
-    new List<String>{'FQS-GD-EQUIPMENT-SUPPLY',  'FQS Equipment and Supply Fund', 'With Donor Restriction - Purpose',    'Purpose can be tangible non-capital spending: below-capitalization-threshold equipment, consumable supplies. Distinct from Capital Campaign Fund.'},
-    new List<String>{'FQS-GD-STAFF-SALARY',      'FQS Staff Salary Fund',         'With Donor Restriction - Purpose',    'Purpose can be donor-restricted personnel costs. Teaches that programs and salaries are separable purposes.'},
-    new List<String>{'FQS-GD-CAPITAL-CAMPAIGN',  'FQS Capital Campaign Fund',     'With Donor Restriction - Purpose',    'Capital-project purpose (building, renovation, major equipment above the capitalization threshold). Capital gifts release when the asset is placed in service, not on a schedule.'},
-    new List<String>{'FQS-GD-ENDOWMENT',         'FQS Endowment',                 'With Donor Restriction - Permanent',  'Endowment principal is held indefinitely; only earnings are spendable. Add named endowments (e.g., Smith Family Scholarship Endowment) as your program grows.'},
-    new List<String>{'FQS-GD-EVENTS',            'FQS Events',                    'Earned Revenue',                      'Exchange-transaction revenue: gala ticket sales, event registration, workshop admission. Distinct from a donation given AT an event, this is what the ticket itself was worth.'},
-    new List<String>{'FQS-GD-MERCHANDISE',       'FQS Merchandise',               'Earned Revenue',                      'Sale of goods: t-shirts, books, branded items. Exchange transaction, not a contribution. The buyer received something of equivalent value.'},
-    new List<String>{'FQS-GD-PROGRAM-SERVICES',  'FQS Program Services',          'Earned Revenue',                      'Program-related fee revenue: participation fees, consulting retainers, service delivery charges. Distinct from a program-restricted donation.'}
+    new List<String>{'FQS-GD-GENERAL-OPERATING', 'FQS General Operating Fund',    'Without Donor Restriction',           'Unrestricted org default; used as org-wide default GD.'},
+    new List<String>{'FQS-GD-BOARD-DESIGNATED',  'FQS Board Designated Fund',     'Without Donor Restriction',           'Board-earmarked, undesignateable; donor imposed no restriction.'},
+    new List<String>{'FQS-GD-CASH-RESERVE',      'FQS Cash Reserve',              'Without Donor Restriction',           'Reserved by board; spendable on board vote.'},
+    new List<String>{'FQS-GD-GENERAL-PROGRAM',   'FQS General Program',           'With Donor Restriction - Purpose',    'Broad purpose restriction, no specific program named.'},
+    new List<String>{'FQS-GD-PROGRAM-A',         'FQS Program A',                 'With Donor Restriction - Purpose',    'Placeholder purpose-restricted program; rename post-install.'},
+    new List<String>{'FQS-GD-PROGRAM-B',         'FQS Program B',                 'With Donor Restriction - Purpose',    'Second placeholder purpose-restricted program.'},
+    new List<String>{'FQS-GD-PROGRAM-EXPANSION', 'FQS Program Expansion Fund',    'With Donor Restriction - Purpose',    'Growth/new-initiative capacity.'},
+    new List<String>{'FQS-GD-EQUIPMENT-SUPPLY',  'FQS Equipment and Supply Fund', 'With Donor Restriction - Purpose',    'Below-cap equipment and consumable supplies.'},
+    new List<String>{'FQS-GD-STAFF-SALARY',      'FQS Staff Salary Fund',         'With Donor Restriction - Purpose',    'Donor-restricted personnel costs.'},
+    new List<String>{'FQS-GD-CAPITAL-CAMPAIGN',  'FQS Capital Campaign Fund',     'With Donor Restriction - Purpose',    'Capital purpose; releases on asset placed-in-service.'},
+    new List<String>{'FQS-GD-ENDOWMENT',         'FQS Endowment',                 'With Donor Restriction - Permanent',  'Principal held indefinitely; only earnings spendable.'},
+    new List<String>{'FQS-GD-EVENTS',            'FQS Events',                    'Earned Revenue',                      'Gala/event ticket sale value; exchange transaction.'},
+    new List<String>{'FQS-GD-MERCHANDISE',       'FQS Merchandise',               'Earned Revenue',                      'Goods sold; exchange transaction.'},
+    new List<String>{'FQS-GD-PROGRAM-SERVICES',  'FQS Program Services',          'Earned Revenue',                      'Program-fee/service-charge revenue.'}
 };
 
 List<GiftDesignation> designations = new List<GiftDesignation>();
@@ -224,13 +207,8 @@ Database.upsert(designations, GiftDesignation.External_Id__c, true);
 System.debug('Designations upserted: ' + designations.size());
 
 // -------- ORG-WIDE DEFAULT DESIGNATION --------
-// Managed frops_flow__ProcessGiftCommitment aborts with "org wide default designation is
-// not yet configured" if no GiftDesignation carries IsDefault=true. Flag the seeded General
-// Operating GD as the org-wide default. Idempotent: query the row after upsert so we have
-// its Id, then update IsDefault to TRUE only if it's not already set. Also clears IsDefault
-// on any OTHER FQS-* GD that might have been flagged in a prior run (defensive — the
-// platform enforces at most one IsDefault=true per org).
-// Per memory [[fqs-orgwide-default-designation]].
+// Managed frops_flow__ProcessGiftCommitment requires exactly one GD with IsDefault=true.
+// Two-pass: clear stale, then set canonical. Memory: [[fqs-orgwide-default-designation]]
 List<GiftDesignation> defaultFlagWrites = new List<GiftDesignation>();
 for (GiftDesignation gd : [SELECT Id, External_Id__c, IsDefault FROM GiftDesignation WHERE External_Id__c LIKE 'FQS-GD-%']) {
     if ('FQS-GD-GENERAL-OPERATING'.equals(gd.External_Id__c)) {
@@ -240,8 +218,6 @@ for (GiftDesignation gd : [SELECT Id, External_Id__c, IsDefault FROM GiftDesigna
     }
 }
 if (!defaultFlagWrites.isEmpty()) {
-    // Two-pass: first clear any stale IsDefault=true rows, then set the canonical one. Doing
-    // both in a single update can trip the platform's at-most-one-default validation.
     List<GiftDesignation> clears = new List<GiftDesignation>();
     List<GiftDesignation> sets = new List<GiftDesignation>();
     for (GiftDesignation gd : defaultFlagWrites) {
@@ -255,12 +231,8 @@ if (!defaultFlagWrites.isEmpty()) {
 }
 
 // -------- OUTREACH SOURCE CODES --------
-// Exactly one OutreachSourceCode per depth-3 ask campaign. SourceCode is a short
-// uppercase-hyphenated token derived from the ask's External_Id__c (strip the
-// 'FQS-CMP-ASK-' prefix, keep the meaningful segments). MessageChannel is inferred
-// from the External_Id__c body ('EM-' → Email, 'DM-' → Direct Mail, else Direct Mail).
-// This matches how real fundraising shops attach attribution codes — one code per
-// campaign — rather than the round-robin fan-out prior seeds used.
+// One OSC per ask campaign. SourceCode = ask ext-id minus 'FQS-CMP-ASK-' prefix.
+// MessageChannel inferred from ext-id body ('-EM-' → Email, '-DM-' → Direct Mail).
 if (SKIP_OSCS) {
     System.debug('SKIP_OSCS=true — skipping OutreachSourceCode block.');
 } else {
@@ -272,25 +244,21 @@ if (SKIP_OSCS) {
 
     List<OutreachSourceCode> oscs = new List<OutreachSourceCode>();
     for (Campaign c : askCampaigns) {
-        // 'FQS-CMP-ASK-SPRING-EM-FY26' → 'SPRING-EM-FY26'
         String body = c.External_Id__c.substring('FQS-CMP-ASK-'.length());
-        // SourceCode has a length limit (~40 chars) — the trimmed form fits.
-        String sourceCode = body;
-        // Channel inference: token 2 (after the theme prefix) commonly signals channel.
         String channel;
         if (body.contains('-EM-') || body.startsWith('EM-')) channel = 'Email';
         else if (body.contains('-DM-') || body.startsWith('DM-')) channel = 'Direct Mail';
         else if (body.contains('SMS')) channel = 'SMS';
         else channel = 'Direct Mail';
         oscs.add(new OutreachSourceCode(
-            Name = 'FQS OSC ' + sourceCode,
-            External_Id__c = 'FQS-OSC-' + sourceCode,
-            SourceCode = sourceCode,
+            Name = 'FQS OSC ' + body,
+            External_Id__c = 'FQS-OSC-' + body,
+            SourceCode = body,
             MessageChannel = channel,
             UsageType = 'Fundraising',
             Status = 'Active',
             CampaignId = c.Id,
-            Description = 'FQS Seed — one OSC per ask campaign (' + c.Name + ')'
+            Description = 'FQS Seed — ' + c.Name
         ));
     }
     Database.upsert(oscs, OutreachSourceCode.External_Id__c, true);
@@ -298,22 +266,8 @@ if (SKIP_OSCS) {
 }
 
 // -------- CORPORATE EMPLOYER ACCOUNTS --------
-// Dedicated pool of 15 corporate accounts used by the donor generator to build
-// matching-gift scenarios. Kept separate from the donor pyramid so tests can
-// distinguish "donor Account" vs "employer Account" purely by External ID prefix.
-//
-// Matching-gift configuration is intentionally varied so the Find Matching Gift
-// flow's scorers, drift-fix branch, ratio math, and annual-cap enforcement can
-// all be exercised against real seeded state:
-//
-//   - programOn   : sets FQS_Matching_Gift_Program__c=true (lights up the 20-pt
-//                   score bonus AND the query path that finds candidates purely
-//                   by flag). 10 of 15 are flagged; 5 are unflagged so the flow's
-//                   drift-fix prompt has a live target.
-//   - ratio       : Number(4,2). 1.00 default on most; 2.00 on TechCorp/Meridian,
-//                   0.50 on BlueSky — lets amount scorers see ratio variety.
-//   - annualCap   : Currency. Set on 2 (TechCorp $5000, Summit $2500) so cap
-//                   enforcement / warning path has a testable trigger.
+// 15 corp employers, varied matching-gift config: 10/15 programOn (5 unflagged for
+// drift-fix testing); ratios 2.0/1.0/0.5; caps on 2 (TechCorp $5000, Summit $2500).
 // {name, domain, industry, city, state, programOn, ratio, annualCap}
 List<List<Object>> employers = new List<List<Object>>{
     new List<Object>{'TechCorp Global',        'techcorp.demo',     'Technology',             'Chicago',      'IL', true,  2.00, 5000},
@@ -333,7 +287,6 @@ List<List<Object>> employers = new List<List<Object>>{
     new List<Object>{'Copperline Utilities',   'copperline.demo',   'Utilities',              'Phoenix',      'AZ', false, 1.00, null}
 };
 
-// Verify 'Corporate Employer' is a valid Account.Type value, else fall back to 'Corporate'.
 Schema.DescribeFieldResult accountTypeDesc = Account.Type.getDescribe();
 Set<String> validAccountTypes = new Set<String>();
 for (Schema.PicklistEntry pe : accountTypeDesc.getPicklistValues()) validAccountTypes.add(pe.getValue());
@@ -341,8 +294,7 @@ String corpAccountType = validAccountTypes.contains('Corporate Employer') ? 'Cor
                        : validAccountTypes.contains('Corporate')          ? 'Corporate'
                        : null;
 
-// Skip match-program fields if they aren't deployed yet — foundation should still
-// succeed on orgs that haven't picked up the matching-gift flow metadata.
+// Skip match-program fields when not deployed (foundation stays runnable).
 Map<String, Schema.SObjectField> accountFieldMap = Schema.SObjectType.Account.fields.getMap();
 Boolean hasProgramFlag  = accountFieldMap.containsKey('fqs_matching_gift_program__c');
 Boolean hasRatio        = accountFieldMap.containsKey('fqs_match_ratio__c');
@@ -372,12 +324,8 @@ for (Integer i = 0; i < employers.size(); i++) {
 Database.upsert(corpAccounts, Account.External_Id__c, true);
 System.debug('Corporate employer accounts upserted: ' + corpAccounts.size());
 
-// -------- CORP EMPLOYER PARTY RELATIONSHIP GROUPS (Phase G4) --------
-// Every non-Person Account gets a PRG anchored at that Account with Type=&apos;Group&apos;
-// so the FQS Gift Entry launcher&apos;s two-stage employer picker can filter donor
-// ACRs through PRG.Type=&apos;Group&apos; (as opposed to Household). One PRG per corp
-// employer Account, Name mirrors Account.Name for readability. Idempotent — the
-// query short-circuits when a PRG already exists for the Account.
+// -------- CORP EMPLOYER PRGs (Phase G4) --------
+// One PRG per corp employer, Type='Group'. Launcher's employer picker filters on this.
 List<Account> corpAccountsForPrg = [SELECT Id, Name FROM Account WHERE External_Id__c LIKE 'FQS-ACC-CORP-%'];
 Set<Id> corpAccountIdsWithPrg = new Set<Id>();
 for (PartyRelationshipGroup existingPrg : [SELECT AccountId FROM PartyRelationshipGroup WHERE AccountId IN :corpAccountsForPrg]) {
@@ -396,10 +344,8 @@ if (!corpPrgs.isEmpty()) {
 }
 
 // -------- MATCHING-GIFT INTERMEDIARIES --------
-// Third-party facilitators (Benevity, YourCause, etc.) that appear as the legal
-// donor on a GiftTransaction while the giving originates from a corporate match
-// program. Marked FQS_Is_Match_Intermediary__c=true so the Find Matching Gift
-// flow routes to its intermediary branch.
+// Facilitators (Benevity/YourCause) that legally hold DonorId while match originates
+// from a corp program. FQS_Is_Match_Intermediary__c=true routes to the intermediary branch.
 // {name, city, state}
 List<List<String>> intermediaries = new List<List<String>>{
     new List<String>{'Benevity FQS-INT',   'Calgary',  'AB'},
@@ -426,8 +372,7 @@ if (hasIntermediary) {
     Database.upsert(intAccounts, Account.External_Id__c, true);
     System.debug('Match intermediary accounts upserted: ' + intAccounts.size());
 
-    // Phase G4: same PRG treatment as corp employers so intermediaries surface in the
-    // employer datatable when a donor has an ACR pointing at them.
+    // Same PRG treatment as corp employers for launcher datatable coverage.
     List<Account> intAccountsForPrg = [SELECT Id, Name FROM Account WHERE External_Id__c LIKE 'FQS-ACC-INT-%'];
     Set<Id> intAccountIdsWithPrg = new Set<Id>();
     for (PartyRelationshipGroup existingPrg : [SELECT AccountId FROM PartyRelationshipGroup WHERE AccountId IN :intAccountsForPrg]) {
@@ -449,16 +394,9 @@ if (hasIntermediary) {
 }
 
 // -------- PARTY ROLE RELATION (§12.3 prerequisite) --------
-// ContactContactRelation.PartyRoleRelationId is NOT NULL in Nonprofit Cloud.
-// The FQS seed emits cross-household CCRs across five distinct role pairs so the
-// account launcher's soft-credit datatable has role-typed multi-account reach.
-// Field API names confirmed against SMQS PartyRoleRelation.object (Default_Hierarchy_Type__c
-// picklist: Parent/Child/Peer; Type__c picklist: Immediate Family/Extended Family/
-// Nonprofit/Business/Other) and SMQS_Create_Party_Relationship_Role_Options.flow.
-//
-// PartyRoleRelation.Name auto-populates from RoleName-RelatedRoleName on insert (e.g.,
-// "Spouse-Spouse-CCR"), so idempotency is keyed off (RoleName, RelatedRoleName,
-// RelationshipObjectName). Also assign FQS-owned External_Id__c for a stable handle.
+// CCR.PartyRoleRelationId is NOT NULL in Nonprofit Cloud. Seed 5 role-typed PRRs so the
+// account launcher's soft-credit datatable has multi-role multi-account reach.
+// Idempotency keyed off (RoleName, RelatedRoleName, RelationshipObjectName).
 Map<String, Schema.SObjectField> prrFieldMap = Schema.SObjectType.PartyRoleRelation.fields.getMap();
 Boolean hasPrrExternalId       = prrFieldMap.containsKey('external_id__c');
 Boolean hasPrrDefaultHierarchy = prrFieldMap.containsKey('default_hierarchy_type__c');
