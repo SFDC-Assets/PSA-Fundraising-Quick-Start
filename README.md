@@ -465,6 +465,44 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 5. Modify List View Button Layouts on Gift Transaction and Gift Commitment
 -->
 
+1. **Add the leaf-Campaign lookup filter to Gift Transaction**
+
+   `GiftTransaction.CampaignId` is a Nonprofit Cloud–owned standard field. Salesforce does not include lookup-filter edits to standard fields in unmanaged packages, so this step must be applied manually in every install. The filter steers users to attribute each gift to a level-3 (ask) Campaign — the concrete solicitation — rather than a level-1 rollup or level-2 strategy. Ask-level attribution keeps performance reports honest; rollup-level attribution hides the ask from the numbers you were trying to measure.
+
+   The filter uses `FQS_Hierarchy_Depth__c` on Campaign — a formula field the package installs (1 = top rollup, 2 = strategy, 3 = ask, up to 5 levels). It ships as **Optional** so users can override for exceptions (e.g., a gift attributed to an evergreen program rollup with no ask-level campaign yet).
+
+   1. From Setup, click the **Object Manager** tab.
+   2. Search for and click **Gift Transaction**, then select **Fields & Relationships**.
+   3. Click the field **Campaign**.
+   4. Scroll down to **Lookup Filter** and click **Edit**.
+   5. Select **Show only records that match the filter criteria (Optional)**.
+   6. Add the following filter criterion:
+      * **Field:** Campaign: Hierarchy Depth
+      * **Operator:** greater or equal
+      * **Value:** 3
+   7. In the **Info Message** field, enter: *FQS reporting expects gifts to be attributed to a level-3 (ask) campaign or deeper. Higher levels are rollups.*
+   8. In the **Error Message** field, enter: *Pick a leaf-level Campaign (the actual ask). Rollups and strategies are for reporting only — attributing a gift there hides it from ask-level performance reports.*
+   9. Confirm **Filter Type** is **Optional** (matches the FQS convention — users see the warning and can uncheck **Filter by:** in the picker to select a rollup when a legitimate exception exists).
+   10. Click **Save**.
+
+2. **Add the leaf-Campaign lookup filter to Gift Commitment**
+
+   Apply the same lookup-filter pattern to `GiftCommitment.CampaignId`. Same rationale, same standard-field caveat.
+
+   1. From Setup, click the **Object Manager** tab.
+   2. Search for and click **Gift Commitment**, then select **Fields & Relationships**.
+   3. Click the field **Campaign**.
+   4. Scroll down to **Lookup Filter** and click **Edit**.
+   5. Select **Show only records that match the filter criteria (Optional)**.
+   6. Add the following filter criterion:
+      * **Field:** Campaign: Hierarchy Depth
+      * **Operator:** greater or equal
+      * **Value:** 3
+   7. In the **Info Message** field, enter: *FQS reporting expects commitments to be attributed to a level-3 (ask) campaign or deeper. Higher levels are rollups.*
+   8. In the **Error Message** field, enter: *Pick a leaf-level Campaign (the actual ask). Rollups and strategies are for reporting only — attributing a commitment there hides it from ask-level performance reports.*
+   9. Confirm **Filter Type** is **Optional**.
+   10. Click **Save**.
+
 **V. Configure Designation, Soft Credit, and Tribute Objects**
 
 <!-- TODO: still to fill in:
