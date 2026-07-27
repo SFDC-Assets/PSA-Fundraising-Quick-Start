@@ -53,10 +53,12 @@ if (slot > 0) {
 }
 
 // 0e. PartyRelationshipGroup — must go before Accounts.
-// Phase G4: seeded PRGs anchor at every non-Person FQS Account (Type='Group'). PRG holds
-// a cascade-delete relationship on Account so if this deletion is skipped, the Account
-// delete below still succeeds, but the org keeps orphaned PRGs. Explicit delete first
-// keeps counts accurate.
+// Phase G4: seeded PRGs anchor at every non-Person FQS Account (Type='Group'). Person
+// Account donors no longer get a Type='Household' PRG (round-2 correction — Person Account
+// IS the household), but this teardown query still catches any legacy Household PRGs from
+// prior seed runs. PRG holds a cascade-delete relationship on Account so if this deletion
+// is skipped the Account delete below still succeeds, but the org keeps orphaned PRGs.
+// Explicit delete first keeps counts accurate.
 slot = Math.min(5000, DML_BUDGET - totalDeleted);
 if (slot > 0) {
     List<PartyRelationshipGroup> prgs = Database.query(
@@ -189,19 +191,20 @@ if (slot > 0) {
 
 // 14. Campaigns — ParentId FK means asks first, then strategies, then rollups.
 // Also sweeps the older Master/Categories/Leaves taxonomy so a mid-migration org can be
-// cleared without leftover records. Order: ASKS, then STRATEGIES, then LEGACY CAT/LEAF,
-// then ROLLUPS, then LEGACY MASTER. The "ParentId != null" heuristic handles legacy rows.
-// Level 5 first (children of level 4), then level 4, then asks — bottom-up avoids the
-// "cannot delete because child records exist" error since Campaign.ParentId is restricted-delete.
+// cleared without leftover records. Order: LEGACY SUBASK2/SUBASK (level 5 → level 4 —
+// no longer emitted by the seed but swept for orgs mid-migration), then ASKS, STRATEGIES,
+// LEGACY CAT/LEAF, ROLLUPS, LEGACY MASTER. The "ParentId != null" heuristic handles legacy
+// rows. Bottom-up order avoids the "cannot delete because child records exist" error since
+// Campaign.ParentId is restricted-delete.
 slot = Math.min(5000, DML_BUDGET - totalDeleted);
 if (slot > 0) {
     List<Campaign> level5s = Database.query('SELECT Id FROM Campaign WHERE External_Id__c LIKE \'FQS-CMP-SUBASK2-%\' LIMIT ' + slot);
-    if (!level5s.isEmpty()) { delete level5s; counts.put('Campaign (level 5)', level5s.size()); totalDeleted += level5s.size(); }
+    if (!level5s.isEmpty()) { delete level5s; counts.put('Campaign (legacy level 5)', level5s.size()); totalDeleted += level5s.size(); }
 }
 slot = Math.min(5000, DML_BUDGET - totalDeleted);
 if (slot > 0) {
     List<Campaign> level4s = Database.query('SELECT Id FROM Campaign WHERE External_Id__c LIKE \'FQS-CMP-SUBASK-%\' LIMIT ' + slot);
-    if (!level4s.isEmpty()) { delete level4s; counts.put('Campaign (level 4)', level4s.size()); totalDeleted += level4s.size(); }
+    if (!level4s.isEmpty()) { delete level4s; counts.put('Campaign (legacy level 4)', level4s.size()); totalDeleted += level4s.size(); }
 }
 slot = Math.min(5000, DML_BUDGET - totalDeleted);
 if (slot > 0) {
@@ -230,10 +233,16 @@ if (slot > 0) {
     if (!masterCamps.isEmpty()) { delete masterCamps; counts.put('Campaign (legacy master)', masterCamps.size()); totalDeleted += masterCamps.size(); }
 }
 
-// 15. PartyRoleRelation — FQS-owned Spouse-Spouse-CCR stub. Delete after CCRs (step 0a).
+// 15. PartyRoleRelation — FQS-owned role catalog (Spouse/Parent-Child/Sibling/Friend/Neighbor).
+// Delete after CCRs (step 0a). Filter by RoleName IN the seeded set + the CCR relationship
+// object so we don't torch unrelated org-owned PRRs on the same object.
 slot = Math.min(5000, DML_BUDGET - totalDeleted);
 if (slot > 0) {
-    List<PartyRoleRelation> prrs = Database.query('SELECT Id FROM PartyRoleRelation WHERE RoleName = \'Spouse\' AND RelatedRoleName = \'Spouse\' AND RelationshipObjectName = \'Contact_Contact_Relationship\' LIMIT ' + slot);
+    List<PartyRoleRelation> prrs = Database.query(
+        'SELECT Id FROM PartyRoleRelation '
+        + 'WHERE RelationshipObjectName = \'Contact_Contact_Relationship\' '
+        + 'AND RoleName IN (\'Spouse\',\'Parent\',\'Child\',\'Sibling\',\'Friend\',\'Neighbor\') '
+        + 'LIMIT ' + slot);
     if (!prrs.isEmpty()) {
         try { delete prrs; counts.put('PartyRoleRelation', prrs.size()); totalDeleted += prrs.size(); }
         catch (Exception e) { System.debug('PartyRoleRelation delete skipped: ' + e.getMessage()); }

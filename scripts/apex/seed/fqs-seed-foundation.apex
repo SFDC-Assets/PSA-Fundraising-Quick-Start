@@ -3,10 +3,11 @@
 //
 // Produces:
 //   - 3 rollup campaigns (FY24/FY25/FY26) + 9 strategy campaigns + 15 ask campaigns
-//     (3-level rollup/strategy/ask hierarchy per FQS setup-flow spec)
-//   - 10 GiftDesignations
-//   - 18 OutreachSourceCodes (pinned to thematic FY26 asks; remainder round-robin across asks)
+//     (3-level rollup/strategy/ask hierarchy per FQS setup-flow spec — depth capped at 3)
+//   - 14 GiftDesignations mirroring the FQS_Suggest_Designations flow catalog
+//   - One OutreachSourceCode per depth-3 ask campaign (SourceCode derived from ext-id)
 //   - 15 Corporate Employer Accounts (FQS-ACC-CORP-01..15) for matching-gift scenarios
+//   - 5 PartyRoleRelation records (Spouse, Parent/Child, Sibling, Friend, Neighbor)
 //
 // Knob: SKIP_OSCS — set true to skip the OutreachSourceCode block. The donor generator
 // falls back to ask-campaign assignment (no OSC link) when the OSC pool is empty.
@@ -181,59 +182,32 @@ for (List<Object> row : askSpec) {
 Database.upsert(asks, Campaign.External_Id__c, true);
 System.debug('Ask campaigns upserted: ' + asks.size());
 
-// --- Tier 4/5: Sub-ask + Sub-sub-ask (hierarchy depth coverage) ---
-// Two extra campaigns so FQS_Hierarchy_Depth__c yields 4 and 5 for at least one
-// record each. Keeps the packaged hierarchy small (rollup/strategy/ask remains
-// the canonical shape) but proves the depth formula and lookup filter behavior
-// across the full 1-5 range.
-Map<String, Id> askIdByExtIdSeed = new Map<String, Id>();
-for (Campaign c : [SELECT Id, External_Id__c FROM Campaign WHERE External_Id__c IN ('FQS-CMP-ASK-YEAREND-EM-FY26', 'FQS-CMP-ASK-SPRING-EM-FY26')]) {
-    askIdByExtIdSeed.put(c.External_Id__c, c.Id);
-}
-List<Campaign> deepChildren = new List<Campaign>();
-if (askIdByExtIdSeed.containsKey('FQS-CMP-ASK-YEAREND-EM-FY26')) {
-    Campaign level4 = new Campaign(
-        Name = 'FQS Year-End Email FY26 - Sustainers Segment',
-        External_Id__c = 'FQS-CMP-SUBASK-YEAREND-SUST-FY26',
-        ParentId = askIdByExtIdSeed.get('FQS-CMP-ASK-YEAREND-EM-FY26'),
-        Description = 'FQS Seed — level-4 sub-ask (hierarchy depth coverage)',
-        IsActive = true, Status = 'In Progress',
-        StartDate = fy26Start, EndDate = fy26End,
-        FQS_Campaign_Category__c = 'Annual Giving');
-    if (campaignFqsRT != null) level4.RecordTypeId = campaignFqsRT;
-    deepChildren.add(level4);
-}
-Database.upsert(deepChildren, Campaign.External_Id__c, true);
-List<Campaign> level5s = new List<Campaign>();
-for (Campaign c : [SELECT Id FROM Campaign WHERE External_Id__c = 'FQS-CMP-SUBASK-YEAREND-SUST-FY26']) {
-    Campaign level5 = new Campaign(
-        Name = 'FQS Year-End Email FY26 - Sustainers - Reactivation Wave',
-        External_Id__c = 'FQS-CMP-SUBASK2-YEAREND-REACT-FY26',
-        ParentId = c.Id,
-        Description = 'FQS Seed — level-5 sub-sub-ask (hierarchy depth coverage)',
-        IsActive = true, Status = 'In Progress',
-        StartDate = fy26Start, EndDate = fy26End,
-        FQS_Campaign_Category__c = 'Annual Giving');
-    if (campaignFqsRT != null) level5.RecordTypeId = campaignFqsRT;
-    level5s.add(level5);
-}
-if (!level5s.isEmpty()) Database.upsert(level5s, Campaign.External_Id__c, true);
-System.debug('Deep-hierarchy campaigns upserted: ' + (deepChildren.size() + level5s.size()));
+// NOTE: Hierarchy is intentionally capped at depth 3 (rollup / strategy / ask). Prior seed
+// versions inserted level-4 (SUBASK) + level-5 (SUBASK2) campaigns to prove the depth
+// formula end-to-end; that shape has been rolled back — real orgs rarely go past ask level
+// and the extra branches added teardown complexity without a live test target. Teardown
+// still sweeps any legacy SUBASK-* / SUBASK2-* rows for orgs mid-migration.
 
 // -------- GIFT DESIGNATIONS --------
-// {extId, name, restrictionType}
+// Names, order, and restriction-type mirror the FQS_Suggest_Designations flow catalog
+// exactly (14 entries) so that a subsequent re-run of the suggester flow finds every
+// designation by Name and idempotently skips (per its Loop_Existing_Designations dedupe).
+// {extId, name, restrictionType, description}
 List<List<String>> designationSpec = new List<List<String>>{
-    new List<String>{'FQS-GD-GENERAL-OPERATING',   'FQS General Operating Fund',   'Without Donor Restriction'},
-    new List<String>{'FQS-GD-COMMUNITY-PROGRAMS',  'FQS Community Programs',       'Without Donor Restriction'},
-    new List<String>{'FQS-GD-EDUCATION',           'FQS Education Initiative',     'With Donor Restriction - Purpose'},
-    new List<String>{'FQS-GD-YOUTH',               'FQS Youth Services',           'With Donor Restriction - Purpose'},
-    new List<String>{'FQS-GD-EMERGENCY',           'FQS Emergency Relief Fund',    'With Donor Restriction - Purpose'},
-    new List<String>{'FQS-GD-BUILDING',            'FQS Building Fund',            'With Donor Restriction - Purpose'},
-    new List<String>{'FQS-GD-EXPANSION',           'FQS Program Expansion Fund',   'With Donor Restriction - Purpose'},
-    new List<String>{'FQS-GD-END-SCHOLAR',         'FQS Endowment - Scholarships', 'With Donor Restriction - Permanent'},
-    new List<String>{'FQS-GD-END-OPS',             'FQS Endowment - Operations',   'With Donor Restriction - Permanent'},
-    new List<String>{'FQS-GD-END-LEGACY',          'FQS Named Legacy Endowment',   'With Donor Restriction - Permanent'},
-    new List<String>{'FQS-GD-FEE-EVENT-REG',       'FQS Event Registration Fees',  'Earned Revenue'}
+    new List<String>{'FQS-GD-GENERAL-OPERATING', 'FQS General Operating Fund',    'Without Donor Restriction',           'The unrestricted org default. Every FQS install ships with this as the org-wide default so the platform\'s activate-schedule action has a fallback designation.'},
+    new List<String>{'FQS-GD-BOARD-DESIGNATED',  'FQS Board Designated Fund',     'Without Donor Restriction',           'Internal designation, not a donor restriction. The board has earmarked these funds internally but can undesignate at will. The donor imposed no restriction.'},
+    new List<String>{'FQS-GD-CASH-RESERVE',      'FQS Cash Reserve',              'Without Donor Restriction',           'A reserve is money held back for future need, spendable if the board votes to release. Distinct from Board Designated Fund. Teaches that Without Donor Restriction does not mean unspoken for.'},
+    new List<String>{'FQS-GD-GENERAL-PROGRAM',   'FQS General Program',           'With Donor Restriction - Purpose',    'Catch-all for gifts a donor restricted to programs broadly without naming a specific program.'},
+    new List<String>{'FQS-GD-PROGRAM-A',         'FQS Program A',                 'With Donor Restriction - Purpose',    'Generic placeholder for a purpose-restricted program designation. Rename to one of your actual programs after install.'},
+    new List<String>{'FQS-GD-PROGRAM-B',         'FQS Program B',                 'With Donor Restriction - Purpose',    'Second generic placeholder purpose-restricted program designation. Rename to one of your actual programs after install.'},
+    new List<String>{'FQS-GD-PROGRAM-EXPANSION', 'FQS Program Expansion Fund',    'With Donor Restriction - Purpose',    'Distinct purpose from ongoing programs: growth or new-initiative capacity. Donors give here specifically to launch something new.'},
+    new List<String>{'FQS-GD-EQUIPMENT-SUPPLY',  'FQS Equipment and Supply Fund', 'With Donor Restriction - Purpose',    'Purpose can be tangible non-capital spending: below-capitalization-threshold equipment, consumable supplies. Distinct from Capital Campaign Fund.'},
+    new List<String>{'FQS-GD-STAFF-SALARY',      'FQS Staff Salary Fund',         'With Donor Restriction - Purpose',    'Purpose can be donor-restricted personnel costs. Teaches that programs and salaries are separable purposes.'},
+    new List<String>{'FQS-GD-CAPITAL-CAMPAIGN',  'FQS Capital Campaign Fund',     'With Donor Restriction - Purpose',    'Capital-project purpose (building, renovation, major equipment above the capitalization threshold). Capital gifts release when the asset is placed in service, not on a schedule.'},
+    new List<String>{'FQS-GD-ENDOWMENT',         'FQS Endowment',                 'With Donor Restriction - Permanent',  'Endowment principal is held indefinitely; only earnings are spendable. Add named endowments (e.g., Smith Family Scholarship Endowment) as your program grows.'},
+    new List<String>{'FQS-GD-EVENTS',            'FQS Events',                    'Earned Revenue',                      'Exchange-transaction revenue: gala ticket sales, event registration, workshop admission. Distinct from a donation given AT an event, this is what the ticket itself was worth.'},
+    new List<String>{'FQS-GD-MERCHANDISE',       'FQS Merchandise',               'Earned Revenue',                      'Sale of goods: t-shirts, books, branded items. Exchange transaction, not a contribution. The buyer received something of equivalent value.'},
+    new List<String>{'FQS-GD-PROGRAM-SERVICES',  'FQS Program Services',          'Earned Revenue',                      'Program-related fee revenue: participation fees, consulting retainers, service delivery charges. Distinct from a program-restricted donation.'}
 };
 
 List<GiftDesignation> designations = new List<GiftDesignation>();
@@ -241,7 +215,7 @@ for (List<String> row : designationSpec) {
     designations.add(new GiftDesignation(
         Name = row[1],
         External_Id__c = row[0],
-        Description = 'FQS Seed — foundation record',
+        Description = row[3],
         IsActive = true,
         FQS_Restriction_Type__c = row[2]
     ));
@@ -281,73 +255,46 @@ if (!defaultFlagWrites.isEmpty()) {
 }
 
 // -------- OUTREACH SOURCE CODES --------
+// Exactly one OutreachSourceCode per depth-3 ask campaign. SourceCode is a short
+// uppercase-hyphenated token derived from the ask's External_Id__c (strip the
+// 'FQS-CMP-ASK-' prefix, keep the meaningful segments). MessageChannel is inferred
+// from the External_Id__c body ('EM-' → Email, 'DM-' → Direct Mail, else Direct Mail).
+// This matches how real fundraising shops attach attribution codes — one code per
+// campaign — rather than the round-robin fan-out prior seeds used.
 if (SKIP_OSCS) {
     System.debug('SKIP_OSCS=true — skipping OutreachSourceCode block.');
 } else {
-    // Preferred thematic FY26 ask per OSC (fallback: round-robin across all asks).
-    // OSCs and gifts land on level 3 (asks) only — level 1/2 rollup + strategy tiers
-    // pick up totals via ParentId chain.
-    Map<String, String> preferredAskBySourceCode = new Map<String, String>{
-        'EM-GR-01'   => 'FQS-CMP-ASK-FOUND-COMM-FY26',
-        'EM-YE-01'   => 'FQS-CMP-ASK-YEAREND-EM-FY26',
-        'DM-FALL-01' => 'FQS-CMP-ASK-CELEB-INV-FY26',
-        'EM-AA-Q1'   => 'FQS-CMP-ASK-SPRING-EM-FY26',
-        'DM-SPR-01'  => 'FQS-CMP-ASK-SPRING-DM-FY26',
-        'SMS-TX-01'  => 'FQS-CMP-ASK-YEAREND-EM-FY26'
-    };
-
-    Map<String, Id> askIdByExtId = new Map<String, Id>();
-    for (Campaign c : [SELECT Id, External_Id__c FROM Campaign WHERE External_Id__c LIKE 'FQS-CMP-ASK-%']) {
-        askIdByExtId.put(c.External_Id__c, c.Id);
-    }
-    List<Id> allAskIds = new List<Id>(askIdByExtId.values());
-    System.assert(!allAskIds.isEmpty(), 'Ask campaigns must be inserted before OSCs — check order');
-
-    // {name, sourceCode, channel}
-    List<List<String>> oscSpec = new List<List<String>>{
-        new List<String>{'FQS Email - Annual Appeal Q1', 'EM-AA-Q1',  'Email'},
-        new List<String>{'FQS Email - Year End Push',    'EM-YE-01',  'Email'},
-        new List<String>{'FQS Email - Sustainer',        'EM-SUS-01', 'Email'},
-        new List<String>{'FQS Direct Mail - Spring',     'DM-SPR-01', 'Direct Mail'},
-        new List<String>{'FQS Direct Mail - Fall',       'DM-FALL-01','Direct Mail'},
-        new List<String>{'FQS Direct Mail - Newsletter', 'DM-NL-Q1',  'Direct Mail'},
-        new List<String>{'FQS Social Paid - Facebook',   'SP-FB-01',  'Social Paid'},
-        new List<String>{'FQS Social Paid - Instagram',  'SP-IG-01',  'Social Paid'},
-        new List<String>{'FQS Social Organic - LinkedIn','SO-LI-01',  'Social Organic'},
-        new List<String>{'FQS Digital Paid - Google Ads','DP-GA-01',  'Digital Paid'},
-        new List<String>{'FQS Digital Paid - Retarget',  'DP-RT-01',  'Digital Paid'},
-        new List<String>{'FQS Organic Web - Homepage',   'OW-HP-01',  'Organic Web'},
-        new List<String>{'FQS Organic Web - Blog',       'OW-BL-01',  'Organic Web'},
-        new List<String>{'FQS Physical - Event Table',   'PH-EVT-01', 'Physical'},
-        new List<String>{'FQS Share Partner - Coalition','SP-CO-01',  'Share Partner'},
-        new List<String>{'FQS SMS - Text Campaign',      'SMS-TX-01', 'SMS'},
-        new List<String>{'FQS Telemarketing - Phonathon','TM-PH-01',  'Telemarketing'},
-        new List<String>{'FQS Email - Grant Solicit',    'EM-GR-01',  'Email'}
-    };
+    List<Campaign> askCampaigns = [
+        SELECT Id, Name, External_Id__c FROM Campaign
+        WHERE External_Id__c LIKE 'FQS-CMP-ASK-%'
+        ORDER BY External_Id__c];
+    System.assert(!askCampaigns.isEmpty(), 'Ask campaigns must be inserted before OSCs — check order');
 
     List<OutreachSourceCode> oscs = new List<OutreachSourceCode>();
-    Integer oscIdx = 0;
-    for (List<String> row : oscSpec) {
-        Id assignedCampaign;
-        if (preferredAskBySourceCode.containsKey(row[1]) && askIdByExtId.containsKey(preferredAskBySourceCode.get(row[1]))) {
-            assignedCampaign = askIdByExtId.get(preferredAskBySourceCode.get(row[1]));
-        } else {
-            assignedCampaign = allAskIds[Math.mod(oscIdx, allAskIds.size())];
-        }
+    for (Campaign c : askCampaigns) {
+        // 'FQS-CMP-ASK-SPRING-EM-FY26' → 'SPRING-EM-FY26'
+        String body = c.External_Id__c.substring('FQS-CMP-ASK-'.length());
+        // SourceCode has a length limit (~40 chars) — the trimmed form fits.
+        String sourceCode = body;
+        // Channel inference: token 2 (after the theme prefix) commonly signals channel.
+        String channel;
+        if (body.contains('-EM-') || body.startsWith('EM-')) channel = 'Email';
+        else if (body.contains('-DM-') || body.startsWith('DM-')) channel = 'Direct Mail';
+        else if (body.contains('SMS')) channel = 'SMS';
+        else channel = 'Direct Mail';
         oscs.add(new OutreachSourceCode(
-            Name = row[0],
-            External_Id__c = 'FQS-OSC-' + row[1],
-            SourceCode = row[1],
-            MessageChannel = row[2],
+            Name = 'FQS OSC ' + sourceCode,
+            External_Id__c = 'FQS-OSC-' + sourceCode,
+            SourceCode = sourceCode,
+            MessageChannel = channel,
             UsageType = 'Fundraising',
             Status = 'Active',
-            CampaignId = assignedCampaign,
-            Description = 'FQS Seed — foundation record'
+            CampaignId = c.Id,
+            Description = 'FQS Seed — one OSC per ask campaign (' + c.Name + ')'
         ));
-        oscIdx++;
     }
     Database.upsert(oscs, OutreachSourceCode.External_Id__c, true);
-    System.debug('OSCs upserted: ' + oscs.size());
+    System.debug('OSCs upserted (one per ask campaign): ' + oscs.size());
 }
 
 // -------- CORPORATE EMPLOYER ACCOUNTS --------
@@ -503,37 +450,71 @@ if (hasIntermediary) {
 
 // -------- PARTY ROLE RELATION (§12.3 prerequisite) --------
 // ContactContactRelation.PartyRoleRelationId is NOT NULL in Nonprofit Cloud.
-// The FQS seed generator inserts a small pool of cross-household CCRs so the
-// account launcher's soft-credit datatable has multi-account reach to test.
-// Every seeded CCR points to this shared PartyRoleRelation stub.
-// NOTE: PartyRoleRelation.Name auto-populates from RoleName-RelatedRoleName on insert
-// (e.g., "Spouse-Spouse-CCR"), so we key idempotency off (RoleName, RelatedRoleName,
-// RelationshipObjectName) rather than Name.
-List<PartyRoleRelation> existingPrr = [
-    SELECT Id, Name FROM PartyRoleRelation
-    WHERE RoleName = 'Spouse' AND RelatedRoleName = 'Spouse'
-      AND RelationshipObjectName = 'Contact_Contact_Relationship'
-    LIMIT 1
-];
-if (existingPrr.isEmpty()) {
+// The FQS seed emits cross-household CCRs across five distinct role pairs so the
+// account launcher's soft-credit datatable has role-typed multi-account reach.
+// Field API names confirmed against SMQS PartyRoleRelation.object (Default_Hierarchy_Type__c
+// picklist: Parent/Child/Peer; Type__c picklist: Immediate Family/Extended Family/
+// Nonprofit/Business/Other) and SMQS_Create_Party_Relationship_Role_Options.flow.
+//
+// PartyRoleRelation.Name auto-populates from RoleName-RelatedRoleName on insert (e.g.,
+// "Spouse-Spouse-CCR"), so idempotency is keyed off (RoleName, RelatedRoleName,
+// RelationshipObjectName). Also assign FQS-owned External_Id__c for a stable handle.
+Map<String, Schema.SObjectField> prrFieldMap = Schema.SObjectType.PartyRoleRelation.fields.getMap();
+Boolean hasPrrExternalId       = prrFieldMap.containsKey('external_id__c');
+Boolean hasPrrDefaultHierarchy = prrFieldMap.containsKey('default_hierarchy_type__c');
+Boolean hasPrrType             = prrFieldMap.containsKey('type__c');
+
+// {roleName, relatedRoleName, type, defaultHierarchyType, shouldAutoInverse, extIdSuffix}
+List<List<Object>> prrSpec = new List<List<Object>>{
+    new List<Object>{'Spouse',   'Spouse',   'Immediate Family', 'Peer',   false, 'SPOUSE-SPOUSE'},
+    new List<Object>{'Parent',   'Child',    'Immediate Family', 'Parent', true,  'PARENT-CHILD'},
+    new List<Object>{'Sibling',  'Sibling',  'Immediate Family', 'Peer',   false, 'SIBLING-SIBLING'},
+    new List<Object>{'Friend',   'Friend',   'Other',            'Peer',   false, 'FRIEND-FRIEND'},
+    new List<Object>{'Neighbor', 'Neighbor', 'Other',            'Peer',   false, 'NEIGHBOR-NEIGHBOR'}
+};
+
+// Query existing rows once, key by (roleName + relatedRoleName + relationshipObjectName).
+Map<String, Id> existingPrrByKey = new Map<String, Id>();
+for (PartyRoleRelation existing : [
+    SELECT Id, RoleName, RelatedRoleName, RelationshipObjectName
+    FROM PartyRoleRelation
+    WHERE RelationshipObjectName = 'Contact_Contact_Relationship'
+      AND RoleName IN ('Spouse','Parent','Child','Sibling','Friend','Neighbor')
+]) {
+    existingPrrByKey.put(existing.RoleName + '|' + existing.RelatedRoleName + '|' + existing.RelationshipObjectName, existing.Id);
+}
+
+List<PartyRoleRelation> prrsToInsert = new List<PartyRoleRelation>();
+for (List<Object> row : prrSpec) {
+    String key = (String)row[0] + '|' + (String)row[1] + '|Contact_Contact_Relationship';
+    if (existingPrrByKey.containsKey(key)) continue;
     PartyRoleRelation prr = new PartyRoleRelation(
-        RoleName = 'Spouse',
-        RelatedRoleName = 'Spouse',
+        RoleName = (String)row[0],
+        RelatedRoleName = (String)row[1],
         RelationshipObjectName = 'Contact_Contact_Relationship',
-        ShouldCreaInversRoleAuto = false
+        ShouldCreaInversRoleAuto = (Boolean)row[4]
     );
-    insert prr;
-    System.debug('PartyRoleRelation stub inserted: ' + prr.Id);
+    if (hasPrrType)             prr.put('Type__c', (String)row[2]);
+    if (hasPrrDefaultHierarchy) prr.put('Default_Hierarchy_Type__c', (String)row[3]);
+    if (hasPrrExternalId)       prr.put('External_Id__c', 'FQS-PRR-' + (String)row[5]);
+    prrsToInsert.add(prr);
+}
+if (!prrsToInsert.isEmpty()) {
+    insert prrsToInsert;
+    System.debug('PartyRoleRelations inserted: ' + prrsToInsert.size() + ' (existing: ' + existingPrrByKey.size() + ')');
 } else {
-    System.debug('PartyRoleRelation for Spouse-Spouse-CCR already exists: ' + existingPrr[0].Id + ' — reusing.');
+    System.debug('PartyRoleRelations already present — skipped (existing: ' + existingPrrByKey.size() + ')');
 }
 
 System.debug('=== Foundation seed complete ===');
-System.debug('Campaigns (all):      ' + [SELECT COUNT() FROM Campaign            WHERE External_Id__c LIKE 'FQS-CMP-%']);
-System.debug('  Rollups:            ' + [SELECT COUNT() FROM Campaign            WHERE External_Id__c LIKE 'FQS-CMP-ROLLUP-%']);
-System.debug('  Strategies:         ' + [SELECT COUNT() FROM Campaign            WHERE External_Id__c LIKE 'FQS-CMP-STRAT-%']);
-System.debug('  Asks:               ' + [SELECT COUNT() FROM Campaign            WHERE External_Id__c LIKE 'FQS-CMP-ASK-%']);
-System.debug('Designations:         ' + [SELECT COUNT() FROM GiftDesignation     WHERE External_Id__c LIKE 'FQS-GD-%']);
-System.debug('OutreachSourceCodes:  ' + [SELECT COUNT() FROM OutreachSourceCode  WHERE External_Id__c LIKE 'FQS-OSC-%']);
-System.debug('Corporate Employers:  ' + [SELECT COUNT() FROM Account             WHERE External_Id__c LIKE 'FQS-ACC-CORP-%']);
-System.debug('Intermediaries:       ' + [SELECT COUNT() FROM Account             WHERE External_Id__c LIKE 'FQS-ACC-INT-%']);
+System.debug('Campaigns (all):        ' + [SELECT COUNT() FROM Campaign            WHERE External_Id__c LIKE 'FQS-CMP-%']);
+System.debug('  Rollups:              ' + [SELECT COUNT() FROM Campaign            WHERE External_Id__c LIKE 'FQS-CMP-ROLLUP-%']);
+System.debug('  Strategies:           ' + [SELECT COUNT() FROM Campaign            WHERE External_Id__c LIKE 'FQS-CMP-STRAT-%']);
+System.debug('  Asks (depth 3):       ' + [SELECT COUNT() FROM Campaign            WHERE External_Id__c LIKE 'FQS-CMP-ASK-%']);
+System.debug('Designations (14):      ' + [SELECT COUNT() FROM GiftDesignation     WHERE External_Id__c LIKE 'FQS-GD-%']);
+System.debug('OSCs (one per ask):     ' + [SELECT COUNT() FROM OutreachSourceCode  WHERE External_Id__c LIKE 'FQS-OSC-%']);
+System.debug('Corporate Employers:    ' + [SELECT COUNT() FROM Account             WHERE External_Id__c LIKE 'FQS-ACC-CORP-%']);
+System.debug('  Corp PRGs (Group):    ' + [SELECT COUNT() FROM PartyRelationshipGroup WHERE Account.External_Id__c LIKE 'FQS-ACC-CORP-%']);
+System.debug('Intermediaries:         ' + [SELECT COUNT() FROM Account             WHERE External_Id__c LIKE 'FQS-ACC-INT-%']);
+System.debug('  Intermediary PRGs:    ' + [SELECT COUNT() FROM PartyRelationshipGroup WHERE Account.External_Id__c LIKE 'FQS-ACC-INT-%']);
+System.debug('PartyRoleRelations:     ' + [SELECT COUNT() FROM PartyRoleRelation   WHERE RelationshipObjectName = 'Contact_Contact_Relationship' AND RoleName IN ('Spouse','Parent','Sibling','Friend','Neighbor')]);

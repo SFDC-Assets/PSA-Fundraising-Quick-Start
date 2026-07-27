@@ -346,21 +346,18 @@ public with sharing class FQSSeedGenerator {
         }
         insert newAccounts;
 
-        // Phase G4: PartyRelationshipGroup per donor Account. Org donors get Type='Group'
-        // (employer/foundation shape); Person Account donors get Type='Household' (single-person
-        // household shape — sufficient for the launcher's Household-vs-Employer picker to see a
-        // PRG on every donor). Two shapes so the picker's PRG.Type filter has coverage on both
-        // branches. Idempotent-safe within a chunk — Accounts are freshly inserted.
+        // Phase G4: PartyRelationshipGroup per Org donor only (Type='Group'). Person Accounts
+        // do NOT get a PRG — the Person Account IS the household, and inserting a second
+        // Type='Household' PRG anchored at the same Account is redundant. The launcher's
+        // household-vs-employer picker uses ACRs (employer path) and PersonContact (household
+        // path); it does not depend on a Type='Household' PRG existing on the Person Account.
         List<PartyRelationshipGroup> donorPrgs = new List<PartyRelationshipGroup>();
         for (Integer i = 0; i < donorCount; i++) {
-            String prgType = (donorTypes[i] == 0) ? 'Household' : 'Group';
-            String prgName = (donorTypes[i] == 0)
-                ? (newAccounts[i].LastName != null ? newAccounts[i].LastName + ' Household' : 'FQS Household')
-                : newAccounts[i].Name;
+            if (donorTypes[i] == 0) continue;  // skip Person Accounts
             donorPrgs.add(new PartyRelationshipGroup(
                 AccountId = newAccounts[i].Id,
-                Name = prgName,
-                Type = prgType));
+                Name = newAccounts[i].Name,
+                Type = 'Group'));
         }
         if (!donorPrgs.isEmpty()) insert donorPrgs;
 
@@ -1390,32 +1387,51 @@ public with sharing class FQSSeedGenerator {
         }
         if (!newRefunds.isEmpty()) insert newRefunds;
 
-        // §12.3 — cross-household ContactContactRelations. ~10% of Person Account donors in
-        // this chunk get a CCR to another PA donor's Contact. Deterministic pairing (donor N
+        // §12.3 — cross-household ContactContactRelations. Deterministic pairing (donor N
         // with donor N+1, striding by 2) guarantees pairs cross household Accounts, which is
         // what the launcher's soft-credit "reach a different Account via CCR" branch needs.
-        // PartyRoleRelationId comes from the Spouse-Spouse-CCR stub seeded in foundation.
-        List<PartyRoleRelation> prrList = [
-            SELECT Id FROM PartyRoleRelation
-            WHERE RoleName = 'Spouse' AND RelatedRoleName = 'Spouse'
-              AND RelationshipObjectName = 'Contact_Contact_Relationship'
-            LIMIT 1
-        ];
+        // Pairs distribute across five role-typed PartyRoleRelations (Spouse, Parent/Child,
+        // Sibling, Friend, Neighbor) so the launcher's role-typed reach has coverage on every
+        // pair. Every seeded pair gets at least one entry; role selection round-robins by
+        // pair-index for determinism.
+        Map<String, Id> prrIdByKey = new Map<String, Id>();
+        for (PartyRoleRelation prr : [
+            SELECT Id, RoleName, RelatedRoleName FROM PartyRoleRelation
+            WHERE RelationshipObjectName = 'Contact_Contact_Relationship'
+              AND RoleName IN ('Spouse','Parent','Sibling','Friend','Neighbor')
+        ]) {
+            prrIdByKey.put(prr.RoleName + '-' + prr.RelatedRoleName, prr.Id);
+        }
+        // Round-robin role plan. Ordered so the first ~5 pairs deterministically cover every
+        // role at least once; subsequent pairs cycle. Parent-Child intentionally uses two
+        // distinct role names so ShouldCreaInversRoleAuto=true generates the inverse.
+        List<String> ccrRolePlan = new List<String>{
+            'Spouse-Spouse',
+            'Parent-Child',
+            'Sibling-Sibling',
+            'Friend-Friend',
+            'Neighbor-Neighbor'
+        };
         List<ContactContactRelation> newCCRs = new List<ContactContactRelation>();
-        if (!prrList.isEmpty()) {
-            Id prrId = prrList[0].Id;
+        if (!prrIdByKey.isEmpty()) {
             List<Id> paContactIds = new List<Id>();
             for (Integer i = 0; i < newAccounts.size(); i++) {
                 if (newAccounts[i].RecordTypeId != personAccountRT) continue;
                 Id ct = personContactByAccount.get(newAccounts[i].Id);
                 if (ct != null) paContactIds.add(ct);
             }
-            Integer pairCount = paContactIds.size() / 20;  // ~10% of PAs (each pair covers 2)
+            // Guarantee at least one pair per role when donor pool allows; otherwise pair a
+            // conservative ~10% of PAs (each pair covers 2).
+            Integer minPairsForCoverage = ccrRolePlan.size();
+            Integer pairCount = Math.max(minPairsForCoverage, paContactIds.size() / 20);
             for (Integer p = 0; p < pairCount; p++) {
                 Integer a = p * 2;
                 Integer b = p * 2 + 1;
                 if (b >= paContactIds.size()) break;
                 if (paContactIds[a] == paContactIds[b]) continue;
+                String roleKey = ccrRolePlan[Math.mod(p, ccrRolePlan.size())];
+                Id prrId = prrIdByKey.get(roleKey);
+                if (prrId == null) continue;  // missing PRR — skip rather than fabricate wrong role
                 newCCRs.add(new ContactContactRelation(
                     ContactId = paContactIds[a],
                     RelatedContactId = paContactIds[b],
@@ -1424,11 +1440,14 @@ public with sharing class FQSSeedGenerator {
                 ));
             }
             if (!newCCRs.isEmpty()) {
-                try { insert newCCRs; System.debug('CCRs inserted: ' + newCCRs.size()); }
+                try {
+                    insert newCCRs;
+                    System.debug('CCRs inserted: ' + newCCRs.size() + ' (roles rotating over ' + ccrRolePlan.size() + ' PRRs)');
+                }
                 catch (DmlException e) { System.debug('CCR insert FAILED — likely picklist/permission: ' + e.getMessage()); }
             }
         } else {
-            System.debug('No FQS Spouse PartyRoleRelation stub found — skipping CCR seeding. Re-run foundation.');
+            System.debug('No FQS PartyRoleRelations found — skipping CCR seeding. Re-run foundation.');
         }
 
         Integer total = newAccounts.size() + newCommitments.size() + newSchedules.size()

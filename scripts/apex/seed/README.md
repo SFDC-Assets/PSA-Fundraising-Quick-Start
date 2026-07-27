@@ -9,7 +9,7 @@ Primary purpose is **testing and development**; demo polish is secondary.
 |---|---|
 | `fqs-seed-teardown.apex` | Removes all records where `External_Id__c LIKE 'FQS-%'` (safe, idempotent). Each invocation self-caps at ~9K DML rows; use the wrapper below on orgs with >9K FQS records. |
 | `fqs-seed-teardown-loop.sh` | Shell wrapper that re-runs `fqs-seed-teardown.apex` until a pass reports 0 deletes. Use this for any org with tens of thousands of seeded records. |
-| `fqs-seed-foundation.apex` | Rollup/strategy/ask Campaign hierarchy (3 rollups + 9 strategies + 15 asks across FY24/25/26) + 10 Designations + 18 OSCs + 15 corporate employers + `FQS Spouse` PartyRoleRelation stub |
+| `fqs-seed-foundation.apex` | Rollup/strategy/ask Campaign hierarchy (3 rollups + 9 strategies + 15 asks across FY24/25/26, depth capped at 3) + 14 Designations (mirroring `FQS_Suggest_Designations` catalog) + one OSC per ask campaign + 15 corporate employers + 5 role-typed PartyRoleRelations (Spouse, Parent-Child, Sibling, Friend, Neighbor) |
 | `fqs-seed-small.apex` | Thin invoker — 10 donors via `FQSSeedGenerator.seedChunk` |
 | `fqs-seed-medium.apex` | Thin invoker — 100 donors via `FQSSeedGenerator.seedChunk` |
 | `fqs-seed-chunk.apex` | Thin invoker — 300 donors per call (used by the large seeder) |
@@ -249,7 +249,7 @@ filters on that prefix, so it's precise and safe. External-ID patterns:
 | Campaign (Strategy) | `FQS-CMP-STRAT-<slug>-<FY>` | `FQS-CMP-STRAT-ANNUAL-FY26` |
 | Campaign (Ask) | `FQS-CMP-ASK-<slug>-<FY>` | `FQS-CMP-ASK-YEAREND-EM-FY26` |
 | GiftDesignation | `FQS-GD-<slug>` | `FQS-GD-GENERAL-OPERATING` |
-| OutreachSourceCode | `FQS-OSC-<source-code>` | `FQS-OSC-EM-AA-Q1` |
+| OutreachSourceCode | `FQS-OSC-<ask-body>` | `FQS-OSC-SPRING-EM-FY26` |
 | Account (Donor) | `FQS-ACC-<globalIdx>` | `FQS-ACC-42` |
 | Account (Corporate Employer) | `FQS-ACC-CORP-<idx>` | `FQS-ACC-CORP-07` |
 | GiftCommitment | `FQS-GC-<globalIdx>-<kind>` | `FQS-GC-42-pledged` |
