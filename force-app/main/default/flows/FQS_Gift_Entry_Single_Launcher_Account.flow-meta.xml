@@ -277,7 +277,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_GC_Default_Designation_For_Resolver</targetReference>
+            <targetReference>Get_GC_GDDs_Multi</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1257,6 +1257,23 @@
         </connector>
     </assignments>
     <assignments>
+        <description>Designation hierarchy Phase 5d follow-up — stages the platform-auto GDD row for Update_GC_GDD, rewriting its GiftDesignationId to the resolver&apos;s pick (var_ResolvedDesignationId, which for Override paths is the user&apos;s manual pick). AllocatedPercentage is preserved at 100 because the platform&apos;s auto-insert always uses 100 in the single-GDD case; multi-GDD is skipped upstream via the reconciliation gate.</description>
+        <name>Assign_GC_GDD_Update_Fields</name>
+        <label>Stage GC GDD Update</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>Get_GC_GDD_Post_Process.GiftDesignationId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>var_ResolvedDesignationId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_GC_GDD</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <description>Pre-populates rsv_GiftTransaction with smart defaults before Screen_Gift_Details renders. ObjectProvided screen fields display the record variable&apos;s current value as the shown default, so seeding TransactionDate = TODAY and PaymentMethod = Cash here makes those defaults visible on the screen. Also guards Bug 3: without a TransactionDate seed, the Name formula (which concatenates TEXT(TransactionDate)) yields null and Create_Gift_Transaction fails with REQUIRED_FIELD_MISSING [Name]. IsNull-gate (Phase E, wizard plan): the assigned value is a formula that returns the existing value if non-null, else the fallback default (TODAY / Cash). This preserves prefilled values (e.g., Get_Commitment_Schedule.PaymentMethod = ACH) from Assign_Prefill_From_Schedule instead of stomping them. See .planning/fqs-gift-entry-wizard-plan.md §State at handoff prefill IsNull-gate policy.</description>
         <name>Assign_Gift_Details_Defaults</name>
         <label>Defaults for Gift Details</label>
@@ -1310,6 +1327,181 @@
         </assignmentItems>
         <connector>
             <targetReference>Assign_Campaign_Onto_Transaction</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Designation hierarchy multi-GDD support — body of Loop_Fanout_Split_GTDs_Campaign. Builds a fresh GTD in rsv_SplitGTD_Scratch from the current Campaign GDD (rsv_SplitGDDLoopItem) and appends to col_SplitGTDs. Two Assigns (Campaign + GC) rather than one shared because a Flow Assign has a single connector target — the loop-back is different for each source loop.</description>
+        <name>Assign_Build_Split_GTD_Campaign</name>
+        <label>Build Split GTD (Campaign loop body)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_SplitGTD_Scratch.GiftTransactionId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_GiftTransaction.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_SplitGTD_Scratch.GiftDesignationId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_SplitGDDLoopItem.GiftDesignationId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_SplitGTD_Scratch.Percent</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_SplitGDDLoopItem.AllocatedPercentage</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_SplitGTD_Scratch.Amount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaSplitGTDAmount</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>col_SplitGTDs</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>rsv_SplitGTD_Scratch</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Fanout_Split_GTDs_Campaign</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Designation hierarchy multi-GDD support — body of Loop_Fanout_Split_GTDs_GC. Mirrors Assign_Build_Split_GTD_Campaign but connects back to Loop_Fanout_Split_GTDs_GC.</description>
+        <name>Assign_Build_Split_GTD_GC</name>
+        <label>Build Split GTD (GC loop body)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_SplitGTD_Scratch.GiftTransactionId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_GiftTransaction.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_SplitGTD_Scratch.GiftDesignationId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_SplitGDDLoopItem.GiftDesignationId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_SplitGTD_Scratch.Percent</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_SplitGDDLoopItem.AllocatedPercentage</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_SplitGTD_Scratch.Amount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaSplitGTDAmount</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>col_SplitGTDs</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>rsv_SplitGTD_Scratch</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Fanout_Split_GTDs_GC</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Designation hierarchy multi-GDD support — increments var_CampaignGDDCount by 1 per iteration of Loop_Count_Campaign_GDDs. Add-1 pattern (Assign operator=Add value=1). Connector routes back to the loop.</description>
+        <name>Assign_Increment_Campaign_GDDCount</name>
+        <label>Increment Campaign GDD Count</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_CampaignGDDCount</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Count_Campaign_GDDs</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Designation hierarchy multi-GDD support — increments var_GCGDDCount by 1 per iteration of Loop_Count_GC_GDDs. Add-1 pattern.</description>
+        <name>Assign_Increment_GC_GDDCount</name>
+        <label>Increment GC GDD Count</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_GCGDDCount</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Count_GC_GDDs</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Designation hierarchy multi-GDD support — set true after Loop_Count_Campaign_GDDs drains if var_CampaignGDDCount &gt; 1. Reached from Decide_Set_PlatformSplit_From_Campaign; connector continues to Decide_Route_Outright_To_Resolver (the leaf gate).</description>
+        <name>Assign_Set_PlatformSplitApplies_True_Campaign</name>
+        <label>Set: Platform Split (Campaign multi-GDD)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_PlatformSplitApplies</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_Route_Outright_To_Resolver</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Designation hierarchy multi-GDD support — set true after Loop_Count_GC_GDDs drains if var_GCGDDCount &gt; 1. Reached from Decide_Set_PlatformSplit_From_GC on PP branch; connector continues to Get_Campaign_Default_Designations (the resolver&apos;s Tier 3 lookup).</description>
+        <name>Assign_Set_PlatformSplitApplies_True_GC</name>
+        <label>Set: Platform Split (GC multi-GDD)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_PlatformSplitApplies</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Campaign_Default_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Designation hierarchy multi-GDD support — Platform_Split terminal for Resolve_Designation_Hierarchy Tier 0. Sets var_ResolvedDesignationSource=Platform_Split. Deliberately does NOT populate rsv_SelectedDesignation.Id — the downstream Decide_Create_Designation (transaction leaves) and Decide_Create_Default_Designation (commitment-creation leaves) both gate on rsv_SelectedDesignation.Id being non-null before firing GTD/GDD inserts, so leaving it null means the flow&apos;s own writes are skipped and the platform&apos;s native multi-row default fanout is authoritative. Also routes past Get_Resolved_GD (no single GD to render for the summary line) directly to Screen_Confirm_Designation — the split datatable there reads Get_Campaign_GDDs_Multi / Get_GC_GDDs_Multi.</description>
+        <name>Assign_Resolve_Designation_PlatformSplit</name>
+        <label>Resolved: platform split (multi-GDD)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ResolvedDesignationSource</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Platform_Split</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Screen_Confirm_Designation</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -3166,9 +3358,9 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Decide_Recurring_First_Payment_Or_Success</targetReference>
+                <targetReference>Get_GC_GDD_Post_Process</targetReference>
             </connector>
-            <label>Schedule leaf — skip (Process_* auto-inserts GDD)</label>
+            <label>Schedule leaf — reconcile Process_* auto-inserted GDD</label>
         </rules>
         <rules>
             <name>Decide_Create_Default_Designation_HasDesignation</name>
@@ -3187,6 +3379,7 @@
         </rules>
     </decisions>
     <decisions>
+        <description>Designation hierarchy multi-GDD support — evaluates in order: (1) Platform_Split → loop the split GDDs and insert matching GTDs (Loop_Fanout_Split_GTDs); (2) legacy single-GD → Assign_Build_GTDesignation → single-row insert; (3) default → skip. Platform_Split branch chooses between the GC-side collection (PP branch, when var_GCGDDCount &gt; 1) and the Campaign-side collection (all other leaves) via Decide_Split_Source_For_Fanout.</description>
         <name>Decide_Create_Designation</name>
         <label>Create GiftTransactionDesignation?</label>
         <locationX>0</locationX>
@@ -3195,6 +3388,21 @@
             <targetReference>Decide_Create_SoftCredit</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>No designation</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Create_Designation_IsPlatformSplit</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_PlatformSplitApplies</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Decide_Split_Source_For_Fanout</targetReference>
+            </connector>
+            <label>Platform split — fan out GTDs from the winning collection</label>
+        </rules>
         <rules>
             <name>Decide_Create_Designation_HasDesignation</name>
             <conditionLogic>and</conditionLogic>
@@ -3375,6 +3583,75 @@
                 <targetReference>Assign_Fanout_Amount_EventReg</targetReference>
             </connector>
             <label>Event Registration — write benefit portion to NonTaxDeductibleAmount</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Designation hierarchy Phase 5d follow-up — reconciles the platform-auto GDD on Scheduled/Recurring GCs with the resolver&apos;s pick. Three routes: (a) row exists AND GiftDesignationId differs from var_ResolvedDesignationId → Assign_GC_GDD_Update_Fields → Update_GC_GDD (writes user&apos;s Override pick or resolver default onto the platform&apos;s GDD row); (b) row exists AND matches → skip to Decide_Recurring_First_Payment_Or_Success (default path — nothing to do); (c) no row (Recurring w/ no Campaign default) → Assign_Build_Default_Designation → Create_GiftDefaultDesignation (the existing insert path, unblocked because no GDD exists to collide with).</description>
+        <name>Decide_GC_GDD_Post_Process</name>
+        <label>GC GDD — reconcile with resolver?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Decide_Recurring_First_Payment_Or_Success</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Already matches — skip</defaultConnectorLabel>
+        <rules>
+            <name>Decide_GC_GDD_Post_Process_MissingInsert</name>
+            <conditionLogic>1 AND 2 AND 3</conditionLogic>
+            <conditions>
+                <leftValueReference>var_PlatformSplitApplies</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_GC_GDD_Post_Process.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>var_ResolvedDesignationId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Build_Default_Designation</targetReference>
+            </connector>
+            <label>No GDD, no split — insert one from resolver</label>
+        </rules>
+        <rules>
+            <name>Decide_GC_GDD_Post_Process_UpdateNeeded</name>
+            <conditionLogic>1 AND 2 AND 3</conditionLogic>
+            <conditions>
+                <leftValueReference>var_PlatformSplitApplies</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_GC_GDD_Post_Process.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_GC_GDD_Post_Process.GiftDesignationId</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>var_ResolvedDesignationId</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_GC_GDD_Update_Fields</targetReference>
+            </connector>
+            <label>Mismatch, no split — update to resolver pick</label>
         </rules>
     </decisions>
     <decisions>
@@ -4210,6 +4487,84 @@
         </rules>
     </decisions>
     <decisions>
+        <description>Designation hierarchy multi-GDD support — on the Platform_Split path, choose which collection to loop for GTD fanout. If var_GCGDDCount &gt; 1 the GC-side collection wins (PP branch); otherwise use the Campaign-side collection (all other leaves).</description>
+        <name>Decide_Split_Source_For_Fanout</name>
+        <label>Split fanout source?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Loop_Fanout_Split_GTDs_Campaign</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Campaign split</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Split_Source_For_Fanout_IsGC</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_GCGDDCount</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>1.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Loop_Fanout_Split_GTDs_GC</targetReference>
+            </connector>
+            <label>GC split (PP branch)</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Designation hierarchy multi-GDD support — after Loop_Count_Campaign_GDDs drains, if var_CampaignGDDCount &gt; 1 set the Platform_Split flag (Assign_Set_PlatformSplitApplies_True_Campaign). Otherwise pass through to Decide_Route_Outright_To_Resolver unchanged.</description>
+        <name>Decide_Set_PlatformSplit_From_Campaign</name>
+        <label>Campaign has &gt;1 GDDs?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Decide_Route_Outright_To_Resolver</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>0-1 GDD — normal resolver</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Set_PlatformSplit_From_Campaign_IsMulti</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_CampaignGDDCount</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>1.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Set_PlatformSplitApplies_True_Campaign</targetReference>
+            </connector>
+            <label>&gt;1 — set Platform_Split flag</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Designation hierarchy multi-GDD support — after Loop_Count_GC_GDDs drains on PP branch, if var_GCGDDCount &gt; 1 set the Platform_Split flag (Assign_Set_PlatformSplitApplies_True_GC) then skip Tier 2 (Get_GC_Default_Designation_For_Resolver) and jump straight to Get_Campaign_Default_Designations. Otherwise proceed with normal Tier 2 flow.</description>
+        <name>Decide_Set_PlatformSplit_From_GC</name>
+        <label>GC has &gt;1 GDDs?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Get_GC_Default_Designation_For_Resolver</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>0-1 GDD — normal Tier 2 path</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Set_PlatformSplit_From_GC_IsMulti</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_GCGDDCount</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>1.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Set_PlatformSplitApplies_True_GC</targetReference>
+            </connector>
+            <label>&gt;1 — set Platform_Split flag, skip Tier 2</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>Decide_Show_Commitment_Picker</name>
         <label>Route: Commitment picker or straight to Campaign</label>
         <locationX>0</locationX>
@@ -4623,6 +4978,21 @@
         </defaultConnector>
         <defaultConnectorLabel>Tier 5 — fall through to org default</defaultConnectorLabel>
         <rules>
+            <name>Resolve_Designation_Hierarchy_TierPlatformSplit</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_PlatformSplitApplies</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Resolve_Designation_PlatformSplit</targetReference>
+            </connector>
+            <label>Tier 0 — platform split (Campaign or GC has &gt;1 GDDs)</label>
+        </rules>
+        <rules>
             <name>Resolve_Designation_Hierarchy_TierGCDefault</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
@@ -4728,6 +5098,25 @@
         <name>formulaDisplay_TransactionDueDate</name>
         <dataType>String</dataType>
         <expression>IF(ISBLANK({!rsv_SelectedGT.TransactionDueDate}), &quot;___&quot;, CASE(MONTH({!rsv_SelectedGT.TransactionDueDate}), 1, &quot;Jan&quot;, 2, &quot;Feb&quot;, 3, &quot;Mar&quot;, 4, &quot;Apr&quot;, 5, &quot;May&quot;, 6, &quot;Jun&quot;, 7, &quot;Jul&quot;, 8, &quot;Aug&quot;, 9, &quot;Sep&quot;, 10, &quot;Oct&quot;, 11, &quot;Nov&quot;, 12, &quot;Dec&quot;, &quot;&quot;) &amp; &quot; &quot; &amp; TEXT(DAY({!rsv_SelectedGT.TransactionDueDate})) &amp; &quot;, &quot; &amp; TEXT(YEAR({!rsv_SelectedGT.TransactionDueDate})))</expression>
+    </formulas>
+    <formulas>
+        <description>Designation hierarchy multi-GDD support — renders &quot;campaign&quot; or &quot;commitment&quot; in the Platform_Split explanation on Screen_Confirm_Designation. If var_GCGDDCount &gt; 1 (PP branch, GC-side split), render &quot;commitment&quot;; otherwise (Campaign-side split, all other leaves), render &quot;campaign&quot;.</description>
+        <name>formulaSplitSource</name>
+        <dataType>String</dataType>
+        <expression>IF({!var_GCGDDCount} &gt; 1, &quot;commitment&quot;, &quot;campaign&quot;)</expression>
+    </formulas>
+    <formulas>
+        <description>Designation hierarchy multi-GDD support — per-row GTD Amount for the split fanout. Multiplies rsv_GiftTransaction.OriginalAmount by rsv_SplitGDDLoopItem.AllocatedPercentage / 100. Rounded to 2 decimals to match currency precision. If OriginalAmount is null (defensive), returns 0.</description>
+        <name>formulaSplitGTDAmount</name>
+        <dataType>Number</dataType>
+        <expression>ROUND(BLANKVALUE({!rsv_GiftTransaction.OriginalAmount}, 0) * BLANKVALUE({!rsv_SplitGDDLoopItem.AllocatedPercentage}, 0) / 100, 2)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <description>Designation hierarchy multi-GDD support — the number of GDDs contributing to the platform split. Picks the GC count when &gt;1 (PP branch takes precedence), otherwise the Campaign count.</description>
+        <name>formulaSplitCount</name>
+        <dataType>String</dataType>
+        <expression>TEXT(IF({!var_GCGDDCount} &gt; 1, {!var_GCGDDCount}, {!var_CampaignGDDCount}))</expression>
     </formulas>
     <formulas>
         <description>Phase G6 (Success screen rewrite). Renders a leaf-specific one-line summary sentence for Screen_Success. References ONLY top-level scalar variables (pkLeaf*, num*, dt*) — never SObject field-paths — so it evaluates safely on every terminal path without tripping [[flow-unread-sobject-field-throws]]. The three leaf radios (pkLeafMonetary / pkLeafFuture / pkLeafSpecial) are mutually exclusive per run — only the one whose category was picked on Screen_Category is populated — so BLANKVALUE(BLANKVALUE(monetary, future), special) yields a single key we CASE on. Dates on monetary/special paths use TODAY() rather than the user-entered TransactionDate — the entered date lives on rsv_GiftTransaction.TransactionDate which we can&apos;t read cross-path without throwing on pledge branches. TODAY() is accurate for the default (unmodified) case and off by at most a few days for backdated entries; a small imprecision on a confirmation screen we deemed acceptable versus the alternative of gating summary lines with visibility rules per leaf.</description>
@@ -4952,6 +5341,68 @@
         </noMoreValuesConnector>
     </loops>
     <loops>
+        <description>Designation hierarchy multi-GDD support — iterates Get_Campaign_GDDs_Multi to fan out one GTD per Campaign GDD onto the just-created GT (rsv_GiftTransaction.Id) when var_PlatformSplitApplies=true and var_CampaignGDDCount &gt; 1. Reached from Decide_Split_Source_For_Fanout&apos;s default branch. Body Assign_Build_Split_GTD_Campaign appends a per-row GTD to col_SplitGTDs; on drain, Create_Split_GTDs bulk-inserts. Amount per row = rsv_GiftTransaction.OriginalAmount * (AllocatedPercentage / 100).</description>
+        <name>Loop_Fanout_Split_GTDs_Campaign</name>
+        <label>Fan out split GTDs (Campaign)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNextValueToReference>rsv_SplitGDDLoopItem</assignNextValueToReference>
+        <collectionReference>Get_Campaign_GDDs_Multi</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Assign_Build_Split_GTD_Campaign</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Create_Split_GTDs</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <description>Designation hierarchy multi-GDD support — iterates Get_GC_GDDs_Multi to fan out one GTD per GC GDD onto rsv_GiftTransaction (PP branch only). Body Assign_Build_Split_GTD_GC appends a per-row GTD to col_SplitGTDs; on drain, Create_Split_GTDs bulk-inserts.</description>
+        <name>Loop_Fanout_Split_GTDs_GC</name>
+        <label>Fan out split GTDs (GC)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNextValueToReference>rsv_SplitGDDLoopItem</assignNextValueToReference>
+        <collectionReference>Get_GC_GDDs_Multi</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Assign_Build_Split_GTD_GC</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Create_Split_GTDs</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <description>Designation hierarchy multi-GDD support — counts Get_Campaign_GDDs_Multi into var_CampaignGDDCount by incrementing it once per iteration (Assign_Increment_Campaign_GDDCount). When the loop drains, routes to Decide_Route_Outright_To_Resolver (the leaf gate that was Get_Campaign_Default_Designations&apos;s previous downstream target). If the collection is empty (Campaign has no GDDs), count stays 0 and the loop drains immediately.</description>
+        <name>Loop_Count_Campaign_GDDs</name>
+        <label>Count Campaign GDDs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_Campaign_GDDs_Multi</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Assign_Increment_Campaign_GDDCount</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Decide_Set_PlatformSplit_From_Campaign</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <description>Designation hierarchy multi-GDD support — counts Get_GC_GDDs_Multi into var_GCGDDCount by incrementing it once per iteration (Assign_Increment_GC_GDDCount). Only reachable on PP branch. When the loop drains, routes to Decide_Set_PlatformSplit_From_GC.</description>
+        <name>Loop_Count_GC_GDDs</name>
+        <label>Count GC GDDs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_GC_GDDs_Multi</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Assign_Increment_GC_GDDCount</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Decide_Set_PlatformSplit_From_GC</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
         <description>G4: Iterates PartyRelationshipGroup rows returned by Get_EmployerPRGs_Match (Type=&apos;Group&apos;, AccountId IN :collACRAccountIds). Each iteration&apos;s row is exposed on rsv_PRGLoopItem; the body Assign_Append_GroupAccountId appends rsv_PRGLoopItem.AccountId onto collGroupAccountIds. When the loop drains, noMoreValuesConnector routes to Get_EmployerAccounts_Match which loads the anchor Accounts with the five match-detail columns for dtEmployers.</description>
         <name>Loop_PRGs_Match</name>
         <label>Loop Group PRGs</label>
@@ -5069,6 +5520,20 @@
             <targetReference>Err_Create</targetReference>
         </faultConnector>
         <inputReference>rsv_GiftTransaction</inputReference>
+    </recordCreates>
+    <recordCreates>
+        <description>Designation hierarchy multi-GDD support — bulk-inserts col_SplitGTDs (N GTDs, one per split GDD) built by Loop_Fanout_Split_GTDs_Campaign / _GC. Reached from either loop&apos;s noMoreValuesConnector. Connector routes to Decide_Create_SoftCredit — the same downstream Decide_Create_Designation&apos;s default connector uses, so the terminal chain after GTD creation is unchanged. Fault shares Err_Create.</description>
+        <name>Create_Split_GTDs</name>
+        <label>Create Split Gift Transaction Designations</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Decide_Create_SoftCredit</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Create</targetReference>
+        </faultConnector>
+        <inputReference>col_SplitGTDs</inputReference>
     </recordCreates>
     <recordCreates>
         <name>Create_GiftDefaultDesignation</name>
@@ -5382,14 +5847,46 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Designation hierarchy Phase 3 — connector now targets Decide_Route_Outright_To_Resolver (was Decide_Campaign_Provides_Designation), so Outright forks into Resolve_Designation_Hierarchy and every other leaf falls through to the legacy Decide_Campaign_Provides_Designation chain unchanged. Phase 5 will absorb the remaining leaves into the resolver and delete the router. Original description: after Campaign is picked, look for a GiftDefaultDesignation whose ParentRecordId is that Campaign; if present, we skip the manual Designation picker and use the linked GiftDesignation directly.</description>
+        <description>Designation hierarchy multi-GDD support — collection sibling of Get_Campaign_Default_Designations. Returns ALL active GDDs on the picked Campaign so the flow can (a) count them via Loop_Count_Campaign_GDDs to detect Platform_Split state, and (b) render them in the split-table datatable on Screen_Confirm_Designation. Filter mirrors the getFirstRecordOnly version.</description>
+        <name>Get_Campaign_GDDs_Multi</name>
+        <label>Get Campaign GDDs (Multi)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Loop_Count_Campaign_GDDs</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Load</targetReference>
+        </faultConnector>
+        <filterLogic>1 AND 2</filterLogic>
+        <filters>
+            <field>ParentRecordId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>rsv_SelectedCampaign.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>GiftDesignationId</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>GiftDefaultDesignation</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Designation hierarchy Phase 3 / multi-GDD support — connector now targets Get_Campaign_GDDs_Multi so we can count all Campaign GDDs before the resolver runs. That count feeds Decide_Set_PlatformSplit_From_Campaign, which either sets var_PlatformSplitApplies=true (Campaign has &gt;1 GDD) or passes through to Decide_Route_Outright_To_Resolver. The first-record-only version stays useful for the resolver&apos;s Tier 3 (single-GDD Campaign default) via .GiftDesignationId. Original description: after Campaign is picked, look for a GiftDefaultDesignation whose ParentRecordId is that Campaign; if present, we skip the manual Designation picker and use the linked GiftDesignation directly.</description>
         <name>Get_Campaign_Default_Designations</name>
         <label>Get Campaign Default Designations</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Decide_Route_Outright_To_Resolver</targetReference>
+            <targetReference>Get_Campaign_GDDs_Multi</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Err_Load</targetReference>
@@ -5722,6 +6219,63 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
+        <description>Designation hierarchy multi-GDD support — collection sibling of Get_GC_Default_Designation_For_Resolver. Returns ALL active GDDs on the picked GiftCommitment (PP branch) so the flow can (a) count them via Loop_Count_GC_GDDs to detect Platform_Split state, and (b) render them in the split-table datatable on Screen_Confirm_Designation. Only reachable on PP branch — rsv_SelectedCommitment.Id is only assigned there.</description>
+        <name>Get_GC_GDDs_Multi</name>
+        <label>Get GC GDDs (Multi)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Loop_Count_GC_GDDs</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Load</targetReference>
+        </faultConnector>
+        <filterLogic>1 AND 2</filterLogic>
+        <filters>
+            <field>ParentRecordId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>rsv_SelectedCommitment.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>GiftDesignationId</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>GiftDefaultDesignation</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Designation hierarchy Phase 5d follow-up — after Process_Scheduled_Commitment / Process_Recurring_Commitment activates the just-created GC, query whether the platform auto-inserted a GiftDefaultDesignation. If a row is returned, Decide_GC_GDD_Post_Process compares its GiftDesignationId to var_ResolvedDesignationId and either Updates it (Override changed the pick) or skips (already matches). If no row returned (e.g., Recurring where the Campaign has no GDD to seed from), the flow falls through to Assign_Build_Default_Designation → Create_GiftDefaultDesignation to insert one. This closes the gap where Scheduled/Recurring Override picks were silently discarded and where Recurring GCs could end up with no GDD at all.</description>
+        <name>Get_GC_GDD_Post_Process</name>
+        <label>Get GC GDD (Post-Process)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decide_GC_GDD_Post_Process</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Load</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ParentRecordId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>rsv_GiftCommitment.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>GiftDefaultDesignation</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <name>Get_Looked_Up_Campaign</name>
         <label>Get Looked-Up Campaign</label>
         <locationX>0</locationX>
@@ -5997,6 +6551,20 @@
         <inputReference>rsv_GiftTransaction</inputReference>
     </recordUpdates>
     <recordUpdates>
+        <description>Designation hierarchy Phase 5d follow-up — Update the platform-auto GDD on the just-created Scheduled/Recurring GC to point at var_ResolvedDesignationId. Reached from Assign_GC_GDD_Update_Fields when Decide_GC_GDD_Post_Process detected a mismatch. Fault path routes to Err_Create — a failed Update leaves the GC + GDD in the platform-default state (Campaign default or Recurring cascade fallback), which is a graceful degradation of the Override rather than a hard failure.</description>
+        <name>Update_GC_GDD</name>
+        <label>Update GC Gift Default Designation</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Decide_Recurring_First_Payment_Or_Success</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Create</targetReference>
+        </faultConnector>
+        <inputReference>Get_GC_GDD_Post_Process</inputReference>
+    </recordUpdates>
+    <recordUpdates>
         <description>Phase E2 (wizard plan §Pledge Payment logic). Posts an existing Expected GiftTransaction as paid. Runs on the Update branch of Pledge Payment (pkPledgePaymentMode=Update AND rsv_SelectedGT.Id set). rsv_GiftTransaction.Id is stamped by Assign_Update_GT_Fields to point at rsv_SelectedGT.Id, so this recordUpdates targets the selected row rather than inserting. Phase F2: connector routes to Decide_Insert_Employer_GT_Update (was Screen_Success). When no match is opted-in (pkNeedsMatch=No), that decision defaults straight to Screen_Success — the platform engine already fanned out GiftDefaultDesignation / GTDesignation when it materialized the Expected GT, so we do NOT re-run designation / soft credit fan-out on this path.</description>
         <name>Update_Gift_Transaction</name>
         <label>Update Gift Transaction</label>
@@ -6098,6 +6666,39 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>var_PlatformSplitApplies</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>false</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>ConfirmDesignationSplitExplain</name>
+            <fieldText>&lt;p&gt;&lt;i&gt;This {!formulaSplitSource} uses a split of &lt;b&gt;{!formulaSplitCount}&lt;/b&gt; designations. The platform applies the split automatically to this gift — open the record after save to see the individual designations and percentages.&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>var_PlatformSplitApplies</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
         </fields>
         <fields>
             <name>chkOverrideDesignation</name>
@@ -6117,6 +6718,16 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>var_PlatformSplitApplies</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>false</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
@@ -9562,6 +10173,15 @@
         <objectType>Account</objectType>
     </variables>
     <variables>
+        <description>Designation hierarchy multi-GDD support — scratch collection of GiftTransactionDesignation records built by Assign_Build_Split_GTD during Loop_Fanout_Split_GTDs_* iterations, bulk-inserted by Create_Split_GTDs on loop drain. One row per Campaign or GC GDD when Platform_Split fires.</description>
+        <name>col_SplitGTDs</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftTransactionDesignation</objectType>
+    </variables>
+    <variables>
         <description>G4: Text collection of AccountIds gathered from Loop_ACRs_Match — one entry per AccountContactRelation on the donor Contact. Fed into Get_EmployerPRGs_Match as the AccountId IN filter to find PartyRelationshipGroups anchored at those accounts.</description>
         <name>collACRAccountIds</name>
         <dataType>String</dataType>
@@ -9820,6 +10440,24 @@
         <objectType>Account</objectType>
     </variables>
     <variables>
+        <description>Designation hierarchy multi-GDD support — loop iteration variable for Loop_Fanout_Split_GTDs_Campaign / _GC. Exposes the current GDD (GiftDesignationId, AllocatedPercentage) to Assign_Build_Split_GTD.</description>
+        <name>rsv_SplitGDDLoopItem</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftDefaultDesignation</objectType>
+    </variables>
+    <variables>
+        <description>Designation hierarchy multi-GDD support — scratch GiftTransactionDesignation record built each iteration of Loop_Fanout_Split_GTDs_*. Assign_Build_Split_GTD populates its fields and appends it to col_SplitGTDs.</description>
+        <name>rsv_SplitGTD_Scratch</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftTransactionDesignation</objectType>
+    </variables>
+    <variables>
         <description>Sub-picker for the Future Commitment category on Screen_Pledge_Details, used by Simple / Scheduled Pledge/Grant leaves to route the created GiftCommitment&apos;s FQS_Gift_Commitment_Category__c. Values: &quot;Pledged Gift&quot; or &quot;Grant Payout&quot;. Screen-scoped field — becomes globally addressable after Screen_Pledge_Details renders.</description>
         <name>var_CommitmentSubcategory</name>
         <dataType>String</dataType>
@@ -9843,6 +10481,41 @@
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Designation hierarchy multi-GDD support — count of active GDDs on the picked Campaign. Populated by Loop_Count_Campaign_GDDs. Feeds Platform_Split detection so the resolver defers to the platform when Campaign has &gt;1 GDD.</description>
+        <name>var_CampaignGDDCount</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+    <variables>
+        <description>Designation hierarchy multi-GDD support — count of active GDDs on the picked GiftCommitment (Pledge Payment branch). Populated by Loop_Count_GC_GDDs on PP branch only. Feeds Platform_Split detection so the resolver defers to the platform when the GC has &gt;1 GDD.</description>
+        <name>var_GCGDDCount</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+    <variables>
+        <description>Designation hierarchy multi-GDD support — set true when either the picked Campaign OR the picked GC has &gt;1 GDD (a split default). The resolver&apos;s Tier 0 rule (Platform_Split) fires when this is true and routes to Assign_Resolve_Designation_PlatformSplit, which sets var_ResolvedDesignationSource=Platform_Split and deliberately does NOT populate rsv_SelectedDesignation.Id — existing Decide_Create_Designation and Decide_Create_Default_Designation guards then skip the flow&apos;s own GTD/GDD inserts so the platform&apos;s native multi-row default fanout is authoritative. Also drives the Confirm screen&apos;s visibility rules (show a datatable of the split GDDs, hide the Override checkbox). Also drives the post-Process reconciliation gate — when true, Decide_GC_GDD_Post_Process skips Update-or-Insert entirely so the platform&apos;s split copy on the GC stays intact.</description>
+        <name>var_PlatformSplitApplies</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
     </variables>
     <variables>
         <description>Designation hierarchy Phase 5c.a — Boolean flag consumed by Resolve_Designation_Hierarchy&apos;s Tier 2 rule. Set true on the PP branch only when Get_GC_Default_Designation_For_Resolver returned a row. Scalar (not SObject field reference) so non-PP branches evaluating the resolver rule don&apos;t throw on unread rsv_SelectedCommitment / Get_GC_Default_Designation_For_Resolver (see [[flow-unread-sobject-field-throws]]). Default false.</description>
