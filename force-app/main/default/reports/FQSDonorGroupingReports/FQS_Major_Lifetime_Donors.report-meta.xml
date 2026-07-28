@@ -53,7 +53,6 @@
     </filter>
     <format>Summary</format>
     <groupingsDown>
-        <dateGranularity>Day</dateGranularity>
         <field>DonorGiftSummary$Donor.Name</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
@@ -69,8 +68,4 @@
     <showSubTotals>true</showSubTotals>
     <sortColumn>DonorGiftSummary$TotalGiftsAmount</sortColumn>
     <sortOrder>Desc</sortOrder>
-    <timeFrameFilter>
-        <dateColumn>DonorGiftSummary$CreatedDate</dateColumn>
-        <interval>INTERVAL_CUSTOM</interval>
-    </timeFrameFilter>
 </Report>

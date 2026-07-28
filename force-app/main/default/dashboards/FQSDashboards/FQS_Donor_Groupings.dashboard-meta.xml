@@ -34,7 +34,7 @@
                 <showPercentage>false</showPercentage>
                 <showPicturesOnCharts>false</showPicturesOnCharts>
                 <showValues>true</showValues>
-                <sortBy>RowValueAscending</sortBy>
+                <sortBy>RowValueDescending</sortBy>
                 <sortLegendValues>true</sortLegendValues>
                 <useReportChart>false</useReportChart>
             </dashboardComponent>
@@ -67,7 +67,7 @@
                 <showPercentage>false</showPercentage>
                 <showPicturesOnCharts>false</showPicturesOnCharts>
                 <showValues>true</showValues>
-                <sortBy>RowValueAscending</sortBy>
+                <sortBy>RowValueDescending</sortBy>
                 <sortLegendValues>true</sortLegendValues>
                 <useReportChart>false</useReportChart>
             </dashboardComponent>
@@ -100,7 +100,7 @@
                 <showPercentage>false</showPercentage>
                 <showPicturesOnCharts>false</showPicturesOnCharts>
                 <showValues>true</showValues>
-                <sortBy>RowValueAscending</sortBy>
+                <sortBy>RowValueDescending</sortBy>
                 <sortLegendValues>true</sortLegendValues>
                 <useReportChart>false</useReportChart>
             </dashboardComponent>
@@ -108,33 +108,56 @@
             <rowSpan>8</rowSpan>
         </dashboardGridComponents>
         <dashboardGridComponents>
-            <colSpan>6</colSpan>
+            <colSpan>3</colSpan>
             <columnIndex>6</columnIndex>
             <dashboardComponent>
                 <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
-                <chartAxisRange>Auto</chartAxisRange>
                 <chartSummary>
                     <axisBinding>y</axisBinding>
                     <column>RowCount</column>
                 </chartSummary>
-                <componentType>Bar</componentType>
+                <componentType>Metric</componentType>
                 <decimalPrecision>-1</decimalPrecision>
                 <displayUnits>Auto</displayUnits>
                 <drillEnabled>false</drillEnabled>
                 <drillToDetailEnabled>false</drillToDetailEnabled>
                 <enableHover>false</enableHover>
-                <expandOthers>false</expandOthers>
-                <groupingColumn>GiftCommitment$Status</groupingColumn>
-                <groupingSortProperties/>
                 <header>FQS Major Commitments Active</header>
-                <legendPosition>Bottom</legendPosition>
+                <indicatorBreakpoint1>333</indicatorBreakpoint1>
+                <indicatorBreakpoint2>667</indicatorBreakpoint2>
+                <indicatorHighColor>#54C254</indicatorHighColor>
+                <indicatorLowColor>#B22222</indicatorLowColor>
+                <indicatorMiddleColor>#FFCC00</indicatorMiddleColor>
                 <report>FQSDonorGroupingReports/FQS_Major_Commitments_Active</report>
                 <showPercentage>false</showPercentage>
-                <showPicturesOnCharts>false</showPicturesOnCharts>
-                <showValues>true</showValues>
-                <sortBy>RowValueAscending</sortBy>
-                <sortLegendValues>true</sortLegendValues>
-                <useReportChart>false</useReportChart>
+            </dashboardComponent>
+            <rowIndex>8</rowIndex>
+            <rowSpan>8</rowSpan>
+        </dashboardGridComponents>
+        <dashboardGridComponents>
+            <colSpan>3</colSpan>
+            <columnIndex>9</columnIndex>
+            <dashboardComponent>
+                <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
+                <chartSummary>
+                    <aggregate>Sum</aggregate>
+                    <axisBinding>y</axisBinding>
+                    <column>GiftCommitment$ExpectedTotalCmtAmount</column>
+                </chartSummary>
+                <componentType>Metric</componentType>
+                <decimalPrecision>-1</decimalPrecision>
+                <displayUnits>Auto</displayUnits>
+                <drillEnabled>false</drillEnabled>
+                <drillToDetailEnabled>false</drillToDetailEnabled>
+                <enableHover>false</enableHover>
+                <header>Major Commitments $</header>
+                <indicatorBreakpoint1>333</indicatorBreakpoint1>
+                <indicatorBreakpoint2>667</indicatorBreakpoint2>
+                <indicatorHighColor>#54C254</indicatorHighColor>
+                <indicatorLowColor>#B22222</indicatorLowColor>
+                <indicatorMiddleColor>#FFCC00</indicatorMiddleColor>
+                <report>FQSDonorGroupingReports/FQS_Major_Commitments_Active</report>
+                <showPercentage>false</showPercentage>
             </dashboardComponent>
             <rowIndex>8</rowIndex>
             <rowSpan>8</rowSpan>
@@ -157,7 +180,7 @@
                 <drillToDetailEnabled>false</drillToDetailEnabled>
                 <enableHover>false</enableHover>
                 <expandOthers>false</expandOthers>
-                <groupingColumn>DonorGiftSummary$FQS_Annual_Donor_Level_Name__c</groupingColumn>
+                <groupingColumn>DonorGiftSummary$Donor.Name</groupingColumn>
                 <groupingSortProperties/>
                 <header>FQS Mid to Major Upgrade Pipeline</header>
                 <legendPosition>Bottom</legendPosition>
@@ -165,19 +188,81 @@
                 <showPercentage>false</showPercentage>
                 <showPicturesOnCharts>false</showPicturesOnCharts>
                 <showValues>true</showValues>
-                <sortBy>RowValueAscending</sortBy>
+                <sortBy>RowValueDescending</sortBy>
                 <sortLegendValues>true</sortLegendValues>
                 <useReportChart>false</useReportChart>
             </dashboardComponent>
             <rowIndex>16</rowIndex>
             <rowSpan>8</rowSpan>
         </dashboardGridComponents>
+        <dashboardGridComponents>
+            <colSpan>6</colSpan>
+            <columnIndex>0</columnIndex>
+            <dashboardComponent>
+                <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
+                <chartAxisRange>Auto</chartAxisRange>
+                <chartSummary>
+                    <axisBinding>y</axisBinding>
+                    <column>RowCount</column>
+                </chartSummary>
+                <componentType>Column</componentType>
+                <decimalPrecision>-1</decimalPrecision>
+                <displayUnits>Auto</displayUnits>
+                <drillEnabled>false</drillEnabled>
+                <drillToDetailEnabled>false</drillToDetailEnabled>
+                <enableHover>false</enableHover>
+                <expandOthers>false</expandOthers>
+                <groupingColumn>GiftTransaction$FQS_Stewardship_Status__c</groupingColumn>
+                <groupingSortProperties/>
+                <header>Stewardship Pipeline (Last 6 Months)</header>
+                <legendPosition>Bottom</legendPosition>
+                <report>FQSDonorGroupingReports/FQS_Stewardship_Pipeline</report>
+                <showPercentage>false</showPercentage>
+                <showValues>true</showValues>
+                <sortBy>RowValueDescending</sortBy>
+                <sortLegendValues>true</sortLegendValues>
+                <useReportChart>false</useReportChart>
+            </dashboardComponent>
+            <rowIndex>24</rowIndex>
+            <rowSpan>8</rowSpan>
+        </dashboardGridComponents>
+        <dashboardGridComponents>
+            <colSpan>6</colSpan>
+            <columnIndex>6</columnIndex>
+            <dashboardComponent>
+                <autoselectColumnsFromReport>false</autoselectColumnsFromReport>
+                <chartAxisRange>Auto</chartAxisRange>
+                <chartSummary>
+                    <aggregate>Sum</aggregate>
+                    <axisBinding>y</axisBinding>
+                    <column>GiftTransaction$CurrentAmount</column>
+                </chartSummary>
+                <componentType>Column</componentType>
+                <decimalPrecision>-1</decimalPrecision>
+                <displayUnits>Auto</displayUnits>
+                <drillEnabled>false</drillEnabled>
+                <drillToDetailEnabled>false</drillToDetailEnabled>
+                <enableHover>false</enableHover>
+                <expandOthers>false</expandOthers>
+                <groupingColumn>GiftTransaction$Campaign.FQS_Hierarchy_Depth__c</groupingColumn>
+                <groupingSortProperties/>
+                <header>Campaign Performance by Hierarchy Depth</header>
+                <legendPosition>Bottom</legendPosition>
+                <report>FQSDonorGroupingReports/FQS_Campaign_Performance_By_Depth</report>
+                <showPercentage>false</showPercentage>
+                <showValues>true</showValues>
+                <sortBy>RowValueAscending</sortBy>
+                <sortLegendValues>true</sortLegendValues>
+                <useReportChart>false</useReportChart>
+            </dashboardComponent>
+            <rowIndex>24</rowIndex>
+            <rowSpan>8</rowSpan>
+        </dashboardGridComponents>
         <numberOfColumns>12</numberOfColumns>
         <rowHeight>36</rowHeight>
     </dashboardGridLayout>
-    <dashboardType>SpecifiedUser</dashboardType>
+    <dashboardType>LoggedInUser</dashboardType>
     <isGridLayout>true</isGridLayout>
-    <runningUser>justinsgilmore-snmm@force.com</runningUser>
     <textColor>#000000</textColor>
     <title>FQS Donor Groupings</title>
     <titleColor>#000000</titleColor>

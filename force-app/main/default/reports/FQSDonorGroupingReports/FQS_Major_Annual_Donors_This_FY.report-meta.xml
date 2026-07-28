@@ -44,7 +44,7 @@
     <columns>
         <field>DonorGiftSummary$FQS_Is_Major_Annual_Donor__c</field>
     </columns>
-    <description>Donors whose current-year giving qualifies for the Major tier. Filtered to FQS_Is_Major_Annual_Donor__c = TRUE. Uses GiftsThisYearAmount against Major.Annual_Min_Amount__c in FQS Donor Grouping custom metadata.</description>
+    <description>Donors whose current-fiscal-year giving qualifies for the Major tier. FY scope comes from the DGS rollup GiftsThisYearAmount (fiscal-aware), not a report time filter — do not add TransactionDate filters or the rollup will double-count.</description>
     <filter>
         <criteriaItems>
             <column>DonorGiftSummary$FQS_Is_Major_Annual_Donor__c</column>
@@ -56,7 +56,6 @@
     </filter>
     <format>Summary</format>
     <groupingsDown>
-        <dateGranularity>Day</dateGranularity>
         <field>DonorGiftSummary$Donor.Name</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>

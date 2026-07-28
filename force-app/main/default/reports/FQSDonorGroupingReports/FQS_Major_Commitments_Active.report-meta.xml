@@ -8,6 +8,11 @@
             <axisBinding>y</axisBinding>
             <column>RowCount</column>
         </chartSummaries>
+        <chartSummaries>
+            <aggregate>Sum</aggregate>
+            <axisBinding>y</axisBinding>
+            <column>GiftCommitment$ExpectedTotalCmtAmount</column>
+        </chartSummaries>
         <chartType>HorizontalBar</chartType>
         <enableHoverLabels>false</enableHoverLabels>
         <expandOthers>true</expandOthers>
@@ -31,6 +36,7 @@
         <field>GiftCommitment$Donor</field>
     </columns>
     <columns>
+        <aggregateTypes>Sum</aggregateTypes>
         <field>GiftCommitment$ExpectedTotalCmtAmount</field>
     </columns>
     <columns>
@@ -44,6 +50,7 @@
     </columns>
     <description>Active Gift Commitments whose Expected Total Commitment Amount qualifies for the Major tier. Grouped by Status. Filtered to FQS_Is_Major_Commitment__c = TRUE.</description>
     <filter>
+        <booleanFilter>1 AND (2 OR 3 OR 4)</booleanFilter>
         <criteriaItems>
             <column>GiftCommitment$FQS_Is_Major_Commitment__c</column>
             <columnToColumn>false</columnToColumn>
@@ -51,10 +58,30 @@
             <operator>equals</operator>
             <value>1</value>
         </criteriaItems>
+        <criteriaItems>
+            <column>GiftCommitment$Status</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>Active</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>GiftCommitment$Status</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>Failing</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>GiftCommitment$Status</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>Paused</value>
+        </criteriaItems>
     </filter>
     <format>Summary</format>
     <groupingsDown>
-        <dateGranularity>Day</dateGranularity>
         <field>GiftCommitment$Status</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>

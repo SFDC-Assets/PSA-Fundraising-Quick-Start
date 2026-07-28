@@ -12,7 +12,7 @@
         <chartType>HorizontalBar</chartType>
         <enableHoverLabels>false</enableHoverLabels>
         <expandOthers>true</expandOthers>
-        <groupingColumn>DonorGiftSummary$FQS_Annual_Donor_Level_Name__c</groupingColumn>
+        <groupingColumn>DonorGiftSummary$Donor.Name</groupingColumn>
         <location>CHART_TOP</location>
         <showAxisLabels>true</showAxisLabels>
         <showPercentage>false</showPercentage>
@@ -65,8 +65,7 @@
     <format>Summary</format>
     <fullName>FQSDonorGroupingReports/FQS_Mid_to_Major_Upgrade_Pipeline</fullName>
     <groupingsDown>
-        <dateGranularity>Day</dateGranularity>
-        <field>DonorGiftSummary$FQS_Annual_Donor_Level_Name__c</field>
+        <field>DonorGiftSummary$Donor.Name</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
     <name>FQS Mid to Major Upgrade Pipeline</name>

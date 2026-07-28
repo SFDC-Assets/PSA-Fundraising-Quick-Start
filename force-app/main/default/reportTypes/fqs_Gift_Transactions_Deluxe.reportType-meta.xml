@@ -238,6 +238,16 @@
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
+            <field>FQS_Stewardship_Status__c</field>
+            <table>GiftTransaction</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>FQS_Stewardship_Date__c</field>
+            <table>GiftTransaction</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
             <field>FQS_In_Kind__c</field>
             <table>GiftTransaction</table>
         </columns>
