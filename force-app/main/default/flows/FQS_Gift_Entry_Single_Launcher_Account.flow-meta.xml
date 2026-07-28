@@ -264,7 +264,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Designation hierarchy Phase 2c — populates rsv_SelectedCampaign from Get_Campaign_For_Commitment on the Pledge Payment inherited-Campaign path, so downstream Get_Campaign_Default_Designations + Assign_Campaign_Onto_Transaction (existing chain) fire normally. If the GC has no Campaign (Q12), Get_Campaign_For_Commitment returned 0 rows and rsv_SelectedCampaign remains null — the downstream .Id IsNull gate on Assign_Campaign_Onto_Transaction correctly skips the GT.CampaignId write in that case.</description>
+        <description>Designation hierarchy Phase 2c/5c.a — populates rsv_SelectedCampaign from Get_Campaign_For_Commitment on the Pledge Payment inherited-Campaign path. Phase 5c.a: connector now routes to Get_GC_Default_Designation_For_Resolver first so the resolver can consult the parent GC&apos;s GDD (Tier 2 — precedes Campaign default per plan §Hierarchy). If the GC has no Campaign (Q12), Get_Campaign_For_Commitment returned 0 rows and rsv_SelectedCampaign remains null; the downstream .Id IsNull gate on Assign_Campaign_Onto_Transaction still correctly skips the GT.CampaignId write in that case.</description>
         <name>Assign_Campaign_From_Commitment_Selected</name>
         <label>Use Commitment&apos;s Campaign as Selected</label>
         <locationX>0</locationX>
@@ -277,7 +277,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Campaign_Default_Designations</targetReference>
+            <targetReference>Get_GC_Default_Designation_For_Resolver</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1802,6 +1802,23 @@
         </connector>
     </assignments>
     <assignments>
+        <description>Designation hierarchy Phase 5c.a — sets var_ResolverHasGCDefault=true after Decide_GC_Has_Default_Designation confirms the parent GC has a GDD. Kept as a dedicated Assign (rather than folding into Assign_Resolve_Designation_GCDefault) so the flag is visible to the resolver rule scan; the resolver hasn&apos;t fired yet when this runs.</description>
+        <name>Assign_ResolverHasGCDefault_True</name>
+        <label>Set: resolver has GC default</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ResolverHasGCDefault</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Campaign_Default_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <description>Designation hierarchy Phase 3/4 (resolver) — Campaign-default terminal. Fires when Get_Campaign_Default_Designations returned a row (Campaign has a GDD). Writes both var_ResolvedDesignationId (Phase 4 summary line) AND rsv_SelectedDesignation.Id (legacy chain — Assign_Build_GTDesignation and Assign_Build_Default_Designation both read from rsv_SelectedDesignation.Id, so populating it here keeps downstream inserts unchanged). Phase 4: connector routes to Get_Resolved_GD so the confirm-designation interstitial can render the GD Name; on unchecked Next it falls through to Decide_After_Designation, unchanged legacy chain.</description>
         <name>Assign_Resolve_Designation_CampaignDefault</name>
         <label>Resolved: from Campaign default</label>
@@ -1850,11 +1867,18 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Designation hierarchy Phase 3 (resolver) — placeholder GC_Default terminal. Reserved for payment leaves (Pledge Payment, Recurring first-GT, Scheduled first-GT — Phase 5) where the parent GC has a GiftDefaultDesignation. Not wired into the resolver yet — Outright never has a parent GC. Declared now so the resolver&apos;s terminal contract is stable across future phase deploys.</description>
+        <description>Designation hierarchy Phase 5c.a (resolver) — Tier 2 GC_Default terminal. Fires when Get_GC_Default_Designation_For_Resolver returned a row (parent GC has a GDD). Precedes Tier 3 Campaign default per plan §Hierarchy. Writes both var_ResolvedDesignationId (Phase 4 summary) AND rsv_SelectedDesignation.Id (legacy chain). Routes to Get_Resolved_GD so Screen_Confirm_Designation renders the GD name.</description>
         <name>Assign_Resolve_Designation_GCDefault</name>
-        <label>Resolved: from GC default (placeholder)</label>
+        <label>Resolved: from GC default</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ResolvedDesignationId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_GC_Default_Designation_For_Resolver.GiftDesignationId</elementReference>
+            </value>
+        </assignmentItems>
         <assignmentItems>
             <assignToReference>var_ResolvedDesignationSource</assignToReference>
             <operator>Assign</operator>
@@ -1862,8 +1886,15 @@
                 <stringValue>GC_Default</stringValue>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_SelectedDesignation.Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_GC_Default_Designation_For_Resolver.GiftDesignationId</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
-            <targetReference>Decide_After_Designation</targetReference>
+            <targetReference>Get_Resolved_GD</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -3388,6 +3419,32 @@
         </rules>
     </decisions>
     <decisions>
+        <description>Designation hierarchy Phase 5c.a — reads Get_GC_Default_Designation_For_Resolver.Id (safe here because the lookup DID run on this branch — the SObject is assigned even if 0 rows returned). Routes to Assign_ResolverHasGCDefault_True if the parent GC has a GDD, or straight to Get_Campaign_Default_Designations if not. This keeps the resolver&apos;s Tier 2 rule reading a plain Boolean scalar (var_ResolverHasGCDefault) which is safe on branches where the GC lookup never ran.</description>
+        <name>Decide_GC_Has_Default_Designation</name>
+        <label>GC has default designation?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Get_Campaign_Default_Designations</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No GC default — continue to Campaign</defaultConnectorLabel>
+        <rules>
+            <name>Decide_GC_Has_Default_Designation_HasIt</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_GC_Default_Designation_For_Resolver.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_ResolverHasGCDefault_True</targetReference>
+            </connector>
+            <label>Yes — set flag</label>
+        </rules>
+    </decisions>
+    <decisions>
         <description>A commitment must be selected for the Pledge Payment path. If none, send the user back to the picker.</description>
         <name>Decide_Has_Commitment</name>
         <label>Has Commitment?</label>
@@ -4525,6 +4582,21 @@
             </connector>
             <label>Scheduled Pledge/Grant — route to resolver</label>
         </rules>
+        <rules>
+            <name>Decide_Route_Outright_To_Resolver_IsPledgePayment</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_PledgePayment</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Resolve_Designation_Hierarchy</targetReference>
+            </connector>
+            <label>Pledge Payment — route to resolver</label>
+        </rules>
     </decisions>
     <decisions>
         <description>Route based on the checkbox: unchecked → table path, checked → lookup.</description>
@@ -4562,6 +4634,21 @@
             <targetReference>Get_Org_Default_Designation</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Tier 5 — fall through to org default</defaultConnectorLabel>
+        <rules>
+            <name>Resolve_Designation_Hierarchy_TierGCDefault</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ResolverHasGCDefault</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Resolve_Designation_GCDefault</targetReference>
+            </connector>
+            <label>Tier 2 — GC default present (Pledge Payment)</label>
+        </rules>
         <rules>
             <name>Resolve_Designation_Hierarchy_TierCampaignDefault</name>
             <conditionLogic>and</conditionLogic>
@@ -5612,6 +5699,38 @@
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>
         <object>GiftDesignation</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Designation hierarchy Phase 5c.a — Tier 2 (GC_Default) lookup for the Pledge Payment resolver path. Queries the parent GC&apos;s GiftDefaultDesignation. Separate from the legacy Get_Commitment_Default_Designation (which is wired into Decide_Commitment_Has_Default_Designation for the pre-resolver PP-Conditional filter chain) because the resolver&apos;s downstream is Get_Campaign_Default_Designations, not Decide_Commitment_Has_Default_Designation. Reached from Assign_Campaign_From_Commitment_Selected. Connector: Decide_GC_Has_Default_Designation, which sets var_ResolverHasGCDefault (Boolean) before continuing to Get_Campaign_Default_Designations. Only queried on the PP branch; other leaves route through Decide_Campaign_Downstream_Route → Get_Campaign_Default_Designations directly.</description>
+        <name>Get_GC_Default_Designation_For_Resolver</name>
+        <label>Get GC Default Designation (Resolver)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decide_GC_Has_Default_Designation</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Load</targetReference>
+        </faultConnector>
+        <filterLogic>1 AND 2</filterLogic>
+        <filters>
+            <field>ParentRecordId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>rsv_SelectedCommitment.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>GiftDesignationId</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>GiftDefaultDesignation</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -9713,6 +9832,17 @@
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Designation hierarchy Phase 5c.a — Boolean flag consumed by Resolve_Designation_Hierarchy&apos;s Tier 2 rule. Set true on the PP branch only when Get_GC_Default_Designation_For_Resolver returned a row. Scalar (not SObject field reference) so non-PP branches evaluating the resolver rule don&apos;t throw on unread rsv_SelectedCommitment / Get_GC_Default_Designation_For_Resolver (see [[flow-unread-sobject-field-throws]]). Default false.</description>
+        <name>var_ResolverHasGCDefault</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
     </variables>
     <variables>
         <description>Designation hierarchy Phase 3 — Id of the GiftDesignation chosen by Resolve_Designation_Hierarchy. Set by one of the Assign_Resolve_Designation_* terminals. Read by the Campaign-screen summary line (Phase 4) and downstream by Assign_Build_GTDesignation / Assign_Build_Default_Designation via rsv_SelectedDesignation.Id (which the same terminal writes in parallel so the legacy chain keeps working unchanged).</description>
