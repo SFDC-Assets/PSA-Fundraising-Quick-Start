@@ -3108,6 +3108,7 @@
         </rules>
     </decisions>
     <decisions>
+        <description>Designation hierarchy Phase 5b bug fix — Scheduled (Regular OR Custom) and Recurring leaves must skip Create_GiftDefaultDesignation. The managed FROps subflows (Process_Scheduled_Commitment / Process_Recurring_Commitment) auto-insert a GDD on the parent GC as part of their schedule activation, and a second insert here triggers &quot;Designations can&apos;t exceed 100%&quot; INVALID_INPUT on the platform. Only Simple Pledge (no schedule, no Process invocation) can safely insert its own GDD. Recurring&apos;s legacy pathway needs the same guard once Phase 5d routes it here. Rule 1 (schedule leaves) evaluates first and short-circuits to Decide_Recurring_First_Payment_Or_Success; rule 2 (original semantics) fires only when rsv_SelectedDesignation.Id is set and we&apos;re NOT on a schedule leaf.</description>
         <name>Decide_Create_Default_Designation</name>
         <label>Create GiftDefaultDesignation?</label>
         <locationX>0</locationX>
@@ -3116,6 +3117,28 @@
             <targetReference>Decide_Recurring_First_Payment_Or_Success</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>No designation — check recurring first-payment</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Create_Default_Designation_IsScheduleLeaf</name>
+            <conditionLogic>1 OR 2</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafFuture</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_ScheduledPledgeGrant</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_RecurringGift</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Decide_Recurring_First_Payment_Or_Success</targetReference>
+            </connector>
+            <label>Schedule leaf — skip (Process_* auto-inserts GDD)</label>
+        </rules>
         <rules>
             <name>Decide_Create_Default_Designation_HasDesignation</name>
             <conditionLogic>and</conditionLogic>
@@ -3925,7 +3948,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Designation hierarchy Phase 4 — Screen_Confirm_Designation Override-checkbox router. Checked → Screen_Pick_Designation (user manually picks; downstream picker path writes Assign_Resolve_Designation_UserOverride and continues to Decide_After_Designation). Unchecked → Decide_After_Designation directly (accept the resolved default).</description>
+        <description>Designation hierarchy Phase 4 — Screen_Confirm_Designation Override-checkbox router. Checked → Decide_Override_Needs_Restriction (which inserts Screen_Pick_Restriction for commitment-creation leaves before Screen_Pick_Designation, so restriction filter works and picker is populated). Unchecked → Decide_After_Designation directly (accept the resolved default).</description>
         <name>Decide_Override_Designation</name>
         <label>Override designation?</label>
         <locationX>0</locationX>
@@ -3945,9 +3968,42 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Screen_Pick_Designation</targetReference>
+                <targetReference>Decide_Override_Needs_Restriction</targetReference>
             </connector>
-            <label>Override — manual pick</label>
+            <label>Override — route to restriction-picker gate</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Designation hierarchy Phase 5b/6 — on the Override path, route commitment-creation leaves (Simple / Scheduled — Recurring joins in 5d) to Screen_Pick_Restriction first so the user picks restriction type, which populates var_RestrictionType so Get_Filtered_Designations returns rows on Screen_Pick_Designation. Payment/Special leaves (Outright / Pledge Payment / In-Kind / Earned Income / Event Registration) default straight to Screen_Pick_Designation — where the deferred empty-picker bug currently manifests until Justin&apos;s Event Registration split-designation requirements land. Plan Q7-B: restriction picker is Override-only for commitment-creation leaves (no automatic picker on Conditional or Recurring anymore).</description>
+        <name>Decide_Override_Needs_Restriction</name>
+        <label>Override — needs restriction first?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Pick_Designation</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Payment / Special leaf — straight to picker</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Override_Needs_Restriction_IsCommitmentCreation</name>
+            <conditionLogic>1 OR 2</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafFuture</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_SimplePledgeGrant</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>pkLeafFuture</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_ScheduledPledgeGrant</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Pick_Restriction</targetReference>
+            </connector>
+            <label>Commitment-creation — Restriction first</label>
         </rules>
     </decisions>
     <decisions>
@@ -4240,7 +4296,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Designation hierarchy Phase 2a — fan-out router after the merged required-Campaign screen resolves rsv_SelectedCampaign. Two paths: (1) Commitment-creation leaves (Simple / Scheduled / Recurring / Grant — identified by pkLeafFuture IsSet OR pkLeafMonetary=RecurringGift) route to Decide_Fulfillment, which owns the GC-side downstream chain (writes CampaignId onto rsv_GiftCommitment via Assign_Pledge_Campaign after designation resolution). (2) Everything else (Outright, Pledge Payment, Event Registration — pkLeafMonetary values other than Recurring, or pkLeafSpecial=EventRegistration) falls through to Get_Campaign_Default_Designations, which owns the GT-side downstream chain (writes CampaignId onto rsv_GiftTransaction via Assign_Campaign_From_Selection). Replaces the pre-Phase-2a scattered dual-screen design where Screen_Pick_Campaign_Pledge fed the GC chain and Screen_Pick_Campaign fed the GT chain. Recurring is commitment-creation despite living on pkLeafMonetary — the rule below catches it explicitly. Pledge Payment stays on the GT path (default) — Phase 2c will route it to a read-only PP screen entirely, at which point this router won&apos;t see it.</description>
+        <description>Designation hierarchy Phase 2a/5b — router now sends Simple + Scheduled (5b commitment-creation leaves) to the resolver via Get_Campaign_Default_Designations; Recurring stays on the legacy Decide_Fulfillment branch until Phase 5d absorbs it. Transaction-side leaves (Outright / Pledge Payment / Event Reg / In-Kind / Earned Income) fall through to Get_Campaign_Default_Designations (default), same as before. When Phase 5d lands, this decision will simplify to a single default → Get_Campaign_Default_Designations for everyone and Decide_Fulfillment will be deleted.</description>
         <name>Decide_Campaign_Downstream_Route</name>
         <label>Route: Campaign onto GC or GT?</label>
         <locationX>0</locationX>
@@ -4248,17 +4304,10 @@
         <defaultConnector>
             <targetReference>Get_Campaign_Default_Designations</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>Transaction leaf — GT chain</defaultConnectorLabel>
+        <defaultConnectorLabel>All leaves except Recurring — resolver via Get_Campaign_Default_Designations</defaultConnectorLabel>
         <rules>
-            <name>Decide_Campaign_Downstream_Route_IsCommitmentCreation</name>
-            <conditionLogic>1 OR 2</conditionLogic>
-            <conditions>
-                <leftValueReference>pkLeafFuture</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
+            <name>Decide_Campaign_Downstream_Route_IsRecurring</name>
+            <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>pkLeafMonetary</leftValueReference>
                 <operator>EqualTo</operator>
@@ -4269,7 +4318,7 @@
             <connector>
                 <targetReference>Decide_Fulfillment</targetReference>
             </connector>
-            <label>Commitment-creation leaf — GC chain</label>
+            <label>Recurring — legacy chain until Phase 5d</label>
         </rules>
     </decisions>
     <decisions>
@@ -4445,6 +4494,36 @@
                 <targetReference>Resolve_Designation_Hierarchy</targetReference>
             </connector>
             <label>Event Registration — route to resolver</label>
+        </rules>
+        <rules>
+            <name>Decide_Route_Outright_To_Resolver_IsSimplePledge</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafFuture</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_SimplePledgeGrant</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Resolve_Designation_Hierarchy</targetReference>
+            </connector>
+            <label>Simple Pledge/Grant — route to resolver</label>
+        </rules>
+        <rules>
+            <name>Decide_Route_Outright_To_Resolver_IsScheduledPledge</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafFuture</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_ScheduledPledgeGrant</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Resolve_Designation_Hierarchy</targetReference>
+            </connector>
+            <label>Scheduled Pledge/Grant — route to resolver</label>
         </rules>
     </decisions>
     <decisions>
