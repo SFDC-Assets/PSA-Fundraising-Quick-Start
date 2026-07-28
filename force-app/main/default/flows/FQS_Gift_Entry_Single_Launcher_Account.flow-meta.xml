@@ -4377,15 +4377,15 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Designation hierarchy Phase 3 — leaf gate that forks Outright into the new Resolve_Designation_Hierarchy while leaving every other leaf on the legacy Decide_Campaign_Provides_Designation chain. Reached from Get_Campaign_Default_Designations (was → Decide_Campaign_Provides_Designation directly; Phase 3 inserts this gate in front). Phase 5 will absorb the remaining leaves and delete this router when the resolver owns everything.</description>
+        <description>Designation hierarchy Phase 3/5a — leaf gate that forks resolver-ready leaves into Resolve_Designation_Hierarchy while leaving Phase-5b+ leaves on the legacy Decide_Campaign_Provides_Designation chain. Phase 3 added Outright; Phase 5a adds Special leaves (In-Kind, Earned Income, Event Registration) — same resolver semantics (Tier 3 Campaign default, Tier 5 org default, Tier 4 override). Phase 5b will absorb commitment-creation leaves; Phase 5c Pledge Payment; Phase 5d Recurring — and then this router deletes and the resolver becomes unconditional after Get_Campaign_Default_Designations.</description>
         <name>Decide_Route_Outright_To_Resolver</name>
-        <label>Route to resolver (Outright POC)?</label>
+        <label>Route to resolver?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
             <targetReference>Decide_Campaign_Provides_Designation</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>Legacy chain (non-Outright)</defaultConnectorLabel>
+        <defaultConnectorLabel>Legacy chain (Phase 5b+ leaves)</defaultConnectorLabel>
         <rules>
             <name>Decide_Route_Outright_To_Resolver_IsOutright</name>
             <conditionLogic>and</conditionLogic>
@@ -4400,6 +4400,51 @@
                 <targetReference>Resolve_Designation_Hierarchy</targetReference>
             </connector>
             <label>Outright — route to resolver</label>
+        </rules>
+        <rules>
+            <name>Decide_Route_Outright_To_Resolver_IsInKind</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafSpecial</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_InKindGift</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Resolve_Designation_Hierarchy</targetReference>
+            </connector>
+            <label>In-Kind — route to resolver</label>
+        </rules>
+        <rules>
+            <name>Decide_Route_Outright_To_Resolver_IsEarnedIncome</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafSpecial</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_EarnedIncome</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Resolve_Designation_Hierarchy</targetReference>
+            </connector>
+            <label>Earned Income — route to resolver</label>
+        </rules>
+        <rules>
+            <name>Decide_Route_Outright_To_Resolver_IsEventRegistration</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafSpecial</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_EventRegistration</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Resolve_Designation_Hierarchy</targetReference>
+            </connector>
+            <label>Event Registration — route to resolver</label>
         </rules>
     </decisions>
     <decisions>

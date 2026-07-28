@@ -871,13 +871,39 @@ Standard `Standard_Account_Duplicate_Rule` and `Standard_Contact_Duplicate_Rule`
 
 ### 6. Reporting and Dashboards
 
-<!-- TODO: describe recommended reports / dashboards that pair with this accelerator, or point at the Fundraising analytics app. Candidates:
-* Recurring Gift retention
-* Donor grouping movement (using FQS_Donor_Grouping__mdt)
-* Restriction-type breakdown of committed revenue
-* Refund and adjustment audit
-* Outreach attribution (source code -> gift)
--->
+The accelerator ships three Custom Report Types, seven reports, and one dashboard as a starting analytics library. All three CRTs use a "kitchen-sink" pattern (broad column availability on the base object plus common parent lookups) — extend them or clone into narrower CRTs as your reporting practice matures.
+
+**Custom Report Types (`force-app/main/default/reportTypes/`):**
+
+* **Gift Commitments Deluxe** (`fqs_Gift_Commitments_Deluxe`) — base object `GiftCommitment` with lookups to Donor Account, Campaign, and current schedule.
+* **Gift Transactions Deluxe** (`fqs_Gift_Transactions_Deluxe`) — base object `GiftTransaction` with lookups to Donor Account, Campaign, Gift Commitment, and current schedule.
+* **Donor Gift Summary Deluxe** (`fqs_Donor_Gift_Summary_Deluxe`) — base object `DonorGiftSummary` (a rollup object populated by the Nonprofit Cloud Fundraising engine) with lookup to Donor Account and the `FQS_Annual_Donor_Level_Name__c` / `FQS_Lifetime_Donor_Level_Name__c` classification fields driven by `FQS_Donor_Grouping__mdt`.
+
+**Reports (`force-app/main/default/reports/FQSDonorGroupingReports/`):**
+
+* **FQS Major Lifetime Donors** — donors whose cumulative giving qualifies for the Major tier as defined by the Major record in `FQS_Donor_Grouping__mdt`. All-time scope (no time filter).
+* **FQS Major Annual Donors This FY** — donors whose current-fiscal-year giving qualifies for the Major tier. Fiscal-year scope is inherited from the `DonorGiftSummary.GiftsThisYearAmount` rollup, which is fiscal-calendar aware — do not add a report-level `TransactionDate` filter or you will double-count.
+* **FQS Major Gifts This Year** — individual gift transactions above the Major single-gift threshold, filtered to `THIS_FISCAL_YEAR`. Answers the "which specific gifts drove our fiscal-year major-donor performance" question rather than aggregating at the donor level.
+* **FQS Major Commitments Active** — outstanding major-donor pledges grouped by `Status`, filtered to `Status IN ('Active', 'Failing', 'Paused')` — excludes Completed and Lapsed. Chart shows both record count and `SUM(ExpectedTotalCmtAmount)` for at-a-glance pipeline visibility.
+* **FQS Mid to Major Upgrade Pipeline** — mid-tier annual donors (`FQS_Is_Mid_Annual_Donor__c = TRUE AND FQS_Is_Major_Annual_Donor__c = FALSE`) ranked by current fiscal-year giving. Use to prioritize cultivation conversations.
+* **FQS Stewardship Pipeline** — Matrix report of Paid contribution transactions over the last six months grouped by `FQS_Stewardship_Status__c` × `FQS_Gift_Transaction_Category__c`. Surfaces gifts stuck in "To Be Sent" past SLA — the operational surface for the daily 07:00 UTC stewardship batch. Excludes fee-for-service and payment transactions by design (those don't warrant stewardship touches).
+* **FQS Campaign Performance By Depth** — Summary report of paid-gift totals grouped by `Campaign.FQS_Hierarchy_Depth__c` (1 = rollup, 5 = leaf). Validates that the optional lookup filter shipped on `GiftTransaction.CampaignId` and `GiftCommitment.CampaignId` (see Post-Install steps IV and V) is being honored — depth-3 (ask-level) attribution should dominate healthy data. If most gifts land on depth 1 or 2, users are attributing to rollups and reporting is being skewed.
+
+**Dashboard (`force-app/main/default/dashboards/FQSDashboards/`):**
+
+* **FQS Donor Groupings** — eight-component dashboard pairing the reports above. Runs as **Dynamic Dashboard** (`dashboardType = LoggedInUser`), so each viewer sees data scoped to their own record access rather than a fixed running user. This costs one Dynamic Dashboard license slot per subscriber org (Enterprise Edition includes five; Unlimited includes ten) but avoids the tenant-specific `runningUser` problem that would otherwise force each installing admin to re-point the dashboard at their own user. If your org has already exhausted its Dynamic Dashboard allocation, edit the dashboard to `SpecifiedUser` and point `runningUser` at a service-style admin user with read access to the full donor set.
+
+**Adopt or extend:**
+
+* All seven reports live in the shared **FQS Donor Grouping Reports** folder with `Shared` access and `ReadWrite` public-folder access — change this to match your access model.
+* The lookup filters on `GiftTransaction.CampaignId` and `GiftCommitment.CampaignId` are shipped as `isOptional = true` (warn only, users can bypass). Consider tightening to `isOptional = false` if you want to hard-enforce ask-level attribution — see Post-Install steps IV.1 and V.3 for the click-path.
+* Deferred future additions the seed already supports but which need policy decisions from your org first: **recurring giving retention** (needs a rolling snapshot policy), **refund and adjustment audit** (needs your refund-reason taxonomy), **outreach source-code attribution** (needs your UTM / channel definitions locked in), and **restriction-type breakdown of committed revenue** (needs your finance team's chart-of-accounts mapping to `FQS_Restriction_Type__c` locked in — see Section 5 above).
+
+**Salesforce Documentation:**
+
+* **Guide:** [Reports and Dashboards Overview](https://help.salesforce.com/s/articleView?id=platform.reports_dashboards.htm&type=5)
+* **Custom Report Types:** [Set Up a Custom Report Type](https://help.salesforce.com/s/articleView?id=platform.reports_report_types.htm&type=5)
+* **Dynamic Dashboards:** [Set Up Dynamic Dashboards](https://help.salesforce.com/s/articleView?id=platform.dashboards_dynamic_setup.htm&type=5)
 
 ### 7. Currency, Fiscal Year, and Multi-Entity Considerations
 
