@@ -293,7 +293,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Decide_Campaign_Downstream_Route</targetReference>
+            <targetReference>Get_Campaign_Default_Designations</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -3378,47 +3378,6 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Unconditional → auto-select default designation (may be null). Conditional → ask user for restriction, then filtered designation picker. Phase F3c.1: Recurring Gift leaf always prompts for restriction + designation regardless of FulfillmentType — recurring commitments back the same designation on every fanned-out payment, so picking it once matters. Rule order matters: Recurring is evaluated first so it wins if a future recurring commitment is ever authored as Conditional (both rules would match; Recurring UX is the same).</description>
-        <name>Decide_Fulfillment</name>
-        <label>Fulfillment Type</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Get_Default_Designation</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Unconditional</defaultConnectorLabel>
-        <rules>
-            <name>Decide_Fulfillment_IsRecurring</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>pkLeafMonetary</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <elementReference>Choice_Leaf_RecurringGift</elementReference>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Screen_Pick_Restriction</targetReference>
-            </connector>
-            <label>Recurring — prompt for designation</label>
-        </rules>
-        <rules>
-            <name>Decide_Fulfillment_IsConditional</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>rsv_GiftCommitment.FulfillmentType</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Conditional</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Screen_Pick_Restriction</targetReference>
-            </connector>
-            <label>Conditional</label>
-        </rules>
-    </decisions>
-    <decisions>
         <description>Designation hierarchy Phase 5c.a — reads Get_GC_Default_Designation_For_Resolver.Id (safe here because the lookup DID run on this branch — the SObject is assigned even if 0 rows returned). Routes to Assign_ResolverHasGCDefault_True if the parent GC has a GDD, or straight to Get_Campaign_Default_Designations if not. This keeps the resolver&apos;s Tier 2 rule reading a plain Boolean scalar (var_ResolverHasGCDefault) which is safe on branches where the GC lookup never ran.</description>
         <name>Decide_GC_Has_Default_Designation</name>
         <label>GC has default designation?</label>
@@ -4042,7 +4001,7 @@
         <defaultConnectorLabel>Payment / Special leaf — straight to picker</defaultConnectorLabel>
         <rules>
             <name>Decide_Override_Needs_Restriction_IsCommitmentCreation</name>
-            <conditionLogic>1 OR 2</conditionLogic>
+            <conditionLogic>1 OR 2 OR 3</conditionLogic>
             <conditions>
                 <leftValueReference>pkLeafFuture</leftValueReference>
                 <operator>EqualTo</operator>
@@ -4055,6 +4014,13 @@
                 <operator>EqualTo</operator>
                 <rightValue>
                     <elementReference>Choice_Leaf_ScheduledPledgeGrant</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_RecurringGift</elementReference>
                 </rightValue>
             </conditions>
             <connector>
@@ -4366,7 +4332,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Decide_Campaign_Downstream_Route</targetReference>
+            <targetReference>Get_Campaign_Default_Designations</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Use datatable</defaultConnectorLabel>
         <rules>
@@ -4383,32 +4349,6 @@
                 <targetReference>Get_Looked_Up_Campaign</targetReference>
             </connector>
             <label>Use lookup</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <description>Designation hierarchy Phase 2a/5b — router now sends Simple + Scheduled (5b commitment-creation leaves) to the resolver via Get_Campaign_Default_Designations; Recurring stays on the legacy Decide_Fulfillment branch until Phase 5d absorbs it. Transaction-side leaves (Outright / Pledge Payment / Event Reg / In-Kind / Earned Income) fall through to Get_Campaign_Default_Designations (default), same as before. When Phase 5d lands, this decision will simplify to a single default → Get_Campaign_Default_Designations for everyone and Decide_Fulfillment will be deleted.</description>
-        <name>Decide_Campaign_Downstream_Route</name>
-        <label>Route: Campaign onto GC or GT?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Get_Campaign_Default_Designations</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>All leaves except Recurring — resolver via Get_Campaign_Default_Designations</defaultConnectorLabel>
-        <rules>
-            <name>Decide_Campaign_Downstream_Route_IsRecurring</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>pkLeafMonetary</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <elementReference>Choice_Leaf_RecurringGift</elementReference>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Decide_Fulfillment</targetReference>
-            </connector>
-            <label>Recurring — legacy chain until Phase 5d</label>
         </rules>
     </decisions>
     <decisions>
@@ -4629,6 +4569,21 @@
                 <targetReference>Resolve_Designation_Hierarchy</targetReference>
             </connector>
             <label>Pledge Payment — route to resolver</label>
+        </rules>
+        <rules>
+            <name>Decide_Route_Outright_To_Resolver_IsRecurring</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_RecurringGift</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Resolve_Designation_Hierarchy</targetReference>
+            </connector>
+            <label>Recurring — route to resolver</label>
         </rules>
     </decisions>
     <decisions>
