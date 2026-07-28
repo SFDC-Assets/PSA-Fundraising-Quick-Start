@@ -780,7 +780,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Fires only when chkUseDesignationLookup is true.</description>
+        <description>Fires only when chkUseDesignationLookup is true. Phase 4: connector routes to Assign_Resolve_Designation_UserOverride so the resolver&apos;s var_ResolvedDesignation* variables track the user pick as tier User_Override.</description>
         <name>Assign_Designation_From_Lookup</name>
         <label>Use Looked-Up Designation</label>
         <locationX>0</locationX>
@@ -793,7 +793,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Decide_After_Designation</targetReference>
+            <targetReference>Assign_Resolve_Designation_UserOverride</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1802,7 +1802,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Designation hierarchy Phase 3 (resolver) — Campaign-default terminal. Fires when Get_Campaign_Default_Designations returned a row (Campaign has a GDD). Writes both var_ResolvedDesignationId (Phase 4 summary line) AND rsv_SelectedDesignation.Id (legacy chain — Assign_Build_GTDesignation and Assign_Build_Default_Designation both read from rsv_SelectedDesignation.Id, so populating it here keeps downstream inserts unchanged).</description>
+        <description>Designation hierarchy Phase 3/4 (resolver) — Campaign-default terminal. Fires when Get_Campaign_Default_Designations returned a row (Campaign has a GDD). Writes both var_ResolvedDesignationId (Phase 4 summary line) AND rsv_SelectedDesignation.Id (legacy chain — Assign_Build_GTDesignation and Assign_Build_Default_Designation both read from rsv_SelectedDesignation.Id, so populating it here keeps downstream inserts unchanged). Phase 4: connector routes to Get_Resolved_GD so the confirm-designation interstitial can render the GD Name; on unchecked Next it falls through to Decide_After_Designation, unchanged legacy chain.</description>
         <name>Assign_Resolve_Designation_CampaignDefault</name>
         <label>Resolved: from Campaign default</label>
         <locationX>0</locationX>
@@ -1829,7 +1829,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Decide_After_Designation</targetReference>
+            <targetReference>Get_Resolved_GD</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1867,7 +1867,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Designation hierarchy Phase 3 (resolver) — org-wide default terminal. Fires when neither GC-default nor Campaign-default resolved and Get_Org_Default_Designation returned a row (an active GiftDesignation with IsDefault=TRUE exists). Writes both var_ResolvedDesignationId (Phase 4 summary) AND rsv_SelectedDesignation.Id (legacy chain). Phase 8 will add a hard-block Campaign screen for the branch where Get_Org_Default_Designation returns zero rows — until then the resolver falls through to Screen_Pick_Designation.</description>
+        <description>Designation hierarchy Phase 3/4 (resolver) — org-wide default terminal. Fires when neither GC-default nor Campaign-default resolved and Get_Org_Default_Designation returned a row (an active GiftDesignation with IsDefault=TRUE exists). Writes both var_ResolvedDesignationId (Phase 4 summary) AND rsv_SelectedDesignation.Id (legacy chain). Phase 4: connector routes to Get_Resolved_GD so the confirm-designation interstitial can render the GD Name. Phase 8 will add a hard-block Campaign screen for the branch where Get_Org_Default_Designation returns zero rows.</description>
         <name>Assign_Resolve_Designation_OrgDefault</name>
         <label>Resolved: from org-wide default</label>
         <locationX>0</locationX>
@@ -1894,15 +1894,22 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Decide_After_Designation</targetReference>
+            <targetReference>Get_Resolved_GD</targetReference>
         </connector>
     </assignments>
     <assignments>
-        <description>Designation hierarchy Phase 3 (resolver) — placeholder User_Override terminal. Reserved for the Phase 4 Campaign-screen Override button and for the manual-pick fallback when the resolver can&apos;t auto-resolve. Not wired into the resolver&apos;s chain yet — Outright still lands on Screen_Pick_Designation via the resolver&apos;s default (Screen_Pick_Designation) when no upstream default resolves; a Phase 4 Override button and Phase 5 fan-in for commitment-creation leaves will write this terminal after the picker.</description>
+        <description>Designation hierarchy Phase 4 — User_Override terminal. Fires after Screen_Pick_Designation resolves (via Decide_Use_Designation_Lookup default or Assign_Designation_From_Lookup). Copies rsv_SelectedDesignation.Id into var_ResolvedDesignationId so the Phase 4 summary line + downstream logic have a single source of truth for the resolved designation regardless of which tier won.</description>
         <name>Assign_Resolve_Designation_UserOverride</name>
-        <label>Resolved: user override (placeholder)</label>
+        <label>Resolved: user override</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ResolvedDesignationId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_SelectedDesignation.Id</elementReference>
+            </value>
+        </assignmentItems>
         <assignmentItems>
             <assignToReference>var_ResolvedDesignationSource</assignToReference>
             <operator>Assign</operator>
@@ -3918,6 +3925,32 @@
         </rules>
     </decisions>
     <decisions>
+        <description>Designation hierarchy Phase 4 — Screen_Confirm_Designation Override-checkbox router. Checked → Screen_Pick_Designation (user manually picks; downstream picker path writes Assign_Resolve_Designation_UserOverride and continues to Decide_After_Designation). Unchecked → Decide_After_Designation directly (accept the resolved default).</description>
+        <name>Decide_Override_Designation</name>
+        <label>Override designation?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Decide_After_Designation</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Accept — use resolved default</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Override_Designation_IsOverride</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>chkOverrideDesignation</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Pick_Designation</targetReference>
+            </connector>
+            <label>Override — manual pick</label>
+        </rules>
+    </decisions>
+    <decisions>
         <description>Phase F3c. Post-match campaign-picker router. After the shared match-employer collection completes (Screen_Set_Match_Amount → Decide_Match_Max_Exceeded, or the warning interstitial), route to the correct campaign screen for the branch: Recurring Gift → Screen_Pick_Campaign_Pledge (the pledge-branch flavor Screen_Recurring_Details is already wired to on the No-match path); everything else → Screen_Pick_Campaign unchanged. Necessary because Screen_Recurring_Details / Assign_Recurring_Defaults use the _Pledge campaign screen while Outright uses the plain one; the shared match subflow can only re-enter one.</description>
         <name>Decide_PostMatch_Campaign_Router</name>
         <label>Post-Match Campaign Router</label>
@@ -4292,13 +4325,13 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Route based on the checkbox: unchecked → table path, checked → lookup.</description>
+        <description>Designation hierarchy Phase 4 — default connector routes to Assign_Resolve_Designation_UserOverride (was Decide_After_Designation) so the resolver&apos;s var_ResolvedDesignation* variables track the user pick as tier User_Override. Original description: Route based on the checkbox: unchecked → table path, checked → lookup.</description>
         <name>Decide_Use_Designation_Lookup</name>
         <label>Use Designation lookup?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Decide_After_Designation</targetReference>
+            <targetReference>Assign_Resolve_Designation_UserOverride</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Use datatable</defaultConnectorLabel>
         <rules>
@@ -4576,6 +4609,12 @@
         <name>formulaMatchMaxDelta</name>
         <dataType>String</dataType>
         <expression>IF(OR(ISBLANK({!numMatchAmount}), ISBLANK({!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c})), &quot;&quot;, &quot;That&apos;s $&quot; &amp; TEXT(ROUND({!numMatchAmount} - {!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}, 2)) &amp; &quot; over the annual cap.&quot;)</expression>
+    </formulas>
+    <formulas>
+        <description>Designation hierarchy Phase 4 — Screen_Confirm_Designation summary line. Reads var_ResolvedDesignationSource + Get_Resolved_GD.Name. CASE-branches text per plan §UX table. ISBLANK guards on Get_Resolved_GD.Name because the record may not have loaded on an unexpected empty-Id path (defensive — the writing terminal always wrote a real Id).</description>
+        <name>formulaResolvedDesignationSummary</name>
+        <dataType>String</dataType>
+        <expression>&quot;Applying: &lt;b&gt;&quot; &amp; IF(ISBLANK({!Get_Resolved_GD.Name}), &quot;(no designation resolved)&quot;, {!Get_Resolved_GD.Name}) &amp; &quot;&lt;/b&gt; &quot; &amp; CASE({!var_ResolvedDesignationSource}, &quot;Campaign_Default&quot;, &quot;— from the campaign’s default.&quot;, &quot;GC_Default&quot;, &quot;— from the commitment’s default.&quot;, &quot;Org_Default&quot;, &quot;— the org default. No campaign or commitment default set.&quot;, &quot;User_Override&quot;, &quot;— chosen manually.&quot;, &quot;&quot;)</expression>
     </formulas>
     <formulas>
         <description>Phase C.3: Auto-generated Name for a Recurring Gift commitment. No fixed total (recurring is open-ended); prints the installment amount + period word so the record is scannable in list views. Category is literal &quot;Recurring Gift&quot; from Assign_Recurring_Defaults.</description>
@@ -5687,6 +5726,31 @@
         <object>GiftDesignation</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
+    <recordLookups>
+        <description>Designation hierarchy Phase 4 — resolves var_ResolvedDesignationId to a GiftDesignation row so the confirm-designation interstitial (Screen_Confirm_Designation) can render its Name in the summary formula. Reached from the two active resolver terminals (Assign_Resolve_Designation_CampaignDefault + _OrgDefault). Zero-row is not possible in practice — the writing terminal wrote a real Id — but if it does happen, Screen_Confirm_Designation falls back to &quot;the org default&quot; text via the formula&apos;s ISBLANK guard.</description>
+        <name>Get_Resolved_GD</name>
+        <label>Get Resolved GiftDesignation</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Screen_Confirm_Designation</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Load</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>var_ResolvedDesignationId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>GiftDesignation</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
     <recordUpdates>
         <description>Phase F2 (wizard plan §Matching-gift branch §Amount, line 124). Persists the MatchingEmployerTransactionId pair on the donor GT after Create_Employer_GT returns the employer row&apos;s Id. Runs on both the Insert and Update donor-GT branches — reached from Assign_Pair_Onto_Donor_GT. rsv_GiftTransaction.Id was populated by Create_Gift_Transaction (Insert path) or Assign_Update_GT_Fields → Update_Gift_Transaction (Update path), so this recordUpdates always targets the correct donor row. Only rsv_GiftTransaction.MatchingEmployerTransactionId is changed since Save at Insert; on the Update path the earlier Update_Gift_Transaction already wrote Status=Paid + user-editable fields, so this second write is idempotent for those. Phase F3b: connector now routes to Assign_MatchSoftCredit_OnDonor (was → Decide_Match_Post_Route) to insert the two paired GiftSoftCredit rows before the post-match terminal split.</description>
         <name>Update_Donor_With_Pair</name>
@@ -5754,6 +5818,66 @@
             <name>ErrLoadText</name>
             <fieldText>&lt;p&gt;&lt;b&gt;We couldn&apos;t load the required data.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Details: {!$Flow.FaultMessage}&lt;/p&gt;&lt;p&gt;Nothing has been changed. Please try again or contact your administrator.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Designation hierarchy Phase 4 — interstitial that renders the resolver&apos;s pick before the user commits. Reached from Get_Resolved_GD after either resolver terminal (Campaign_Default or Org_Default) fires. Shows the summary line via formulaResolvedDesignationSummary, plus a chkOverrideDesignation checkbox. Next → Decide_Override_Designation: unchecked → Decide_After_Designation (legacy chain, uses rsv_SelectedDesignation.Id set by the resolver terminal); checked → Screen_Pick_Designation (existing picker; its downstream now writes Assign_Resolve_Designation_UserOverride so var_ResolvedDesignation* reflects the manual pick).</description>
+        <name>Screen_Confirm_Designation</name>
+        <label>Confirm Designation</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Decide_Override_Designation</targetReference>
+        </connector>
+        <fields>
+            <name>ConfirmDesignationHeader</name>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Designation&lt;/b&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>ConfirmDesignationSummary</name>
+            <fieldText>&lt;p&gt;{!formulaResolvedDesignationSummary}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>chkOverrideDesignation</name>
+            <dataType>Boolean</dataType>
+            <defaultValue>
+                <booleanValue>false</booleanValue>
+            </defaultValue>
+            <fieldText>Override designation — I want to pick a different one.</fieldText>
+            <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
                     <stringValue>top</stringValue>
