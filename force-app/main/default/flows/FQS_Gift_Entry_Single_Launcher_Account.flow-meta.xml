@@ -1802,6 +1802,119 @@
         </connector>
     </assignments>
     <assignments>
+        <description>Designation hierarchy Phase 3 (resolver) — Campaign-default terminal. Fires when Get_Campaign_Default_Designations returned a row (Campaign has a GDD). Writes both var_ResolvedDesignationId (Phase 4 summary line) AND rsv_SelectedDesignation.Id (legacy chain — Assign_Build_GTDesignation and Assign_Build_Default_Designation both read from rsv_SelectedDesignation.Id, so populating it here keeps downstream inserts unchanged).</description>
+        <name>Assign_Resolve_Designation_CampaignDefault</name>
+        <label>Resolved: from Campaign default</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ResolvedDesignationId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Campaign_Default_Designations.GiftDesignationId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>var_ResolvedDesignationSource</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Campaign_Default</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_SelectedDesignation.Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Campaign_Default_Designations.GiftDesignationId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_After_Designation</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Designation hierarchy Phase 3 (resolver) — placeholder Existing_GTD terminal. Reserved for the Pledge Payment update-existing-GT path (Phase 5): if the GT already has one or more GTDs, halt evaluation and leave GTDs alone (Q3-B). Not wired into the resolver yet — Outright never has an existing GT to check. Declared now so the resolver&apos;s terminal contract is stable across future phase deploys.</description>
+        <name>Assign_Resolve_Designation_ExistingGTD</name>
+        <label>Resolved: existing GTDs on GT (placeholder)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ResolvedDesignationSource</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Existing_GTD</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_After_Designation</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Designation hierarchy Phase 3 (resolver) — placeholder GC_Default terminal. Reserved for payment leaves (Pledge Payment, Recurring first-GT, Scheduled first-GT — Phase 5) where the parent GC has a GiftDefaultDesignation. Not wired into the resolver yet — Outright never has a parent GC. Declared now so the resolver&apos;s terminal contract is stable across future phase deploys.</description>
+        <name>Assign_Resolve_Designation_GCDefault</name>
+        <label>Resolved: from GC default (placeholder)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ResolvedDesignationSource</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>GC_Default</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_After_Designation</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Designation hierarchy Phase 3 (resolver) — org-wide default terminal. Fires when neither GC-default nor Campaign-default resolved and Get_Org_Default_Designation returned a row (an active GiftDesignation with IsDefault=TRUE exists). Writes both var_ResolvedDesignationId (Phase 4 summary) AND rsv_SelectedDesignation.Id (legacy chain). Phase 8 will add a hard-block Campaign screen for the branch where Get_Org_Default_Designation returns zero rows — until then the resolver falls through to Screen_Pick_Designation.</description>
+        <name>Assign_Resolve_Designation_OrgDefault</name>
+        <label>Resolved: from org-wide default</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ResolvedDesignationId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Org_Default_Designation.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>var_ResolvedDesignationSource</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Org_Default</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_SelectedDesignation.Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Org_Default_Designation.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_After_Designation</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Designation hierarchy Phase 3 (resolver) — placeholder User_Override terminal. Reserved for the Phase 4 Campaign-screen Override button and for the manual-pick fallback when the resolver can&apos;t auto-resolve. Not wired into the resolver&apos;s chain yet — Outright still lands on Screen_Pick_Designation via the resolver&apos;s default (Screen_Pick_Designation) when no upstream default resolves; a Phase 4 Override button and Phase 5 fan-in for commitment-creation leaves will write this terminal after the picker.</description>
+        <name>Assign_Resolve_Designation_UserOverride</name>
+        <label>Resolved: user override (placeholder)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ResolvedDesignationSource</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>User_Override</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_After_Designation</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Assign_Restriction_EarnedIncome</name>
         <label>Earned Income restriction: Earned Revenue</label>
         <locationX>0</locationX>
@@ -4205,6 +4318,58 @@
         </rules>
     </decisions>
     <decisions>
+        <description>Designation hierarchy Phase 3 — org-default presence gate inside Resolve_Designation_Hierarchy. Reached from Get_Org_Default_Designation. If Get_Org_Default_Designation.Id IsNull=false → Assign_Resolve_Designation_OrgDefault (writes var_ResolvedDesignation* + rsv_SelectedDesignation.Id). Default (no org-default configured) → Screen_Pick_Designation so the user picks manually. Phase 8 will replace this default with a hard-block Campaign screen per plan Q6-A.</description>
+        <name>Decide_Resolver_Has_Org_Default</name>
+        <label>Resolver — has org default?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Pick_Designation</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No org default — manual pick (Phase 8 will hard-block)</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Resolver_Has_Org_Default_HasIt</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Org_Default_Designation.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Resolve_Designation_OrgDefault</targetReference>
+            </connector>
+            <label>Org default exists — resolve</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Designation hierarchy Phase 3 — leaf gate that forks Outright into the new Resolve_Designation_Hierarchy while leaving every other leaf on the legacy Decide_Campaign_Provides_Designation chain. Reached from Get_Campaign_Default_Designations (was → Decide_Campaign_Provides_Designation directly; Phase 3 inserts this gate in front). Phase 5 will absorb the remaining leaves and delete this router when the resolver owns everything.</description>
+        <name>Decide_Route_Outright_To_Resolver</name>
+        <label>Route to resolver (Outright POC)?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Decide_Campaign_Provides_Designation</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Legacy chain (non-Outright)</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Route_Outright_To_Resolver_IsOutright</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_OutrightGift</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Resolve_Designation_Hierarchy</targetReference>
+            </connector>
+            <label>Outright — route to resolver</label>
+        </rules>
+    </decisions>
+    <decisions>
         <description>Route based on the checkbox: unchecked → table path, checked → lookup.</description>
         <name>Decide_Use_SoftCredit_Lookup</name>
         <label>Use Soft-Credit lookup?</label>
@@ -4228,6 +4393,32 @@
                 <targetReference>Get_Looked_Up_SoftCredit_Account</targetReference>
             </connector>
             <label>Use lookup</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Designation hierarchy Phase 3 — the resolver Decision. Single chained Decision that owns the precedence hierarchy locked in .planning/fqs-designation-hierarchy-plan.md. Phase 3 wires two of the five tiers for the Outright POC: Tier 3 (Campaign_Default — fires when Get_Campaign_Default_Designations returned a row) and Tier 5 fallthrough (default → Get_Org_Default_Designation → Decide_Resolver_Has_Org_Default). Tiers 1 (Existing_GTD), 2 (GC_Default), and 4 (User_Override) have terminal Assignments declared but are not wired into the resolver&apos;s chain yet — Phase 5 fans in Pledge Payment / commitment-creation leaves that reach those tiers. Reached from Decide_Route_Outright_To_Resolver on the Outright branch only; every other leaf still runs the legacy Decide_Campaign_Provides_Designation chain until Phase 5.</description>
+        <name>Resolve_Designation_Hierarchy</name>
+        <label>Resolve Designation Hierarchy</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Get_Org_Default_Designation</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Tier 5 — fall through to org default</defaultConnectorLabel>
+        <rules>
+            <name>Resolve_Designation_Hierarchy_TierCampaignDefault</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Campaign_Default_Designations.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Resolve_Designation_CampaignDefault</targetReference>
+            </connector>
+            <label>Tier 3 — Campaign default present</label>
         </rules>
     </decisions>
     <description>Screen flow launched via quick action from an Account record. Records either a GiftTransaction (Outright, In-Kind, Earned Income, or Pledge Payment) or a new GiftCommitment (Pledge). Every path uses record variables bound to the record-creates via inputReference. Pickers (Commitment, Campaign, Designation, Soft-Credit Account) are datatables with a native lookup escape hatch. Restriction handling on the Pledge branch is driven by GiftCommitment.FulfillmentType. Every DML has a fault path to a single error screen so the user always sees why nothing was saved.</description>
@@ -4953,14 +5144,14 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>R3: after Campaign is picked, look for a GiftDefaultDesignation whose ParentRecordId is that Campaign. If present, we skip the manual Designation picker and use the linked GiftDesignation directly.</description>
+        <description>Designation hierarchy Phase 3 — connector now targets Decide_Route_Outright_To_Resolver (was Decide_Campaign_Provides_Designation), so Outright forks into Resolve_Designation_Hierarchy and every other leaf falls through to the legacy Decide_Campaign_Provides_Designation chain unchanged. Phase 5 will absorb the remaining leaves into the resolver and delete the router. Original description: after Campaign is picked, look for a GiftDefaultDesignation whose ParentRecordId is that Campaign; if present, we skip the manual Designation picker and use the linked GiftDesignation directly.</description>
         <name>Get_Campaign_Default_Designations</name>
         <label>Get Campaign Default Designations</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Decide_Campaign_Provides_Designation</targetReference>
+            <targetReference>Decide_Route_Outright_To_Resolver</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Err_Load</targetReference>
@@ -5462,6 +5653,38 @@
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>
         <object>Campaign</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Designation hierarchy Phase 3 — Tier 5 fallback in Resolve_Designation_Hierarchy. Loads the org&apos;s single active default GiftDesignation (IsDefault=TRUE AND IsActive=TRUE). Reached only when neither GC-default nor Campaign-default resolved. If zero rows returned, resolver falls through to Screen_Pick_Designation (Phase 8 will replace that with a hard block). Separate from the existing Get_Default_Designation (which is wired into the legacy Simple Pledge terminal) because the resolver&apos;s downstream is Assign_Resolve_Designation_OrgDefault, not Decide_Has_Default_Designation. Uses EqualTo TRUE per [[flow-in-operator-gotcha]] — never In-operator on boolean.</description>
+        <name>Get_Org_Default_Designation</name>
+        <label>Get Org Default Designation</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decide_Resolver_Has_Org_Default</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Load</targetReference>
+        </faultConnector>
+        <filterLogic>1 AND 2</filterLogic>
+        <filters>
+            <field>IsActive</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>IsDefault</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>GiftDesignation</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
@@ -9238,6 +9461,22 @@
     <variables>
         <description>Scratch String used inside loops.</description>
         <name>var_LoopId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Designation hierarchy Phase 3 — Id of the GiftDesignation chosen by Resolve_Designation_Hierarchy. Set by one of the Assign_Resolve_Designation_* terminals. Read by the Campaign-screen summary line (Phase 4) and downstream by Assign_Build_GTDesignation / Assign_Build_Default_Designation via rsv_SelectedDesignation.Id (which the same terminal writes in parallel so the legacy chain keeps working unchanged).</description>
+        <name>var_ResolvedDesignationId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Designation hierarchy Phase 3 — which tier of the resolver won. One of: Campaign_Default, Org_Default, User_Override (Existing_GTD and GC_Default reserved for later phases when Pledge Payment / commitment-creation leaves fan in). Drives the Campaign-screen summary text in Phase 4.</description>
+        <name>var_ResolvedDesignationSource</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
