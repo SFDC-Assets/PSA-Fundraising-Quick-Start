@@ -264,6 +264,23 @@
         </connector>
     </assignments>
     <assignments>
+        <description>Designation hierarchy Phase 2c — populates rsv_SelectedCampaign from Get_Campaign_For_Commitment on the Pledge Payment inherited-Campaign path, so downstream Get_Campaign_Default_Designations + Assign_Campaign_Onto_Transaction (existing chain) fire normally. If the GC has no Campaign (Q12), Get_Campaign_For_Commitment returned 0 rows and rsv_SelectedCampaign remains null — the downstream .Id IsNull gate on Assign_Campaign_Onto_Transaction correctly skips the GT.CampaignId write in that case.</description>
+        <name>Assign_Campaign_From_Commitment_Selected</name>
+        <label>Use Commitment&apos;s Campaign as Selected</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_SelectedCampaign</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Campaign_For_Commitment</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Campaign_Default_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Assign_Campaign_From_Lookup</name>
         <label>Use Looked-Up Campaign</label>
         <locationX>0</locationX>
@@ -276,23 +293,24 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Get_Campaign_Default_Designations</targetReference>
+            <targetReference>Decide_Campaign_Downstream_Route</targetReference>
         </connector>
     </assignments>
     <assignments>
-        <name>Assign_Campaign_From_Lookup_Pledge</name>
-        <label>Use Looked-Up Campaign (Pledge)</label>
+        <description>Designation hierarchy Phase 2b — optional Campaign screen&apos;s lookup-result assigner. Mirrors Assign_Campaign_From_Lookup on the required path; converges downstream at Get_Campaign_Default_Designations, same as the datatable&apos;s auto-binding does.</description>
+        <name>Assign_Campaign_From_Lookup_Optional</name>
+        <label>Use Looked-Up Campaign (Optional)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>rsv_SelectedCampaign</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Get_Looked_Up_Campaign_Pledge</elementReference>
+                <elementReference>Get_Looked_Up_Campaign_Optional</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Decide_Fulfillment</targetReference>
+            <targetReference>Get_Campaign_Default_Designations</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -476,8 +494,8 @@
         </connector>
     </assignments>
     <assignments>
-        <name>Assign_Defaults_FeeForService</name>
-        <label>Defaults: Fee-for-Service</label>
+        <name>Assign_Defaults_EarnedIncome</name>
+        <label>Defaults: Earned Income</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
@@ -513,6 +531,57 @@
             <operator>Assign</operator>
             <value>
                 <stringValue>Don&apos;t Send</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.Name</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaGiftTransactionName_OneTime</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Common_GiftType_And_Campaign</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Defaults_EventRegistration</name>
+        <label>Defaults: Event Registration</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.DonorId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.FQS_Gift_Transaction_Category__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Fee/Payment</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.FQS_In_Kind__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Paid</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.TaxReceiptStatus</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Send</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -1067,7 +1136,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Cash-flow path (non-In-Kind). Assign the Amount input to OriginalAmount. The platform derives CurrentAmount from OriginalAmount on insert and derives TaxDeductionAmount from CurrentAmount − NonTaxDeductibleAmount — neither is written here. Also default TransactionDueDate to TransactionDate.</description>
+        <description>Cash-flow path (non-In-Kind). Assign the Amount input to OriginalAmount. The platform derives CurrentAmount from OriginalAmount on insert and derives TaxDeductionAmount from CurrentAmount − NonTaxDeductibleAmount — neither is written here. Phase G7.e: writes the split-date inputs (dtGiftDate → TransactionDate, dtProcessedDate → FQS_Processed_Date__c). TransactionDueDate mirrors dtGiftDate.</description>
         <name>Assign_Fanout_Amount</name>
         <label>Fan out Amount</label>
         <locationX>0</locationX>
@@ -1080,10 +1149,24 @@
             </value>
         </assignmentItems>
         <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.TransactionDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dtGiftDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
             <assignToReference>rsv_GiftTransaction.TransactionDueDate</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>rsv_GiftTransaction.TransactionDate</elementReference>
+                <elementReference>dtGiftDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.FQS_Processed_Date__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dtProcessedDate</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -1122,6 +1205,51 @@
             <operator>Assign</operator>
             <value>
                 <elementReference>rsv_GiftTransaction.TransactionDate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_Gift_Transaction</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Phase G7.d — Event Registration fanout. Writes the full payment to OriginalAmount (so hard-credit rollups reflect what changed hands) and the material-benefit portion to NonTaxDeductibleAmount. The platform-derived TaxDeductionAmount then lands at OriginalAmount − NonTaxDeductibleAmount, giving the donor their partial deduction automatically. numEventRegBenefit is required on Screen_Gift_Details when pkLeafSpecial=EventRegistration, so it&apos;s never null here.</description>
+        <name>Assign_Fanout_Amount_EventReg</name>
+        <label>Fan out Amount (Event Registration)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.OriginalAmount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>numGiftAmount</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.NonTaxDeductibleAmount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>numEventRegBenefit</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.TransactionDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dtGiftDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.TransactionDueDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dtGiftDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.FQS_Processed_Date__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dtProcessedDate</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -1406,7 +1534,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Screen_Pick_Campaign_Pledge</targetReference>
+            <targetReference>Screen_Pick_Campaign_Required</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -1674,8 +1802,8 @@
         </connector>
     </assignments>
     <assignments>
-        <name>Assign_Restriction_FeeForService</name>
-        <label>Fee for Service restriction: Earned Revenue</label>
+        <name>Assign_Restriction_EarnedIncome</name>
+        <label>Earned Income restriction: Earned Revenue</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
@@ -1828,7 +1956,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Screen_Pick_Campaign_Pledge</targetReference>
+            <targetReference>Screen_Pick_Campaign_Required</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -2002,7 +2130,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Phase E2 (wizard plan §Pledge Payment logic, lines 157-163). Prepares rsv_GiftTransaction for the update-existing-Expected-GT path. Writes rsv_GiftTransaction.Id = rsv_SelectedGT.Id (this is what makes Update_Gift_Transaction target the selected row instead of inserting), and Status=&apos;Paid&apos; (the semantic transition — the payment has now landed). TransactionDate + PaymentMethod are already carried on rsv_GiftTransaction from Screen_Gift_Details&apos; ObjectProvided bindings. Deliberately does NOT set OriginalAmount, CurrentAmount, or TransactionDueDate: OriginalAmount is preserved per wizard-plan line 162 (never touch the schedule&apos;s original amount even on mismatch — user manages upgrades on the GC record); CurrentAmount is a platform-computed rollup (silently ignored on write); TransactionDueDate is the schedule&apos;s original due date and stays as-is so historical reporting keeps its meaning.</description>
+        <description>Phase E2 (wizard plan §Pledge Payment logic, lines 157-163). Prepares rsv_GiftTransaction for the update-existing-Expected-GT path. Writes rsv_GiftTransaction.Id = rsv_SelectedGT.Id (this is what makes Update_Gift_Transaction target the selected row instead of inserting), and Status=&apos;Paid&apos; (the semantic transition — the payment has now landed). Phase G7.e: Writes dtGiftDate → TransactionDate and dtProcessedDate → FQS_Processed_Date__c so the Update carries the split-date inputs from Screen_Gift_Details. Deliberately does NOT set OriginalAmount, CurrentAmount, or TransactionDueDate: OriginalAmount is preserved per wizard-plan line 162 (never touch the schedule&apos;s original amount even on mismatch — user manages upgrades on the GC record); CurrentAmount is a platform-computed rollup (silently ignored on write); TransactionDueDate is the schedule&apos;s original due date and stays as-is so historical reporting keeps its meaning.</description>
         <name>Assign_Update_GT_Fields</name>
         <label>Prepare Update: Existing GT</label>
         <locationX>0</locationX>
@@ -2019,6 +2147,20 @@
             <operator>Assign</operator>
             <value>
                 <stringValue>Paid</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.TransactionDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dtGiftDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.FQS_Processed_Date__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dtProcessedDate</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -2043,7 +2185,7 @@
     </choices>
     <choices>
         <name>Choice_Cat_Special</name>
-        <choiceText>A Special / Non-Cash Transaction — In-Kind or Fee for Service.</choiceText>
+        <choiceText>Other transaction - in-kind, earned income, or event registration.</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Special</stringValue>
@@ -2083,7 +2225,7 @@
     </choices>
     <choices>
         <name>Choice_Formal_Written</name>
-        <choiceText>Written - A written agreement was made or will be made for a gift.</choiceText>
+        <choiceText>Written - A documented agreement was made or will be made for a gift.</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Written</stringValue>
@@ -2178,11 +2320,19 @@
         </value>
     </choices>
     <choices>
-        <name>Choice_Leaf_FeeForService</name>
-        <choiceText>Fee for Service — 100% non-deductible payment for a direct material benefit.</choiceText>
+        <name>Choice_Leaf_EarnedIncome</name>
+        <choiceText>Earned Income — 100% non-deductible payment for a direct material benefit.</choiceText>
         <dataType>String</dataType>
         <value>
-            <stringValue>FeeForService</stringValue>
+            <stringValue>EarnedIncome</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Leaf_EventRegistration</name>
+        <choiceText>Event Registration — payment with partial tax benefit (donation portion plus material benefit).</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>EventRegistration</stringValue>
         </value>
     </choices>
     <choices>
@@ -2483,19 +2633,34 @@
             <label>In-Kind</label>
         </rules>
         <rules>
-            <name>Assign_Apply_Type_Defaults_IsFeeForService</name>
+            <name>Assign_Apply_Type_Defaults_IsEarnedIncome</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>pkLeafSpecial</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <elementReference>Choice_Leaf_FeeForService</elementReference>
+                    <elementReference>Choice_Leaf_EarnedIncome</elementReference>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Assign_Defaults_FeeForService</targetReference>
+                <targetReference>Assign_Defaults_EarnedIncome</targetReference>
             </connector>
-            <label>Fee-for-Service</label>
+            <label>Earned Income</label>
+        </rules>
+        <rules>
+            <name>Assign_Apply_Type_Defaults_IsEventRegistration</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafSpecial</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_EventRegistration</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Defaults_EventRegistration</targetReference>
+            </connector>
+            <label>Event Registration</label>
         </rules>
         <rules>
             <name>Assign_Apply_Type_Defaults_IsPledgePayment</name>
@@ -3006,7 +3171,7 @@
         <defaultConnector>
             <targetReference>Decide_Update_Or_Insert</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>Cash-flow (Outright / Fee-for-Service / Pledge Payment)</defaultConnectorLabel>
+        <defaultConnectorLabel>Cash-flow (Outright / Earned Income / Pledge Payment)</defaultConnectorLabel>
         <rules>
             <name>Decide_Fanout_Path_IsInKind</name>
             <conditionLogic>and</conditionLogic>
@@ -3021,6 +3186,21 @@
                 <targetReference>Assign_Fanout_Amount_InKind</targetReference>
             </connector>
             <label>In-Kind — write FMV to custom field, zero OriginalAmount</label>
+        </rules>
+        <rules>
+            <name>Decide_Fanout_Path_IsEventRegistration</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafSpecial</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_EventRegistration</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Fanout_Amount_EventReg</targetReference>
+            </connector>
+            <label>Event Registration — write benefit portion to NonTaxDeductibleAmount</label>
         </rules>
     </decisions>
     <decisions>
@@ -3376,7 +3556,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Step 2c — Special leaves. Reads pkLeafSpecial (In-Kind / Fee for Service). Every leaf has an explicit rule for readability; the default is unreachable in normal operation because pkLeafSpecial is required whenever Special is picked. Both leaves currently land on Gift Details; downstream decisions (Decide_Fanout_Path, Decide_Create_InKind_SelfCredit, Screen_Gift_Details visibility rules) branch on pkLeafSpecial. Reached from Decide_Category → Special.</description>
+        <description>Step 2c — Special leaves. Reads pkLeafSpecial (In-Kind / Earned Income). Every leaf has an explicit rule for readability; the default is unreachable in normal operation because pkLeafSpecial is required whenever Special is picked. Both leaves currently land on Gift Details; downstream decisions (Decide_Fanout_Path, Decide_Create_InKind_SelfCredit, Screen_Gift_Details visibility rules) branch on pkLeafSpecial. Reached from Decide_Category → Special.</description>
         <name>Decide_Leaf_Special</name>
         <label>Step 2c — Route by Special Leaf</label>
         <locationX>0</locationX>
@@ -3401,19 +3581,34 @@
             <label>In-Kind Gift</label>
         </rules>
         <rules>
-            <name>Decide_Leaf_Special_IsFeeForService</name>
+            <name>Decide_Leaf_Special_IsEarnedIncome</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>pkLeafSpecial</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <elementReference>Choice_Leaf_FeeForService</elementReference>
+                    <elementReference>Choice_Leaf_EarnedIncome</elementReference>
                 </rightValue>
             </conditions>
             <connector>
                 <targetReference>Assign_Gift_Details_Defaults</targetReference>
             </connector>
-            <label>Fee for Service</label>
+            <label>Earned Income</label>
+        </rules>
+        <rules>
+            <name>Decide_Leaf_Special_IsEventRegistration</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafSpecial</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_EventRegistration</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Gift_Details_Defaults</targetReference>
+            </connector>
+            <label>Event Registration</label>
         </rules>
     </decisions>
     <decisions>
@@ -3450,15 +3645,15 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Phase F2.1 (was F1). Routes after Screen_Gift_Details: if user opted in to an employer match via pkNeedsMatch=Yes, jump to Screen_Match_Employer. Otherwise fall through to Screen_Pick_Campaign unchanged. In-Kind and Fee-for-Service never reach the Yes branch because pkNeedsMatch&apos;s visibility rule requires pkLeafSpecial IsNull. Phase F2.1: pkNeedsMatchPP retired — single radio covers all monetary leaves.</description>
+        <description>Phase F2.1 (was F1) — updated designation-hierarchy Phase 2b. Routes after Screen_Gift_Details: if user opted in to an employer match via pkNeedsMatch=Yes, jump to Screen_Match_Employer. Otherwise falls through to Decide_Campaign_Screen_By_Leaf, which branches In-Kind + Earned Income to Screen_Pick_Campaign_Optional (Q9 optional) and everything else to Screen_Pick_Campaign (required per Phase 2a). In-Kind and Earned Income never reach the Yes match branch because pkNeedsMatch&apos;s visibility rule requires pkLeafSpecial IsNull. Phase F2.1: pkNeedsMatchPP retired — single radio covers all monetary leaves.</description>
         <name>Decide_Match_Needed</name>
         <label>User wants employer match?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Screen_Pick_Campaign</targetReference>
+            <targetReference>Decide_Campaign_Screen_By_Leaf</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>No match — skip employer picker</defaultConnectorLabel>
+        <defaultConnectorLabel>No match — pick Campaign screen by leaf</defaultConnectorLabel>
         <rules>
             <name>Decide_Match_Needed_Yes</name>
             <conditionLogic>and</conditionLogic>
@@ -3476,13 +3671,69 @@
         </rules>
     </decisions>
     <decisions>
+        <description>Designation hierarchy Phase 2b — Q9 Campaign contract split for the shared-monetary Campaign screen. Routes In-Kind + Earned Income (Special-category leaves that landed on Screen_Pick_Campaign historically) to Screen_Pick_Campaign_Optional, which lets the user skip Campaign entirely (minRowSelection=0). Everything else — Outright, Pledge Payment, Event Registration — falls through to Screen_Pick_Campaign (which Phase 2a will flip to required, minRowSelection=1). Keying on pkLeafSpecial only: pkLeafSpecial IsNull for Outright + Pledge Payment (they use pkLeafMonetary) and Set for In-Kind / Earned Income / Event Registration. Event Registration is explicitly excluded from the Optional branch — it uses pkLeafSpecial like In-Kind/Earned Income but plan Q9 marks it required.</description>
+        <name>Decide_Campaign_Screen_By_Leaf</name>
+        <label>Campaign Screen: Required or Optional?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Pick_Campaign_Required</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default — required Campaign screen</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Campaign_Screen_By_Leaf_PledgePayment</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_PledgePayment</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Campaign_For_Commitment</targetReference>
+            </connector>
+            <label>Pledge Payment — inherit Campaign from commitment (Q4/Q12)</label>
+        </rules>
+        <rules>
+            <name>Decide_Campaign_Screen_By_Leaf_InKind</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafSpecial</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_InKindGift</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Pick_Campaign_Optional</targetReference>
+            </connector>
+            <label>In-Kind — optional Campaign screen</label>
+        </rules>
+        <rules>
+            <name>Decide_Campaign_Screen_By_Leaf_EarnedIncome</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafSpecial</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_EarnedIncome</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Pick_Campaign_Optional</targetReference>
+            </connector>
+            <label>Earned Income — optional Campaign screen</label>
+        </rules>
+    </decisions>
+    <decisions>
         <description>Phase F3c. Gates the Recurring leaf on Screen_Recurring_Details&apos; pkMatchEligible_Recurring radio. Yes → Screen_Pick_Match_Employer (the shared employer picker; downstream Decide_Insert_Employer_GT_Insert has a Recurring rule that fires on pkMatchEligible_Recurring=Yes so we don&apos;t need to mutate the screen-scoped pkNeedsMatch variable). No → Screen_Pick_Campaign_Pledge unchanged.</description>
         <name>Decide_Match_Needed_Recurring</name>
         <label>Recurring — Match Eligible?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Screen_Pick_Campaign_Pledge</targetReference>
+            <targetReference>Screen_Pick_Campaign_Required</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>No — skip match subflow</defaultConnectorLabel>
         <rules>
@@ -3560,7 +3811,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Screen_Pick_Campaign</targetReference>
+            <targetReference>Screen_Pick_Campaign_Required</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Default — Outright/PP campaign picker</defaultConnectorLabel>
         <rules>
@@ -3574,9 +3825,9 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Screen_Pick_Campaign_Pledge</targetReference>
+                <targetReference>Screen_Pick_Campaign_Required</targetReference>
             </connector>
-            <label>Recurring — use Pledge campaign screen</label>
+            <label>Recurring — use merged required Campaign screen</label>
         </rules>
     </decisions>
     <decisions>
@@ -3631,7 +3882,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>For Pledge Payment: consult rsv_SelectedCommitment.FulfillmentType. Unconditional → skip picker (commitment&apos;s default designation applies). Conditional → filter designations by the commitment&apos;s existing GiftDefaultDesignation restriction. For Fee-for-Service → filter designations to those tagged Earned Revenue (exchange-transaction revenue, not a donor contribution). For other transaction types (Outright / In-Kind) → default to unrestricted designations.</description>
+        <description>For Pledge Payment: consult rsv_SelectedCommitment.FulfillmentType. Unconditional → skip picker (commitment&apos;s default designation applies). Conditional → filter designations by the commitment&apos;s existing GiftDefaultDesignation restriction. For Earned Income → filter designations to those tagged Earned Revenue (exchange-transaction revenue, not a donor contribution). For other transaction types (Outright / In-Kind) → default to unrestricted designations.</description>
         <name>Decide_Restriction_Path</name>
         <label>Route: restriction path</label>
         <locationX>0</locationX>
@@ -3685,19 +3936,26 @@
             <label>PP Conditional — filter by commitment&apos;s restriction</label>
         </rules>
         <rules>
-            <name>Decide_Restriction_Path_FeeForService</name>
-            <conditionLogic>1</conditionLogic>
+            <name>Decide_Restriction_Path_EarnedIncome</name>
+            <conditionLogic>1 OR 2</conditionLogic>
             <conditions>
                 <leftValueReference>pkLeafSpecial</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <elementReference>Choice_Leaf_FeeForService</elementReference>
+                    <elementReference>Choice_Leaf_EarnedIncome</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>pkLeafSpecial</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_EventRegistration</elementReference>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Assign_Restriction_FeeForService</targetReference>
+                <targetReference>Assign_Restriction_EarnedIncome</targetReference>
             </connector>
-            <label>Fee for Service — filter by Earned Revenue</label>
+            <label>Earned Income or Event Reg — filter by Earned Revenue</label>
         </rules>
     </decisions>
     <decisions>
@@ -3732,7 +3990,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Screen_Pick_Campaign</targetReference>
+            <targetReference>Screen_Pick_Campaign_Required</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Not Pledge Payment — skip commitment picker</defaultConnectorLabel>
         <rules>
@@ -3816,7 +4074,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Get_Campaign_Default_Designations</targetReference>
+            <targetReference>Decide_Campaign_Downstream_Route</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Use datatable</defaultConnectorLabel>
         <rules>
@@ -3836,27 +4094,60 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Pledge-branch equivalent of Decide_Use_Campaign_Lookup. Uses the Pledge screen&apos;s own checkbox variable.</description>
-        <name>Decide_Use_Campaign_Lookup_Pledge</name>
-        <label>Use Campaign lookup? (Pledge)</label>
+        <description>Designation hierarchy Phase 2a — fan-out router after the merged required-Campaign screen resolves rsv_SelectedCampaign. Two paths: (1) Commitment-creation leaves (Simple / Scheduled / Recurring / Grant — identified by pkLeafFuture IsSet OR pkLeafMonetary=RecurringGift) route to Decide_Fulfillment, which owns the GC-side downstream chain (writes CampaignId onto rsv_GiftCommitment via Assign_Pledge_Campaign after designation resolution). (2) Everything else (Outright, Pledge Payment, Event Registration — pkLeafMonetary values other than Recurring, or pkLeafSpecial=EventRegistration) falls through to Get_Campaign_Default_Designations, which owns the GT-side downstream chain (writes CampaignId onto rsv_GiftTransaction via Assign_Campaign_From_Selection). Replaces the pre-Phase-2a scattered dual-screen design where Screen_Pick_Campaign_Pledge fed the GC chain and Screen_Pick_Campaign fed the GT chain. Recurring is commitment-creation despite living on pkLeafMonetary — the rule below catches it explicitly. Pledge Payment stays on the GT path (default) — Phase 2c will route it to a read-only PP screen entirely, at which point this router won&apos;t see it.</description>
+        <name>Decide_Campaign_Downstream_Route</name>
+        <label>Route: Campaign onto GC or GT?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Decide_Fulfillment</targetReference>
+            <targetReference>Get_Campaign_Default_Designations</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>Use datatable</defaultConnectorLabel>
+        <defaultConnectorLabel>Transaction leaf — GT chain</defaultConnectorLabel>
         <rules>
-            <name>Decide_Use_Campaign_Lookup_Pledge_UseLookup</name>
+            <name>Decide_Campaign_Downstream_Route_IsCommitmentCreation</name>
+            <conditionLogic>1 OR 2</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafFuture</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_RecurringGift</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Decide_Fulfillment</targetReference>
+            </connector>
+            <label>Commitment-creation leaf — GC chain</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Designation hierarchy Phase 2b — optional Campaign screen&apos;s lookup gate. Mirrors Decide_Use_Campaign_Lookup on the required path; distinct because the optional screen has its own checkbox variable (chkUseCampaignLookupOpt) so the two screens can coexist without a runtime collision on the shared boolean. Default (datatable) proceeds directly to Get_Campaign_Default_Designations — the datatable&apos;s output binding writes rsv_SelectedCampaign automatically; if user skipped, rsv_SelectedCampaign stays null, and Get_Campaign_Default_Designations returns no rows for a null CampaignId (safe on the resolver in Phase 3).</description>
+        <name>Decide_Use_Campaign_Lookup_Optional</name>
+        <label>Use Campaign lookup? (Optional)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Get_Campaign_Default_Designations</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Use datatable (or skip)</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Use_Campaign_Lookup_Optional_UseLookup</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>chkUseCampaignLookupPledge</leftValueReference>
+                <leftValueReference>chkUseCampaignLookupOpt</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Get_Looked_Up_Campaign_Pledge</targetReference>
+                <targetReference>Get_Looked_Up_Campaign_Optional</targetReference>
             </connector>
             <label>Use lookup</label>
         </rules>
@@ -3939,7 +4230,7 @@
             <label>Use lookup</label>
         </rules>
     </decisions>
-    <description>Screen flow launched via quick action from an Account record. Records either a GiftTransaction (Outright, In-Kind, Fee-for-Service, or Pledge Payment) or a new GiftCommitment (Pledge). Every path uses record variables bound to the record-creates via inputReference. Pickers (Commitment, Campaign, Designation, Soft-Credit Account) are datatables with a native lookup escape hatch. Restriction handling on the Pledge branch is driven by GiftCommitment.FulfillmentType. Every DML has a fault path to a single error screen so the user always sees why nothing was saved.</description>
+    <description>Screen flow launched via quick action from an Account record. Records either a GiftTransaction (Outright, In-Kind, Earned Income, or Pledge Payment) or a new GiftCommitment (Pledge). Every path uses record variables bound to the record-creates via inputReference. Pickers (Commitment, Campaign, Designation, Soft-Credit Account) are datatables with a native lookup escape hatch. Restriction handling on the Pledge branch is driven by GiftCommitment.FulfillmentType. Every DML has a fault path to a single error screen so the user always sees why nothing was saved.</description>
     <dynamicChoiceSets>
         <name>pcs_PaymentMethod</name>
         <dataType>Picklist</dataType>
@@ -3949,6 +4240,12 @@
         <picklistObject>GiftTransaction</picklistObject>
     </dynamicChoiceSets>
     <environments>Default</environments>
+    <formulas>
+        <description>Phase G5 (mismatch-warning polish). Actionable delta line for the amount-mismatch warning — tells the user &quot;That&apos;s $50.00 more than the scheduled amount.&quot; or &quot;That&apos;s $50.00 less than the scheduled amount.&quot; Guarded on both operands non-blank (Decide_Amount_Mismatch only fires when both are set, but the formula is defensive).</description>
+        <name>formulaAmountMismatchDelta</name>
+        <dataType>String</dataType>
+        <expression>IF(OR(ISBLANK({!numGiftAmount}), ISBLANK({!rsv_SelectedGT.OriginalAmount})), &quot;&quot;, IF({!numGiftAmount} &gt; {!rsv_SelectedGT.OriginalAmount}, &quot;That&apos;s $&quot; &amp; TEXT(ROUND({!numGiftAmount} - {!rsv_SelectedGT.OriginalAmount}, 2)) &amp; &quot; more than the scheduled amount.&quot;, &quot;That&apos;s $&quot; &amp; TEXT(ROUND({!rsv_SelectedGT.OriginalAmount} - {!numGiftAmount}, 2)) &amp; &quot; less than the scheduled amount.&quot;))</expression>
+    </formulas>
     <formulas>
         <description>Phase C.2b-collapse: derives GiftTransaction.GiftType for a Custom-branch installment from Get_Account.IsPersonAccount. Person Account → Individual, otherwise Organizational — mirrors Assign_GiftType_Individual / Assign_GiftType_Organizational used elsewhere in the launcher.</description>
         <name>formulaCustomGiftType</name>
@@ -3974,6 +4271,60 @@
         <expression>IF(ISNULL({!rsv_GiftTransaction.TransactionDate}), {!$Flow.CurrentDate}, {!rsv_GiftTransaction.TransactionDate})</expression>
     </formulas>
     <formulas>
+        <description>Phase G5 (mismatch-warning polish). Renders Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c as &quot;$5,000.00&quot; for the match-max warning. See formulaDisplay_NumGiftAmount.</description>
+        <name>formulaDisplay_MatchAnnualMax</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}), &quot;$0.00&quot;, &quot;$&quot; &amp; TEXT(ROUND({!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}, 2)))</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G5 (mismatch-warning polish). Renders numGiftAmount as &quot;$250.00&quot; for the amount-mismatch warning and the PP-update confirmation screen. Wraps ROUND(amt, 2) in TEXT() to force two-decimal display; without this, Flow&apos;s default TEXT() emits &quot;250&quot; for round amounts and drops trailing zeros. Consumed inline as {!formulaDisplay_NumGiftAmount} in Screen_Warning_Amount_Mismatch and Screen_Confirm_Pledge_Payment_Update.</description>
+        <name>formulaDisplay_NumGiftAmount</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!numGiftAmount}), &quot;$0.00&quot;, &quot;$&quot; &amp; TEXT(ROUND({!numGiftAmount}, 2)))</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G5 (mismatch-warning polish). Renders numMatchAmount as &quot;$250.00&quot; for the match-max warning. See formulaDisplay_NumGiftAmount.</description>
+        <name>formulaDisplay_NumMatchAmount</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!numMatchAmount}), &quot;$0.00&quot;, &quot;$&quot; &amp; TEXT(ROUND({!numMatchAmount}, 2)))</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G5 (mismatch-warning polish). Renders rsv_SelectedGT.OriginalAmount as &quot;$250.00&quot; for the amount-mismatch warning. Same ROUND/TEXT trick as formulaDisplay_NumGiftAmount. Guard against un-set OriginalAmount is defensive — Decide_Amount_Mismatch only fires when the datatable selected a row with OriginalAmount populated, but Flow throws on any unread SObject field read (see [[flow-unread-sobject-field-throws]]).</description>
+        <name>formulaDisplay_OriginalAmount</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!rsv_SelectedGT.OriginalAmount}), &quot;$0.00&quot;, &quot;$&quot; &amp; TEXT(ROUND({!rsv_SelectedGT.OriginalAmount}, 2)))</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G5 (PP-update confirmation). Renders rsv_GiftTransaction.PaymentMethod picklist as a plain string for the confirmation summary. Wraps in TEXT() because picklist fields require it. IsNull-gated fallback = &quot;Cash&quot; matching the flow-wide default set in Assign_Gift_Details_Defaults.</description>
+        <name>formulaDisplay_PaymentMethod</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK(TEXT({!rsv_GiftTransaction.PaymentMethod})), &quot;Cash&quot;, TEXT({!rsv_GiftTransaction.PaymentMethod}))</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G5 (PP-update confirmation). Renders rsv_SelectedGT.TransactionDueDate as &quot;Mon DD, YYYY&quot; for the confirmation summary. Same date-format shape as formulaRecurringStartDateDisplay. TransactionDueDate is guaranteed present because dtExistingGTs declares it as a column (see line ~5261 in this file) — Flow throws on any unread SObject field so the ISBLANK guard is defensive, not paranoid.</description>
+        <name>formulaDisplay_TransactionDueDate</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!rsv_SelectedGT.TransactionDueDate}), &quot;___&quot;, CASE(MONTH({!rsv_SelectedGT.TransactionDueDate}), 1, &quot;Jan&quot;, 2, &quot;Feb&quot;, 3, &quot;Mar&quot;, 4, &quot;Apr&quot;, 5, &quot;May&quot;, 6, &quot;Jun&quot;, 7, &quot;Jul&quot;, 8, &quot;Aug&quot;, 9, &quot;Sep&quot;, 10, &quot;Oct&quot;, 11, &quot;Nov&quot;, 12, &quot;Dec&quot;, &quot;&quot;) &amp; &quot; &quot; &amp; TEXT(DAY({!rsv_SelectedGT.TransactionDueDate})) &amp; &quot;, &quot; &amp; TEXT(YEAR({!rsv_SelectedGT.TransactionDueDate})))</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G6 (Success screen rewrite). Renders a leaf-specific one-line summary sentence for Screen_Success. References ONLY top-level scalar variables (pkLeaf*, num*, dt*) — never SObject field-paths — so it evaluates safely on every terminal path without tripping [[flow-unread-sobject-field-throws]]. The three leaf radios (pkLeafMonetary / pkLeafFuture / pkLeafSpecial) are mutually exclusive per run — only the one whose category was picked on Screen_Category is populated — so BLANKVALUE(BLANKVALUE(monetary, future), special) yields a single key we CASE on. Dates on monetary/special paths use TODAY() rather than the user-entered TransactionDate — the entered date lives on rsv_GiftTransaction.TransactionDate which we can&apos;t read cross-path without throwing on pledge branches. TODAY() is accurate for the default (unmodified) case and off by at most a few days for backdated entries; a small imprecision on a confirmation screen we deemed acceptable versus the alternative of gating summary lines with visibility rules per leaf.</description>
+        <name>formulaSuccessSummary</name>
+        <dataType>String</dataType>
+        <expression>CASE(BLANKVALUE(BLANKVALUE({!pkLeafMonetary}, {!pkLeafFuture}), {!pkLeafSpecial}), &quot;Outright&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Outright Gift on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;PledgePayment&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Pledge Payment on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;Recurring&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numRecurringAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Recurring Gift starting &lt;b&gt;&quot; &amp; {!formulaRecurringStartDateDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;Simple&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numPledgeAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Simple Pledge/Grant.&quot;, &quot;Scheduled&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numScheduledTotal}, 0), 2)) &amp; &quot;&lt;/b&gt; Scheduled Pledge/Grant starting &lt;b&gt;&quot; &amp; {!formulaScheduledStartDateDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;InKind&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; In-Kind Gift on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;EarnedIncome&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Earned Income payment on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;EventRegistration&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Event Registration on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt; (&lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numEventRegBenefit}, 0), 2)) &amp; &quot;&lt;/b&gt; benefit).&quot;, &quot;Record created.&quot;)</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G6 (Success screen rewrite). Renders TODAY() as &quot;Mon DD, YYYY&quot; for the Success summary sentence on monetary + special paths where no dedicated start-date scalar exists. Same date-format shape as formulaRecurringStartDateDisplay.</description>
+        <name>formulaTodayDisplay</name>
+        <dataType>String</dataType>
+        <expression>CASE(MONTH(TODAY()), 1, &quot;Jan&quot;, 2, &quot;Feb&quot;, 3, &quot;Mar&quot;, 4, &quot;Apr&quot;, 5, &quot;May&quot;, 6, &quot;Jun&quot;, 7, &quot;Jul&quot;, 8, &quot;Aug&quot;, 9, &quot;Sep&quot;, 10, &quot;Oct&quot;, 11, &quot;Nov&quot;, 12, &quot;Dec&quot;, &quot;&quot;) &amp; &quot; &quot; &amp; TEXT(DAY(TODAY())) &amp; &quot;, &quot; &amp; TEXT(YEAR(TODAY()))</expression>
+    </formulas>
+    <formulas>
+        <description>Phase G6 (Success screen rewrite). Renders the paired-match amount as &quot;$250.00&quot; for the Success screen match line. Guarded via BLANKVALUE. The employer Name is rendered inline as {!Get_Match_Employer.Name} in the SuccessMatchLine DisplayText fieldText — that field&apos;s visibility rule (pkNeedsMatch=Yes) gates evaluation so the .Name read only runs on match=Yes paths where Get_Match_Employer already fired.</description>
+        <name>formulaSuccessMatchAmount</name>
+        <dataType>String</dataType>
+        <expression>&quot;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numMatchAmount}, 0), 2))</expression>
+    </formulas>
+    <formulas>
         <description>Phase G3: donor GT amount across leaves. Outright/PP use numGiftAmount (Screen_Gift_Details); Recurring uses numRecurringAmount (Screen_Recurring_Details, no numGiftAmount collected). BLANKVALUE picks whichever is populated on the current branch. Used by Assign_MatchSoftCredit_OnDonor.PartialAmount so the donor-side soft credit reflects the donor GT amount, not the match amount.</description>
         <name>formulaDonorGiftAmount</name>
         <dataType>Number</dataType>
@@ -3993,16 +4344,16 @@
         <expression>{!Get_Account.Name} &amp; &quot; - &quot; &amp; TEXT({!numPledgeAmount}) &amp; &quot; &quot; &amp; TEXT({!rsv_GiftCommitment.FQS_Gift_Commitment_Category__c})</expression>
     </formulas>
     <formulas>
-        <description>Auto-generated Name for a one-time GiftTransaction (Outright, In-Kind, Fee-for-Service). Pattern: &quot;&lt;Donor Name&gt; &lt;Original Amount&gt; &lt;Transaction Date&gt;&quot;.</description>
+        <description>Auto-generated Name for a one-time GiftTransaction (Outright, In-Kind, Earned Income, Event Registration). Pattern: &quot;&lt;Donor Name&gt; &lt;Original Amount&gt; &lt;Gift Date&gt;&quot;. Phase G7.e: BLANKVALUE prefers dtGiftDate (Screen_Gift_Details Gift Date input, cash/EarnedIncome/EventReg paths) and falls back to rsv_GiftTransaction.TransactionDate (In-Kind path uses the ObjectProvided binding, which populates the record variable directly). Name is stamped inside Assign_Defaults_* which runs BEFORE Screen_Gift_Details, so at name-stamp time dtGiftDate is still null; the stamped value only reflects TODAY. Assign_Fanout_Amount runs after the screen and rewrites TransactionDate to dtGiftDate — this formula is retained here for correctness once we re-run the assignment on a later fix (or for In-Kind where TransactionDate is stable pre-screen).</description>
         <name>formulaGiftTransactionName_OneTime</name>
         <dataType>String</dataType>
-        <expression>{!Get_Account.Name} &amp; &quot; &quot; &amp; TEXT({!numGiftAmount}) &amp; &quot; &quot; &amp; TEXT({!rsv_GiftTransaction.TransactionDate})</expression>
+        <expression>{!Get_Account.Name} &amp; &quot; &quot; &amp; TEXT({!numGiftAmount}) &amp; &quot; &quot; &amp; TEXT(BLANKVALUE({!dtGiftDate}, {!rsv_GiftTransaction.TransactionDate}))</expression>
     </formulas>
     <formulas>
-        <description>Auto-generated Name for a Pledge Payment GiftTransaction (recurring / against an existing commitment). Pattern: &quot;&lt;Donor Name&gt; &lt;Original Amount&gt; &lt;Transaction Date&gt;&quot;. Uses TransactionDate rather than TransactionDueDate because in the current launcher TransactionDueDate is set equal to TransactionDate in Assign_Fanout_Amount and is not user-editable; if a future revision lets the user set TransactionDueDate independently, switch this back to TransactionDueDate and ensure the assignment runs after fanout.</description>
+        <description>Auto-generated Name for a Pledge Payment GiftTransaction (recurring / against an existing commitment). Pattern: &quot;&lt;Donor Name&gt; &lt;Original Amount&gt; &lt;Gift Date&gt;&quot;. Phase G7.e: BLANKVALUE prefers dtGiftDate (Screen_Gift_Details Gift Date input) and falls back to rsv_GiftTransaction.TransactionDate.</description>
         <name>formulaGiftTransactionName_Recurring</name>
         <dataType>String</dataType>
-        <expression>{!Get_Account.Name} &amp; &quot; &quot; &amp; TEXT({!numGiftAmount}) &amp; &quot; &quot; &amp; TEXT({!rsv_GiftTransaction.TransactionDate})</expression>
+        <expression>{!Get_Account.Name} &amp; &quot; &quot; &amp; TEXT({!numGiftAmount}) &amp; &quot; &quot; &amp; TEXT(BLANKVALUE({!dtGiftDate}, {!rsv_GiftTransaction.TransactionDate}))</expression>
     </formulas>
     <formulas>
         <description>Phase F2.1: default value for numMatchAmount on Screen_Set_Match_Amount. If the selected employer has FQS_Match_Ratio__c populated, default = donor amount × ratio (e.g., 1:1 = $50 → $50, 2:1 = $50 → $100). Otherwise default = donor amount (1:1 assumption). Phase F3c: donor amount source varies by leaf — Outright/PP use numGiftAmount (Screen_Gift_Details), Recurring uses numRecurringAmount (Screen_Recurring_Details, no numGiftAmount collected). BLANKVALUE(numGiftAmount, numRecurringAmount) picks whichever is populated on the current branch. User can still override on the screen. Uses BLANKVALUE to null-coalesce the ratio because Flow formulas cannot ISNULL a lookup-result Number field without the parent Get_Match_Employer having run — BLANKVALUE returns the fallback on null / blank without throwing. See [[flow-screen-authoring-gotchas]] on BLANKVALUE-vs-NVL and [[flow-unread-sobject-field-throws]].</description>
@@ -4030,52 +4381,10 @@
         <expression>BEGINS({!pkMatchEligible_Scheduled}, &quot;Yes&quot;)</expression>
     </formulas>
     <formulas>
-        <description>Phase G5 (mismatch-warning polish). Renders numGiftAmount as &quot;$250.00&quot; for the amount-mismatch warning and the PP-update confirmation screen. Wraps ROUND(amt, 2) in TEXT() to force two-decimal display; without this, Flow&apos;s default TEXT() emits &quot;250&quot; for round amounts and drops trailing zeros. Consumed inline as {!formulaDisplay_NumGiftAmount} in Screen_Warning_Amount_Mismatch and Screen_Confirm_Pledge_Payment_Update.</description>
-        <name>formulaDisplay_NumGiftAmount</name>
-        <dataType>String</dataType>
-        <expression>IF(ISBLANK({!numGiftAmount}), &quot;$0.00&quot;, &quot;$&quot; &amp; TEXT(ROUND({!numGiftAmount}, 2)))</expression>
-    </formulas>
-    <formulas>
-        <description>Phase G5 (mismatch-warning polish). Renders rsv_SelectedGT.OriginalAmount as &quot;$250.00&quot; for the amount-mismatch warning. Same ROUND/TEXT trick as formulaDisplay_NumGiftAmount. Guard against un-set OriginalAmount is defensive — Decide_Amount_Mismatch only fires when the datatable selected a row with OriginalAmount populated, but Flow throws on any unread SObject field read (see [[flow-unread-sobject-field-throws]]).</description>
-        <name>formulaDisplay_OriginalAmount</name>
-        <dataType>String</dataType>
-        <expression>IF(ISBLANK({!rsv_SelectedGT.OriginalAmount}), &quot;$0.00&quot;, &quot;$&quot; &amp; TEXT(ROUND({!rsv_SelectedGT.OriginalAmount}, 2)))</expression>
-    </formulas>
-    <formulas>
-        <description>Phase G5 (mismatch-warning polish). Renders numMatchAmount as &quot;$250.00&quot; for the match-max warning. See formulaDisplay_NumGiftAmount.</description>
-        <name>formulaDisplay_NumMatchAmount</name>
-        <dataType>String</dataType>
-        <expression>IF(ISBLANK({!numMatchAmount}), &quot;$0.00&quot;, &quot;$&quot; &amp; TEXT(ROUND({!numMatchAmount}, 2)))</expression>
-    </formulas>
-    <formulas>
-        <description>Phase G5 (mismatch-warning polish). Renders Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c as &quot;$5,000.00&quot; for the match-max warning. See formulaDisplay_NumGiftAmount.</description>
-        <name>formulaDisplay_MatchAnnualMax</name>
-        <dataType>String</dataType>
-        <expression>IF(ISBLANK({!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}), &quot;$0.00&quot;, &quot;$&quot; &amp; TEXT(ROUND({!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}, 2)))</expression>
-    </formulas>
-    <formulas>
-        <description>Phase G5 (mismatch-warning polish). Actionable delta line for the amount-mismatch warning — tells the user &quot;That&apos;s $50.00 more than the scheduled amount.&quot; or &quot;That&apos;s $50.00 less than the scheduled amount.&quot; Guarded on both operands non-blank (Decide_Amount_Mismatch only fires when both are set, but the formula is defensive).</description>
-        <name>formulaAmountMismatchDelta</name>
-        <dataType>String</dataType>
-        <expression>IF(OR(ISBLANK({!numGiftAmount}), ISBLANK({!rsv_SelectedGT.OriginalAmount})), &quot;&quot;, IF({!numGiftAmount} &gt; {!rsv_SelectedGT.OriginalAmount}, &quot;That&apos;s $&quot; &amp; TEXT(ROUND({!numGiftAmount} - {!rsv_SelectedGT.OriginalAmount}, 2)) &amp; &quot; more than the scheduled amount.&quot;, &quot;That&apos;s $&quot; &amp; TEXT(ROUND({!rsv_SelectedGT.OriginalAmount} - {!numGiftAmount}, 2)) &amp; &quot; less than the scheduled amount.&quot;))</expression>
-    </formulas>
-    <formulas>
         <description>Phase G5 (mismatch-warning polish). Actionable delta line for the match-max warning — tells the user &quot;That&apos;s $500.00 over the annual cap.&quot; Only fires when the entered match exceeds the employer&apos;s cap (Decide_Match_Max_Exceeded already gated on numMatchAmount &gt; FQS_Match_Annual_Individual_Maximum__c).</description>
         <name>formulaMatchMaxDelta</name>
         <dataType>String</dataType>
         <expression>IF(OR(ISBLANK({!numMatchAmount}), ISBLANK({!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c})), &quot;&quot;, &quot;That&apos;s $&quot; &amp; TEXT(ROUND({!numMatchAmount} - {!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}, 2)) &amp; &quot; over the annual cap.&quot;)</expression>
-    </formulas>
-    <formulas>
-        <description>Phase G5 (PP-update confirmation). Renders rsv_SelectedGT.TransactionDueDate as &quot;Mon DD, YYYY&quot; for the confirmation summary. Same date-format shape as formulaRecurringStartDateDisplay. TransactionDueDate is guaranteed present because dtExistingGTs declares it as a column (see line ~5261 in this file) — Flow throws on any unread SObject field so the ISBLANK guard is defensive, not paranoid.</description>
-        <name>formulaDisplay_TransactionDueDate</name>
-        <dataType>String</dataType>
-        <expression>IF(ISBLANK({!rsv_SelectedGT.TransactionDueDate}), &quot;___&quot;, CASE(MONTH({!rsv_SelectedGT.TransactionDueDate}), 1, &quot;Jan&quot;, 2, &quot;Feb&quot;, 3, &quot;Mar&quot;, 4, &quot;Apr&quot;, 5, &quot;May&quot;, 6, &quot;Jun&quot;, 7, &quot;Jul&quot;, 8, &quot;Aug&quot;, 9, &quot;Sep&quot;, 10, &quot;Oct&quot;, 11, &quot;Nov&quot;, 12, &quot;Dec&quot;, &quot;&quot;) &amp; &quot; &quot; &amp; TEXT(DAY({!rsv_SelectedGT.TransactionDueDate})) &amp; &quot;, &quot; &amp; TEXT(YEAR({!rsv_SelectedGT.TransactionDueDate})))</expression>
-    </formulas>
-    <formulas>
-        <description>Phase G5 (PP-update confirmation). Renders rsv_GiftTransaction.PaymentMethod picklist as a plain string for the confirmation summary. Wraps in TEXT() because picklist fields require it. IsNull-gated fallback = &quot;Cash&quot; matching the flow-wide default set in Assign_Gift_Details_Defaults.</description>
-        <name>formulaDisplay_PaymentMethod</name>
-        <dataType>String</dataType>
-        <expression>IF(ISBLANK(TEXT({!rsv_GiftTransaction.PaymentMethod})), &quot;Cash&quot;, TEXT({!rsv_GiftTransaction.PaymentMethod}))</expression>
     </formulas>
     <formulas>
         <description>Phase C.3: Auto-generated Name for a Recurring Gift commitment. No fixed total (recurring is open-ended); prints the installment amount + period word so the record is scannable in list views. Category is literal &quot;Recurring Gift&quot; from Assign_Recurring_Defaults.</description>
@@ -4976,13 +5285,14 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <name>Get_Looked_Up_Campaign_Pledge</name>
-        <label>Get Looked-Up Campaign (Pledge)</label>
+        <description>Designation hierarchy Phase 2c — hydrates the parent Campaign of the selected commitment so Screen_Campaign_From_Commitment can display Campaign.Name in the read-only inherited-Campaign summary. Filter on rsv_SelectedCommitment.CampaignId; returns 0 rows if the commitment isn&apos;t attached to a Campaign (Q12 case) — Screen_Campaign_From_Commitment&apos;s visibility rules handle the null branch with an advisory message. Read is safe because rsv_SelectedCommitment is loaded with storeOutputAutomatically=true by both GC-picker paths, so .CampaignId is a known-populated field even when null (per [[flow-unread-sobject-field-throws]]).</description>
+        <name>Get_Campaign_For_Commitment</name>
+        <label>Get Campaign From Commitment</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Assign_Campaign_From_Lookup_Pledge</targetReference>
+            <targetReference>Screen_Campaign_From_Commitment</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Err_Load</targetReference>
@@ -4992,7 +5302,32 @@
             <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>lkpCampaignPledge.recordId</elementReference>
+                <elementReference>rsv_SelectedCommitment.CampaignId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Campaign</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Designation hierarchy Phase 2b — hydrates the full Campaign record from the optional Campaign screen&apos;s lookup input (lkpCampaignOpt.recordId). Mirrors Get_Looked_Up_Campaign / Get_Looked_Up_Campaign_Pledge; separate element because it filters on the optional screen&apos;s lookup field.</description>
+        <name>Get_Looked_Up_Campaign_Optional</name>
+        <label>Get Looked-Up Campaign (Optional)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Campaign_From_Lookup_Optional</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Load</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>lkpCampaignOpt.recordId</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -5209,6 +5544,47 @@
         <showHeader>true</showHeader>
     </screens>
     <screens>
+        <description>Phase G5 (mismatch-warning polish). Confirmation summary interstitial on the Pledge Payment Update branch when the entered amount MATCHES the scheduled OriginalAmount (no mismatch to warn about). Reached only from Decide_Amount_Mismatch&apos;s default connector. Skipped on the mismatch path — Screen_Warning_Amount_Mismatch already summarizes amount + delta and this would be a redundant second interstitial. Single Next button → Assign_Update_GT_Fields → Update_Gift_Transaction.</description>
+        <name>Screen_Confirm_Pledge_Payment_Update</name>
+        <label>Confirm Payment</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Assign_Update_GT_Fields</targetReference>
+        </connector>
+        <fields>
+            <name>ConfirmPPUpdateHeader</name>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Ready to post this payment?&lt;/b&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>ConfirmPPUpdateBody</name>
+            <fieldText>&lt;p&gt;Posting &lt;b&gt;{!formulaDisplay_NumGiftAmount}&lt;/b&gt; on the scheduled payment due &lt;b&gt;{!formulaDisplay_TransactionDueDate}&lt;/b&gt; as &lt;b&gt;{!formulaDisplay_PaymentMethod}&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to record the payment, or &lt;b&gt;Previous&lt;/b&gt; to adjust the details.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
         <description>Phase E1 (wizard plan). Pledge Payment leaf, gated on Get_Existing_GTs returning ≥1 row (see Decide_Has_Existing_GTs). Renders the picked commitment&apos;s open Expected GTs (Unpaid/Pending/Failed, oldest first) as a single-select datatable and asks whether to post an existing scheduled payment or record a fresh one. Selection lands in rsv_SelectedGT via firstSelectedRow. Mode captured in pkPledgePaymentMode. Phase E1 routes both toggle values to the existing fresh-insert path (Decide_Prefill_From_Schedule); Phase E2 replaces that pass-through with the real Update_Gift_Transaction + amount-mismatch logic.</description>
         <name>Screen_Existing_GTs</name>
         <label>Post an existing scheduled payment?</label>
@@ -5400,6 +5776,56 @@
             </visibilityRule>
         </fields>
         <fields>
+            <name>EventRegBenefitHelp</name>
+            <fieldText>&lt;p&gt;&lt;i&gt;For event registrations, enter the &lt;b&gt;full amount paid&lt;/b&gt; above and the &lt;b&gt;benefit received&lt;/b&gt; below (the fair market value of the meal, entertainment, or goods provided). The remaining portion is the tax-deductible donation.&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkLeafSpecial</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_EventRegistration</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>numEventRegBenefit</name>
+            <dataType>Currency</dataType>
+            <fieldText>Benefit received (non-deductible portion)</fieldText>
+            <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <scale>2</scale>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkLeafSpecial</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_EventRegistration</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
             <fieldType>ObjectProvided</fieldType>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
@@ -5412,6 +5838,118 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkLeafSpecial</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_InKindGift</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>dtGiftDate</name>
+            <dataType>Date</dataType>
+            <defaultValue>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </defaultValue>
+            <fieldText>Gift Date (Transaction Date)</fieldText>
+            <helpText>When the donor sent the gift; used for their tax receipts.</helpText>
+            <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>6</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>1 OR 2 OR 3 OR 4</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkLeafMonetary</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_OutrightGift</elementReference>
+                    </rightValue>
+                </conditions>
+                <conditions>
+                    <leftValueReference>pkLeafMonetary</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_PledgePayment</elementReference>
+                    </rightValue>
+                </conditions>
+                <conditions>
+                    <leftValueReference>pkLeafSpecial</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_EarnedIncome</elementReference>
+                    </rightValue>
+                </conditions>
+                <conditions>
+                    <leftValueReference>pkLeafSpecial</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_EventRegistration</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>dtProcessedDate</name>
+            <dataType>Date</dataType>
+            <defaultValue>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </defaultValue>
+            <fieldText>Processed Date</fieldText>
+            <helpText>When the gift was entered and recognized financially by the organization.</helpText>
+            <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>6</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>1 OR 2 OR 3 OR 4</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkLeafMonetary</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_OutrightGift</elementReference>
+                    </rightValue>
+                </conditions>
+                <conditions>
+                    <leftValueReference>pkLeafMonetary</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_PledgePayment</elementReference>
+                    </rightValue>
+                </conditions>
+                <conditions>
+                    <leftValueReference>pkLeafSpecial</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_EarnedIncome</elementReference>
+                    </rightValue>
+                </conditions>
+                <conditions>
+                    <leftValueReference>pkLeafSpecial</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_EventRegistration</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
         </fields>
         <fields>
             <fieldType>ObjectProvided</fieldType>
@@ -5581,8 +6119,210 @@
         <showHeader>true</showHeader>
     </screens>
     <screens>
-        <description>Datatable of Campaigns where any Contact on this Account is a CampaignMember, plus a lookup escape hatch. Optional — user can skip.</description>
-        <name>Screen_Pick_Campaign</name>
+        <description>Designation hierarchy Phase 2b — dedicated optional-Campaign screen for In-Kind + Earned Income leaves (Q9 contract). Datatable + lookup mirror Screen_Pick_Campaign but minRowSelection=0.0 and lookup required=false so the user can skip past without picking. Reached from Decide_Campaign_Screen_By_Leaf when pkLeafSpecial=InKindGift or EarnedIncome. Downstream converges at Get_Campaign_Default_Designations, same as required screen.</description>
+        <name>Screen_Pick_Campaign_Optional</name>
+        <label>Pick a Campaign (Optional)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Decide_Use_Campaign_Lookup_Optional</targetReference>
+        </connector>
+        <fields>
+            <name>CampaignHelpOpt</name>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Pick a Campaign (optional)&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Attribute this gift to a Campaign for reporting, or skip this step.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>chkUseCampaignLookupOpt</name>
+            <dataType>Boolean</dataType>
+            <defaultValue>
+                <booleanValue>false</booleanValue>
+            </defaultValue>
+            <fieldText>None of the below campaigns match this gift, I want to search for another existing campaign.</fieldText>
+            <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>dtCampaignsOpt</name>
+            <dataTypeMappings>
+                <typeName>T</typeName>
+                <typeValue>Campaign</typeValue>
+            </dataTypeMappings>
+            <extensionName>flowruntime:datatable</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Campaigns this Account is a member of</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>selectionMode</name>
+                <value>
+                    <stringValue>SINGLE_SELECT</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>minRowSelection</name>
+                <value>
+                    <numberValue>0.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>maxRowSelection</name>
+                <value>
+                    <numberValue>1.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>tableData</name>
+                <value>
+                    <elementReference>Get_Member_Campaigns</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>columns</name>
+                <value>
+                    <stringValue>[{&quot;apiName&quot;:&quot;Name&quot;,&quot;label&quot;:&quot;Name&quot;,&quot;type&quot;:&quot;text&quot;,&quot;order&quot;:0},{&quot;apiName&quot;:&quot;Type&quot;,&quot;label&quot;:&quot;Type&quot;,&quot;type&quot;:&quot;text&quot;,&quot;order&quot;:1},{&quot;apiName&quot;:&quot;Status&quot;,&quot;label&quot;:&quot;Status&quot;,&quot;type&quot;:&quot;text&quot;,&quot;order&quot;:2},{&quot;apiName&quot;:&quot;StartDate&quot;,&quot;label&quot;:&quot;Start&quot;,&quot;type&quot;:&quot;date&quot;,&quot;order&quot;:3},{&quot;apiName&quot;:&quot;EndDate&quot;,&quot;label&quot;:&quot;End&quot;,&quot;type&quot;:&quot;date&quot;,&quot;order&quot;:4}]</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>keyField</name>
+                <value>
+                    <complexValue>{&quot;dataType&quot;:&quot;SObject&quot;,&quot;objectType&quot;:&quot;Campaign&quot;,&quot;fieldReferences&quot;:[&quot;Id&quot;],&quot;elementReference&quot;:&quot;Get_Member_Campaigns&quot;}</complexValue>
+                    <complexValueType>ComplexObjectFieldDetails</complexValueType>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <outputParameters>
+                <assignToReference>rsv_SelectedCampaign</assignToReference>
+                <name>firstSelectedRow</name>
+            </outputParameters>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>chkUseCampaignLookupOpt</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>false</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>LookupCampaignOptHelp</name>
+            <fieldText>&lt;p&gt;&lt;i&gt;Search for any Campaign here:&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>chkUseCampaignLookupOpt</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>lkpCampaignOpt</name>
+            <extensionName>flowruntime:lookup</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>objectApiName</name>
+                <value>
+                    <stringValue>GiftTransaction</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>fieldApiName</name>
+                <value>
+                    <stringValue>CampaignId</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Search for a Campaign</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>required</name>
+                <value>
+                    <booleanValue>false</booleanValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>maxValues</name>
+                <value>
+                    <numberValue>1.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>chkUseCampaignLookupOpt</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Designation hierarchy Phase 2a — merged required-Campaign screen. Datatable of Campaigns where any Contact on this Account is a CampaignMember, plus a lookup escape hatch. Campaign is REQUIRED here (minRowSelection=1.0, lookup required=true). Reached from Decide_Campaign_Screen_By_Leaf for Outright / Pledge Payment / Event Registration (via Decide_Match_Needed default) AND from 4 pledge-side routers for Simple/Scheduled/Recurring/Grant commitment-creation leaves (formerly hit Screen_Pick_Campaign_Pledge before Phase 2a merge). Downstream: Decide_Use_Campaign_Lookup handles the lookup-vs-datatable branch; after Campaign is resolved, Decide_Campaign_Downstream_Route fans out to GT-writer (Outright / PP / EventReg) vs GC-writer (Simple / Scheduled / Recurring / Grant).</description>
+        <name>Screen_Pick_Campaign_Required</name>
         <label>Pick a Campaign</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
@@ -5594,7 +6334,7 @@
         </connector>
         <fields>
             <name>CampaignHelp</name>
-            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Pick a Campaign (optional)&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Attribute this gift to a Campaign for reporting.&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Pick a Campaign&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Attribute this gift to a Campaign for reporting.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -5647,7 +6387,7 @@
             <inputParameters>
                 <name>minRowSelection</name>
                 <value>
-                    <numberValue>0.0</numberValue>
+                    <numberValue>1.0</numberValue>
                 </value>
             </inputParameters>
             <inputParameters>
@@ -5748,7 +6488,7 @@
             <inputParameters>
                 <name>required</name>
                 <value>
-                    <booleanValue>false</booleanValue>
+                    <booleanValue>true</booleanValue>
                 </value>
             </inputParameters>
             <inputParameters>
@@ -5783,20 +6523,20 @@
         <showHeader>true</showHeader>
     </screens>
     <screens>
-        <description>Pledge branch&apos;s Campaign picker. Same datatable and lookup escape as the transaction branch; separate screen so the connector chain routes back into the pledge-branch design step.</description>
-        <name>Screen_Pick_Campaign_Pledge</name>
-        <label>Pick a Campaign (Pledge)</label>
+        <description>Designation hierarchy Phase 2c — read-only Campaign display for Pledge Payment (Q4/Q12). Reached only on the Pledge Payment leaf, via Decide_Campaign_Screen_By_Leaf&apos;s PledgePayment rule → Get_Campaign_For_Commitment → this screen. Two visibility-gated Display Text fields: (1) When the picked GC has a Campaign, shows &quot;Applying campaign: &lt;Name&gt; — inherited from the commitment.&quot; (2) When the GC has no Campaign (Q12 case), shows the advisory &quot;This commitment isn&apos;t attached to a campaign…&quot; Downstream connector → Decide_Campaign_Fallback_To_Commitment, the pre-existing decision that writes rsv_GiftTransaction.CampaignId = rsv_SelectedCommitment.CampaignId when the GC has a Campaign, or skips the write when null. No user input — this replaces Pledge Payment&apos;s user-picker Campaign screen entirely, aligning with the plan&apos;s Q4 &quot;PP inherits from GC, not user-picked&quot; contract.</description>
+        <name>Screen_Campaign_From_Commitment</name>
+        <label>Campaign (from Commitment)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
-            <targetReference>Decide_Use_Campaign_Lookup_Pledge</targetReference>
+            <targetReference>Assign_Campaign_From_Commitment_Selected</targetReference>
         </connector>
         <fields>
-            <name>CampaignHelpPledge</name>
-            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Pick a Campaign (optional)&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Attribute this pledge to a Campaign for reporting.&lt;/p&gt;</fieldText>
+            <name>CampaignFromCommitmentHeader</name>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Campaign&lt;/b&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -5808,81 +6548,9 @@
             </styleProperties>
         </fields>
         <fields>
-            <name>chkUseCampaignLookupPledge</name>
-            <dataType>Boolean</dataType>
-            <defaultValue>
-                <booleanValue>false</booleanValue>
-            </defaultValue>
-            <fieldText>None of the below campaigns match this pledge, I want to search for another existing campaign.</fieldText>
-            <fieldType>InputField</fieldType>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>true</isRequired>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <fields>
-            <name>dtCampaignsPledge</name>
-            <dataTypeMappings>
-                <typeName>T</typeName>
-                <typeValue>Campaign</typeValue>
-            </dataTypeMappings>
-            <extensionName>flowruntime:datatable</extensionName>
-            <fieldType>ComponentInstance</fieldType>
-            <inputParameters>
-                <name>label</name>
-                <value>
-                    <stringValue>Campaigns this Account is a member of</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>selectionMode</name>
-                <value>
-                    <stringValue>SINGLE_SELECT</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>minRowSelection</name>
-                <value>
-                    <numberValue>0.0</numberValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>maxRowSelection</name>
-                <value>
-                    <numberValue>1.0</numberValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>tableData</name>
-                <value>
-                    <elementReference>Get_Member_Campaigns</elementReference>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>columns</name>
-                <value>
-                    <stringValue>[{&quot;apiName&quot;:&quot;Name&quot;,&quot;label&quot;:&quot;Name&quot;,&quot;type&quot;:&quot;text&quot;,&quot;order&quot;:0},{&quot;apiName&quot;:&quot;Type&quot;,&quot;label&quot;:&quot;Type&quot;,&quot;type&quot;:&quot;text&quot;,&quot;order&quot;:1},{&quot;apiName&quot;:&quot;Status&quot;,&quot;label&quot;:&quot;Status&quot;,&quot;type&quot;:&quot;text&quot;,&quot;order&quot;:2}]</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>keyField</name>
-                <value>
-                    <complexValue>{&quot;dataType&quot;:&quot;SObject&quot;,&quot;objectType&quot;:&quot;Campaign&quot;,&quot;fieldReferences&quot;:[&quot;Id&quot;],&quot;elementReference&quot;:&quot;Get_Member_Campaigns&quot;}</complexValue>
-                    <complexValueType>ComplexObjectFieldDetails</complexValueType>
-                </value>
-            </inputParameters>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>true</isRequired>
-            <outputParameters>
-                <assignToReference>rsv_SelectedCampaign</assignToReference>
-                <name>firstSelectedRow</name>
-            </outputParameters>
+            <name>CampaignFromCommitmentSummary</name>
+            <fieldText>&lt;p&gt;Applying campaign: &lt;b&gt;{!Get_Campaign_For_Commitment.Name}&lt;/b&gt; — inherited from the commitment.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
                     <stringValue>top</stringValue>
@@ -5894,8 +6562,8 @@
             <visibilityRule>
                 <conditionLogic>and</conditionLogic>
                 <conditions>
-                    <leftValueReference>chkUseCampaignLookupPledge</leftValueReference>
-                    <operator>EqualTo</operator>
+                    <leftValueReference>rsv_SelectedCommitment.CampaignId</leftValueReference>
+                    <operator>IsNull</operator>
                     <rightValue>
                         <booleanValue>false</booleanValue>
                     </rightValue>
@@ -5903,8 +6571,8 @@
             </visibilityRule>
         </fields>
         <fields>
-            <name>LookupCampaignPledgeHelp</name>
-            <fieldText>&lt;p&gt;&lt;i&gt;Search for any Campaign here:&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <name>CampaignFromCommitmentAdvisory</name>
+            <fieldText>&lt;p&gt;&lt;i&gt;This commitment isn&amp;apos;t attached to a campaign. Attach one on the commitment record if this gift should count toward a campaign.&lt;/i&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -5917,64 +6585,8 @@
             <visibilityRule>
                 <conditionLogic>and</conditionLogic>
                 <conditions>
-                    <leftValueReference>chkUseCampaignLookupPledge</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <booleanValue>true</booleanValue>
-                    </rightValue>
-                </conditions>
-            </visibilityRule>
-        </fields>
-        <fields>
-            <name>lkpCampaignPledge</name>
-            <extensionName>flowruntime:lookup</extensionName>
-            <fieldType>ComponentInstance</fieldType>
-            <inputParameters>
-                <name>objectApiName</name>
-                <value>
-                    <stringValue>GiftCommitment</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>fieldApiName</name>
-                <value>
-                    <stringValue>CampaignId</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>label</name>
-                <value>
-                    <stringValue>Search for a Campaign</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>required</name>
-                <value>
-                    <booleanValue>false</booleanValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>maxValues</name>
-                <value>
-                    <numberValue>1.0</numberValue>
-                </value>
-            </inputParameters>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>true</isRequired>
-            <storeOutputAutomatically>true</storeOutputAutomatically>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-            <visibilityRule>
-                <conditionLogic>and</conditionLogic>
-                <conditions>
-                    <leftValueReference>chkUseCampaignLookupPledge</leftValueReference>
-                    <operator>EqualTo</operator>
+                    <leftValueReference>rsv_SelectedCommitment.CampaignId</leftValueReference>
+                    <operator>IsNull</operator>
                     <rightValue>
                         <booleanValue>true</booleanValue>
                     </rightValue>
@@ -7859,7 +8471,7 @@
         <showHeader>true</showHeader>
     </screens>
     <screens>
-        <description>Success end screen.</description>
+        <description>Phase G6 (Success screen rewrite). Terminal confirmation screen. Renders: (1) green-check &quot;Record created.&quot; header; (2) leaf-specific summary sentence via formulaSuccessSummary (Outright / PP / Recurring / Simple Pledge / Scheduled Pledge / In-Kind / Earned Income); (3) match-created line when pkNeedsMatch=Yes; (4) a record-open link — rendered per-leaf-family via visibility rules so the SObject Id read only fires on the terminating path that populated it. Two link fields: SuccessLink_GT for monetary/special leaves (rsv_GiftTransaction.Id), SuccessLink_GC for pledge + Recurring leaves (rsv_GiftCommitment.Id) — the pledge/Recurring branch&apos;s commitment IS the primary record, and the first-payment GT is a byproduct that shows up in the related list. Guarded against [[flow-unread-sobject-field-throws]] via field-level visibility rules — hidden DisplayText fields don&apos;t evaluate their merge tokens, so .Id reads on unpopulated rsv_ variables never fire.</description>
         <name>Screen_Success</name>
         <label>Record Created</label>
         <locationX>0</locationX>
@@ -7868,36 +8480,8 @@
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <fields>
-            <name>SuccessText</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(46, 132, 74);&quot;&gt;&amp;#10003;&lt;/span&gt; &lt;b&gt;Record created.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Open the new record from the related list on this Account, or return here to record another.&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
-    <screens>
-        <description>Phase G5 (mismatch-warning polish). Confirmation summary interstitial on the Pledge Payment Update branch when the entered amount MATCHES the scheduled OriginalAmount (no mismatch to warn about). Reached only from Decide_Amount_Mismatch&apos;s default connector. Skipped on the mismatch path — Screen_Warning_Amount_Mismatch already summarizes amount + delta and this would be a redundant second interstitial. Single Next button → Assign_Update_GT_Fields → Update_Gift_Transaction.</description>
-        <name>Screen_Confirm_Pledge_Payment_Update</name>
-        <label>Confirm Payment</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>false</allowPause>
-        <connector>
-            <targetReference>Assign_Update_GT_Fields</targetReference>
-        </connector>
-        <fields>
-            <name>ConfirmPPUpdateHeader</name>
-            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Ready to post this payment?&lt;/b&gt;&lt;/p&gt;</fieldText>
+            <name>SuccessHeader</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(46, 132, 74); font-size: 20px;&quot;&gt;&amp;#10003;&lt;/span&gt; &lt;b style=&quot;font-size: 18px;&quot;&gt;Record created.&lt;/b&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -7909,8 +8493,111 @@
             </styleProperties>
         </fields>
         <fields>
-            <name>ConfirmPPUpdateBody</name>
-            <fieldText>&lt;p&gt;Posting &lt;b&gt;{!formulaDisplay_NumGiftAmount}&lt;/b&gt; on the scheduled payment due &lt;b&gt;{!formulaDisplay_TransactionDueDate}&lt;/b&gt; as &lt;b&gt;{!formulaDisplay_PaymentMethod}&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to record the payment, or &lt;b&gt;Previous&lt;/b&gt; to adjust the details.&lt;/p&gt;</fieldText>
+            <name>SuccessSummary</name>
+            <fieldText>&lt;p&gt;{!formulaSuccessSummary}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>SuccessMatchLine</name>
+            <fieldText>&lt;p&gt;Paired with a &lt;b&gt;{!formulaSuccessMatchAmount}&lt;/b&gt; match from &lt;b&gt;{!Get_Match_Employer.Name}&lt;/b&gt;.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkNeedsMatch</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_NeedsMatch_Yes</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>SuccessLink_GT</name>
+            <fieldText>&lt;p&gt;&lt;a href=&quot;/lightning/r/GiftTransaction/{!rsv_GiftTransaction.Id}/view&quot; target=&quot;_top&quot;&gt;Open the new Gift Transaction &amp;rarr;&lt;/a&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>1 OR 2 OR 3</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkLeafMonetary</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_OutrightGift</elementReference>
+                    </rightValue>
+                </conditions>
+                <conditions>
+                    <leftValueReference>pkLeafMonetary</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_PledgePayment</elementReference>
+                    </rightValue>
+                </conditions>
+                <conditions>
+                    <leftValueReference>pkLeafSpecial</leftValueReference>
+                    <operator>IsNull</operator>
+                    <rightValue>
+                        <booleanValue>false</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>SuccessLink_GC</name>
+            <fieldText>&lt;p&gt;&lt;a href=&quot;/lightning/r/GiftCommitment/{!rsv_GiftCommitment.Id}/view&quot; target=&quot;_top&quot;&gt;Open the new Gift Commitment &amp;rarr;&lt;/a&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>1 OR 2</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkLeafFuture</leftValueReference>
+                    <operator>IsNull</operator>
+                    <rightValue>
+                        <booleanValue>false</booleanValue>
+                    </rightValue>
+                </conditions>
+                <conditions>
+                    <leftValueReference>pkLeafMonetary</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_Leaf_RecurringGift</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>SuccessFooter</name>
+            <fieldText>&lt;p&gt;&lt;em&gt;Click &lt;b&gt;Finish&lt;/b&gt; to close, or open the record above to review it.&lt;/em&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -8111,9 +8798,10 @@
         <fields>
             <name>pkLeafSpecial</name>
             <choiceReferences>Choice_Leaf_InKindGift</choiceReferences>
-            <choiceReferences>Choice_Leaf_FeeForService</choiceReferences>
+            <choiceReferences>Choice_Leaf_EarnedIncome</choiceReferences>
+            <choiceReferences>Choice_Leaf_EventRegistration</choiceReferences>
             <dataType>String</dataType>
-            <fieldText>What kind of special / non-cash transaction?</fieldText>
+            <fieldText>Which kind of other transaction?</fieldText>
             <fieldType>RadioButtons</fieldType>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
