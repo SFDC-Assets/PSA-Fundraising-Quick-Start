@@ -4269,6 +4269,39 @@
         </rules>
     </decisions>
     <decisions>
+        <description>Designation hierarchy Phase 5c.b — inserted between Get_Resolved_GD and Screen_Confirm_Designation. On the Pledge Payment Update branch (pkPledgePaymentMode=Update AND rsv_SelectedGT.Id set), skip Screen_Confirm_Designation entirely and route to Decide_After_Designation (which for PP defaults to Decide_Needs_Soft_Credits, unchanged). Reason: Update_Gift_Transaction does not write GTDs — the platform Process_* already fanned out designation rows when it materialized the Expected GT (per plan Q3-B, existing GTDs are kept as-is). Showing the Confirm screen with an Override option would let the user pick a GD that then never lands anywhere. Q3-C warning surfaces on Screen_Success via var_ShowKeptDesignationsWarning (set by Assign_Set_Update_KeepDesignations_Warning on the Update terminal path). Non-Update paths pass through to Screen_Confirm_Designation unchanged.</description>
+        <name>Decide_Skip_Confirm_On_Update</name>
+        <label>Skip Confirm on PP Update?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Confirm_Designation</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Show Confirm (non-Update)</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Skip_Confirm_On_Update_IsUpdate</name>
+            <conditionLogic>1 AND 2</conditionLogic>
+            <conditions>
+                <leftValueReference>pkPledgePaymentMode</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_PledgePayment_Update</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>rsv_SelectedGT.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Decide_After_Designation</targetReference>
+            </connector>
+            <label>Update mode — skip Confirm, keep existing GTDs</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>Decide_SoftCredit_Selected</name>
         <label>Soft credit selected?</label>
         <locationX>0</locationX>
@@ -5970,14 +6003,14 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Designation hierarchy Phase 4 — resolves var_ResolvedDesignationId to a GiftDesignation row so the confirm-designation interstitial (Screen_Confirm_Designation) can render its Name in the summary formula. Reached from the two active resolver terminals (Assign_Resolve_Designation_CampaignDefault + _OrgDefault). Zero-row is not possible in practice — the writing terminal wrote a real Id — but if it does happen, Screen_Confirm_Designation falls back to &quot;the org default&quot; text via the formula&apos;s ISBLANK guard.</description>
+        <description>Designation hierarchy Phase 4/5c.b — resolves var_ResolvedDesignationId to a GiftDesignation row so the confirm-designation interstitial (Screen_Confirm_Designation) can render its Name in the summary formula. Phase 5c.b: connector now routes to Decide_Skip_Confirm_On_Update which suppresses Screen_Confirm_Designation on the Pledge Payment Update branch (existing GTDs are kept as-is per plan Q3-B; showing a Confirm screen with an override option would be misleading UX because Update_Gift_Transaction does not write GTDs).</description>
         <name>Get_Resolved_GD</name>
         <label>Get Resolved GiftDesignation</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Screen_Confirm_Designation</targetReference>
+            <targetReference>Decide_Skip_Confirm_On_Update</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Err_Load</targetReference>
@@ -9094,6 +9127,29 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+        </fields>
+        <fields>
+            <name>SuccessKeptDesignationsWarning</name>
+            <fieldText>&lt;p&gt;&lt;i&gt;Existing designations on this scheduled payment were kept as-is. To change them, edit the Gift Transaction Designations directly.&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkPledgePaymentMode</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_PledgePayment_Update</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
         </fields>
         <fields>
             <name>SuccessMatchLine</name>
