@@ -2,7 +2,7 @@
 
 **Repo:** `/Users/justin.gilmore/GitHubRepos/PSA-Fundraising-Quick-Start-DEV`
 **Target org:** FundFirst (Nonprofit Cloud Fundraising, **not** NPSP)
-**Status:** partially shipped — Phase 6.0 (reclassify + rename 2 legacy Time GDs) + 6.1 + 6.2 + 6.3 (picklist reshape) landed 2026-07-25. Phase 6.4+ (setup flow, launcher edits, flexipages) still parked.
+**Status:** substantially shipped. Phases 6.0 → 6.6b + Phase 8 (org-wide-default hard block, from `fqs-designation-hierarchy-plan.md`) all landed between 2026-07-25 and 2026-07-28. What remains: Phases 6.7 / 6.8 (Account + Opportunity launcher edits — split UX, conflict screen, release-date prompt, match-clone). Both are **wizard-Phase-G-gated** — no launcher-flow commits until the wizard rewrite lands. §Phase 5 seed-refactor is retired (2026-07-28) — see Correction Summary at bottom. Setup flow (`FQS_Suggest_Designations`) and Apex seed both write to the same 14-entry catalog; the plan's original "Apex stops creating designations" intent was reversed by the 2026-07-27 seed-alignment pass and is now retired.
 **Created:** 2026-07-22
 **Owner:** Justin (solo)
 
@@ -24,7 +24,7 @@
 - Data Cloud / analytics.
 - Renaming `FQS_Restriction_Type__c` — see fee-designation plan §Non-goals.
 - **No new validation rules.** Justin, 2026-07-22 — designations plan doesn't build any. Row-shape correctness is enforced by the launcher flow's assignment logic and by platform picklist/formula constraints.
-- **No Apex creating designation records anywhere — production or dev.** `FQS_Suggest_Designations` (Screen Flow) is the sole path. `fqs-seed-foundation.apex` no longer creates designations; it reads whatever the setup flow created. Long-term goal (OQ12): expand this pattern to Campaigns and other shipped default record sets across FQS.
+- **Dual-path designation seeding is fine.** Reversed 2026-07-28 from the original "no Apex creates designations anywhere" stance. `FQS_Suggest_Designations` (setup flow) is the admin-facing path for prod installs; `fqs-seed-foundation.apex` writes the same 14-entry catalog via Apex upsert (idempotent on `External_Id__c`) for test/dev orgs. Both paths converge on the same catalog + same `IsDefault=true` on `FQS-GD-GENERAL-OPERATING`. See retired §Phase 5 for rationale.
 - **No Account-parent default designation.** Verified 2026-07-22 via `sf sobject describe`: `GiftDefaultDesignation.ParentRecordId.referenceTo = [Campaign, GiftCommitment, Opportunity]`. Account is not an allowed parent. Any "donor-level default" concept must be modeled another way (deferred — Phase 8 OQ4).
 
 ---
@@ -466,85 +466,28 @@ No auto-normalization of GTD/GDD percents on save. All correction happens in-ban
 
 ---
 
-## Phase 5 — Seed script updates (testing/dev only)
+## Phase 5 — RETIRED 2026-07-28 (dual-path seeding kept)
 
-**Scope decision (locked 2026-07-22, Justin):** Apex no longer creates designation records anywhere. `FQS_Suggest_Designations` is the only path. Test/dev orgs run the same flow to seed their designation catalog. This is the first move in a broader shift — eventually Campaigns follow the same pattern (see OQ12). See [[seed-scripts-purpose]] for the underlying rule (test/dev seeding is fine; Apex creating records is not the desired pattern going forward).
+**Original intent (retired):** *"Apex no longer creates designation records anywhere. `FQS_Suggest_Designations` is the only path. Test/dev orgs run the same flow to seed their designation catalog."*
 
-### `scripts/apex/seed/fqs-seed-foundation.apex` — remove designation creation
+**Reversed 2026-07-28.** The 2026-07-27 seed-alignment pass explicitly kept Apex-side creation in `fqs-seed-foundation.apex` (lines ~179-228) — the `designationSpec` list creates the same 14-entry catalog as the setup flow, upserts on `External_Id__c` (idempotent), and flags `FQS-GD-GENERAL-OPERATING` as `IsDefault=true` via a two-pass clear-then-set write. The two paths coexist cleanly:
 
-**Delete lines 184–210** (the `designationSpec` list, the `for` loop building the `List<GiftDesignation>`, and the `Database.upsert`). Also delete line 210's `System.debug` for designations.
+| Path | Consumer | Idempotency key | Sets IsDefault? |
+|---|---|---|---|
+| `FQS_Suggest_Designations` (setup Screen Flow) | Prod admins, no CLI | `Name` (queries existing by name before creating) | Yes — admin-picked on `Screen_Pick_Org_Default` |
+| `fqs-seed-foundation.apex` | Test/dev seeding via `sf apex run` | `External_Id__c` (`FQS-GD-*`) | Yes — hard-coded to `FQS-GD-GENERAL-OPERATING` |
 
-The foundation script's downstream queries and inserts keep working:
-- Line 423 (`SELECT COUNT() FROM GiftDesignation WHERE External_Id__c LIKE 'FQS-GD-%'`) — informational count; will report whatever exists.
-- `FQSSeedGenerator.cls` line 216 (`SELECT Id, FQS_Restriction_Type__c FROM GiftDesignation WHERE External_Id__c LIKE 'FQS-GD-%'`) — reads existing designations. **Change the WHERE clause** to broaden it, since designations created by the suggestion flow do NOT carry an `External_Id__c`:
-  ```apex
-  List<GiftDesignation> designations = [SELECT Id, FQS_Restriction_Type__c FROM GiftDesignation WHERE IsActive = TRUE];
-  ```
-- The `System.assert` on line 221 stays — it fails loudly if the running user forgot to run `FQS_Suggest_Designations` first.
+**Why the reversal:** the "no Apex" stance imposed an unavoidable manual UI step in every test-org teardown/reseed cycle (admin has to launch the flow between `fqs-seed-teardown.apex` and `fqs-seed-foundation.apex`). Solo-dev friction. The dual-path shape ships the same catalog either way — no divergence risk as long as both paths stay pinned to the 14-entry table in §3.1. If they drift, either path is a one-line fix.
 
-**New order-of-operations for a fresh test org:**
-1. `fqs-seed-teardown.apex` — deletes all `FQS-%` records (unchanged behavior).
-2. Run `FQS_Suggest_Designations` flow in the UI (or via Setup Orchestrator). Ticks all 14 boxes → creates the catalog.
-3. `fqs-seed-foundation.apex` — creates Campaigns, OSCs, corporate employers, etc. **No longer touches designations.**
-4. `fqs-seed-small.apex` (or medium/large) — creates donors, GCs, GTs, splits.
+**Split-designation coverage + release-date coverage in `FQSSeedGenerator.cls`** — these behaviors *did* land (2026-07-27) in the seed-alignment pass. Details in the tracker Findings entry for 2026-07-27; not repeated here.
 
-The README (Phase 5b) documents this. Skipping step 2 leaves the test org designation-less; step 4 hits the assert in `FQSSeedGenerator` and stops with a clear error.
+**Fee-restricted GD routing** — implemented at `FQSSeedGenerator.cls:295-310` (`allDesignationIds` / `feeDesignationIds` bifurcation on `Earned Revenue`).
 
-### `FQSSeedGenerator.cls` — no new designation-creation code; keep the read-side changes
+**Multi-year grant release-date coverage** — implemented at `FQSSeedGenerator.cls:571-574` (grant GC) and `:1172` (per-installment GT).
 
-**No Apex adds designations.** The class continues to READ designations (line 216 above) and continues to CREATE GDDs and GTDs referencing them (lines 413–428 and 862–872). Both those blocks operate on whatever designations exist, keyed by restriction type and IsActive — they don't hard-code names or external IDs, so they don't care that the catalog is now 14 entries with no external IDs.
+**Memory [[seed-release-date-followup]]** — closed by the 2026-07-27 alignment; safe to prune.
 
-**Behavior changes (still in-scope for this plan, still test/dev only):**
-
-- **Multi-designation split coverage.** Extend the GTD-generation block (line 862–872) to emit multi-row splits for ~10% of GTs so the wizard's split path has test data:
-  - 90% single-designation (existing behavior)
-  - 7% two-designation split (`60/40` or `50/50`)
-  - 3% three-designation split (`50/25/25`)
-
-  PRNG salts 400 (split shape) and 401 (which GDs).
-
-- **Release-date coverage.** On seeded GCs pointing at Purpose-restricted GDs (~30% of commitments), populate `FQS_Restriction_Release_Date__c` for ~40% of those GCs:
-  - 15% release date in the past ("ready to move" report path)
-  - 15% release date 0–90 days out ("coming due")
-  - 10% release date beyond 90 days ("locked, future")
-  - Remainder null.
-
-  Fan the same distribution onto child GTs via inheritance in the seed's GT loop — default GT release date from parent GC when the GC has one set. PRNG salts 500 (bucket pick) and 501 (offset days).
-
-- **Multi-year Grant release-date coverage (added 2026-07-23).** Independent of the Purpose-restricted GC coverage above. When Phase D6 ships, extend the grant-installment ladder in `FQSSeedGenerator.cls` (introduced 2026-07-23 by the launcher-aligned GT refactor) to write `FQS_Restriction_Release_Date__c` on:
-  - The parent multi-year Grant GC → set to `ExpectedEndDate` (grant funds released by end of the funding period).
-  - Each installment GT on the grant → walked yearly from `EffectiveStartDate` so each tranche has its own release date (matches how time-restricted grant revenue is recognized in tranches).
-  - One-time grants (~60% of grant GCs per the 2026-07-23 seed refactor) do NOT get a release date — they're recognized immediately on `TransactionDate`.
-
-  PRNG salts 502 (nothing to roll for multi-year grants — every installment gets one) and 503 (reserved). Memory cross-ref: [[seed-release-date-followup]] in `/Users/justin.gilmore/.claude/projects/-Users-justin-gilmore-GitHubRepos-PSA-Fundraising-Quick-Start-DEV/memory/`.
-
-- **Fee-restricted GDs — new routing.** When a GT's transaction category is `Fee/Payment`, its GTD should route to a Fee-restricted GD. Add a filter in the GTD block: `restrictedDesignationIds` list expands to include Fee GDs when the parent GT is fee-category. Details in the fee-designation plan; this plan calls out that Fee-restricted rows now exist in the catalog and the seed's routing logic needs to know about them.
-
-- **Org-wide default (`IsDefault = TRUE`).** No longer set by `fqs-seed-foundation.apex` (since it no longer creates the GD). The admin picks the default during `FQS_Suggest_Designations` — the setup flow itself sets `IsDefault = TRUE` on the chosen GD via `<recordUpdates>`. If the admin skipped that step, `FQSSeedGenerator` should assert one exists before proceeding (add a defensive check after line 221):
-  ```apex
-  System.assert(![SELECT COUNT() FROM GiftDesignation WHERE IsDefault = TRUE] > 0,
-      'No default GiftDesignation set — re-run FQS_Suggest_Designations and pick an org default');
-  ```
-
-**Do NOT add** any GDD-parented-to-Account rows. Not supported by the platform.
-
-### `scripts/apex/seed/README.md` — document new order-of-operations
-
-Rewrite the "Prerequisites (one-time org setup)" section (currently at line 22–41) to make step 2 explicit:
-
-> **One-time org setup:**
-> 1. Deploy External_Id__c fields, `FQS_Donor_Grouping__mdt`, and `FQSSeedGenerator.cls` (existing text).
-> 2. **Run `FQS_Suggest_Designations` from Setup.** Tick all 14 designations and pick General Operating Fund as your org default. This creates the designation catalog that the seed scripts assume exists.
-> 3. (test/dev only) Run `fqs-seed-teardown.apex` to clear prior seed state.
-> 4. Run `fqs-seed-foundation.apex` — creates Campaigns, OSCs, corporate employers. No longer creates designations.
-> 5. Run `fqs-seed-small.apex` (or medium/large) to create donors and gifts.
-
-Also append under "Conditional GiftCommitments + GiftDefaultDesignation" (line 211–214):
-- **Multi-designation GT splits** — 10% of seeded GTs have >1 GTD child (7% two-way, 3% three-way). Exercises the wizard's split validation path.
-- **Restriction release dates** — ~40% of Purpose-restricted seeded GCs carry `FQS_Restriction_Release_Date__c` values distributed across past / near-future / far-future buckets to exercise the release-eligibility reports.
-- **Designation catalog** — no longer created by Apex. Run `FQS_Suggest_Designations` before running any seed script. See Prerequisites above.
-
-Also fix the count line at line 12 (currently *"10 Designations"* — becomes *"created via `FQS_Suggest_Designations` setup flow before seeding"*).
+**No changes to `scripts/apex/seed/README.md` needed under this plan** — the seed README's Prerequisites section already reflects the dual-path reality (Apex seeds work standalone; setup flow is admin-facing).
 
 ---
 
@@ -595,45 +538,95 @@ sf project deploy start --metadata "PermissionSet:FQS_Custom_Fields" --target-or
 # Only run after 6.0 confirms zero hits on the retired Time value.
 sf project deploy start --metadata "CustomField:GiftDesignation.FQS_Restriction_Type__c" --target-org FundFirst
 
-# Phase 6.4 — new setup subflow
+# Phase 6.4 v1 — new setup subflow with 4-entry starter catalog [SHIPPED 2026-07-25, deploy 0AfWB00000DbdED0AZ]
+# Phase 6.4 v2 — expanded to full 14-entry catalog per §3.1 [SHIPPED 2026-07-25, deploy 0AfWB00000DbeLZ0AZ]
+# Phase 6.4 v3 — idempotency dedupe [SHIPPED 2026-07-25, deploy 0AfWB00000DbegX0AR]
+# v2 catalog: General Operating / Board Designated / Cash Reserve (Without) → General Program / Program A /
+# Program B / Program Expansion / Equipment and Supply / Staff Salary / Capital Campaign (Purpose) →
+# Endowment (Permanent) → Events / Merchandise / Program Services (Earned Revenue). 14 chained decisions
+# fan through per-designation Assign blocks in restriction-category order. All 14 checkboxes pre-selected
+# by default. Section headers between categories on Screen_Pick_Designations.
+# v3 additions: Screen_Intro now routes to Get_Existing_Designations (SOQL: all GDs, Id+Name only),
+# then Loop_Existing_Designations → Decide_Which_Existing (14-rule router matching Name exactly against
+# the FQS starter names) → per-designation Assign_Mark_Exists_* sets var_Exists* to true, loops back,
+# then falls through to Screen_Pick_Designations. Each Decide_Include_* now uses `1 AND 2` logic:
+# checkbox=true AND var_Exists*=false. Skipped picks silently drop out of col_NewDesignations, so
+# nothing duplicates. Screen_Success copy replaces the "does not check for duplicates" warning with a
+# "safe to re-run" note. v3 still does NOT ship: org-default swap (existing IsDefault warn + transfer)
+# or Screen_Pick_Org_Default. Those land with a v4 follow-up if needed.
+# Retrieve conflict on v2 deploy — used --ignore-conflicts after backing up expanded local + confirming
+# the org's copy was v1 (4-entry). Retrieve also injected <areMetricsLoggedToDataCloud>false</> which
+# had to be added back to the expanded copy before deploy. v3 deploy went clean, no conflict.
 sf project deploy start --metadata "Flow:FQS_Suggest_Designations" --target-org FundFirst
 
-# Phase 6.5 — wire it into the orchestrator
-sf project deploy start --metadata "Flow:FQS_Setup_Orchestrator" --target-org FundFirst
+# Phase 6.5 — wire the setup surface [SHIPPED 2026-07-25, deploys 0AfWB00000DbdPV0AZ + 0AfWB00000DbdUL0AZ]
+# Discovery: FQS_Setup_Orchestrator (Draft, unreferenced) and FQS_Setup_Flow (Active, referenced by
+# permset + Setup Configuration flexipage + utility bar) were near-identical monolithic copies of the
+# same donor-grouping flow. Refactor:
+#   1. Clone FQS_Setup_Flow → FQS_Setup_Donor_Grouping (preserves the 1000-line monolith as a subflow).
+#   2. Rewrite FQS_Setup_Flow as a 127-line top-level chooser Screen Flow that dispatches to
+#      FQS_Setup_Donor_Grouping or FQS_Suggest_Designations via a radio picker + Decision + <subflows>.
+#   3. Delete FQS_Setup_Orchestrator.flow-meta.xml locally + delete Draft v1 in org via Tooling API
+#      (Metadata destructive-changes fails with "insufficient access rights on cross-reference id" on
+#      Draft flow versions — use `sf data delete record --sobject Flow --record-id <301...>` instead).
+# Deploy the subflow BEFORE the chooser (parent flow won't activate if referenced subflow doesn't exist).
+sf project deploy start --metadata "Flow:FQS_Setup_Donor_Grouping" --target-org FundFirst
+sf project deploy start --metadata "Flow:FQS_Setup_Flow" --target-org FundFirst
 
-# Phase 6.6 — flexipage tweaks (surface release date field on GC + GT; Related-List audits on Campaign/GC/Opp)
+# Phase 6.6a — flexipage tweaks — release date on GC + GT record pages [SHIPPED 2026-07-25, deploy 0AfWB00000Dbd7l0AB]
+# GC: FQS_Restriction_Release_Date__c added to Details facet after FQS_Match_Eligible__c.
+# GT: FQS_Restriction_Release_Date__c added to Details facet after TransactionDueDate.
+# FundFirst had drift on both flexipages (Justin's UI edits) — retrieved canonical copy first, re-applied edits.
 sf project deploy start --metadata \
   "FlexiPage:FQS_GiftCommitment_Record_Page,\
-FlexiPage:FQS_GiftTransaction_Record_Page,\
-FlexiPage:FQS_Campaign_Record_Page,\
-FlexiPage:FQS_Opportunity_Record_Page" \
+FlexiPage:FQS_GiftTransaction_Record_Page" \
   --target-org FundFirst
 
+# Phase 6.6b — Related-List audits on Campaign / GC / Opp flexipages [VERIFIED 2026-07-25 — no-op, already present]
+# grep of GiftDefaultDesignationParentRecords across all three FQS record pages confirmed the Related List
+# is already surfaced. No deploy needed.
+#   FQS_Campaign_Record_Page.flexipage      — present
+#   FQS_GiftCommitment_Record_Page.flexipage — present
+#   FQS_Opportunity_Record_Page.flexipage   — present
+
+# Phase 8 (from fqs-designation-hierarchy-plan.md) [SHIPPED 2026-07-28, deploy 0AfWB00000Df1bl0AB]
+# Org-wide-default hard block on the Account launcher. Terminal Screen_Block_Missing_Org_Default
+# with allowFinish=true + no forward connector (per [[flow-allowfinish-blocks-next]]). Rewired
+# Decide_Resolver_Has_Org_Default default connector → the block screen. README §V.1 added:
+# admin runs FQS_Suggest_Designations OR flags an active GD's IsDefault before assigning gift-entry
+# permsets. Prevents cryptic "org wide default designation is not yet configured" abort.
+
 # Phase 6.7 — launcher flow (Account) — split UX + conflict + match-clone + release-date prompt
-sf project deploy start --metadata "Flow:FQS_Gift_Entry_Single_Launcher_Account" --target-org FundFirst
+# ⛔ GATED BEHIND WIZARD PHASE G — launcher-flow commits are off-limits until the wizard rewrite lands.
+# Bundle this with the wizard Phase G Success-screen consolidation + full regression pass. Elements to add:
+#   Screen_Split_Table (Repeater datatable), Decide_Split_Or_Single, Loop_Build_GTDs,
+#   Assign_Split_Parent_Check, Decide_Split_Totals_Valid, Screen_Split_Warning,
+#   Create_Multiple_GTDesignations, Clone_GTDs_For_Employer_Match,
+#   Screen_Designation_Conflict (Pledge Payment leaf only, when GC-default ≠ Campaign-default),
+#   Screen_Restriction_Release_Date (Purpose/Permanent GDs on commitment + monetary leaves),
+#   Assign_Release_Date_On_GC, Assign_Release_Date_On_GT.
+# sf project deploy start --metadata "Flow:FQS_Gift_Entry_Single_Launcher_Account" --target-org FundFirst
 
 # Phase 6.8 — launcher flow (Opportunity) — parity mirror
-sf project deploy start --metadata "Flow:FQS_Gift_Entry_Single_Launcher_Opportunity" --target-org FundFirst
+# ⛔ GATED BEHIND WIZARD PHASE G — same gate. Opportunity launcher is currently untracked-on-worktree WIP;
+# the split/conflict/release-date elements go in during that flow's parity uplift, not before.
+# sf project deploy start --metadata "Flow:FQS_Gift_Entry_Single_Launcher_Opportunity" --target-org FundFirst
 
-# Phase 6.9 — dev/test only: seed generator update + refresh test data
-sf project deploy start --metadata "ApexClass:FQSSeedGenerator" --target-org FundFirst
-# In test/dev orgs only, run the new order-of-operations:
-sf apex run --file scripts/apex/seed/fqs-seed-teardown.apex --target-org FundFirst
-# Manually run FQS_Suggest_Designations from Setup UI → tick all 14 → pick General Operating Fund as default → Save.
-# (No CLI command; the flow is UI-only. Alternative: pause here and require the human step.)
-sf apex run --file scripts/apex/seed/fqs-seed-foundation.apex --target-org FundFirst  # no longer creates designations
-sf apex run --file scripts/apex/seed/fqs-seed-small.apex --target-org FundFirst
+# Phase 6.9 — RETIRED 2026-07-28. Seed generator already has multi-designation splits + release-date
+# coverage + fee-restricted GD routing landed via the 2026-07-27 seed-alignment pass. See tracker
+# Findings 2026-07-27 for detail. No further seed generator work required by this plan.
 ```
 
-**Order rationale:**
-- 6.0 blocks — deploy fails if any GD still has the Time value.
-- 6.1 lands new fields first — VRs/formulas would reference them if we had any (we don't).
-- 6.2 permset — after new fields exist.
-- 6.3 picklist reshape — safe once 6.0 confirmed clean.
-- 6.4 / 6.5 setup flow + orchestrator wire-up.
-- 6.6 flexipages surface the new field and the Related List.
-- 6.7 / 6.8 launcher flows — biggest change, deploy after everything else is green.
-- 6.9 seed generator — dev-only, gated by org tier.
+**Order rationale (historical — most phases shipped 2026-07-25 to 2026-07-28):**
+- 6.0 blocks — deploy fails if any GD still has the Time value. [SHIPPED]
+- 6.1 lands new fields first — VRs/formulas would reference them if we had any (we don't). [SHIPPED]
+- 6.2 permset — after new fields exist. [SHIPPED]
+- 6.3 picklist reshape — safe once 6.0 confirmed clean. [SHIPPED]
+- 6.4 / 6.5 setup flow + orchestrator wire-up. [SHIPPED]
+- 6.6 flexipages surface the new field and the Related List. [SHIPPED]
+- Phase 8 (from hierarchy plan) — org-default hard block. [SHIPPED 2026-07-28]
+- **6.7 / 6.8 launcher flows — GATED behind wizard Phase G. Bundle with G's Success-screen consolidation + regression pass. No standalone commit.**
+- 6.9 — RETIRED (seed generator work landed via 2026-07-27 alignment pass).
 
 **Verify after each step:**
 ```bash
@@ -787,10 +780,7 @@ Recommendation: **(c) for now**; revisit in a separate plan if partner orgs ask.
 
 **OQ11 — Should Permanent restrictions accept a release date? (resolved 2026-07-22 — soft warning).** Field is not blocked at Permanent level. Launcher-side soft warning on `Screen_Restriction_Release_Date` — if the selected GD is Permanent AND user enters a non-null date, show a warning bar *"Permanent restrictions do not release. Leave blank unless the donor specified otherwise (e.g., term endowment or quasi-endowment)."* User can proceed. No hard block, no VR.
 
-**OQ12 — Long-term goal: replace all Apex-driven org data with setup flows.** This plan takes the first step (designations move to `FQS_Suggest_Designations`; seed script stops creating them). The pattern is the destination: every "shipped default record set" — Campaigns (currently created by `FQS_Campaign_Hierarchy_Setup` invocable Apex `FQS_CampaignHierarchyBuilder`), OSCs, Donor Grouping CMDT, corporate employers — should become admin-facing setup flows. Seed scripts read whatever exists in the org; they don't create it. Justin, 2026-07-22: intent locked, staging deferred. Follow-up plans:
-- `.planning/fqs-campaign-suggestion-flow-plan.md` — replace `FQS_CampaignHierarchyBuilder` invocable Apex with an admin-facing flow. Seed script stops creating Campaigns.
-- Similar plan for OSCs and corporate employers as they surface as friction.
-Not blocking this plan's ship. Track as ongoing architectural direction.
+**OQ12 — Long-term goal (RETIRED 2026-07-28).** The original intent to route all shipped default record sets through admin setup flows and stop Apex creation is reversed for designations. Dual-path is fine (setup flow for prod admins; Apex seed for test/dev). The Campaign parallel (`FQS_Campaign_Hierarchy_Setup`) can stay Apex-driven too — no active plan to convert. If a future partner-org install pattern needs to route around Apex, revisit. Solo-dev friction outweighed the theoretical elegance.
 
 ---
 
@@ -813,9 +803,14 @@ Not blocking this plan's ship. Track as ongoing architectural direction.
 **From draft 3 → this draft corrections (feedback from Justin, 2026-07-22):**
 - **Standard references stripped everywhere.** No FASB, GAAP, ASU 2016-14, ASC 958-490. Concepts stay (donor restriction, exchange transaction, released-from-restriction) but with no citation to the accounting standard behind them. Users needing accounting rationale ask their controller.
 - **Catalog expanded to 14 entries** with 3 new Fee-restricted entries (Events, Merchandise, Program Services). Fee-designation plan now ships **before** this plan.
-- **All Apex removed from the designation creation path.** `FQS_Suggest_Designations` is the sole path. `fqs-seed-foundation.apex` no longer creates designations. `FQSSeedGenerator.cls` no longer references `External_Id__c LIKE 'FQS-GD-%'` (broadens to `WHERE IsActive = TRUE` since setup-flow-created records have no external ID). OQ12 documents the broader intent: eventually Campaigns and other shipped default record sets follow the same pattern.
-- **Test-org workflow now has an unavoidable manual step** — admin runs `FQS_Suggest_Designations` in the UI between teardown and seed. New T16 catches the "forgot the manual step" failure mode.
-- **Seed README count updated** — old "10 Designations" line becomes "created via setup flow before seeding."
+
+**2026-07-28 reversal (retires the "no Apex" stance):**
+- **Apex-side designation creation stays.** `fqs-seed-foundation.apex` continues to upsert the 14-entry catalog via `Database.upsert(designations, GiftDesignation.External_Id__c, true)` and flag `FQS-GD-GENERAL-OPERATING` as `IsDefault=true` (two-pass clear-then-set). Landed by the 2026-07-27 seed-alignment pass; retained deliberately as of 2026-07-28.
+- **Reason:** the "no Apex" intent imposed an unavoidable manual UI step in every test-org teardown/reseed cycle — pure friction for a solo project. Dual-path (setup flow for prod admins; Apex seed for test/dev) writes the same catalog either way. Divergence risk is bounded to §3.1's catalog table — one-line fix if either path drifts.
+- **§Phase 5 retired** (see body). §Non-goals amended to remove the "No Apex creating designation records anywhere" bullet. OQ12 retired.
+- **Phase 6.9 retired.** Seed generator's multi-designation splits, release-date coverage, and fee-restricted GD routing all landed via the 2026-07-27 seed-alignment pass. No further Apex work required by this plan.
+- **Phase 8 from `fqs-designation-hierarchy-plan.md` shipped 2026-07-28** — org-wide-default hard block on the Account launcher (`Screen_Block_Missing_Org_Default`). Deploy `0AfWB00000Df1bl0AB`. Guards the resolver's Tier 5 fall-through with an actionable "set up designations" screen instead of dumping users into `Screen_Pick_Designation` and letting the managed platform action abort cryptically.
+- **Phases 6.7 / 6.8 (Account + Opportunity launcher edits) — gated behind wizard Phase G.** Split UX, conflict screen, release-date prompt, and match-clone all bundle with G's Success-screen consolidation + full regression pass. No standalone commit.
 
 ---
 
