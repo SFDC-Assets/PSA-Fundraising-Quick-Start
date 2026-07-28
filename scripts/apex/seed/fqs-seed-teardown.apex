@@ -40,6 +40,27 @@ if (slot > 0) {
     if (!gdds.isEmpty()) { delete gdds; counts.put('GiftDefaultDesignation', gdds.size()); totalDeleted += gdds.size(); }
 }
 
+// 0c'. GiftDefaultSoftCredit — no External_Id__c; sweep by parent (GC + Opp) FQS tag.
+// Cascade-deletes with parent, but explicit removal keeps counts accurate.
+// Two-pass: SOQL disallows semi-join sub-selects combined with OR.
+slot = Math.min(5000, DML_BUDGET - totalDeleted);
+if (slot > 0) {
+    List<GiftDefaultSoftCredit> gdscGc = Database.query(
+        'SELECT Id FROM GiftDefaultSoftCredit WHERE ParentRecordId IN (SELECT Id FROM GiftCommitment WHERE External_Id__c LIKE \'FQS-GC-%\') LIMIT ' + slot);
+    if (!gdscGc.isEmpty()) { delete gdscGc; counts.put('GiftDefaultSoftCredit', gdscGc.size()); totalDeleted += gdscGc.size(); }
+    slot = Math.min(5000, DML_BUDGET - totalDeleted);
+    if (slot > 0) {
+        List<GiftDefaultSoftCredit> gdscOpp = Database.query(
+            'SELECT Id FROM GiftDefaultSoftCredit WHERE ParentRecordId IN (SELECT Id FROM Opportunity WHERE External_Id__c LIKE \'FQS-OPP-%\') LIMIT ' + slot);
+        if (!gdscOpp.isEmpty()) {
+            delete gdscOpp;
+            Integer prior = counts.containsKey('GiftDefaultSoftCredit') ? counts.get('GiftDefaultSoftCredit') : 0;
+            counts.put('GiftDefaultSoftCredit', prior + gdscOpp.size());
+            totalDeleted += gdscOpp.size();
+        }
+    }
+}
+
 // 0d. AccountContactRelation — must go before Accounts.
 // Phase G4: widened External Id pattern from CORP/INT-only to all FQS-ACC-* so seed-generator-
 // authored donor ↔ employer ACRs (created for match-eligible Person-Account donors) are also

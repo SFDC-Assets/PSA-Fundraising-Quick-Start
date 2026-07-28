@@ -1133,6 +1133,63 @@ public with sharing class FQSSeedGenerator {
             Integer globalIdx = batchOffset + giftDonorIdx[i];
             newGifts[i].Description = inKindItems[Math.mod(prng(globalIdx, 130 + giftIndexInDonor[i]), inKindItems.size())];
         }
+
+        // Stewardship/Ack lifecycle stamping on every GT.
+        //  - FQS_Processed_Date__c: TransactionDate + 0..3 days (real data-entry lag)
+        //  - AcknowledgementStatus / AcknowledgementDate: Paid gifts older than 14 days
+        //    are marked Sent (~85%); newer or non-Paid stay 'To Be Sent' so the ack batch
+        //    has a live pipeline
+        //  - FQS_Stewardship_Status__c / FQS_Stewardship_Date__c: only on Paid + acked
+        //    gifts older than 14 days; ~70% Sent, ~15% To Be Sent (in-pipeline), ~15%
+        //    Don't Send (donor opt-out)
+        //  - FQS_Tax_Receipt_Date__c: ~10% of Paid gifts older than 30 days (manual entry
+        //    field per docs; leaving most null is correct)
+        //  - Fee/Payment category excluded from ack + stewardship (matches flow filters)
+        Map<String, Schema.SObjectField> gtFieldMap = Schema.SObjectType.GiftTransaction.fields.getMap();
+        Boolean hasProcessedDate  = gtFieldMap.containsKey('fqs_processed_date__c');
+        Boolean hasStewardStatus  = gtFieldMap.containsKey('fqs_stewardship_status__c');
+        Boolean hasStewardDate    = gtFieldMap.containsKey('fqs_stewardship_date__c');
+        Boolean hasTaxReceiptDate = gtFieldMap.containsKey('fqs_tax_receipt_date__c');
+        Date todayForStamp = Date.today();
+        for (Integer i = 0; i < newGifts.size(); i++) {
+            GiftTransaction gt = newGifts[i];
+            Integer globalIdx = batchOffset + giftDonorIdx[i];
+            Integer instIdx = giftIndexInDonor[i];
+            Date txnDate = gt.TransactionDate;
+            if (txnDate == null) continue;
+            Boolean isPaid = (gt.Status == 'Paid');
+            String cat = (String) gt.FQS_Gift_Transaction_Category__c;
+            Boolean isFee = ('Fee/Payment'.equals(cat));
+
+            if (hasProcessedDate) {
+                gt.put('FQS_Processed_Date__c', txnDate.addDays(randInt(globalIdx, 320 + instIdx, 0, 3)));
+            }
+
+            if (!isPaid || isFee) continue;
+            Integer daysSince = txnDate.daysBetween(todayForStamp);
+            if (daysSince < 14) continue;
+
+            if (randBool(globalIdx, 340 + instIdx, 0.85)) {
+                gt.AcknowledgementStatus = 'Sent';
+                gt.AcknowledgementDate = txnDate.addDays(randInt(globalIdx, 341 + instIdx, 1, 3));
+
+                if (hasStewardStatus && hasStewardDate) {
+                    Integer sRoll = Math.mod(prng(globalIdx, 350 + instIdx), 100);
+                    if (sRoll < 70) {
+                        gt.put('FQS_Stewardship_Status__c', 'Sent');
+                        gt.put('FQS_Stewardship_Date__c', txnDate.addDays(randInt(globalIdx, 351 + instIdx, 14, 21)));
+                    } else if (sRoll < 85) {
+                        gt.put('FQS_Stewardship_Status__c', 'To Be Sent');
+                    } else {
+                        gt.put('FQS_Stewardship_Status__c', 'Don\'t Send');
+                    }
+                }
+
+                if (hasTaxReceiptDate && daysSince >= 30 && randBool(globalIdx, 360 + instIdx, 0.10)) {
+                    gt.put('FQS_Tax_Receipt_Date__c', txnDate.addDays(randInt(globalIdx, 361 + instIdx, 30, 60)));
+                }
+            }
+        }
         insert newGifts;
 
         // §12.1 — CampaignMember rows. The account launcher's Campaign picker filters to
@@ -1413,12 +1470,17 @@ public with sharing class FQSSeedGenerator {
             'Neighbor-Neighbor'
         };
         List<ContactContactRelation> newCCRs = new List<ContactContactRelation>();
+        // Track paired Account IDs by roleKey so downstream GDSC seeding can recognize
+        // e.g. a donor's spouse Account (Spouse-Spouse) or friend Account (Friend-Friend).
+        // Key = donor Account Id → List<Map>{ 'role': roleKey, 'partnerAccount': relatedAccountId }
+        Map<Id, List<Map<String, Object>>> partnersByDonorAccount = new Map<Id, List<Map<String, Object>>>();
         if (!prrIdByKey.isEmpty()) {
             List<Id> paContactIds = new List<Id>();
+            List<Id> paAccountIds = new List<Id>();  // 1:1 with paContactIds
             for (Integer i = 0; i < newAccounts.size(); i++) {
                 if (newAccounts[i].RecordTypeId != personAccountRT) continue;
                 Id ct = personContactByAccount.get(newAccounts[i].Id);
-                if (ct != null) paContactIds.add(ct);
+                if (ct != null) { paContactIds.add(ct); paAccountIds.add(newAccounts[i].Id); }
             }
             // Guarantee at least one pair per role when donor pool allows; otherwise pair a
             // conservative ~10% of PAs (each pair covers 2).
@@ -1438,6 +1500,11 @@ public with sharing class FQSSeedGenerator {
                     IsActive = true,
                     PartyRoleRelationId = prrId
                 ));
+                // Record both directions so a lookup by either donor finds their partner.
+                if (!partnersByDonorAccount.containsKey(paAccountIds[a])) partnersByDonorAccount.put(paAccountIds[a], new List<Map<String, Object>>());
+                if (!partnersByDonorAccount.containsKey(paAccountIds[b])) partnersByDonorAccount.put(paAccountIds[b], new List<Map<String, Object>>());
+                partnersByDonorAccount.get(paAccountIds[a]).add(new Map<String, Object>{'role' => roleKey, 'partnerAccount' => paAccountIds[b]});
+                partnersByDonorAccount.get(paAccountIds[b]).add(new Map<String, Object>{'role' => roleKey, 'partnerAccount' => paAccountIds[a]});
             }
             if (!newCCRs.isEmpty()) {
                 try {
@@ -1450,15 +1517,93 @@ public with sharing class FQSSeedGenerator {
             System.debug('No FQS PartyRoleRelations found — skipping CCR seeding. Re-run foundation.');
         }
 
+        // §12.4 — GiftDefaultSoftCredit on GC + Opportunity so the launcher's soft-credit
+        // "reach a different Account via CCR" branch and the report groupings have live data.
+        // Parent polymorphism: ParentRecordId → Campaign / GiftCommitment / Opportunity ONLY.
+        // Recipient rules (aim for real-world defensibility; skip when the semantics don't fit):
+        //   - Recurring OR Pledged GC (Individual) + Immediate-family CCR
+        //     (Spouse/Parent/Sibling) → 'Household Member', PartialPercent=100. Every scheduled
+        //     payment auto-credits the household member.
+        //   - Recurring OR Pledged GC (Individual) + Friend-Friend CCR → 'Solicitor',
+        //     PartialPercent=100. Friend introduced the donor; recognition rides every payment.
+        //   - Recurring OR Pledged GC (Individual) + Neighbor-Neighbor CCR → 'Influencer',
+        //     PartialPercent=100. Recognition without a formal solicitor claim.
+        //   - Major Gift Opp (Individual) + Spouse/Parent/Sibling CCR → 'Household Member',
+        //     PartialPercent=100. Household recognition follows the pipeline.
+        //   - Grant GC (Org donor) → skip. Corp-side match GDSCs are the matching-gift flow's
+        //     job, not the base seed's.
+        //   - Grant Opp (Org donor) → skip. No linked individual to credit at seed time.
+        //   - Outright/one-off GTs, Fee/Payment → no GDSC (GDSC is a default; one-offs have
+        //     no downstream GT that would inherit).
+        // Dedupe key inside this transaction is (ParentRecordId, RecipientId, Role).
+        List<GiftDefaultSoftCredit> newGDSCs = new List<GiftDefaultSoftCredit>();
+        Set<String> gdscKeySeen = new Set<String>();
+        Set<String> householdCcrRoles = new Set<String>{'Spouse-Spouse','Parent-Child','Sibling-Sibling'};
+        for (Integer ci = 0; ci < newCommitments.size(); ci++) {
+            GiftCommitment gc = newCommitments[ci];
+            String cKind = commitmentKind[ci];  // 'recurring' / 'pledged' / 'grant'
+            if (cKind == 'grant') continue;
+            List<Map<String, Object>> partners = partnersByDonorAccount.get(gc.DonorId);
+            if (partners == null) continue;
+            for (Map<String, Object> pr : partners) {
+                String roleKey = (String) pr.get('role');
+                Id partnerAcctId = (Id) pr.get('partnerAccount');
+                String gdscRole = null;
+                if (householdCcrRoles.contains(roleKey))       gdscRole = 'Household Member';
+                else if ('Friend-Friend'.equals(roleKey))      gdscRole = 'Solicitor';
+                else if ('Neighbor-Neighbor'.equals(roleKey))  gdscRole = 'Influencer';
+                if (gdscRole == null) continue;
+                String dedupeKey = String.valueOf(gc.Id) + '|' + String.valueOf(partnerAcctId) + '|' + gdscRole;
+                if (gdscKeySeen.contains(dedupeKey)) continue;
+                gdscKeySeen.add(dedupeKey);
+                newGDSCs.add(new GiftDefaultSoftCredit(
+                    ParentRecordId = gc.Id,
+                    RecipientId = partnerAcctId,
+                    Role = gdscRole,
+                    PartialPercent = 100
+                ));
+            }
+        }
+        // Opp branch: Major Gift RT + household CCR → household recognition on the pipeline.
+        for (Opportunity opp : newOpps) {
+            if (opp.RecordTypeId != oppMajorGiftRT) continue;
+            List<Map<String, Object>> partners = partnersByDonorAccount.get(opp.AccountId);
+            if (partners == null) continue;
+            for (Map<String, Object> pr : partners) {
+                if (!householdCcrRoles.contains((String) pr.get('role'))) continue;
+                Id partnerAcctId = (Id) pr.get('partnerAccount');
+                String dedupeKey = String.valueOf(opp.Id) + '|' + String.valueOf(partnerAcctId) + '|Household Member';
+                if (gdscKeySeen.contains(dedupeKey)) continue;
+                gdscKeySeen.add(dedupeKey);
+                newGDSCs.add(new GiftDefaultSoftCredit(
+                    ParentRecordId = opp.Id,
+                    RecipientId = partnerAcctId,
+                    Role = 'Household Member',
+                    PartialPercent = 100
+                ));
+            }
+        }
+        if (!newGDSCs.isEmpty()) {
+            try {
+                insert newGDSCs;
+                System.debug('GiftDefaultSoftCredits inserted: ' + newGDSCs.size());
+            } catch (DmlException e) {
+                System.debug('GDSC insert FAILED: ' + e.getMessage());
+            }
+        } else {
+            System.debug('No GDSCs to seed (no matching CCR + commitment/opp pairs found).');
+        }
+
         Integer total = newAccounts.size() + newCommitments.size() + newSchedules.size()
             + newOpps.size() + newPIs.size() + newGifts.size() + corpMatchGifts.size()
             + newGTDs.size() + newSoftCredits.size() + newTributes.size() + newRefunds.size()
-            + newGDDs.size();
+            + newGDDs.size() + newGDSCs.size();
         System.debug('=== Chunk complete (offset ' + batchOffset + '): ' + total + ' records ('
             + 'accounts=' + newAccounts.size()
             + ', commits=' + newCommitments.size()
             + ', scheds=' + newSchedules.size()
             + ', GDDs=' + newGDDs.size()
+            + ', GDSCs=' + newGDSCs.size()
             + ', opps=' + newOpps.size()
             + ', PIs=' + newPIs.size()
             + ', GTs=' + newGifts.size()
