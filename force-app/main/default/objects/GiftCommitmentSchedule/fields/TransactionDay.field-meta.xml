@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>TransactionDay</fullName>
-    <description>Day of the month or week on which each installment transaction is created. Allowed values: 1–30 (day of month), LastDay (last day of the month). Used in conjunction with TransactionPeriod and TransactionInterval.</description>
+    <description>Day of the month on which each installment transaction is created. Restricted picklist: &apos;1&apos;..&apos;28&apos; or &apos;LastDay&apos;. Values 29-31 rejected with INVALID_OR_NULL_FOR_RESTRICTED_PICKLIST. Used in conjunction with TransactionPeriod and TransactionInterval.</description>
+    <inlineHelpText>The day of the month payments are scheduled to post. For payments due at the end of the month, choose &apos;LastDay&apos; — this handles February and other short months automatically. Do not enter 29, 30, or 31.</inlineHelpText>
 </CustomField>

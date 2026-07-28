@@ -94,7 +94,7 @@ IF(
         <connector>
             <targetReference>Get_Donor</targetReference>
         </connector>
-        <filterFormula>NOT( {!$Permission.FQS_Skip_Record_Naming} ) &amp;&amp; NOT( {!$Record.FQS_Skip_Naming__c} ) &amp;&amp; NOT( ISBLANK({!$Record.DonorId}) ) &amp;&amp; NOT( ISBLANK({!$Record.ExpectedTotalCmtAmount}) ) &amp;&amp; NOT( ISBLANK(TEXT({!$Record.FQS_Gift_Commitment_Category__c})) )</filterFormula>
+        <filterFormula>NOT( {!$Permission.FQS_Skip_Record_Naming} ) &amp;&amp; NOT( {!$Record.FQS_Skip_Naming__c} ) &amp;&amp; NOT( ISBLANK({!$Record.DonorId}) ) &amp;&amp; NOT( ISBLANK({!$Record.ExpectedTotalCmtAmount}) ) &amp;&amp; NOT( ISBLANK(TEXT({!$Record.FQS_Gift_Commitment_Category__c})) ) &amp;&amp; ( ISNEW() || ISCHANGED({!$Record.DonorId}) || ISCHANGED({!$Record.ExpectedTotalCmtAmount}) || ISCHANGED({!$Record.FQS_Gift_Commitment_Category__c}) || ISCHANGED({!$Record.EffectiveStartDate}) || ISCHANGED({!$Record.ExpectedEndDate}) )</filterFormula>
         <object>GiftCommitment</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordBeforeSave</triggerType>

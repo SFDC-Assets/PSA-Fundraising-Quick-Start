@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>TransactionPeriod</fullName>
-    <description>Frequency unit for recurring installments. Allowed values: Monthly (one installment per month), Weekly (one per week), Daily (one per day), Yearly (one per year), Custom (interval defined by TransactionInterval and TransactionDay).</description>
+    <description>Frequency unit for recurring installments. Allowed values: Monthly, Weekly, Daily, Yearly, Custom. Custom disables engine fanout — no Expected GiftTransactions are auto-created; each installment must be inserted independently with GiftCommitmentId + GiftCommitmentScheduleId set. Custom requires parent GiftCommitment.ScheduleType=&apos;Custom&apos; and this row&apos;s Type=&apos;CreateTransactions&apos; or the insert rejects with FIELD_INTEGRITY_EXCEPTION. TransactionInterval and TransactionDay omitted at insert default to 1 post-save.</description>
+    <inlineHelpText>Choose &apos;Custom&apos; for grants and pledges with irregular payment amounts or spacing. When &apos;Custom&apos; is selected, enter each installment as its own gift transaction.</inlineHelpText>
 </CustomField>

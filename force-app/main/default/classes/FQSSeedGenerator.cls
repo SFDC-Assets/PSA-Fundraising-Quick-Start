@@ -89,6 +89,18 @@ public with sharing class FQSSeedGenerator {
         return ((amount / 5).round(System.RoundingMode.HALF_UP)) * 5;
     }
 
+    // §14 — Pick a pledge/grant timing window from a 40/40/20 mix:
+    //   'past'    → firstPmt + endDate both in the past (fully-fulfilled commitment history)
+    //   'mid'     → firstPmt in past, endDate in future (mid-flight — most common state IRL)
+    //   'future'  → firstPmt + endDate both in future (signed but no payments yet)
+    // Recurring commitments (OpenEnded) skip this — they have no signing event.
+    public static String pickTimingWindow(Integer seed, Integer salt) {
+        Integer roll = Math.mod(prng(seed, salt), 100);
+        if (roll < 40) return 'past';
+        if (roll < 80) return 'mid';
+        return 'future';
+    }
+
     // §13.1 — Pick a recurring GiftCommitment.Status from RECURRING_STATUS_WEIGHTS.
     // Weights map to ['Active', 'Failing', 'Lapsed', 'Paused'] in that order.
     public static String pickRecurringStatus(Integer seed, Integer salt) {
@@ -371,6 +383,16 @@ public with sharing class FQSSeedGenerator {
         List<Integer> commitmentDonorIdx = new List<Integer>();
         List<String> commitmentKind = new List<String>();
         List<Boolean> commitmentIsConditional = new List<Boolean>();  // §12.2 — drives GiftDefaultDesignation seeding
+        // First-payment date per commitment. For pledged + grant-* it diverges from
+        // GC.EffectiveStartDate (pledge-signed) by 30-180 days — models real "signed
+        // now, first check clears next month" behavior. GCS.StartDate + first GT.TransactionDate
+        // anchor here (payment start), while EffectiveStartDate anchors at the signing event.
+        // Recurring skips the split (open-ended donor commitments have no signing event).
+        List<Date> commitmentFirstPaymentDate = new List<Date>();
+        // Irregular installment ladder for grant-custom shape only (empty lists for all other kinds).
+        // Populated in the grant block below; consumed by the schedule builder + ladder walker + back-fill.
+        List<List<Date>> commitmentCustomInstDates = new List<List<Date>>();
+        List<List<Decimal>> commitmentCustomInstAmounts = new List<List<Decimal>>();
         for (Integer i = 0; i < donorCount; i++) {
             Integer level = donorLevels[i];
             Integer donorType = donorTypes[i];
@@ -400,13 +422,29 @@ public with sharing class FQSSeedGenerator {
                     FQS_Match_Eligible__c = randBool(globalIdx, 27, PROB_COMMITMENT_MATCH_ELIGIBLE),
                     CampaignId = allAskCampaignIds[Math.mod(prng(globalIdx, 23), allAskCampaignIds.size())]));
                 commitmentDonorIdx.add(i); commitmentKind.add('recurring'); commitmentIsConditional.add(isCond);
+                commitmentFirstPaymentDate.add(startDate);  // Recurring: no signing offset — first pmt = EffectiveStartDate
+                commitmentCustomInstDates.add(new List<Date>());
+                commitmentCustomInstAmounts.add(new List<Decimal>());
             }
             if (level >= 1 && randBool(globalIdx, 30, PROB_PLEDGED_MIDPLUS)) {
                 Decimal totalAmt = roundTo5((level == 1) ? randRange(globalIdx, 31, 2500, 15000) : randRange(globalIdx, 31, 25000, 75000));
-                Date startDate = Date.today().addMonths(-randInt(globalIdx, 32, 3, 24));
                 Boolean isCond = randBool(globalIdx, 35, PROB_CONDITIONAL_NONGRANT);
-                Date endDate = startDate.addYears(randInt(globalIdx, 33, 1, 5));
-                Integer pledgeYears = Math.max(1, endDate.year() - startDate.year());
+                // §14 — 40/40/20 timing window governs firstPmt placement; pledge-signed date
+                // = firstPmt - 30..180 days (signing offset). Duration = 1..5 years from firstPmt.
+                String tWindow = pickTimingWindow(globalIdx, 57);
+                Integer years = randInt(globalIdx, 33, 1, 5);
+                Date firstPmt;
+                if (tWindow == 'past') {
+                    Integer pastMonths = years * 12 + randInt(globalIdx, 32, 1, 6);
+                    firstPmt = Date.today().addMonths(-pastMonths);
+                } else if (tWindow == 'mid') {
+                    firstPmt = Date.today().addMonths(-randInt(globalIdx, 32, 3, 24));
+                } else {
+                    firstPmt = Date.today().addDays(randInt(globalIdx, 32, 15, 180));
+                }
+                Date pledgeSigned = firstPmt.addDays(-randInt(globalIdx, 56, 30, 180));
+                Date endDate = firstPmt.addYears(years);
+                Integer pledgeYears = Math.max(1, years);
                 newCommitments.add(new GiftCommitment(
                     External_Id__c = 'FQS-GC-' + RUN_STAMP + '-' + globalIdx + '-pledged',
                     Name = dLabel + ' - ' + fmtAmt(totalAmt) + ' over ' + pledgeYears + ' year' + (pledgeYears == 1 ? '' : 's'),
@@ -415,42 +453,106 @@ public with sharing class FQSSeedGenerator {
                     FormalCommitmentType = 'Written',
                     FQS_Gift_Commitment_Category__c = 'Pledged Gift',
                     ExpectedTotalCmtAmount = totalAmt.setScale(2),
-                    EffectiveStartDate = startDate,
+                    EffectiveStartDate = pledgeSigned,
                     ExpectedEndDate = endDate,
                     FQS_Match_Eligible__c = randBool(globalIdx, 37, PROB_COMMITMENT_MATCH_ELIGIBLE),
                     CampaignId = allAskCampaignIds[Math.mod(prng(globalIdx, 34), allAskCampaignIds.size())]));
                 commitmentDonorIdx.add(i); commitmentKind.add('pledged'); commitmentIsConditional.add(isCond);
+                commitmentFirstPaymentDate.add(firstPmt);
+                commitmentCustomInstDates.add(new List<Date>());
+                commitmentCustomInstAmounts.add(new List<Decimal>());
             }
             if (level == 2 && donorType == 1 && randBool(globalIdx, 40, PROB_GRANT_MAJORORG)) {
                 Decimal grantAmt = roundTo5(randRange(globalIdx, 41, 50000, 150000));
-                Date startDate = Date.today().addMonths(-randInt(globalIdx, 42, 3, 18));
                 Id campId = asksByCategory.containsKey('Grants')
                     ? asksByCategory.get('Grants')[Math.mod(prng(globalIdx, 44), asksByCategory.get('Grants').size())]
                     : allAskCampaignIds[0];
-                // ~75% one-time grants: EndDate ~30-60 days after Start (deposit + brief admin window),
-                // one installment GT that falls in the same FY as the ask campaign roughly 65% of the
-                // time and in an adjacent FY the remaining 35% (real grants sometimes slip fiscal
-                // boundaries). ~25% multi-year: EndDate 2-3 years out, yearly installment ladder.
-                // When Phase D6 of fqs-designations-plan.md lands, multi-year GCs + their installment
-                // GTs will additionally carry FQS_Restriction_Release_Date__c — see [[seed-release-date-followup]].
-                Boolean grantIsMultiYear = randBool(globalIdx, 45, 0.25);
-                Date endDate;
+                // Shape mix (three-way roll on salt 55):
+                //   5%  grant-custom     — irregular installments (3-5), irregular spacing, irregular amounts
+                //   25% grant-multiyear  — yearly installment ladder over 2-3 years
+                //   70% grant-onetime    — single installment, brief admin window
+                // §14 — timing window 40/40/20 (past/mid/future) applies to all three shapes.
+                //   Pledge-signed (GC.EffectiveStartDate) = firstPmt - 30..180d (signing offset).
+                Integer shapeRoll = Math.mod(prng(globalIdx, 55), 100);
                 String grantKind;
-                String grantNameSuffix;
-                if (grantIsMultiYear) {
-                    endDate = startDate.addYears(randInt(globalIdx, 43, 2, 3));
-                    Integer grantYears = Math.max(1, endDate.year() - startDate.year());
-                    grantKind = 'grant-multiyear';
-                    grantNameSuffix = ' over ' + grantYears + ' year' + (grantYears == 1 ? '' : 's');
+                if (shapeRoll < 5)       grantKind = 'grant-custom';
+                else if (shapeRoll < 30) grantKind = 'grant-multiyear';
+                else                     grantKind = 'grant-onetime';
+
+                String tWindow = pickTimingWindow(globalIdx, 57);
+                Integer grantYears;
+                if (grantKind == 'grant-multiyear')      grantYears = randInt(globalIdx, 43, 2, 3);
+                else if (grantKind == 'grant-custom')    grantYears = randInt(globalIdx, 43, 1, 3);
+                else                                     grantYears = 1;
+
+                Integer durationDays;
+                if (grantKind == 'grant-onetime')        durationDays = randInt(globalIdx, 46, 30, 60);
+                else                                     durationDays = grantYears * 365;
+
+                Date firstPmt;
+                if (tWindow == 'past') {
+                    Integer pastDays = durationDays + randInt(globalIdx, 42, 30, 180);
+                    firstPmt = Date.today().addDays(-pastDays);
+                } else if (tWindow == 'mid') {
+                    firstPmt = Date.today().addMonths(-randInt(globalIdx, 42, 3, 18));
                 } else {
-                    endDate = startDate.addDays(randInt(globalIdx, 43, 30, 60));
-                    grantKind = 'grant-onetime';
-                    grantNameSuffix = '';
+                    firstPmt = Date.today().addDays(randInt(globalIdx, 42, 15, 180));
                 }
-                // Phase D6 (shipped 2026-07-25): FQS_Restriction_Release_Date__c on multi-year grants
-                // stamps the final year of the restriction window at the parent-commitment level.
-                // Per memory [[seed-release-date-followup]]. Single-year grants leave it null (no
-                // time restriction beyond the natural install window).
+                Date pledgeSigned = firstPmt.addDays(-randInt(globalIdx, 56, 30, 180));
+                Date endDate = firstPmt.addDays(durationDays);
+
+                // Build irregular installments for grant-custom. Weights normalized to grantAmt,
+                // rounded to $5, last row reconciles rounding drift. Interval gaps 60..540d,
+                // sorted ascending, anchored at firstPmt.
+                List<Date> customDates = new List<Date>();
+                List<Decimal> customAmts = new List<Decimal>();
+                if (grantKind == 'grant-custom') {
+                    Integer nInstall = randInt(globalIdx, 58, 3, 5);
+                    List<Decimal> weights = new List<Decimal>();
+                    Decimal weightSum = 0;
+                    for (Integer k = 0; k < nInstall; k++) {
+                        Decimal w = randRange(globalIdx, 58 + k * 2, 1, 5);
+                        weights.add(w); weightSum += w;
+                    }
+                    Decimal running = 0;
+                    for (Integer k = 0; k < nInstall; k++) {
+                        Decimal amt;
+                        if (k == nInstall - 1) {
+                            amt = grantAmt - running;
+                            if (amt < 5) amt = 5;
+                        } else {
+                            amt = roundTo5((grantAmt * weights[k] / weightSum));
+                            if (amt < 5) amt = 5;
+                            running += amt;
+                        }
+                        customAmts.add(amt);
+                    }
+                    // Sample nInstall-1 gaps in 60..540d, sort ascending, layer onto firstPmt.
+                    List<Integer> gaps = new List<Integer>();
+                    for (Integer k = 1; k < nInstall; k++) {
+                        gaps.add(randInt(globalIdx, 59 + k * 3, 60, 540));
+                    }
+                    // Sort gaps ascending for a monotonic ladder.
+                    for (Integer a = 0; a < gaps.size(); a++) {
+                        for (Integer b = a + 1; b < gaps.size(); b++) {
+                            if (gaps[b] < gaps[a]) { Integer t = gaps[a]; gaps[a] = gaps[b]; gaps[b] = t; }
+                        }
+                    }
+                    customDates.add(firstPmt);
+                    Integer cum = 0;
+                    for (Integer k = 0; k < gaps.size(); k++) {
+                        cum += gaps[k];
+                        customDates.add(firstPmt.addDays(cum));
+                    }
+                    // Extend endDate to cover last installment (+30d admin buffer).
+                    endDate = customDates[customDates.size() - 1].addDays(30);
+                }
+
+                String grantNameSuffix;
+                if (grantKind == 'grant-onetime')        grantNameSuffix = '';
+                else if (grantKind == 'grant-custom')    grantNameSuffix = ' custom schedule';
+                else                                     grantNameSuffix = ' over ' + grantYears + ' year' + (grantYears == 1 ? '' : 's');
+
                 GiftCommitment grantGc = new GiftCommitment(
                     External_Id__c = 'FQS-GC-' + RUN_STAMP + '-' + globalIdx + '-grant',
                     Name = dLabel + ' - ' + fmtAmt(grantAmt) + grantNameSuffix,
@@ -459,13 +561,23 @@ public with sharing class FQSSeedGenerator {
                     FormalCommitmentType = 'Written',
                     FQS_Gift_Commitment_Category__c = 'Grant Payout',
                     ExpectedTotalCmtAmount = grantAmt.setScale(2),
-                    EffectiveStartDate = startDate,
+                    EffectiveStartDate = pledgeSigned,
                     ExpectedEndDate = endDate,
                     FQS_Match_Eligible__c = randBool(globalIdx, 47, PROB_COMMITMENT_MATCH_ELIGIBLE),
                     CampaignId = campId);
-                if (grantIsMultiYear) grantGc.FQS_Restriction_Release_Date__c = endDate;
+                // Custom shape: GC.ScheduleType='Custom' required (probe v4/v5 confirmed).
+                // Other grant shapes let the platform default ScheduleType from GCS.TransactionPeriod.
+                if (grantKind == 'grant-custom') grantGc.ScheduleType = 'Custom';
+                // Phase D6 (shipped 2026-07-25): FQS_Restriction_Release_Date__c on multi-year
+                // AND custom grants (both walk multiple installments across years).
+                if (grantKind == 'grant-multiyear' || grantKind == 'grant-custom') {
+                    grantGc.FQS_Restriction_Release_Date__c = endDate;
+                }
                 newCommitments.add(grantGc);
                 commitmentDonorIdx.add(i); commitmentKind.add(grantKind); commitmentIsConditional.add(true);
+                commitmentFirstPaymentDate.add(firstPmt);
+                commitmentCustomInstDates.add(customDates);
+                commitmentCustomInstAmounts.add(customAmts);
             }
         }
         if (!newCommitments.isEmpty()) insert newCommitments;
@@ -530,31 +642,56 @@ public with sharing class FQSSeedGenerator {
             String kind = commitmentKind[i];
             Integer di = commitmentDonorIdx[i];
             Integer globalIdx = batchOffset + di;
-            // Schedule.TransactionAmount = per-installment.
+            // Schedule.TransactionAmount = per-installment reference.
             //   recurring       → monthly amount (= GC total; OpenEnded has no lifetime cap)
             //   pledged         → total / duration years, yearly
             //   grant-multiyear → total / duration years, yearly (same shape as pledged)
             //   grant-onetime   → full grant amount, single-installment "Yearly" window
+            //   grant-custom    → first installment amount as a reference; actual amounts live on
+            //                     the emitted GTs (irregular per row). GCS.TransactionPeriod='Custom'
+            //                     + Type='CreateTransactions'; Interval + Day intentionally omitted
+            //                     (platform post-save defaults both to 1).
+            Date firstPmtDate = commitmentFirstPaymentDate[i];
             Decimal schedAmt;
             if (kind == 'recurring') {
                 schedAmt = gc.ExpectedTotalCmtAmount;
             } else if (kind == 'grant-onetime') {
                 schedAmt = gc.ExpectedTotalCmtAmount;
+            } else if (kind == 'grant-custom') {
+                schedAmt = commitmentCustomInstAmounts[i].isEmpty() ? gc.ExpectedTotalCmtAmount : commitmentCustomInstAmounts[i][0];
             } else {
-                Integer years = Math.max(1, gc.ExpectedEndDate.year() - gc.EffectiveStartDate.year());
+                // pledged / grant-multiyear — year count is derived from firstPmt to endDate,
+                // NOT EffectiveStartDate (which now sits 30-180d earlier — pledge-signed offset).
+                Integer years = Math.max(1, gc.ExpectedEndDate.year() - firstPmtDate.year());
                 schedAmt = roundTo5((gc.ExpectedTotalCmtAmount / years).setScale(2));
             }
             Boolean isPaused = pausedIdxs.contains(i);
             String paymentMethod = kind.startsWith('grant') ? 'Check' : (Math.mod(i, 3) == 0 ? 'ACH' : 'Credit Card');
+            // Recurring anchors GCS.StartDate at EffectiveStartDate (no signing offset).
+            // pledged + grant-* anchor GCS.StartDate at firstPmt (schedule anchor = payment start,
+            // NOT signing event).
+            Date schedStart = (kind == 'recurring') ? gc.EffectiveStartDate : firstPmtDate;
             GiftCommitmentSchedule sched = new GiftCommitmentSchedule(
                 External_Id__c = 'FQS-GCS-' + RUN_STAMP + '-' + globalIdx + '-' + kind,
                 GiftCommitmentId = gc.Id,
                 TransactionAmount = schedAmt,
-                TransactionPeriod = (kind == 'recurring') ? 'Monthly' : 'Yearly',
-                StartDate = gc.EffectiveStartDate,
-                TransactionDay = String.valueOf(gc.EffectiveStartDate.day()),
+                TransactionPeriod = (kind == 'recurring') ? 'Monthly' : (kind == 'grant-custom') ? 'Custom' : 'Yearly',
+                StartDate = schedStart,
                 PaymentMethod = paymentMethod
             );
+            // Custom shape: MUST set Type='CreateTransactions' explicitly (probe confirmed this
+            // is required for platform to activate + auto-populate LastPaidTransactionDate).
+            // Omit TransactionInterval + TransactionDay — platform defaults both to 1 post-save.
+            // Other shapes leave Type unset (previous behavior) so the platform sets it via
+            // its own defaulting logic + doesn't reject on GC.ScheduleType null-mismatch.
+            if (kind == 'grant-custom') {
+                sched.Type = 'CreateTransactions';
+            } else {
+                // TransactionDay picklist rejects days > 28 on some orgs (only 1-28 + "LastDay"
+                // in the restricted values list). Clamp to 28 and use "LastDay" for 29-31.
+                Integer schedDay = schedStart.day();
+                sched.TransactionDay = (schedDay >= 29) ? 'LastDay' : String.valueOf(schedDay);
+            }
             if (kind != 'recurring' && gc.ExpectedEndDate != null) sched.EndDate = gc.ExpectedEndDate;
             // §13.1b — Paused GCs get the real 3-row shape managed Pause action produces.
             // Original CreateTransactions row is truncated to end just before the pause window;
@@ -615,12 +752,55 @@ public with sharing class FQSSeedGenerator {
         // NextTransactionDate points at the first tx date after the pause window ends.
         Date today = Date.today();
         Set<Id> pausedGcIds = pauseOriginalGcsIdByGcId.keySet();
+        // Custom shape: NextTransactionDate + Amount point at the first future/pending installment
+        // (matches the manual back-fill probe pattern for FundFirst Custom grants).
+        Map<Id, GiftCommitment> customGcById = new Map<Id, GiftCommitment>();
+        Map<Id, List<Date>> customDatesByGcId = new Map<Id, List<Date>>();
+        Map<Id, List<Decimal>> customAmtsByGcId = new Map<Id, List<Decimal>>();
+        for (Integer ci = 0; ci < newCommitments.size(); ci++) {
+            if (commitmentKind[ci] == 'grant-custom') {
+                customGcById.put(newCommitments[ci].Id, newCommitments[ci]);
+                customDatesByGcId.put(newCommitments[ci].Id, commitmentCustomInstDates[ci]);
+                customAmtsByGcId.put(newCommitments[ci].Id, commitmentCustomInstAmounts[ci]);
+            }
+        }
         List<GiftCommitment> gcActivations = new List<GiftCommitment>();
         for (GiftCommitmentSchedule s : newSchedules) {
             if (pausedGcIds.contains(s.GiftCommitmentId)) continue;  // handled below
-            if (s.StartDate > today) continue;
+            if (s.StartDate > today) continue;  // future-signed: platform will activate naturally
+            // Custom shape: consult the precomputed installment ladder for the first future row.
+            if (s.TransactionPeriod == 'Custom') {
+                List<Date> cDates = customDatesByGcId.get(s.GiftCommitmentId);
+                List<Decimal> cAmts = customAmtsByGcId.get(s.GiftCommitmentId);
+                if (cDates == null || cDates.isEmpty()) continue;
+                Date nextTx = null;
+                Decimal nextAmt = null;
+                for (Integer k = 0; k < cDates.size(); k++) {
+                    if (cDates[k] > today) {
+                        nextTx = cDates[k];
+                        nextAmt = cAmts[k];
+                        break;
+                    }
+                }
+                // If every installment is in the past (all paid), point at the last row so
+                // CurrentGiftCmtScheduleId + NextTransactionDate still populate (matches v4 shape).
+                if (nextTx == null) {
+                    nextTx = cDates[cDates.size() - 1];
+                    nextAmt = cAmts[cAmts.size() - 1];
+                }
+                gcActivations.add(new GiftCommitment(
+                    Id = s.GiftCommitmentId,
+                    CurrentGiftCmtScheduleId = s.Id,
+                    NextTransactionDate = nextTx,
+                    NextTransactionAmount = nextAmt
+                ));
+                continue;
+            }
             Date nextTx;
-            Integer txDay = Integer.valueOf(s.TransactionDay);
+            // TransactionDay may be numeric "1".."28" or the sentinel "LastDay"; resolve
+            // to a per-month integer using Date.daysInMonth when we compute nextTx below.
+            Boolean useLastDay = 'LastDay'.equals(s.TransactionDay);
+            Integer txDay = useLastDay ? 28 : Integer.valueOf(s.TransactionDay);
             if (s.TransactionPeriod == 'Monthly') {
                 nextTx = Date.newInstance(today.year(), today.month(), Math.min(txDay, Date.daysInMonth(today.year(), today.month())));
                 if (nextTx <= today) {
@@ -809,12 +989,16 @@ public with sharing class FQSSeedGenerator {
             Integer globalIdx = batchOffset + di;
             Decimal schedAmt = gcsAmountByGcId.get(gc.Id);
             String schedPaymentMethod = gcsPaymentMethodByGcId.get(gc.Id);
-            Integer totalMonths = ((Date.today().year() - gc.EffectiveStartDate.year()) * 12
-                                   + (Date.today().month() - gc.EffectiveStartDate.month()));
+            // Ladder anchor = firstPmt (payment start), NOT EffectiveStartDate (signing event).
+            Date firstPmtDate = commitmentFirstPaymentDate[ci];
+            Integer totalMonths = ((Date.today().year() - firstPmtDate.year()) * 12
+                                   + (Date.today().month() - firstPmtDate.month()));
 
-            // Compute this commitment's installment ladder — a list of Date+Status pairs.
+            // Compute this commitment's installment ladder — a list of Date+Status+Amount triples.
+            // For grant-custom the amounts vary per row (irregular); all others share schedAmt.
             List<Date> instDates = new List<Date>();
             List<String> instStatuses = new List<String>();
+            List<Decimal> instAmounts = new List<Decimal>();  // empty means "use schedAmt"
 
             if (kind == 'recurring') {
                 // 18-month cap ⇒ produces at most 18 installments (m in 0..17, inclusive).
@@ -825,7 +1009,7 @@ public with sharing class FQSSeedGenerator {
                     lapseCutoff = randInt(globalIdx, 200, Math.min(3, maxMonths), Math.max(3, maxMonths - 2));
                 }
                 for (Integer m = 0; m <= lapseCutoff; m++) {
-                    Date d = gc.EffectiveStartDate.addMonths(m);
+                    Date d = firstPmtDate.addMonths(m);
                     if (d > Date.today()) break;
                     instDates.add(d);
                     Boolean isTrailing = (m >= lapseCutoff - 2);
@@ -838,7 +1022,7 @@ public with sharing class FQSSeedGenerator {
                     }
                 }
             } else if (kind == 'pledged' || kind == 'grant-multiyear') {
-                Date walker = gc.EffectiveStartDate;
+                Date walker = firstPmtDate;
                 Date walkerEnd = (gc.ExpectedEndDate != null && gc.ExpectedEndDate < Date.today())
                     ? gc.ExpectedEndDate : Date.today();
                 Integer y = 0;
@@ -847,21 +1031,46 @@ public with sharing class FQSSeedGenerator {
                     walker = walker.addYears(1);
                     y++;
                 }
-                if (instDates.isEmpty()) { instDates.add(gc.EffectiveStartDate); }
-                // Lifecycle: 70% all-Paid, 25% earliest Paid + next Pending, 5% one overdue Unpaid.
-                Integer lifecycleRoll = Math.mod(prng(globalIdx, 210), 100);
-                for (Integer k = 0; k < instDates.size(); k++) instStatuses.add('Paid');
-                if (instDates.size() >= 2 && lifecycleRoll >= 70 && lifecycleRoll < 95) {
-                    instStatuses[instStatuses.size() - 1] = 'Pending';
-                } else if (instDates.size() >= 1 && lifecycleRoll >= 95) {
-                    // Overdue: pick one installment, backdate its due-date so it's past due, mark Unpaid.
-                    Integer overdueIdx = Math.mod(prng(globalIdx, 211), instDates.size());
-                    instStatuses[overdueIdx] = 'Unpaid';
+                if (instDates.isEmpty()) {
+                    // Future-signed pledge/grant with no payments yet — emit one Pending row on firstPmt.
+                    instDates.add(firstPmtDate);
+                    instStatuses.add('Pending');
+                } else {
+                    // Lifecycle: 70% all-Paid, 25% earliest Paid + next Pending, 5% one overdue Unpaid.
+                    Integer lifecycleRoll = Math.mod(prng(globalIdx, 210), 100);
+                    for (Integer k = 0; k < instDates.size(); k++) instStatuses.add('Paid');
+                    if (instDates.size() >= 2 && lifecycleRoll >= 70 && lifecycleRoll < 95) {
+                        instStatuses[instStatuses.size() - 1] = 'Pending';
+                    } else if (instDates.size() >= 1 && lifecycleRoll >= 95) {
+                        // Overdue: pick one installment, backdate its due-date so it's past due, mark Unpaid.
+                        Integer overdueIdx = Math.mod(prng(globalIdx, 211), instDates.size());
+                        instStatuses[overdueIdx] = 'Unpaid';
+                    }
                 }
             } else if (kind == 'grant-onetime') {
-                // One installment on StartDate; usually Paid.
-                instDates.add(gc.EffectiveStartDate);
-                instStatuses.add(randBool(globalIdx, 220, 0.95) ? 'Paid' : 'Pending');
+                // One installment on firstPmt; usually Paid if in the past, Pending if future.
+                instDates.add(firstPmtDate);
+                if (firstPmtDate > Date.today()) {
+                    instStatuses.add('Pending');
+                } else {
+                    instStatuses.add(randBool(globalIdx, 220, 0.95) ? 'Paid' : 'Pending');
+                }
+            } else if (kind == 'grant-custom') {
+                // Irregular installments precomputed in the commitment block. Per-row amount lives on
+                // instAmounts. Status: past-dated rows = Paid, future rows = Pending; overall 5%
+                // overdue on any single row (mirrors pledged/multiyear lifecycle).
+                List<Date> customDates = commitmentCustomInstDates[ci];
+                List<Decimal> customAmts = commitmentCustomInstAmounts[ci];
+                for (Integer k = 0; k < customDates.size(); k++) {
+                    instDates.add(customDates[k]);
+                    instAmounts.add(customAmts[k]);
+                    instStatuses.add(customDates[k] <= Date.today() ? 'Paid' : 'Pending');
+                }
+                Integer overdueRoll = Math.mod(prng(globalIdx, 212), 100);
+                if (overdueRoll < 5 && !instStatuses.isEmpty()) {
+                    Integer overdueIdx = Math.mod(prng(globalIdx, 213), instStatuses.size());
+                    instStatuses[overdueIdx] = 'Unpaid';
+                }
             }
 
             String cat = kind.startsWith('grant') ? 'Grant Payment' : 'Pledge Payment';
@@ -870,7 +1079,9 @@ public with sharing class FQSSeedGenerator {
                 Date txnDate = instDates[inst];
                 String status = instStatuses[inst];
                 Boolean isPaid = (status == 'Paid');
-                Decimal baseAmount = roundTo5(schedAmt);
+                // grant-custom overrides per-installment amount; all other kinds share schedAmt.
+                Decimal rowAmt = (inst < instAmounts.size()) ? instAmounts[inst] : schedAmt;
+                Decimal baseAmount = roundTo5(rowAmt);
                 if (baseAmount < 5) baseAmount = 5;
                 String paymentMethod = (schedPaymentMethod != null) ? schedPaymentMethod : 'Check';
                 Boolean donorCoversFees = (paymentMethod != 'Check') && randBool(globalIdx, 230 + inst, PROB_DONOR_COVERS_FEES);
@@ -955,9 +1166,9 @@ public with sharing class FQSSeedGenerator {
                     GiftCommitmentId = gc.Id
                 );
                 // Phase D6 (shipped 2026-07-25): stamp per-installment restriction release
-                // date on multi-year grant GTs — one year past the installment date.
+                // date on multi-year + custom grant GTs — one year past the installment date.
                 // Per memory [[seed-release-date-followup]].
-                if (kind == 'grant-multiyear') {
+                if (kind == 'grant-multiyear' || kind == 'grant-custom') {
                     gt.FQS_Restriction_Release_Date__c = txnDate.addYears(1);
                 }
                 if (kind == 'recurring') gt.FQS_Recurring__c = true;
@@ -1541,8 +1752,8 @@ public with sharing class FQSSeedGenerator {
         Set<String> householdCcrRoles = new Set<String>{'Spouse-Spouse','Parent-Child','Sibling-Sibling'};
         for (Integer ci = 0; ci < newCommitments.size(); ci++) {
             GiftCommitment gc = newCommitments[ci];
-            String cKind = commitmentKind[ci];  // 'recurring' / 'pledged' / 'grant'
-            if (cKind == 'grant') continue;
+            String cKind = commitmentKind[ci];  // 'recurring' / 'pledged' / 'grant-onetime' / 'grant-multiyear' / 'grant-custom'
+            if (cKind.startsWith('grant')) continue;
             List<Map<String, Object>> partners = partnersByDonorAccount.get(gc.DonorId);
             if (partners == null) continue;
             for (Map<String, Object> pr : partners) {

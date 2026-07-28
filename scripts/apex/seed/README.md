@@ -54,9 +54,12 @@ Primary purpose is **testing and development**; demo polish is secondary.
 - **Recurring commitment amount**: derived from `Annual_Min_Amount__c ÷ 12` per level so a donor's annualized recurring giving lands squarely inside their grouping band.
 - **Donor type**: 75% Individual / 25% Org (Major skews toward Org)
 - **History**: 3 years of gifts
-- **Recurring**: 35% of donors have an active recurring `GiftCommitment`
-- **Pledged**: 40% of Mid+Major have a pledged `GiftCommitment`
-- **Grant payouts**: ~30% of Major Org donors
+- **Recurring**: 35% of donors have an active recurring `GiftCommitment` (Monthly `GCS.TransactionPeriod`, no signing offset — first payment coincides with `EffectiveStartDate`)
+- **Pledged**: 40% of Mid+Major have a pledged `GiftCommitment` (Yearly `GCS`, timing mix 40% past-only / 40% midflight / 20% future-only, `EffectiveStartDate` = firstPmt − 30..180d signing offset)
+- **Grant payouts**: ~30% of Major Org donors, with three-way shape mix:
+  - **70% one-time** — single installment, brief admin window
+  - **25% multi-year** — yearly ladder over 2-3 years, per-installment `FQS_Restriction_Release_Date__c` +1yr
+  - **5% Custom** — irregular installments (3-5 rows), irregular spacing (60-540d gaps), irregular amounts summing to `ExpectedTotalCmtAmount`. `GC.ScheduleType='Custom'`, `GCS.TransactionPeriod='Custom'`, `Type='CreateTransactions'`; `TransactionInterval` + `TransactionDay` omitted at insert (platform defaults both to `1` post-save).
 - **Gift categories**: 30% Outright / 50% Pledge Payment / 15% Grant Payment / 5% Fee
 - **Opportunities**: All Major donors + 20% of Mid (Grant RT for Orgs, Major_Gift RT for Individuals)
 - **Edge cases**: 15% lapsed donors, 15% soft credits, 10% tributes, 3% refunds

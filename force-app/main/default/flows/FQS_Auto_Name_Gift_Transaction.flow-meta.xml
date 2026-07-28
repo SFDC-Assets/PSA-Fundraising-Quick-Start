@@ -95,7 +95,7 @@ IF(
         <connector>
             <targetReference>Get_Donor</targetReference>
         </connector>
-        <filterFormula>NOT( {!$Permission.FQS_Skip_Record_Naming} ) &amp;&amp; NOT( {!$Record.FQS_Skip_Naming__c} ) &amp;&amp; NOT( ISBLANK({!$Record.DonorId}) ) &amp;&amp; NOT( ISBLANK({!$Record.OriginalAmount}) ) &amp;&amp; NOT( ISBLANK({!$Record.TransactionDate}) )</filterFormula>
+        <filterFormula>NOT( {!$Permission.FQS_Skip_Record_Naming} ) &amp;&amp; NOT( {!$Record.FQS_Skip_Naming__c} ) &amp;&amp; NOT( ISBLANK({!$Record.DonorId}) ) &amp;&amp; NOT( ISBLANK({!$Record.OriginalAmount}) ) &amp;&amp; NOT( ISBLANK({!$Record.TransactionDate}) ) &amp;&amp; ( ISNEW() || ISCHANGED({!$Record.DonorId}) || ISCHANGED({!$Record.OriginalAmount}) || ISCHANGED({!$Record.TransactionDate}) || ISCHANGED({!$Record.TransactionDueDate}) || ISCHANGED({!$Record.MatchingEmployerTransactionId}) || ISCHANGED({!$Record.FQS_Gift_Transaction_Category__c}) )</filterFormula>
         <object>GiftTransaction</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordBeforeSave</triggerType>

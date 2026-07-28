@@ -503,6 +503,28 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
    9. Confirm **Filter Type** is **Optional**.
    10. Click **Save**.
 
+3. **Add help text to Gift Commitment: Effective Start Date**
+
+   `GiftCommitment.EffectiveStartDate` is a Nonprofit Cloud–owned standard field. Salesforce does not include help-text edits to standard fields in unmanaged packages, so this step must be applied manually in every install. Documenting the field on the record prevents a common data-entry mistake: end users assume this is the date the first payment posts, when it is actually the date the donor formally committed (signed the pledge or grant letter). Those two dates can differ by weeks or months.
+
+   1. From Setup, click the **Object Manager** tab.
+   2. Search for and click **Gift Commitment**, then select **Fields & Relationships**.
+   3. Click the field **Effective Start Date**.
+   4. Click **Edit**.
+   5. In the **Help Text** field, enter: *The date the donor formally committed to this gift (signed the pledge or grant letter). This can be earlier than when the first payment arrives.*
+   6. Click **Save**.
+
+4. **Add help text to Gift Commitment Schedule: Start Date**
+
+   `GiftCommitmentSchedule.StartDate` is a Nonprofit Cloud–owned standard field. Documenting it clarifies the split between the signing date on the parent commitment (Effective Start Date) and the first-payment date on the schedule — a common source of manual-entry confusion. It also flags the platform activation gate: Salesforce back-fills the parent commitment's Current Gift Commitment Schedule, Next Transaction Date, and Last Paid Transaction Date only when Start Date is on or before today.
+
+   1. From Setup, click the **Object Manager** tab.
+   2. Search for and click **Gift Commitment Schedule**, then select **Fields & Relationships**.
+   3. Click the field **Start Date**.
+   4. Click **Edit**.
+   5. In the **Help Text** field, enter: *The date the first scheduled payment is expected. This can be later than the signing date on the parent commitment. The schedule stays inactive until this date is on or before today.*
+   6. Click **Save**.
+
 **V. Configure Designation, Soft Credit, and Tribute Objects**
 
 <!-- TODO: still to fill in:

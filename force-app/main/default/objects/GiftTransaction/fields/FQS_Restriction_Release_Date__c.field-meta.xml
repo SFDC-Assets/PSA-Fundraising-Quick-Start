@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Restriction_Release_Date__c</fullName>
-    <description>Date on or after which a time-restricted gift becomes eligible to be moved out of restricted funds. Blank means no time restriction. Interpretation is report-defined — no automatic release logic. On a payment against a commitment, this field defaults from the parent commitment but is independently writable — installments of a multi-year pledge may each carry their own release date. See .planning/fqs-designations-plan.md.</description>
+    <description>Convention: one year past this transaction&apos;s date. Blank means no time restriction. Interpretation is report-defined — no automatic release logic. On a payment against a commitment, defaults from the parent commitment but is independently writable — installments of a multi-year pledge may each carry their own release date. Populated automatically by FQSSeedGenerator on grant-multiyear and grant-custom installments. See .planning/fqs-designations-plan.md.</description>
     <externalId>false</externalId>
-    <inlineHelpText>If the donor restricted this gift to a specific timeframe, enter the date on or after which the gift may be moved out of restricted net assets. Leave blank for purpose-only or permanently restricted gifts. On payments against a commitment, this defaults from the parent commitment.</inlineHelpText>
+    <inlineHelpText>The date restricted funds from this payment become available for either general use or for their designated purpose.</inlineHelpText>
     <label>Restriction Release Date</label>
     <required>false</required>
     <trackHistory>false</trackHistory>

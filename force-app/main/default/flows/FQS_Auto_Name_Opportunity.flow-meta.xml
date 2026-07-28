@@ -78,7 +78,7 @@
         <connector>
             <targetReference>Get_Account</targetReference>
         </connector>
-        <filterFormula>NOT( {!$Permission.FQS_Skip_Record_Naming} ) &amp;&amp; NOT( {!$Record.FQS_Skip_Naming__c} ) &amp;&amp; NOT( ISBLANK({!$Record.AccountId}) ) &amp;&amp; NOT( ISBLANK({!$Record.Amount}) ) &amp;&amp; NOT( ISBLANK({!$Record.CloseDate}) )</filterFormula>
+        <filterFormula>NOT( {!$Permission.FQS_Skip_Record_Naming} ) &amp;&amp; NOT( {!$Record.FQS_Skip_Naming__c} ) &amp;&amp; NOT( ISBLANK({!$Record.AccountId}) ) &amp;&amp; NOT( ISBLANK({!$Record.Amount}) ) &amp;&amp; NOT( ISBLANK({!$Record.CloseDate}) ) &amp;&amp; ( ISNEW() || ISCHANGED({!$Record.AccountId}) || ISCHANGED({!$Record.Amount}) || ISCHANGED({!$Record.CloseDate}) )</filterFormula>
         <object>Opportunity</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordBeforeSave</triggerType>
