@@ -158,9 +158,9 @@ Restriction-type picker filters `Screen_Pick_Designation` (only reachable via th
 5. **Fan out to remaining leaves** — Pledge Payment (with the existing-GTD short-circuit → Q3-B leave-alone + Q3-C Success-screen warning), Simple/Scheduled/Recurring/Grant, In-Kind, Earned Income, Event Registration.
 6. **Restriction-picker relocation (Q7-B).** Move `Screen_Pick_Restriction` from before-Campaign to after-Campaign on commitment-creation leaves. Remove from payment-leaf paths entirely.
 7. ~~Category-match resolver tier~~ — **removed 2026-07-27 (round 3).** See precedence-table note below tier 5.
-8. **Org-wide-default hard block (Q6-A) + pre-release checklist (Q13 — Gate A + admin README).** If `Get_Org_Default_Designation` returns 0 rows and the resolver would otherwise fall through to it, halt on Campaign screen with a hard block: "Set up designations before continuing" (link/text pointing to `FQS_Suggest_Designations`). Also add:
-   - **Gate A entry** in [fqs-release-readiness.md](./fqs-release-readiness.md) §Gate A — Flow best-practices review: "Verify at least one active `GiftDesignation` has `IsDefault = TRUE` in the target org before deploying the launcher."
-   - **Admin README step** in the post-install setup section (see [SMQS README shape](./fqs-release-readiness.md#smqs-reference-shape) for pattern): "Run `FQS_Suggest_Designations` (or manually create at least one active `GiftDesignation` with `IsDefault = TRUE`) before launching any gift-entry flow." Phrasing target: reads at admin-install time, not developer-QA time.
+8. **Org-wide-default hard block (Q6-A) + pre-release checklist (Q13 — Gate A + admin README). SHIPPED 2026-07-28 (deploy `0AfWB00000Df1bl0AB`).** New terminal screen `Screen_Block_Missing_Org_Default` fires when `Get_Org_Default_Designation` returns zero rows. `Decide_Resolver_Has_Org_Default`'s default connector was rerouted from `Screen_Pick_Designation` to the block screen. Screen has `allowFinish=true` with no `<connector>` per [[flow-allowfinish-blocks-next]] — Finish exits the flow, admin runs `FQS_Suggest_Designations` (or manually flags `IsDefault=TRUE` on an active GD) and relaunches. Also landed:
+   - **Gate A entry** in [fqs-release-readiness.md](./fqs-release-readiness.md) §Gate A — "Org-wide default `GiftDesignation` exists" was already present (added Phase 3); no change needed.
+   - **Admin README §V.1** — new post-install step "Establish an org-wide default Gift Designation" with two options (run `FQS_Suggest_Designations` or manually flag an existing GD) plus a SOQL verification step. Positioned as the first item in §V so it lands before the two Active-Designation lookup filter steps.
 9. **Regression matrix** — one row per leaf × (GC-default present / not) × (Campaign-default present / not) × (category default present / not, for Special leaves) × (org-default present) × (user override taken / not). Verify `GiftTransactionDesignation.GiftDesignationId` on the created row matches the resolver's decision.
 10. **Commit** — Justin gates.
 
@@ -219,3 +219,71 @@ None open. Ready for Phase 2 implementation on Justin's greenlight.
 - The Campaign screen's summary line reads a formula, not a variable directly — because the summary text depends on both `var_ResolvedDesignationSource` (which source won) AND `Get_Resolved_GD.Name` (the GD name to render). Formula composes them.
 - If you find yourself adding a special-case fork inside the resolver for a specific leaf, stop. That's the smell that this plan is failing. Special cases go on the leaf's own path *before* it enters the resolver (e.g., Fee for Service hard-writes `var_ResolvedDesignationId` before routing, so the resolver's chain is short-circuited at #1-equivalent).
 - Per [[fundfirst-gcs-no-scheduletype]] and [[flow-in-operator-gotcha]] — when writing the resolver's `Get_Org_Default_Designation` SOQL, use `EqualTo TRUE` on IsDefault + IsActive, not any `In` operator. Silent 0-row returns break the resolver's fallback.
+
+---
+
+## Leaf × designation-behavior matrix (as-shipped after Phase 5d + multi-GDD bundle 2026-07-28)
+
+Snapshot of what actually lives in [FQS_Gift_Entry_Single_Launcher_Account.flow-meta.xml](../force-app/main/default/flows/FQS_Gift_Entry_Single_Launcher_Account.flow-meta.xml) after Phase 3/4/5a/5b/5c/5d + reconciliation + multi-GDD. Use this table when reasoning about any leaf's designation behavior end-to-end.
+
+| # | Leaf | Campaign | Designation source (resolver tier) | Override allowed | Split-aware (Platform_Split) | Flow writes GTD? | Flow writes/updates GC's GDD? |
+|---|---|---|---|---|---|---|---|
+| 1 | Outright (one-time cash) | Optional | Tier 3 Campaign → Tier 5 Org | Yes | Yes (Campaign side) | Yes, unless split → platform fans out | N/A (no GC) |
+| 2 | In-Kind | Optional | Tier 3 Campaign → Tier 5 Org | Yes | Yes (Campaign) | Yes, unless split | N/A |
+| 3 | Earned Income / Earned Revenue | Optional | Tier 3 Campaign → Tier 5 Org | Yes | Yes (Campaign) | Yes, unless split | N/A |
+| 4 | Event Registration | Optional (originally required per Q4; runtime allows optional today) | Tier 3 Campaign → Tier 5 Org | Yes (picker filter deferred on payment/Special) | Yes (Campaign) | Yes, unless split | N/A |
+| 5 | Special (tribute / grouping) | Optional | Tier 3 Campaign → Tier 5 Org | Deferred — empty-picker bug parked | Yes (Campaign) | Yes, unless split | N/A |
+| 6 | Simple Pledge (commitment, no schedule) | Optional | Tier 3 Campaign → Tier 5 Org | Yes; restriction gate applies | Yes (Campaign) | Yes on payment GT if manually added later | Yes — flow inserts GDD unless split |
+| 7 | Scheduled Pledge (fixed schedule) | Optional | Tier 3 Campaign → Tier 5 Org | Yes; restriction gate applies | Yes (Campaign) | Platform-managed fanout on Expected GTs | Reconcile only — platform auto-inserts, flow *Updates* to Override pick (skipped when split) |
+| 8 | Recurring Pledge (indefinite) | Optional | Tier 3 Campaign → Tier 5 Org | Yes; restriction gate applies | Yes (Campaign) | Flow writes first-payment GT's GTDs (incl. split fanout); platform handles future | Reconcile only (or insert if no auto-GDD) — skipped when split |
+| 9 | Pledge Payment | **Inherited from GC** (`GC.CampaignId`) | **Tier 2 GC_Default** → Tier 3 Campaign → Tier 5 Org | Yes | Yes — **GC-side** collection via `Loop_Fanout_Split_GTDs_GC` | Yes, unless split | N/A (parent GC pre-exists) |
+
+**Rules encoded in the flow:**
+- **Tier 0 Platform_Split** fires ahead of every tier when either the picked Campaign OR (PP only) the parent GC has >1 GDD. Terminal leaves `rsv_SelectedDesignation.Id` null on purpose so `Decide_Create_Designation` / `Decide_Create_Default_Designation` skip and the platform's native multi-row fanout is authoritative — *except* on Pledge Payment / Recurring first-payment where the flow's own new GT needs `Loop_Fanout_Split_GTDs_*` to walk the collection and write per-row GTDs.
+- **Tiers 4 (User_Override) and 5 (Org_Default)** are out of scope for FQS 1.0 per Justin. Tier 5 becomes a Phase 8 hard-block. Tier 4 stays parked post-1.0.
+- **Restriction gate** (Simple/Scheduled/Recurring): commitment-creation Override runs through `Decide_Override_Needs_Restriction` first — user must pick a matching `FQS_Restriction_Type__c` before the picker opens.
+- **Reconciliation guard**: `Decide_GC_GDD_Post_Process` skips Update-or-Insert entirely when `var_PlatformSplitApplies=true` so the platform's split copy on the GC stays intact.
+
+## Terminology — "Tier" ≠ Campaign hierarchy
+
+"Tier" in this plan refers ONLY to the **designation resolver's precedence order** — the 5-level chain the `Resolve_Designation_Hierarchy` Decision walks to decide *which `GiftDesignation` lands on the GT*. It is unrelated to Salesforce Campaign parent/child hierarchy (`Campaign.ParentId` chains).
+
+| Concept | What it is | Where it lives |
+|---|---|---|
+| **Resolver tier** (this plan) | Precedence rank inside the launcher's designation-picker logic (Tier 0 Platform_Split → 1 Existing_GTD → 2 GC_Default → 3 Campaign_Default → 4 User_Override → 5 Org_Default) | `Resolve_Designation_Hierarchy` Decision inside the launcher flow |
+| **Campaign hierarchy** (Salesforce standard) | Parent → child Campaign relationship via `Campaign.ParentId`; used for rollup summaries (`ParentCampaign` rollups) and grouping | Standard Campaign object, unrelated to this flow |
+| **FQS Campaign Hierarchy Setup** (shipped) | Separate flow (`FQS_Campaign_Hierarchy_Setup`) that stamps campaign types + a hierarchy under a parent Appeal | Different flow; different problem space |
+
+The resolver never traverses `Campaign.ParentId`. If a picked Campaign has no GDD, the resolver does NOT walk up to its parent Campaign — it falls straight to Tier 5 Org_Default. (Walking parent-Campaigns for a default was considered and dropped early: introduces silent surprises, and forces the user to know their org's Campaign hierarchy to reason about which designation will land.)
+
+### Resolver tiers at a glance
+
+The 6 tiers, in the evaluation order the `Resolve_Designation_Hierarchy` Decision walks:
+
+| Tier | Source | Fires when | Status in 1.0 |
+|---|---|---|---|
+| **0 Platform_Split** | Picked Campaign OR (PP only) parent GC has >1 GDD | Skip flow's writes and let the platform fan out; on PP + Recurring first-payment, flow loops the collection and writes matching GTDs via `Loop_Fanout_Split_GTDs_*` | **Shipped** |
+| **1 Existing_GTD** | GT already has GTDs (Update path only) | Never touch — honor as-is | **Shipped** |
+| **2 GC_Default** | Parent GC's single GDD (`Get_GC_Default_Designation_For_Resolver`) | Pledge Payment only | **Shipped (Phase 5c.a)** |
+| **3 Campaign_Default** | Picked Campaign's single GDD (`Get_Campaign_Default_Designations`) | Every leaf that picks a Campaign | **Shipped (Phase 3)** |
+| **4 User_Override** | User clicked "Override" on Confirm screen | Out of scope for 1.0 | Parked (post-1.0) |
+| **5 Org_Default** | `GiftDesignation.IsDefault = TRUE AND IsActive = TRUE` (`Get_Org_Default_Designation`) | Fallback everywhere | **Shipped (Phase 8)** — hard-block `Screen_Block_Missing_Org_Default` when zero rows; deploy `0AfWB00000Df1bl0AB` 2026-07-28 |
+
+**Not the same as Campaign hierarchy.** The resolver never traverses `Campaign.ParentId`. If the picked Campaign has no GDD, resolver drops straight to Tier 5 — it does not walk up to a parent Campaign.
+
+---
+
+## Commitment-creation leaves — single-GD only; splits are a post-creation GC action (locked 2026-07-28)
+
+**Supported behavior in the launcher for Simple Pledge, Scheduled Pledge, and Recurring Gift:**
+- Launcher writes **exactly one** `GiftDefaultDesignation` on the new GC at 100% (`AllocatedPercentage = 100`, `GiftDesignationId = var_ResolvedDesignationId`).
+- If the user wants to split the commitment across multiple designations, they do that **after** the GC exists by running the appropriate action on the GC record (managed FROps split-default-designations action, or an FQS-provided equivalent when we ship one).
+- The launcher itself does not build a split-editor UI for commitment-creation. Not in 1.0, not planned.
+
+**Why:** the multi-GDD support that already ships (Tier 0 Platform_Split, `Loop_Fanout_Split_GTDs_*`, reconciliation guard) covers the case where the picked **Campaign** is already split — the flow inherits the split cleanly. But letting the user *author* a split inside the launcher screens would (a) duplicate the GC's own split-editor UI, (b) complicate the resolver terminals, and (c) leave no obvious pattern for editing the split later. Keeping the launcher 100%-to-one and pushing splits to the GC record aligns with FROps' own pattern.
+
+**UX consequence — Confirm screen copy addition needed (deferred to a later copy pass):**
+- On commitment-creation leaves (Simple / Scheduled / Recurring), when `var_PlatformSplitApplies = false` (i.e., picked Campaign is NOT split and we're about to write a single-GD GDD), the Confirm screen should include an italic note: *"This commitment will use **{resolved GD name}** at 100%. To split across multiple designations, run the split-designations action on the commitment record after saving."*
+- When `var_PlatformSplitApplies = true` on a commitment-creation leaf (split inherited from Campaign), the existing `ConfirmDesignationSplitExplain` DisplayText already covers it — no new copy needed.
+
+**Edge case — Simple pledge on a split Campaign:** Tier 0 fires, `rsv_SelectedDesignation.Id` stays null, `Decide_Create_Default_Designation` skips flow's own GDD insert. Platform's `Process_Simple_Commitment` (if present) may or may not fan out — worth a 30-second UAT before Phase 8. If the new Simple GC ends up with **zero GDDs**, the fix is one of: (a) accept and document — user must run split-action on the empty GC, or (b) add a Loop_Fanout branch for Simple pledges too (mirrors the Recurring first-payment fanout, but writes GDDs on the GC instead of GTDs on the GT). Preference is (a) — matches the "splits are post-creation" policy.

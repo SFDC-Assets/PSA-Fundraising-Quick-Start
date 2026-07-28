@@ -534,7 +534,30 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 6. Modify the Gift Tribute Object
 -->
 
-1. **Add the Active-Designation lookup filter to the Gift Default Designation object**
+1. **Establish an org-wide default Gift Designation**
+
+   Nonprofit Cloud Fundraising's platform actions (`processGiftCommitment`, the schedule fanout engines) require exactly one active `GiftDesignation` with `IsDefault = true` before they will accept new gifts. Without this designation in place, the platform aborts with `org wide default designation is not yet configured` and no gift can be saved. The FQS Single Gift Entry launcher enforces the same requirement up front — if it can't resolve a designation through the campaign or commitment defaults and the org has no default designation configured, the launcher stops at a hard-block screen and directs the admin here rather than letting the platform fail the save with a cryptic error later.
+
+   Do this **before** assigning gift-entry permission sets to end users.
+
+   1. **Option A (recommended): run the FQS Suggest Designations flow.**
+      1. From the **App Launcher**, search for **Flows** and open the **Flows** setup page.
+      2. Locate **FQS Suggest Designations** in the list and click **Run**.
+      3. The flow installs a curated 14-designation catalog covering the four `FQS_Restriction_Type__c` values (Without Donor Restriction, Purpose Restriction, Permanent Restriction, Earned Revenue) and flags **FQS General Operating Fund** as the org-wide default. Review the picks before saving; you can safely re-run the flow later to add more designations without disturbing the default.
+
+   2. **Option B: flag an existing Gift Designation as default manually.**
+      1. From the **App Launcher**, search for **Gift Designations** and open the tab.
+      2. Open the Gift Designation you want as the org-wide default. If none exist yet, create one first (Name, `FQS_Restriction_Type__c = Without Donor Restriction`, `IsActive = true`).
+      3. On the record, check **Is Default** and click **Save**.
+      4. Only one active Gift Designation can carry `IsDefault = true` at a time. If you change your mind later, uncheck the flag on the previous default before setting it on the new one.
+
+   3. **Verify the default is set.**
+      1. From Developer Console (or any tool that runs SOQL), run: `SELECT Id, Name, FQS_Restriction_Type__c FROM GiftDesignation WHERE IsDefault = true AND IsActive = true`.
+      2. Confirm exactly one row is returned. Zero rows means the platform will reject new gifts; multiple rows means an earlier configuration is stale and should be cleaned up before proceeding.
+
+   *Notice: If a user launches gift entry before this step is complete, the launcher will present a "Set up designations before continuing" screen and exit. Complete this section, then have the user relaunch from the donor's Account page.*
+
+2. **Add the Active-Designation lookup filter to the Gift Default Designation object**
 
    By default, the **Designation** lookup on the Gift Default Designation object lets users pick any Gift Designation, including designations that have been retired (`IsActive = false`). Left as-is, this makes it easy for users to attach a payment schedule to a designation the finance team has explicitly closed. Add a lookup filter that restricts the picker to active designations, while still allowing users to override the filter when there is a legitimate reason (e.g., a back-dated correction to a retired designation).
 
@@ -553,7 +576,7 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
    *Notice: This differs from the Stakeholder Management Quick Start convention, which uses a Required filter on similar lookups. FQS deliberately allows the override to accommodate finance corrections against retired designations.*
 
-2. **Add the Active-Designation lookup filter to the Gift Transaction Designation object**
+3. **Add the Active-Designation lookup filter to the Gift Transaction Designation object**
 
    Apply the same lookup-filter pattern to the **Designation** lookup on the Gift Transaction Designation object. This keeps runtime gift entry against a curated list of active designations while preserving the ability to override for corrections and back-dated adjustments.
 

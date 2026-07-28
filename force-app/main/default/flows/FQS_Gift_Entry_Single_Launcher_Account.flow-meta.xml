@@ -4785,15 +4785,15 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Designation hierarchy Phase 3 — org-default presence gate inside Resolve_Designation_Hierarchy. Reached from Get_Org_Default_Designation. If Get_Org_Default_Designation.Id IsNull=false → Assign_Resolve_Designation_OrgDefault (writes var_ResolvedDesignation* + rsv_SelectedDesignation.Id). Default (no org-default configured) → Screen_Pick_Designation so the user picks manually. Phase 8 will replace this default with a hard-block Campaign screen per plan Q6-A.</description>
+        <description>Designation hierarchy Phase 3 — org-default presence gate inside Resolve_Designation_Hierarchy. Reached from Get_Org_Default_Designation. If Get_Org_Default_Designation.Id IsNull=false → Assign_Resolve_Designation_OrgDefault (writes var_ResolvedDesignation* + rsv_SelectedDesignation.Id). Phase 8 (plan Q6-A): default route now terminates at Screen_Block_Missing_Org_Default — a terminal Finish screen that tells the admin to run FQS_Suggest_Designations or manually flag an active GD as default before relaunching. Previous behavior dumped users into an unfiltered Screen_Pick_Designation which could produce gifts with no viable designation and left the platform&apos;s Process_* actions to fail later with a cryptic error.</description>
         <name>Decide_Resolver_Has_Org_Default</name>
         <label>Resolver — has org default?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Screen_Pick_Designation</targetReference>
+            <targetReference>Screen_Block_Missing_Org_Default</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>No org default — manual pick (Phase 8 will hard-block)</defaultConnectorLabel>
+        <defaultConnectorLabel>No org default — hard block (Phase 8, plan Q6-A)</defaultConnectorLabel>
         <rules>
             <name>Decide_Resolver_Has_Org_Default_HasIt</name>
             <conditionLogic>and</conditionLogic>
@@ -9892,6 +9892,44 @@
         <fields>
             <name>MatchMaxWarningBody</name>
             <fieldText>&lt;p&gt;You entered &lt;b&gt;{!formulaDisplay_NumMatchAmount}&lt;/b&gt;, but this employer&apos;s annual match maximum per employee is &lt;b&gt;{!formulaDisplay_MatchAnnualMax}&lt;/b&gt;. {!formulaMatchMaxDelta}&lt;/p&gt;&lt;p&gt;The match will still post as-entered — this is a heads-up, not a block. If the donor has already received matches from this employer this year, coordinate with the employer before finalizing.&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to continue, or &lt;b&gt;Previous&lt;/b&gt; to adjust the amount.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Designation hierarchy Phase 8 (plan Q6-A). Terminal hard-block reached from Decide_Resolver_Has_Org_Default when no active GiftDesignation carries IsDefault=TRUE. Replaces the Phase 3 fallback that dumped users into Screen_Pick_Designation with no filter — that path could produce a gift with no viable designation and left Nonprofit Cloud&apos;s Process_* actions to fail later with the platform&apos;s cryptic &quot;org wide default designation is not yet configured&quot; error. This screen stops the flow at the resolver so the admin gets an actionable message instead. No forward connector — the Finish button exits the flow (see [[flow-allowfinish-blocks-next]]: allowFinish=true + no connector renders as a terminal Finish). Admin runs FQS_Suggest_Designations (or manually flags IsDefault=TRUE on an active GiftDesignation) and relaunches. Per README Post-Install §V.</description>
+        <name>Screen_Block_Missing_Org_Default</name>
+        <label>Setup Required — Missing Default Designation</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>BlockMissingOrgDefaultHeader</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(194, 57, 52); font-size: 20px;&quot;&gt;&amp;#9888;&lt;/span&gt; &lt;b style=&quot;font-size: 18px;&quot;&gt;Set up designations before continuing&lt;/b&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>BlockMissingOrgDefaultBody</name>
+            <fieldText>&lt;p&gt;This gift can&apos;t be saved because your org has no active default &lt;b&gt;Gift Designation&lt;/b&gt;. The Nonprofit Cloud Fundraising platform requires at least one active &lt;b&gt;Gift Designation&lt;/b&gt; with &lt;b&gt;Is Default = true&lt;/b&gt; before it will accept new gifts.&lt;/p&gt;&lt;p&gt;&lt;b&gt;What to do:&lt;/b&gt;&lt;/p&gt;&lt;ol&gt;&lt;li&gt;Click &lt;b&gt;Finish&lt;/b&gt; to close this flow.&lt;/li&gt;&lt;li&gt;Run the &lt;b&gt;FQS Suggest Designations&lt;/b&gt; flow (App Launcher → Flows → FQS Suggest Designations) to install the recommended designation catalog with a default already flagged. Or, in Object Manager → Gift Designation, open one active Gift Designation record and check &lt;b&gt;Is Default&lt;/b&gt;.&lt;/li&gt;&lt;li&gt;Relaunch this gift entry from the donor Account page.&lt;/li&gt;&lt;/ol&gt;&lt;p&gt;&lt;i&gt;See the accelerator README section &lt;b&gt;V. Configure Designation, Soft Credit, and Tribute Objects&lt;/b&gt; for the full setup steps.&lt;/i&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
