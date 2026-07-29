@@ -173,6 +173,44 @@
         </connector>
     </assignments>
     <assignments>
+        <description>GDSC Item B — Stages rsv_GiftDefaultSoftCredit for insert on the parent GC. ParentRecordId is polymorphic (Campaign/GC/Opportunity — NOT Account, per [[gdd-parent-polymorphic]] which applies identically to GDSC). Role comes from the pkGDSCRole radio on Screen_Pick_SoftCredit_Commitment. PartialPercent is optional — null means the platform propagates the recipient across every GT as a full soft credit; non-null means fractional recognition. Runs on GC-creating leaves (Simple ref; Recurring/Grant/Pledge clones next) when pkCommitmentNeedsSoftCredits=Yes.</description>
+        <name>Assign_Build_Default_SoftCredit</name>
+        <label>Build DefaultSoftCredit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_GiftDefaultSoftCredit.ParentRecordId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_GiftCommitment.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftDefaultSoftCredit.RecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>lkpGDSCRecipient.recordId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftDefaultSoftCredit.Role</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>pkGDSCRole</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftDefaultSoftCredit.PartialPercent</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>numGDSCPartialPercent</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_GiftDefaultSoftCredit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Assign_Build_GTDesignation</name>
         <label>Build GTDesignation</label>
         <locationX>0</locationX>
@@ -2895,6 +2933,62 @@
         </value>
     </choices>
     <choices>
+        <name>Choice_GDSC_Role_HouseholdMember</name>
+        <choiceText>Household Member — spouse, partner, parent, child, or sibling in the donor&apos;s household</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Household Member</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_GDSC_Role_Solicitor</name>
+        <choiceText>Solicitor — the person who introduced the donor or asked for the gift</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Solicitor</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_GDSC_Role_Influencer</name>
+        <choiceText>Influencer — someone who influenced the gift without a formal solicitor claim</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Influencer</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_GDSC_Role_Honoree</name>
+        <choiceText>Honoree — the gift honors this person (tribute-style recognition)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Honoree</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_GDSC_Role_SoftCredit</name>
+        <choiceText>Soft Credit — general recognition without a more specific role</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Soft Credit</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_GDSC_Role_ThirdPartyDonor</name>
+        <choiceText>Third Party Donor — a related party who effectively funded the gift (e.g., DAF advisor)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Third Party Donor</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_GDSC_Role_Other</name>
+        <choiceText>Other — recognition role not covered above</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Other</stringValue>
+        </value>
+    </choices>
+    <choices>
         <name>Choice_Subcategory_Grant</name>
         <choiceText>Grant Payout — an anticipated grant disbursement, typically from a foundation or corporate giving program</choiceText>
         <dataType>String</dataType>
@@ -4175,6 +4269,32 @@
         </rules>
     </decisions>
     <decisions>
+        <description>GDSC Item B — Post-commitment-create router. Gates on pkCommitmentNeedsSoftCredits (the radio on Screen_Pledge_Details, present only on Simple leaf in the reference build; other leaves get the field once cloned). Yes → invoke the soft-credit reach subflow tailored for GC scope → picker → role/percent screen → Create_GiftDefaultSoftCredit → Screen_Success. Default → Screen_Success unchanged. Reached from Decide_Recurring_First_Payment_Or_Success default (non-Recurring GC-create leaves). Safe on all leaves: reading pkCommitmentNeedsSoftCredits when the screen never rendered returns null, which matches neither rule and falls through to default.</description>
+        <name>Decide_Needs_Commitment_SoftCredit</name>
+        <label>Add default soft credit to commitment?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Success</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No — Screen_Success</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Needs_Commitment_SoftCredit_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkCommitmentNeedsSoftCredits</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Yes</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Pick_SoftCredit_Commitment</targetReference>
+            </connector>
+            <label>Yes — pick recipient + role</label>
+        </rules>
+    </decisions>
+    <decisions>
         <description>R2: gate on pkNeedsSoftCredits — if user opted in on Gift Details, invoke the soft-credit reach subflow (R5) then show the Soft-Credit picker. Otherwise skip straight to Assign_Apply_Type_Defaults.</description>
         <name>Decide_Needs_Soft_Credits</name>
         <label>User wants soft credits?</label>
@@ -4324,9 +4444,9 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Screen_Success</targetReference>
+            <targetReference>Decide_Needs_Commitment_SoftCredit</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>No — Screen_Success</defaultConnectorLabel>
+        <defaultConnectorLabel>No — check GDSC then Screen_Success</defaultConnectorLabel>
         <rules>
             <name>Decide_Recurring_First_Payment_Or_Success_IsRecurring</name>
             <conditionLogic>and</conditionLogic>
@@ -5507,6 +5627,20 @@
             <targetReference>Err_Create</targetReference>
         </faultConnector>
         <inputReference>rsv_GiftDefaultDesignation</inputReference>
+    </recordCreates>
+    <recordCreates>
+        <description>GDSC Item B — Inserts rsv_GiftDefaultSoftCredit on the just-created parent GC. Runs on GC-creating leaves (Simple ref; Recurring/Grant/Pledge clones next) when pkCommitmentNeedsSoftCredits=Yes. Fault path shares Err_Create — a GDSC insert failure leaves the GC + designation state intact; user has to add the soft credit manually. Connector routes to Screen_Success.</description>
+        <name>Create_GiftDefaultSoftCredit</name>
+        <label>Create Gift Default Soft Credit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Screen_Success</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Create</targetReference>
+        </faultConnector>
+        <inputReference>rsv_GiftDefaultSoftCredit</inputReference>
     </recordCreates>
     <recordCreates>
         <name>Create_GiftSoftCredit</name>
@@ -8399,6 +8533,122 @@
     </screens>
     <screens>
         <description>Optional soft-credit recipient. Datatable of unique Accounts derived from ACRs / CCRs on this Account&apos;s household, plus a lookup escape hatch. Skip continues without a soft credit.</description>
+        <name>Screen_Pick_SoftCredit_Commitment</name>
+        <label>Add a Default Soft Credit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Assign_Build_Default_SoftCredit</targetReference>
+        </connector>
+        <fields>
+            <name>GDSCHelp</name>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Add a Default Soft Credit&lt;/b&gt;&lt;/p&gt;&lt;p&gt;A default soft credit recognizes a related Account on every payment tied to this commitment. Pick a recipient, a role, and (optionally) a percent for partial recognition.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>lkpGDSCRecipient</name>
+            <extensionName>flowruntime:lookup</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>objectApiName</name>
+                <value>
+                    <stringValue>GiftDefaultSoftCredit</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>fieldApiName</name>
+                <value>
+                    <stringValue>RecipientId</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Soft-credit recipient (Account)</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>required</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>maxValues</name>
+                <value>
+                    <numberValue>1.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>pkGDSCRole</name>
+            <choiceReferences>Choice_GDSC_Role_HouseholdMember</choiceReferences>
+            <choiceReferences>Choice_GDSC_Role_Solicitor</choiceReferences>
+            <choiceReferences>Choice_GDSC_Role_Influencer</choiceReferences>
+            <choiceReferences>Choice_GDSC_Role_Honoree</choiceReferences>
+            <choiceReferences>Choice_GDSC_Role_SoftCredit</choiceReferences>
+            <choiceReferences>Choice_GDSC_Role_ThirdPartyDonor</choiceReferences>
+            <choiceReferences>Choice_GDSC_Role_Other</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>Choice_GDSC_Role_HouseholdMember</defaultSelectedChoiceReference>
+            <fieldText>Recognition role</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <helpText>What role does this recipient play for this commitment? &apos;Household Member&apos; is the most common — recognizing a spouse or partner. Solicitor and Influencer are useful for major-gift stewardship reports. Honoree fits tribute gifts.</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>numGDSCPartialPercent</name>
+            <dataType>Number</dataType>
+            <fieldText>Percent of each payment (0-100) %</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>Leave blank for full recognition — the recipient will be credited for the full amount of every payment. Enter a number between 0 and 100 to recognize only a portion (for example, 50 for a spouse who shares half the household&apos;s giving).</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>false</isRequired>
+            <scale>0</scale>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
         <name>Screen_Pick_SoftCredit</name>
         <label>Pick a Soft-Credit Recipient</label>
         <locationX>0</locationX>
@@ -8770,6 +9020,26 @@
             <name>SimpleSchedulePreview</name>
             <fieldText>&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;b style=&quot;font-size: 16px;&quot;&gt;Schedule preview&lt;/b&gt;&lt;/p&gt;&lt;p style=&quot;font-size: 16px;&quot;&gt;{!formulaSimplePreviewText}&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>pkCommitmentNeedsSoftCredits</name>
+            <choiceReferences>Choice_NeedsSoftCredit_No</choiceReferences>
+            <choiceReferences>Choice_NeedsSoftCredit_Yes</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>Choice_NeedsSoftCredit_No</defaultSelectedChoiceReference>
+            <fieldText>Add a default soft credit for this commitment?</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <helpText>A default soft credit on the commitment recognizes a related account (spouse, solicitor, influencer, etc.) on every future payment automatically. Choose Yes to pick a recipient and role after the commitment is created.</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
                     <stringValue>top</stringValue>
@@ -10311,6 +10581,15 @@
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <objectType>GiftTransaction</objectType>
+    </variables>
+    <variables>
+        <description>Record variable staged by Assign_Build_Default_SoftCredit and inserted by Create_GiftDefaultSoftCredit. Represents the commitment-level default soft credit (ParentRecordId = rsv_GiftCommitment.Id) that the platform propagates to every current + future GT under this commitment via the schedule engine&apos;s fanout. Written only on the GC-creating leaves (Simple, Pledge, Recurring, Grant) when pkNeedsSoftCredits=Yes; not the same variable as rsv_GiftSoftCredit which handles GT-level GSCs on Outright/PP.</description>
+        <name>rsv_GiftDefaultSoftCredit</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftDefaultSoftCredit</objectType>
     </variables>
     <variables>
         <description>Record variable for the GiftTransactionDesignation created after a GiftTransaction insert.</description>
