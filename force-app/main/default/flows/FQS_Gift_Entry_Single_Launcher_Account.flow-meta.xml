@@ -7007,8 +7007,8 @@
             <defaultValue>
                 <elementReference>$Flow.CurrentDate</elementReference>
             </defaultValue>
-            <fieldText>Gift Date (Transaction Date)</fieldText>
-            <helpText>When the donor sent the gift; used for their tax receipts.</helpText>
+            <fieldText>Gift Date (Transaction Completion Date)</fieldText>
+            <helpText>When the donor sent the gift; used for their tax receipts. Written to the Transaction Completion Date field on the transaction (Salesforce API name: TransactionDate — not to be confused with Transaction Due Date, which is when a scheduled payment was expected).</helpText>
             <fieldType>InputField</fieldType>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
