@@ -78,7 +78,7 @@
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
-        <description>Phase F3a (wizard plan §Employer picker line 117). Stages rsv_MatchACR ahead of Create_MatchACR. AccountId = employer Account (from lkpMatchEmployer.recordId), ContactId = donor PersonContact (Get_Account.PersonContactId — safe here because Decide_Match_Needed gates on IsPersonAccount=true). Roles = &apos;Employee&apos; (native ACR picklist value; standard value set exists on AccountContactRelation.Roles across all orgs). IsActive left to platform default (true). No other fields stamped — no need to guess Title / StartDate; user can enrich on the ACR record if desired.</description>
+        <description>Phase F3a (launcher plan §Employer picker line 117). Stages rsv_MatchACR ahead of Create_MatchACR. AccountId = employer Account (from lkpMatchEmployer.recordId), ContactId = donor PersonContact (Get_Account.PersonContactId — safe here because Decide_Match_Needed gates on IsPersonAccount=true). Roles = &apos;Employee&apos; (native ACR picklist value; standard value set exists on AccountContactRelation.Roles across all orgs). IsActive left to platform default (true). No other fields stamped — no need to guess Title / StartDate; user can enrich on the ACR record if desired.</description>
         <name>Assign_ACR_Fields</name>
         <label>Stage ACR Fields</label>
         <locationX>0</locationX>
@@ -797,7 +797,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Phase F2 (wizard plan §Matching-gift branch). Stages rsv_MatchEmployerGT ahead of Create_Employer_GT. DonorId = employer Account (from lkpMatchEmployer.recordId). OriginalAmount = numMatchAmount. GiftType = Organizational (employer Account is always org / non-Person). TransactionDate + TransactionDueDate mirror the donor GT&apos;s TransactionDate. FQS_Gift_Transaction_Category__c = &apos;Outright Gift&apos; because the employer&apos;s payment is a fresh outright gift from their perspective, not a pledge payment even when the donor GT is. PaymentMethod = &apos;Check&apos; is the pragmatic default; user can edit downstream. TaxReceiptStatus = &apos;Don&apos;t Send&apos;. Name is left null so the FQS_Auto_Name_Gift_Transaction before-save flow fills it (parity with the Custom-branch installments). GiftCommitmentId is NOT assigned here — it&apos;s stamped downstream by Assign_Employer_GT_ParentToCommitment for the Pledge Payment / Recurring branches; on Outright + match it stays null (wizard plan lines 92-104: Outright Gift+match leaves both GTs orphan). Deliberately does NOT read rsv_GiftTransaction.GiftCommitmentId — that field is never set on the Outright branch, and any Flow read of an un-assigned SObject field throws &quot;field hasn&apos;t been set or assigned.&quot;</description>
+        <description>Phase F2 (launcher plan §Matching-gift branch). Stages rsv_MatchEmployerGT ahead of Create_Employer_GT. DonorId = employer Account (from lkpMatchEmployer.recordId). OriginalAmount = numMatchAmount. GiftType = Organizational (employer Account is always org / non-Person). TransactionDate + TransactionDueDate mirror the donor GT&apos;s TransactionDate. FQS_Gift_Transaction_Category__c = &apos;Outright Gift&apos; because the employer&apos;s payment is a fresh outright gift from their perspective, not a pledge payment even when the donor GT is. PaymentMethod = &apos;Check&apos; is the pragmatic default; user can edit downstream. TaxReceiptStatus = &apos;Don&apos;t Send&apos;. Name is left null so the FQS_Auto_Name_Gift_Transaction before-save flow fills it (parity with the Custom-branch installments). GiftCommitmentId is NOT assigned here — it&apos;s stamped downstream by Assign_Employer_GT_ParentToCommitment for the Pledge Payment / Recurring branches; on Outright + match it stays null (launcher plan lines 92-104: Outright Gift+match leaves both GTs orphan). Deliberately does NOT read rsv_GiftTransaction.GiftCommitmentId — that field is never set on the Outright branch, and any Flow read of an un-assigned SObject field throws &quot;field hasn&apos;t been set or assigned.&quot;</description>
         <name>Assign_Employer_GT_Fields</name>
         <label>Stage Employer Match GT</label>
         <locationX>0</locationX>
@@ -884,7 +884,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Phase F2 (wizard plan §Matching-gift branch, lines 92-104). Stamps rsv_MatchEmployerGT.GiftCommitmentId = rsv_SelectedCommitment.Id on the Pledge Payment + match branch (both branches — Fresh Insert and Update Existing — always populate rsv_SelectedCommitment before Screen_Gift_Details, so this read is always safe here). On Recurring Gift + match (Phase F3) this Assign will be extended to also handle the new-commitment Id (rsv_GiftCommitment.Id after Create_Pledge lands). On Outright Gift + match, the flow bypasses this Assign entirely via Decide_Employer_GT_Parent_To_Commitment (both GTs stay orphan per wizard plan).</description>
+        <description>Phase F2 (launcher plan §Matching-gift branch, lines 92-104). Stamps rsv_MatchEmployerGT.GiftCommitmentId = rsv_SelectedCommitment.Id on the Pledge Payment + match branch (both branches — Fresh Insert and Update Existing — always populate rsv_SelectedCommitment before Screen_Gift_Details, so this read is always safe here). On Recurring Gift + match (Phase F3) this Assign will be extended to also handle the new-commitment Id (rsv_GiftCommitment.Id after Create_Pledge lands). On Outright Gift + match, the flow bypasses this Assign entirely via Decide_Employer_GT_Parent_To_Commitment (both GTs stay orphan per launcher plan).</description>
         <name>Assign_Employer_GT_ParentToCommitment</name>
         <label>Employer GT parent → Commitment</label>
         <locationX>0</locationX>
@@ -918,7 +918,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Phase G2 (wizard plan §Matching-gift branch, Recurring leaf). Stages the parallel Recurring GiftCommitment on the employer Account. Mirrors Assign_Recurring_Defaults one-for-one with two swaps: DonorId=lkpMatchEmployer.recordId (employer Account) and Name=formulaEmployerRecurringCommitmentName (employer-name-based). Cadence (RecurrenceType=OpenEnded, FulfillmentType=Unconditional, FormalCommitmentType=Verbal, EffectiveStartDate=dtRecurringStart, IsAssetTransferExpected=false) matches the donor GC. FQS_Match_Eligible__c is deliberately false — this IS the match commitment, not one that would itself be matched. CampaignId inherited from rsv_SelectedCampaign.Id (safe: on Recurring + match branch, Screen_Pick_Campaign_Pledge runs before we reach here via Decide_PostMatch_Campaign_Router → Screen_Pick_Campaign_Pledge → downstream flow lands the campaign on rsv_SelectedCampaign). GC.ScheduleType is intentionally NOT set on insert (platform-managed).</description>
+        <description>Phase G2 (launcher plan §Matching-gift branch, Recurring leaf). Stages the parallel Recurring GiftCommitment on the employer Account. Mirrors Assign_Recurring_Defaults one-for-one with two swaps: DonorId=lkpMatchEmployer.recordId (employer Account) and Name=formulaEmployerRecurringCommitmentName (employer-name-based). Cadence (RecurrenceType=OpenEnded, FulfillmentType=Unconditional, FormalCommitmentType=Verbal, EffectiveStartDate=dtRecurringStart, IsAssetTransferExpected=false) matches the donor GC. FQS_Match_Eligible__c is deliberately false — this IS the match commitment, not one that would itself be matched. CampaignId inherited from rsv_SelectedCampaign.Id (safe: on Recurring + match branch, Screen_Pick_Campaign_Pledge runs before we reach here via Decide_PostMatch_Campaign_Router → Screen_Pick_Campaign_Pledge → downstream flow lands the campaign on rsv_SelectedCampaign). GC.ScheduleType is intentionally NOT set on insert (platform-managed).</description>
         <name>Assign_Employer_Recurring_GC</name>
         <label>Defaults: Employer Recurring GC</label>
         <locationX>0</locationX>
@@ -1274,7 +1274,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Pre-populates rsv_GiftTransaction with smart defaults before Screen_Gift_Details renders. ObjectProvided screen fields display the record variable&apos;s current value as the shown default, so seeding TransactionDate = TODAY and PaymentMethod = Cash here makes those defaults visible on the screen. Also guards Bug 3: without a TransactionDate seed, the Name formula (which concatenates TEXT(TransactionDate)) yields null and Create_Gift_Transaction fails with REQUIRED_FIELD_MISSING [Name]. IsNull-gate (Phase E, wizard plan): the assigned value is a formula that returns the existing value if non-null, else the fallback default (TODAY / Cash). This preserves prefilled values (e.g., Get_Commitment_Schedule.PaymentMethod = ACH) from Assign_Prefill_From_Schedule instead of stomping them. See .planning/fqs-gift-entry-wizard-plan.md §State at handoff prefill IsNull-gate policy.</description>
+        <description>Pre-populates rsv_GiftTransaction with smart defaults before Screen_Gift_Details renders. ObjectProvided screen fields display the record variable&apos;s current value as the shown default, so seeding TransactionDate = TODAY and PaymentMethod = Cash here makes those defaults visible on the screen. Also guards Bug 3: without a TransactionDate seed, the Name formula (which concatenates TEXT(TransactionDate)) yields null and Create_Gift_Transaction fails with REQUIRED_FIELD_MISSING [Name]. IsNull-gate (Phase E, launcher plan): the assigned value is a formula that returns the existing value if non-null, else the fallback default (TODAY / Cash). This preserves prefilled values (e.g., Get_Commitment_Schedule.PaymentMethod = ACH) from Assign_Prefill_From_Schedule instead of stomping them. See .planning/fqs-gift-entry-wizard-plan.md §State at handoff prefill IsNull-gate policy.</description>
         <name>Assign_Gift_Details_Defaults</name>
         <label>Defaults for Gift Details</label>
         <locationX>0</locationX>
@@ -1505,7 +1505,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Stages rsv_MatchSoftCredit_OnDonor ahead of Create_MatchSoftCredit_OnDonor. Recognizes the corporate Account on the donor&apos;s GT — GiftTransactionId = donor GT (rsv_GiftTransaction.Id), RecipientId = employer Account (lkpMatchEmployer.recordId), Role = &apos;Matched Donor&apos; (native picklist value verified via describe). Phase G3: PartialAmount = formulaDonorGiftAmount (BLANKVALUE(numGiftAmount, numRecurringAmount)) — the DONOR GT&apos;s amount, not the match amount. Previously used numMatchAmount which is only correct on the employer-side row. SoftCreditAmount is a platform-derived field (not writable — populated from PartialAmount on insert). Legal donor is never soft-credited to their own transaction (parity with corporate-match-plan §Core rules) — that&apos;s handled by placing the corporate on the DONOR GT, not by attributing the donor to themselves.</description>
+        <description>Phase F3b (launcher plan §Matching-gift branch §Soft credits, lines 132-136). Stages rsv_MatchSoftCredit_OnDonor ahead of Create_MatchSoftCredit_OnDonor. Recognizes the corporate Account on the donor&apos;s GT — GiftTransactionId = donor GT (rsv_GiftTransaction.Id), RecipientId = employer Account (lkpMatchEmployer.recordId), Role = &apos;Matched Donor&apos; (native picklist value verified via describe). Phase G3: PartialAmount = formulaDonorGiftAmount (BLANKVALUE(numGiftAmount, numRecurringAmount)) — the DONOR GT&apos;s amount, not the match amount. Previously used numMatchAmount which is only correct on the employer-side row. SoftCreditAmount is a platform-derived field (not writable — populated from PartialAmount on insert). Legal donor is never soft-credited to their own transaction (parity with corporate-match-plan §Core rules) — that&apos;s handled by placing the corporate on the DONOR GT, not by attributing the donor to themselves.</description>
         <name>Assign_MatchSoftCredit_OnDonor</name>
         <label>Stage Match SoftCredit (Donor GT)</label>
         <locationX>0</locationX>
@@ -1543,7 +1543,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Stages rsv_MatchSoftCredit_OnEmployer ahead of Create_MatchSoftCredit_OnEmployer. Recognizes the donor Person Account on the employer&apos;s GT — GiftTransactionId = employer GT (rsv_MatchEmployerGT.Id), RecipientId = donor Account (recordId — the launcher context Account, always the donor Person Account on the match branch because Decide_Match_Needed gates on IsPersonAccount=true). Role and PartialAmount mirror the donor-side row.</description>
+        <description>Phase F3b (launcher plan §Matching-gift branch §Soft credits, lines 132-136). Stages rsv_MatchSoftCredit_OnEmployer ahead of Create_MatchSoftCredit_OnEmployer. Recognizes the donor Person Account on the employer&apos;s GT — GiftTransactionId = employer GT (rsv_MatchEmployerGT.Id), RecipientId = donor Account (recordId — the launcher context Account, always the donor Person Account on the match branch because Decide_Match_Needed gates on IsPersonAccount=true). Role and PartialAmount mirror the donor-side row.</description>
         <name>Assign_MatchSoftCredit_OnEmployer</name>
         <label>Stage Match SoftCredit (Employer GT)</label>
         <locationX>0</locationX>
@@ -1581,7 +1581,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Phase F2 (wizard plan §Matching-gift branch §Amount, line 124). Runs after Create_Employer_GT lands so rsv_MatchEmployerGT.Id is populated. Writes the returned employer GT Id onto rsv_GiftTransaction.MatchingEmployerTransactionId — the native GT-to-GT lookup that pairs a donor gift to its employer match (verified via describe: reference field, referenceTo=GiftTransaction, updateable=true, lives on the donor row and points UP to the paired employer row). Followed by Update_Donor_With_Pair to persist the pair (donor GT is already in the DB — insert path just wrote it, update path is about to be overwritten by Update_Gift_Transaction anyway; this Assign only mutates the record variable, DML happens in Update_Donor_With_Pair).</description>
+        <description>Phase F2 (launcher plan §Matching-gift branch §Amount, line 124). Runs after Create_Employer_GT lands so rsv_MatchEmployerGT.Id is populated. Writes the returned employer GT Id onto rsv_GiftTransaction.MatchingEmployerTransactionId — the native GT-to-GT lookup that pairs a donor gift to its employer match (verified via describe: reference field, referenceTo=GiftTransaction, updateable=true, lives on the donor row and points UP to the paired employer row). Followed by Update_Donor_With_Pair to persist the pair (donor GT is already in the DB — insert path just wrote it, update path is about to be overwritten by Update_Gift_Transaction anyway; this Assign only mutates the record variable, DML happens in Update_Donor_With_Pair).</description>
         <name>Assign_Pair_Onto_Donor_GT</name>
         <label>Pair Donor GT with Employer GT</label>
         <locationX>0</locationX>
@@ -1622,7 +1622,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Phase C.1: writes the Simple Pledge/Grant GC field set. FQS_Gift_Commitment_Category__c now flows from pkCommitmentSubcategory (Pledged Gift or Grant Payout), not hardcoded. NextTransactionDate + NextTransactionAmount + RecurrenceType=FixedLength are written directly on the GC — this is the GC-only Simple leaf; no GiftCommitmentSchedule child is inserted. ScheduleType is intentionally NOT set on insert (platform contract — silently overrides to Recurring otherwise, per docs/npc-automation-notes.md).</description>
+        <description>Phase C.1: writes the Simple Pledge/Grant GC field set. FQS_Gift_Commitment_Category__c now flows from pkCommitmentSubcategory (Pledged Gift or Grant Payout), not hardcoded. Both NextTransactionDate and ExpectedEndDate seed from dtExpectedEndDate (the single expected payment IS the commitment's end on a Simple leaf); NextTransactionAmount seeds from numPledgeAmount; RecurrenceType=FixedLength. Written directly on the GC — this is the GC-only Simple leaf; no GiftCommitmentSchedule child is inserted. ScheduleType is intentionally NOT set on insert (platform contract — silently overrides to Recurring otherwise, per docs/npc-automation-notes.md). See launcher plan open question re: converting Simple leaf to a GCS-backed shape so NextTransactionDate/Amount become platform-derived like other commitment kinds.</description>
         <name>Assign_Pledge_Defaults</name>
         <label>Defaults: Simple Pledge / Grant</label>
         <locationX>0</locationX>
@@ -1687,7 +1687,14 @@
             <assignToReference>rsv_GiftCommitment.NextTransactionDate</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>dtNextTransactionDate</elementReference>
+                <elementReference>dtExpectedEndDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftCommitment.ExpectedEndDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dtExpectedEndDate</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -1730,7 +1737,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Phase E (wizard plan). Prefills the Gift Details screen from the picked commitment&apos;s schedule row. TransactionAmount → var_GiftAmount (Amount input default). PaymentMethod → rsv_GiftTransaction.PaymentMethod (Payment Method picklist default). Assign_Gift_Details_Defaults downstream reads these via IsNull-gated formulas (formulaDefault_TransactionDate / formulaDefault_PaymentMethod) so non-null prefilled values are preserved — see .planning/fqs-gift-entry-wizard-plan.md §State at handoff prefill IsNull-gate policy.</description>
+        <description>Phase E (launcher plan). Prefills the Gift Details screen from the picked commitment&apos;s schedule row. TransactionAmount → var_GiftAmount (Amount input default). PaymentMethod → rsv_GiftTransaction.PaymentMethod (Payment Method picklist default). Assign_Gift_Details_Defaults downstream reads these via IsNull-gated formulas (formulaDefault_TransactionDate / formulaDefault_PaymentMethod) so non-null prefilled values are preserved — see .planning/fqs-gift-entry-wizard-plan.md §State at handoff prefill IsNull-gate policy.</description>
         <name>Assign_Prefill_From_Schedule</name>
         <label>Prefill Amount from Schedule</label>
         <locationX>0</locationX>
@@ -1848,7 +1855,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Phase F3c (wizard plan §Recurring Gift, lines 246-249). Stages rsv_GiftTransaction for the first-payment GT that the Recurring leaf posts today. GiftCommitmentId = rsv_GiftCommitment.Id (safe — Create_Pledge already returned it). Status=Paid because FQS is retroactive: the donor already paid today. TransactionDate + TransactionDueDate = dtRecurringStart (the schedule&apos;s Effective Start; validated ≤ TODAY on Screen_Recurring_Details). OriginalAmount = numRecurringAmount, PaymentMethod = pkRecurringPaymentMethod (mirroring the pattern on every schedule-fanned Expected GT). Category=&apos;Recurring Gift Payment&apos; per FQS_Gift_Transaction_Category__c value set. Name left null so FQS_Auto_Name_Gift_Transaction fills it. Deliberately does NOT write GiftType or CampaignId — the platform derives GiftType from DonorId; CampaignId propagates via GC.CampaignId if the picker filled it (reading rsv_GiftCommitment.CampaignId is unsafe if the campaign screen was skipped — [[flow-unread-sobject-field-throws]]).</description>
+        <description>Phase F3c (launcher plan §Recurring Gift, lines 246-249). Stages rsv_GiftTransaction for the first-payment GT that the Recurring leaf posts today. GiftCommitmentId = rsv_GiftCommitment.Id (safe — Create_Pledge already returned it). Status=Paid because FQS is retroactive: the donor already paid today. TransactionDate + TransactionDueDate = dtRecurringStart (the schedule&apos;s Effective Start; validated ≤ TODAY on Screen_Recurring_Details). OriginalAmount = numRecurringAmount, PaymentMethod = pkRecurringPaymentMethod (mirroring the pattern on every schedule-fanned Expected GT). Category=&apos;Recurring Gift Payment&apos; per FQS_Gift_Transaction_Category__c value set. Name left null so FQS_Auto_Name_Gift_Transaction fills it. Deliberately does NOT write GiftType or CampaignId — the platform derives GiftType from DonorId; CampaignId propagates via GC.CampaignId if the picker filled it (reading rsv_GiftCommitment.CampaignId is unsafe if the campaign screen was skipped — [[flow-unread-sobject-field-throws]]).</description>
         <name>Assign_Recurring_First_Payment_Defaults</name>
         <label>Defaults: Recurring First Payment GT</label>
         <locationX>0</locationX>
@@ -2303,7 +2310,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Phase C.2a: builds the single GiftCommitmentSchedule row for a Regular Scheduled Pledge/Grant. Type=CreateTransactions tells the NPC engine to fan out Expected GTs per TransactionPeriod / TransactionInterval / TransactionAmount / StartDate / EndDate. TransactionDay is inferred from StartDate (engine handles the Day of Month/Week resolution). GC.RecurrenceType=FixedLength (set in Assign_Scheduled_Defaults) plus the EndDate on GCS bounds the schedule. NOTE: FundFirst&apos;s GiftCommitmentSchedule does NOT expose a ScheduleType field (verified via `sf sobject describe` 2026-07-19 during Phase C.2a deploy); recurrence semantics ride entirely on TransactionPeriod + TransactionInterval + StartDate/EndDate. The wizard plan section &quot;Scheduled Pledge/Grant — Regular&quot; calling for ScheduleType=&apos;Recurring&apos; on GCS was aspirational — see [[fqs-crt-deploy-pattern]].</description>
+        <description>Phase C.2a: builds the single GiftCommitmentSchedule row for a Regular Scheduled Pledge/Grant. Type=CreateTransactions tells the NPC engine to fan out Expected GTs per TransactionPeriod / TransactionInterval / TransactionAmount / StartDate / EndDate. TransactionDay is inferred from StartDate (engine handles the Day of Month/Week resolution). GC.RecurrenceType=FixedLength (set in Assign_Scheduled_Defaults) plus the EndDate on GCS bounds the schedule. NOTE: FundFirst&apos;s GiftCommitmentSchedule does NOT expose a ScheduleType field (verified via `sf sobject describe` 2026-07-19 during Phase C.2a deploy); recurrence semantics ride entirely on TransactionPeriod + TransactionInterval + StartDate/EndDate. The launcher plan section &quot;Scheduled Pledge/Grant — Regular&quot; calling for ScheduleType=&apos;Recurring&apos; on GCS was aspirational — see [[fqs-crt-deploy-pattern]].</description>
         <name>Assign_Scheduled_Schedule_Row</name>
         <label>Build Scheduled Schedule Row</label>
         <locationX>0</locationX>
@@ -2473,7 +2480,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Phase E2 (wizard plan §Pledge Payment logic, lines 157-163). Prepares rsv_GiftTransaction for the update-existing-Expected-GT path. Writes rsv_GiftTransaction.Id = rsv_SelectedGT.Id (this is what makes Update_Gift_Transaction target the selected row instead of inserting), and Status=&apos;Paid&apos; (the semantic transition — the payment has now landed). Phase G7.e: Writes dtGiftDate → TransactionDate and dtProcessedDate → FQS_Processed_Date__c so the Update carries the split-date inputs from Screen_Gift_Details. Deliberately does NOT set OriginalAmount, CurrentAmount, or TransactionDueDate: OriginalAmount is preserved per wizard-plan line 162 (never touch the schedule&apos;s original amount even on mismatch — user manages upgrades on the GC record); CurrentAmount is a platform-computed rollup (silently ignored on write); TransactionDueDate is the schedule&apos;s original due date and stays as-is so historical reporting keeps its meaning.</description>
+        <description>Phase E2 (launcher plan §Pledge Payment logic, lines 157-163). Prepares rsv_GiftTransaction for the update-existing-Expected-GT path. Writes rsv_GiftTransaction.Id = rsv_SelectedGT.Id (this is what makes Update_Gift_Transaction target the selected row instead of inserting), and Status=&apos;Paid&apos; (the semantic transition — the payment has now landed). Phase G7.e: Writes dtGiftDate → TransactionDate and dtProcessedDate → FQS_Processed_Date__c so the Update carries the split-date inputs from Screen_Gift_Details. Deliberately does NOT set OriginalAmount, CurrentAmount, or TransactionDueDate: OriginalAmount is preserved per launcher plan line 162 (never touch the schedule&apos;s original amount even on mismatch — user manages upgrades on the GC record); CurrentAmount is a platform-computed rollup (silently ignored on write); TransactionDueDate is the schedule&apos;s original due date and stays as-is so historical reporting keeps its meaning.</description>
         <name>Assign_Update_GT_Fields</name>
         <label>Prepare Update: Existing GT</label>
         <locationX>0</locationX>
@@ -2512,7 +2519,7 @@
     </assignments>
     <choices>
         <name>Choice_Cat_Future</name>
-        <choiceText>A Future Commitment — a formal promise of future funding; no money changes hands today.</choiceText>
+        <choiceText>A Future Commitment — a formal promise of future funding; no money changes hands today</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Future</stringValue>
@@ -2520,7 +2527,7 @@
     </choices>
     <choices>
         <name>Choice_Cat_Monetary</name>
-        <choiceText>A Monetary Payment — money is changing hands right now.</choiceText>
+        <choiceText>A Monetary Payment — money is changing hands right now</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Monetary</stringValue>
@@ -2528,7 +2535,7 @@
     </choices>
     <choices>
         <name>Choice_Cat_Special</name>
-        <choiceText>Other transaction - in-kind, earned income, or event registration.</choiceText>
+        <choiceText>Other transaction — in-kind, earned income, or event registration</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Special</stringValue>
@@ -2551,16 +2558,8 @@
         </value>
     </choices>
     <choices>
-        <name>Choice_FeeForService</name>
-        <choiceText>Fee for Service - A payment that was entirely for a material benefit to an individual with no tax deductible amount.</choiceText>
-        <dataType>String</dataType>
-        <value>
-            <stringValue>FeeForService</stringValue>
-        </value>
-    </choices>
-    <choices>
         <name>Choice_Formal_Verbal</name>
-        <choiceText>Verbal - A verbal agreement that a gift will be made.</choiceText>
+        <choiceText>Verbal — a verbal agreement that a gift will be made</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Verbal</stringValue>
@@ -2568,7 +2567,7 @@
     </choices>
     <choices>
         <name>Choice_Formal_Written</name>
-        <choiceText>Written - A documented agreement was made or will be made for a gift.</choiceText>
+        <choiceText>Written — a documented agreement was made or will be made for a gift</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Written</stringValue>
@@ -2576,7 +2575,7 @@
     </choices>
     <choices>
         <name>Choice_Fulfillment_Conditional</name>
-        <choiceText>Conditional - The donor placed a restriction on this pledge; choose which restriction below.</choiceText>
+        <choiceText>Conditional — the donor placed a restriction on this pledge; choose which restriction below</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Conditional</stringValue>
@@ -2584,23 +2583,15 @@
     </choices>
     <choices>
         <name>Choice_Fulfillment_Unconditional</name>
-        <choiceText>Unconditional - Standard pledge; the default unrestricted designation applies automatically.</choiceText>
+        <choiceText>Unconditional — standard pledge; the default unrestricted designation applies automatically</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Unconditional</stringValue>
         </value>
     </choices>
     <choices>
-        <name>Choice_InKind</name>
-        <choiceText>In-Kind Gift - A non cash gift of goods or services that cannot or will not be sold for monetary value.</choiceText>
-        <dataType>String</dataType>
-        <value>
-            <stringValue>InKind</stringValue>
-        </value>
-    </choices>
-    <choices>
         <name>Choice_Interval_Every</name>
-        <choiceText>1 - every</choiceText>
+        <choiceText>1 — every</choiceText>
         <dataType>Number</dataType>
         <value>
             <numberValue>1.0</numberValue>
@@ -2608,7 +2599,7 @@
     </choices>
     <choices>
         <name>Choice_Interval_EveryEighth</name>
-        <choiceText>8 - every eighth</choiceText>
+        <choiceText>8 — every eighth</choiceText>
         <dataType>Number</dataType>
         <value>
             <numberValue>8.0</numberValue>
@@ -2616,7 +2607,7 @@
     </choices>
     <choices>
         <name>Choice_Interval_EveryFifth</name>
-        <choiceText>5 - every fifth</choiceText>
+        <choiceText>5 — every fifth</choiceText>
         <dataType>Number</dataType>
         <value>
             <numberValue>5.0</numberValue>
@@ -2624,7 +2615,7 @@
     </choices>
     <choices>
         <name>Choice_Interval_EveryFourth</name>
-        <choiceText>4 - every fourth</choiceText>
+        <choiceText>4 — every fourth</choiceText>
         <dataType>Number</dataType>
         <value>
             <numberValue>4.0</numberValue>
@@ -2632,7 +2623,7 @@
     </choices>
     <choices>
         <name>Choice_Interval_EveryOther</name>
-        <choiceText>2 - every other</choiceText>
+        <choiceText>2 — every other</choiceText>
         <dataType>Number</dataType>
         <value>
             <numberValue>2.0</numberValue>
@@ -2640,7 +2631,7 @@
     </choices>
     <choices>
         <name>Choice_Interval_EverySeventh</name>
-        <choiceText>7 - every seventh</choiceText>
+        <choiceText>7 — every seventh</choiceText>
         <dataType>Number</dataType>
         <value>
             <numberValue>7.0</numberValue>
@@ -2648,7 +2639,7 @@
     </choices>
     <choices>
         <name>Choice_Interval_EverySixth</name>
-        <choiceText>6 - every sixth</choiceText>
+        <choiceText>6 — every sixth</choiceText>
         <dataType>Number</dataType>
         <value>
             <numberValue>6.0</numberValue>
@@ -2656,7 +2647,7 @@
     </choices>
     <choices>
         <name>Choice_Interval_EveryThird</name>
-        <choiceText>3 - every third</choiceText>
+        <choiceText>3 — every third</choiceText>
         <dataType>Number</dataType>
         <value>
             <numberValue>3.0</numberValue>
@@ -2664,7 +2655,7 @@
     </choices>
     <choices>
         <name>Choice_Leaf_EarnedIncome</name>
-        <choiceText>Earned Income — 100% non-deductible payment for a direct material benefit.</choiceText>
+        <choiceText>Earned Income — 100% non-deductible payment for a direct material benefit</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>EarnedIncome</stringValue>
@@ -2672,7 +2663,7 @@
     </choices>
     <choices>
         <name>Choice_Leaf_EventRegistration</name>
-        <choiceText>Event Registration — payment with partial tax benefit (donation portion plus material benefit).</choiceText>
+        <choiceText>Event Registration — payment with partial tax benefit (donation portion plus material benefit)</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>EventRegistration</stringValue>
@@ -2680,7 +2671,7 @@
     </choices>
     <choices>
         <name>Choice_Leaf_InKindGift</name>
-        <choiceText>In-Kind Gift — non-cash goods or services, not resold for cash.</choiceText>
+        <choiceText>In-Kind Gift — non-cash goods or services, not resold for cash</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>InKind</stringValue>
@@ -2688,7 +2679,7 @@
     </choices>
     <choices>
         <name>Choice_Leaf_OutrightGift</name>
-        <choiceText>Outright Gift — one-time donation, no preceding pledge.</choiceText>
+        <choiceText>Outright Gift — one-time donation, no preceding pledge</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Outright</stringValue>
@@ -2696,7 +2687,7 @@
     </choices>
     <choices>
         <name>Choice_Leaf_PledgePayment</name>
-        <choiceText>Pledge Payment — payment toward an existing active pledge.</choiceText>
+        <choiceText>Pledge Payment — payment toward an existing active pledge</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>PledgePayment</stringValue>
@@ -2704,7 +2695,7 @@
     </choices>
     <choices>
         <name>Choice_Leaf_RecurringGift</name>
-        <choiceText>Recurring Gift</choiceText>
+        <choiceText>Recurring Gift — repeating donation on a set cadence, no end date</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Recurring</stringValue>
@@ -2712,7 +2703,7 @@
     </choices>
     <choices>
         <name>Choice_Leaf_ScheduledPledgeGrant</name>
-        <choiceText>Scheduled Pledge / Grant</choiceText>
+        <choiceText>Scheduled Pledge / Grant — installments on a schedule</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Scheduled</stringValue>
@@ -2720,7 +2711,7 @@
     </choices>
     <choices>
         <name>Choice_Leaf_SimplePledgeGrant</name>
-        <choiceText>Simple Pledge / Grant</choiceText>
+        <choiceText>Single Installment Pledge / Grant — one future payment, full amount at once</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Simple</stringValue>
@@ -2728,7 +2719,7 @@
     </choices>
     <choices>
         <name>Choice_MatchEligible_No</name>
-        <choiceText>No — the donor is not employed at a match-program organization.</choiceText>
+        <choiceText>No — the donor is not employed at an organization with a matching gift program</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>No</stringValue>
@@ -2736,7 +2727,7 @@
     </choices>
     <choices>
         <name>Choice_MatchEligible_Yes</name>
-        <choiceText>Yes — the donor is employed at a match-program organization.</choiceText>
+        <choiceText>Yes — the donor is employed at an organization with a matching gift program</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Yes</stringValue>
@@ -2744,7 +2735,7 @@
     </choices>
     <choices>
         <name>Choice_NeedsMatch_No</name>
-        <choiceText>No — no corporate match applies.</choiceText>
+        <choiceText>No — no corporate match applies</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>No</stringValue>
@@ -2752,7 +2743,7 @@
     </choices>
     <choices>
         <name>Choice_NeedsMatch_Yes</name>
-        <choiceText>Yes — pair this gift with an employer match.</choiceText>
+        <choiceText>Yes — pair this gift with an employer match</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Yes</stringValue>
@@ -2760,7 +2751,7 @@
     </choices>
     <choices>
         <name>Choice_NeedsSoftCredit_No</name>
-        <choiceText>No — skip soft credits.</choiceText>
+        <choiceText>No — skip soft credits</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>No</stringValue>
@@ -2768,18 +2759,10 @@
     </choices>
     <choices>
         <name>Choice_NeedsSoftCredit_Yes</name>
-        <choiceText>Yes — recognize another donor for this gift.</choiceText>
+        <choiceText>Yes — recognize another donor for this gift</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Yes</stringValue>
-        </value>
-    </choices>
-    <choices>
-        <name>Choice_Outright</name>
-        <choiceText>Outright Gift - A gift that had no preceding pledge.</choiceText>
-        <dataType>String</dataType>
-        <value>
-            <stringValue>Outright</stringValue>
         </value>
     </choices>
     <choices>
@@ -2831,14 +2814,6 @@
         </value>
     </choices>
     <choices>
-        <name>Choice_Period_Quarterly</name>
-        <choiceText>Quarterly</choiceText>
-        <dataType>String</dataType>
-        <value>
-            <stringValue>Quarterly</stringValue>
-        </value>
-    </choices>
-    <choices>
         <name>Choice_Period_Weekly</name>
         <choiceText>Weekly</choiceText>
         <dataType>String</dataType>
@@ -2852,22 +2827,6 @@
         <dataType>String</dataType>
         <value>
             <stringValue>Yearly</stringValue>
-        </value>
-    </choices>
-    <choices>
-        <name>Choice_Pledge</name>
-        <choiceText>Pledge - A commitment to give at a future date.</choiceText>
-        <dataType>String</dataType>
-        <value>
-            <stringValue>Pledge</stringValue>
-        </value>
-    </choices>
-    <choices>
-        <name>Choice_PledgePayment</name>
-        <choiceText>Pledge Payment - A payment on an existing pledge.</choiceText>
-        <dataType>String</dataType>
-        <value>
-            <stringValue>PledgePayment</stringValue>
         </value>
     </choices>
     <choices>
@@ -2888,7 +2847,7 @@
     </choices>
     <choices>
         <name>Choice_Restriction_Permanent</name>
-        <choiceText>With Donor Restriction - Permanent</choiceText>
+        <choiceText>With Donor Restriction — Permanent</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>With Donor Restriction - Permanent</stringValue>
@@ -2896,7 +2855,7 @@
     </choices>
     <choices>
         <name>Choice_Restriction_Purpose</name>
-        <choiceText>With Donor Restriction - Purpose</choiceText>
+        <choiceText>With Donor Restriction — Purpose</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>With Donor Restriction - Purpose</stringValue>
@@ -2904,7 +2863,7 @@
     </choices>
     <choices>
         <name>Choice_Restriction_Time</name>
-        <choiceText>With Donor Restriction - Time</choiceText>
+        <choiceText>With Donor Restriction — Time</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>With Donor Restriction - Time</stringValue>
@@ -2920,7 +2879,7 @@
     </choices>
     <choices>
         <name>Choice_SoftCredit_Full</name>
-        <choiceText>Full credit — recipient receives 100% credit for this gift.</choiceText>
+        <choiceText>Full credit — recipient receives 100% credit for this gift</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Full</stringValue>
@@ -2928,7 +2887,7 @@
     </choices>
     <choices>
         <name>Choice_SoftCredit_Partial</name>
-        <choiceText>Partial credit — enter the percent below.</choiceText>
+        <choiceText>Partial credit — enter the percent below</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Partial</stringValue>
@@ -2936,7 +2895,7 @@
     </choices>
     <choices>
         <name>Choice_Subcategory_Grant</name>
-        <choiceText>Grant Payout — an anticipated grant disbursement, typically from a foundation or corporate giving program.</choiceText>
+        <choiceText>Grant Payout — an anticipated grant disbursement, typically from a foundation or corporate giving program</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Grant Payout</stringValue>
@@ -2944,7 +2903,7 @@
     </choices>
     <choices>
         <name>Choice_Subcategory_Pledged</name>
-        <choiceText>Pledged Gift — an individual or organizational pledge to give a specific amount.</choiceText>
+        <choiceText>Pledged Gift — an individual or organizational pledge to give a specific amount</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Pledged Gift</stringValue>
@@ -3099,7 +3058,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Phase F3a (wizard plan §Employer picker line 117). Post-Get_Existing_ACR gate. If a live AccountContactRelation between donor PersonContact and employer Account already exists → skip ahead to Assign_Pair_Onto_Donor_GT unchanged. If no ACR was found (Get_Existing_ACR returned zero rows, so Get_Existing_ACR.Id is blank) → route through Assign_ACR_Fields + Create_MatchACR to insert one. This is the &quot;inline ACR create&quot; escape-hatch behavior called for in the plan without reshaping the picker. Rule fires on Get_Existing_ACR.Id IsNull=true (no row found); default (row found) advances straight to the pair.</description>
+        <description>Phase F3a (launcher plan §Employer picker line 117). Post-Get_Existing_ACR gate. If a live AccountContactRelation between donor PersonContact and employer Account already exists → skip ahead to Assign_Pair_Onto_Donor_GT unchanged. If no ACR was found (Get_Existing_ACR returned zero rows, so Get_Existing_ACR.Id is blank) → route through Assign_ACR_Fields + Create_MatchACR to insert one. This is the &quot;inline ACR create&quot; escape-hatch behavior called for in the plan without reshaping the picker. Rule fires on Get_Existing_ACR.Id IsNull=true (no row found); default (row found) advances straight to the pair.</description>
         <name>Decide_ACR_Exists</name>
         <label>ACR already exists?</label>
         <locationX>0</locationX>
@@ -3165,7 +3124,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Phase E2 (wizard plan §Pledge Payment logic). On the Update branch: if the user&apos;s entered amount (numGiftAmount) differs from the scheduled row&apos;s OriginalAmount (rsv_SelectedGT.OriginalAmount), show an informational warning screen before the update. Match → straight to Assign_Update_GT_Fields. Neither path writes OriginalAmount — the schedule&apos;s original amount is preserved by design (wizard plan line 162: &quot;Do not touch OriginalAmount. If entered amount ≠ OriginalAmount, show a warning screen ... Continue button proceeds; no OriginalAmount write.&quot;).</description>
+        <description>Phase E2 (launcher plan §Pledge Payment logic). On the Update branch: if the user&apos;s entered amount (numGiftAmount) differs from the scheduled row&apos;s OriginalAmount (rsv_SelectedGT.OriginalAmount), show an informational warning screen before the update. Match → straight to Assign_Update_GT_Fields. Neither path writes OriginalAmount — the schedule&apos;s original amount is preserved by design (launcher plan line 162: &quot;Do not touch OriginalAmount. If entered amount ≠ OriginalAmount, show a warning screen ... Continue button proceeds; no OriginalAmount write.&quot;).</description>
         <name>Decide_Amount_Mismatch</name>
         <label>Amount matches scheduled row?</label>
         <locationX>0</locationX>
@@ -3250,7 +3209,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Step 1 of the two-step wizard router — mirrors Screen_Wizard_Entry&apos;s Category picker. Reads var_Category and hands off to the leaf-specific decision for that category. Every category has an explicit rule; the default is unreachable in normal operation (var_Category is required on Screen_Wizard_Entry) and exists only as a safety net that lands on Gift Details for Outright-ish fallback behavior. See .planning/fqs-gift-entry-wizard-plan.md §Routing.</description>
+        <description>Category-then-leaf router — mirrors Screen_Category&apos;s Category picker. Reads var_Category and hands off to the leaf-specific decision for that category. Every category has an explicit rule; the default is unreachable in normal operation (var_Category is required on Screen_Category) and exists only as a safety net that lands on Gift Details for Outright-ish fallback behavior. See .planning/fqs-gift-entry-wizard-plan.md §Routing.</description>
         <name>Decide_Category</name>
         <label>Step 1 — Route by Category</label>
         <locationX>0</locationX>
@@ -3478,7 +3437,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Phase F2 (wizard plan §Matching-gift branch, lines 92-104). After Assign_Employer_GT_Fields stages the base employer GT, decide whether to parent it to the donor&apos;s commitment. Pledge Payment (fresh or update) → Assign_Employer_GT_ParentToCommitment reads rsv_SelectedCommitment.Id — always populated on this branch since Screen_Pick_Commitment ran upstream. Everything else (Outright Gift + match; Recurring Gift + match — the employer GT is a fresh outright gift from the employer to the org, not part of the donor&apos;s pledge/recurring commitment) → default straight to Create_Employer_GT with GiftCommitmentId null; only ACR + soft credits link the pair. Prevents the &quot;field hasn&apos;t been set or assigned&quot; runtime error that fires when Assign_Employer_GT_Fields reads rsv_GiftTransaction.GiftCommitmentId on the Outright branch (Flow throws on any read of an un-touched SObject field — same gotcha class as [[fundfirst-custom-schedule-shape]]).</description>
+        <description>Phase F2 (launcher plan §Matching-gift branch, lines 92-104). After Assign_Employer_GT_Fields stages the base employer GT, decide whether to parent it to the donor&apos;s commitment. Pledge Payment (fresh or update) → Assign_Employer_GT_ParentToCommitment reads rsv_SelectedCommitment.Id — always populated on this branch since Screen_Pick_Commitment ran upstream. Everything else (Outright Gift + match; Recurring Gift + match — the employer GT is a fresh outright gift from the employer to the org, not part of the donor&apos;s pledge/recurring commitment) → default straight to Create_Employer_GT with GiftCommitmentId null; only ACR + soft credits link the pair. Prevents the &quot;field hasn&apos;t been set or assigned&quot; runtime error that fires when Assign_Employer_GT_Fields reads rsv_GiftTransaction.GiftCommitmentId on the Outright branch (Flow throws on any read of an un-touched SObject field — same gotcha class as [[fundfirst-custom-schedule-shape]]).</description>
         <name>Decide_Employer_GT_Parent_To_Commitment</name>
         <label>Employer GT parent to Commitment?</label>
         <locationX>0</locationX>
@@ -3732,7 +3691,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Phase E1 (wizard plan): route Pledge Payment on whether the picked commitment already has open Expected GTs. Has rows → Screen_Existing_GTs (datatable + toggle for update-vs-fresh). Zero rows (Simple Pledge with no schedule, or fully-posted schedule) → straight to Decide_Prefill_From_Schedule (existing fresh-insert path). Phase E1 wires the datatable but both toggle values fall through to the fresh-insert path so the update-vs-insert semantics land cleanly in Phase E2.</description>
+        <description>Phase E1 (launcher plan): route Pledge Payment on whether the picked commitment already has open Expected GTs. Has rows → Screen_Existing_GTs (datatable + toggle for update-vs-fresh). Zero rows (Simple Pledge with no schedule, or fully-posted schedule) → straight to Decide_Prefill_From_Schedule (existing fresh-insert path). Phase E1 wires the datatable but both toggle values fall through to the fresh-insert path so the update-vs-insert semantics land cleanly in Phase E2.</description>
         <name>Decide_Has_Existing_GTs</name>
         <label>Has Existing Open GTs?</label>
         <locationX>0</locationX>
@@ -3758,7 +3717,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Phase F2 (wizard plan §Matching-gift branch). Post-Create_Gift_Transaction gate. Routes the Insert donor-GT path (Outright / Recurring first-payment / Pledge-Payment-Fresh-Insert) — if the user opted in to a match on Screen_Match_Employer via pkNeedsMatch, enter the employer-GT chain; otherwise default straight to Decide_Create_InKind_SelfCredit so the existing terminal chain runs unchanged. Companion decision Decide_Insert_Employer_GT_Update handles the Update branch of Pledge Payment. Phase F2.1: pkNeedsMatchPP was removed — single pkNeedsMatch radio now covers all monetary leaves (Outright, PP fresh, PP update, Recurring first).</description>
+        <description>Phase F2 (launcher plan §Matching-gift branch). Post-Create_Gift_Transaction gate. Routes the Insert donor-GT path (Outright / Recurring first-payment / Pledge-Payment-Fresh-Insert) — if the user opted in to a match on Screen_Match_Employer via pkNeedsMatch, enter the employer-GT chain; otherwise default straight to Decide_Create_InKind_SelfCredit so the existing terminal chain runs unchanged. Companion decision Decide_Insert_Employer_GT_Update handles the Update branch of Pledge Payment. Phase F2.1: pkNeedsMatchPP was removed — single pkNeedsMatch radio now covers all monetary leaves (Outright, PP fresh, PP update, Recurring first).</description>
         <name>Decide_Insert_Employer_GT_Insert</name>
         <label>Insert Employer Match GT (Insert path)?</label>
         <locationX>0</locationX>
@@ -3806,7 +3765,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Phase F2 (wizard plan §Matching-gift branch). Post-Update_Gift_Transaction gate for the Pledge-Payment-Update path. Reads pkNeedsMatch (Phase F2.1 unified all monetary branches on the single radio; the old pkNeedsMatchPP variant was retired). If user opted in on Screen_Gift_Details, enter the employer-GT chain; otherwise default straight to Screen_Success (matching Phase E2 behavior — the schedule engine already fanned out designations, so no re-run of terminal chain).</description>
+        <description>Phase F2 (launcher plan §Matching-gift branch). Post-Update_Gift_Transaction gate for the Pledge-Payment-Update path. Reads pkNeedsMatch (Phase F2.1 unified all monetary branches on the single radio; the old pkNeedsMatchPP variant was retired). If user opted in on Screen_Gift_Details, enter the employer-GT chain; otherwise default straight to Screen_Success (matching Phase E2 behavior — the schedule engine already fanned out designations, so no re-run of terminal chain).</description>
         <name>Decide_Insert_Employer_GT_Update</name>
         <label>Insert Employer Match GT (Update path)?</label>
         <locationX>0</locationX>
@@ -4048,7 +4007,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Phase F2.1 (wizard plan §Matching-gift schema wire-up). Gate after Screen_Set_Match_Amount collects numMatchAmount. If the employer&apos;s FQS_Match_Annual_Individual_Maximum__c is set and numMatchAmount exceeds it, show Screen_Warning_Match_Max_Exceeded (informational — the match still posts as entered; this is a heads-up, not a block, mirroring the amount-mismatch warning pattern from Phase E2). Otherwise skip straight to Screen_Pick_Campaign. Null annual-max means &quot;no cap defined,&quot; so the rule doesn&apos;t fire — accepts any amount silently.</description>
+        <description>Phase F2.1 (launcher plan §Matching-gift schema wire-up). Gate after Screen_Set_Match_Amount collects numMatchAmount. If the employer&apos;s FQS_Match_Annual_Individual_Maximum__c is set and numMatchAmount exceeds it, show Screen_Warning_Match_Max_Exceeded (informational — the match still posts as entered; this is a heads-up, not a block, mirroring the amount-mismatch warning pattern from Phase E2). Otherwise skip straight to Screen_Pick_Campaign. Null annual-max means &quot;no cap defined,&quot; so the rule doesn&apos;t fire — accepts any amount silently.</description>
         <name>Decide_Match_Max_Exceeded</name>
         <label>Match exceeds annual max?</label>
         <locationX>0</locationX>
@@ -4189,7 +4148,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Phase F2 (wizard plan §Matching-gift branch). Post-Update_Donor_With_Pair terminal router. After the pair is persisted on the donor GT, split back to the correct terminal per branch: Update path (pkPledgePaymentMode=Update) → Screen_Success (schedule engine already handled designation fan-out — do NOT re-run); Insert path (default) → Decide_Create_InKind_SelfCredit → existing terminal chain (In-Kind self-credit → designation → soft credit → Screen_Success). This keeps the employer-GT chain a single shared segment rather than duplicating it per branch.</description>
+        <description>Phase F2 (launcher plan §Matching-gift branch). Post-Update_Donor_With_Pair terminal router. After the pair is persisted on the donor GT, split back to the correct terminal per branch: Update path (pkPledgePaymentMode=Update) → Screen_Success (schedule engine already handled designation fan-out — do NOT re-run); Insert path (default) → Decide_Create_InKind_SelfCredit → existing terminal chain (In-Kind self-credit → designation → soft credit → Screen_Success). This keeps the employer-GT chain a single shared segment rather than duplicating it per branch.</description>
         <name>Decide_Match_Post_Route</name>
         <label>Post-Match Route</label>
         <locationX>0</locationX>
@@ -4648,7 +4607,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Phase E2 (wizard plan §Pledge Payment logic). Routes the cash-flow branch on whether we&apos;re posting an existing Expected GT or inserting a fresh one. Update path: pkPledgePaymentMode=Update AND rsv_SelectedGT.Id populated (the datatable picked a row) → Decide_Amount_Mismatch → Update_Gift_Transaction → Screen_Success (skips the GTDesignation / SoftCredit fan-out because the platform engine already fanned out designation rows when it materialized the Expected GT). Default: fresh-insert path via Assign_Fanout_Amount → Create_Gift_Transaction unchanged.</description>
+        <description>Phase E2 (launcher plan §Pledge Payment logic). Routes the cash-flow branch on whether we&apos;re posting an existing Expected GT or inserting a fresh one. Update path: pkPledgePaymentMode=Update AND rsv_SelectedGT.Id populated (the datatable picked a row) → Decide_Amount_Mismatch → Update_Gift_Transaction → Screen_Success (skips the GTDesignation / SoftCredit fan-out because the platform engine already fanned out designation rows when it materialized the Expected GT). Default: fresh-insert path via Assign_Fanout_Amount → Create_Gift_Transaction unchanged.</description>
         <name>Decide_Update_Or_Insert</name>
         <label>Update existing GT or insert fresh?</label>
         <locationX>0</locationX>
@@ -5052,13 +5011,13 @@
         <expression>{!Get_Account.Name} &amp; &quot; - $&quot; &amp; TEXT({!Loop_Build_Custom_GTs.field_Custom_Amount}) &amp; &quot; due &quot; &amp; TEXT({!Loop_Build_Custom_GTs.field_Custom_Date})</expression>
     </formulas>
     <formulas>
-        <description>Phase E (wizard plan) IsNull-gate: returns rsv_GiftTransaction.PaymentMethod if already populated (e.g., prefilled to &apos;ACH&apos; from Get_Commitment_Schedule.PaymentMethod by Assign_Prefill_From_Schedule), else &apos;Cash&apos;. Used by Assign_Gift_Details_Defaults to avoid stomping schedule-supplied payment methods on the update-existing-GT branch of Pledge Payment. See .planning/fqs-gift-entry-wizard-plan.md §State at handoff prefill IsNull-gate policy.</description>
+        <description>Phase E (launcher plan) IsNull-gate: returns rsv_GiftTransaction.PaymentMethod if already populated (e.g., prefilled to &apos;ACH&apos; from Get_Commitment_Schedule.PaymentMethod by Assign_Prefill_From_Schedule), else &apos;Cash&apos;. Used by Assign_Gift_Details_Defaults to avoid stomping schedule-supplied payment methods on the update-existing-GT branch of Pledge Payment. See .planning/fqs-gift-entry-wizard-plan.md §State at handoff prefill IsNull-gate policy.</description>
         <name>formulaDefault_PaymentMethod</name>
         <dataType>String</dataType>
         <expression>IF(ISBLANK(TEXT({!rsv_GiftTransaction.PaymentMethod})), &quot;Cash&quot;, TEXT({!rsv_GiftTransaction.PaymentMethod}))</expression>
     </formulas>
     <formulas>
-        <description>Phase E (wizard plan) IsNull-gate: returns rsv_GiftTransaction.TransactionDate if already populated (e.g., by Assign_Prefill_From_Schedule), else TODAY. Used by Assign_Gift_Details_Defaults to avoid stomping schedule-supplied dates on the update-existing-GT branch of Pledge Payment. See .planning/fqs-gift-entry-wizard-plan.md §State at handoff prefill IsNull-gate policy.</description>
+        <description>Phase E (launcher plan) IsNull-gate: returns rsv_GiftTransaction.TransactionDate if already populated (e.g., by Assign_Prefill_From_Schedule), else TODAY. Used by Assign_Gift_Details_Defaults to avoid stomping schedule-supplied dates on the update-existing-GT branch of Pledge Payment. See .planning/fqs-gift-entry-wizard-plan.md §State at handoff prefill IsNull-gate policy.</description>
         <name>formulaDefault_TransactionDate</name>
         <dataType>Date</dataType>
         <expression>IF(ISNULL({!rsv_GiftTransaction.TransactionDate}), {!$Flow.CurrentDate}, {!rsv_GiftTransaction.TransactionDate})</expression>
@@ -5144,7 +5103,7 @@
         <scale>0</scale>
     </formulas>
     <formulas>
-        <description>Phase G2 (wizard plan §Matching-gift branch, Recurring leaf). Auto-generated Name for the employer&apos;s parallel Recurring GC. Same skeleton as formulaRecurringCommitmentName but reads the employer Name (Get_Match_Employer.Name) and the match amount (numMatchAmount). Period word reused from the donor&apos;s schedule since employer schedule mirrors donor cadence one-for-one.</description>
+        <description>Phase G2 (launcher plan §Matching-gift branch, Recurring leaf). Auto-generated Name for the employer&apos;s parallel Recurring GC. Same skeleton as formulaRecurringCommitmentName but reads the employer Name (Get_Match_Employer.Name) and the match amount (numMatchAmount). Period word reused from the donor&apos;s schedule since employer schedule mirrors donor cadence one-for-one.</description>
         <name>formulaEmployerRecurringCommitmentName</name>
         <dataType>String</dataType>
         <expression>{!Get_Match_Employer.Name} &amp; &quot; - Recurring Gift &quot; &amp; TEXT({!numMatchAmount}) &amp; &quot; &quot; &amp; {!formulaRecurringPeriodWord}</expression>
@@ -5296,16 +5255,16 @@
         <expression>IF(ISBLANK({!dtScheduledStart}), &quot;1&quot;, TEXT(DAY({!dtScheduledStart})))</expression>
     </formulas>
     <formulas>
-        <description>Simple Pledge preview: plain-English summary of the single-installment pledge/grant. Reads numPledgeAmount + dtNextTransactionDate on Screen_Pledge_Details.</description>
+        <description>Simple Pledge preview: plain-English summary of the single-installment pledge/grant. Reads numPledgeAmount + dtExpectedEndDate on Screen_Pledge_Details.</description>
         <name>formulaSimplePreviewText</name>
         <dataType>String</dataType>
         <expression>&quot;The donor will give &quot; &amp; IF(ISBLANK({!numPledgeAmount}), &quot;$___&quot;, &quot;$&quot; &amp; TEXT({!numPledgeAmount})) &amp; &quot; on &quot; &amp; {!formulaSimpleStartDateDisplay} &amp; &quot; as a single payment.&quot;</expression>
     </formulas>
     <formulas>
-        <description>Simple Pledge preview: friendly-format dtNextTransactionDate as &quot;Mon DD, YYYY&quot; for the preview sentence.</description>
+        <description>Simple Pledge preview: friendly-format dtExpectedEndDate as &quot;Mon DD, YYYY&quot; for the preview sentence.</description>
         <name>formulaSimpleStartDateDisplay</name>
         <dataType>String</dataType>
-        <expression>IF(ISBLANK({!dtNextTransactionDate}), &quot;___&quot;, CASE(MONTH({!dtNextTransactionDate}), 1, &quot;Jan&quot;, 2, &quot;Feb&quot;, 3, &quot;Mar&quot;, 4, &quot;Apr&quot;, 5, &quot;May&quot;, 6, &quot;Jun&quot;, 7, &quot;Jul&quot;, 8, &quot;Aug&quot;, 9, &quot;Sep&quot;, 10, &quot;Oct&quot;, 11, &quot;Nov&quot;, 12, &quot;Dec&quot;, &quot;&quot;) &amp; &quot; &quot; &amp; TEXT(DAY({!dtNextTransactionDate})) &amp; &quot;, &quot; &amp; TEXT(YEAR({!dtNextTransactionDate})))</expression>
+        <expression>IF(ISBLANK({!dtExpectedEndDate}), &quot;___&quot;, CASE(MONTH({!dtExpectedEndDate}), 1, &quot;Jan&quot;, 2, &quot;Feb&quot;, 3, &quot;Mar&quot;, 4, &quot;Apr&quot;, 5, &quot;May&quot;, 6, &quot;Jun&quot;, 7, &quot;Jul&quot;, 8, &quot;Aug&quot;, 9, &quot;Sep&quot;, 10, &quot;Oct&quot;, 11, &quot;Nov&quot;, 12, &quot;Dec&quot;, &quot;&quot;) &amp; &quot; &quot; &amp; TEXT(DAY({!dtExpectedEndDate})) &amp; &quot;, &quot; &amp; TEXT(YEAR({!dtExpectedEndDate})))</expression>
     </formulas>
     <interviewLabel>FQS Gift Entry Single Launcher — Account {!$Flow.CurrentDateTime}</interviewLabel>
     <label>FQS Gift Entry Single Launcher — Account</label>
@@ -5452,7 +5411,7 @@
         <inputReference>col_CustomGTs</inputReference>
     </recordCreates>
     <recordCreates>
-        <description>Phase F2 (wizard plan §Matching-gift branch). Inserts the paired employer-match GiftTransaction via rsv_MatchEmployerGT. Reached from Decide_Insert_Employer_GT_Insert (fresh-donor-insert path) or Decide_Insert_Employer_GT_Update (pledge-payment-update path) when pkNeedsMatch=Yes. Phase F3a: connector now routes to Get_Existing_ACR (was Assign_Pair_Onto_Donor_GT) so the flow can insert an AccountContactRelation between donor PersonContact and employer Account when one doesn&apos;t already exist. Fault path shares Err_Create — if the employer GT insert fails, the donor GT and any commitment/schedule already exist in the org and users must clean up manually (parity with all other Create_* fault contracts).</description>
+        <description>Phase F2 (launcher plan §Matching-gift branch). Inserts the paired employer-match GiftTransaction via rsv_MatchEmployerGT. Reached from Decide_Insert_Employer_GT_Insert (fresh-donor-insert path) or Decide_Insert_Employer_GT_Update (pledge-payment-update path) when pkNeedsMatch=Yes. Phase F3a: connector now routes to Get_Existing_ACR (was Assign_Pair_Onto_Donor_GT) so the flow can insert an AccountContactRelation between donor PersonContact and employer Account when one doesn&apos;t already exist. Fault path shares Err_Create — if the employer GT insert fails, the donor GT and any commitment/schedule already exist in the org and users must clean up manually (parity with all other Create_* fault contracts).</description>
         <name>Create_Employer_GT</name>
         <label>Create Employer Match GT</label>
         <locationX>0</locationX>
@@ -5589,7 +5548,7 @@
         <inputReference>rsv_InKind_SoftCredit</inputReference>
     </recordCreates>
     <recordCreates>
-        <description>Phase F3a (wizard plan §Employer picker line 117, §Decisions locked #2). Inserts an AccountContactRelation between the donor PersonContact and the picked employer Account so future gifts see the employer relationship. Reached only from Decide_ACR_Exists when Get_Existing_ACR returns zero rows (no prior employment relationship recorded). Fault path routes to Assign_Pair_Onto_Donor_GT instead of Err_Create — an ACR insert failure is non-critical (the paired GTs are already in the DB and the pair still succeeds); the user can add the ACR manually later. This is the &quot;inline ACR create&quot; escape-hatch behavior called for in the plan without requiring the picker itself to be reshaped into a datatable + fallback.</description>
+        <description>Phase F3a (launcher plan §Employer picker line 117, §Decisions locked #2). Inserts an AccountContactRelation between the donor PersonContact and the picked employer Account so future gifts see the employer relationship. Reached only from Decide_ACR_Exists when Get_Existing_ACR returns zero rows (no prior employment relationship recorded). Fault path routes to Assign_Pair_Onto_Donor_GT instead of Err_Create — an ACR insert failure is non-critical (the paired GTs are already in the DB and the pair still succeeds); the user can add the ACR manually later. This is the &quot;inline ACR create&quot; escape-hatch behavior called for in the plan without requiring the picker itself to be reshaped into a datatable + fallback.</description>
         <name>Create_MatchACR</name>
         <label>Create Match ACR</label>
         <locationX>0</locationX>
@@ -5603,7 +5562,7 @@
         <inputReference>rsv_MatchACR</inputReference>
     </recordCreates>
     <recordCreates>
-        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Inserts the corporate-Account recognition GiftSoftCredit on the donor&apos;s GT (Role = &apos;Matched Donor&apos;, Recipient = employer Account). Fault path routes forward to Assign_MatchSoftCredit_OnEmployer — a soft-credit insert failure is non-critical (both paired GTs are already in the DB); the user can add the missing soft credit manually. Success advances to the employer-side soft credit.</description>
+        <description>Phase F3b (launcher plan §Matching-gift branch §Soft credits, lines 132-136). Inserts the corporate-Account recognition GiftSoftCredit on the donor&apos;s GT (Role = &apos;Matched Donor&apos;, Recipient = employer Account). Fault path routes forward to Assign_MatchSoftCredit_OnEmployer — a soft-credit insert failure is non-critical (both paired GTs are already in the DB); the user can add the missing soft credit manually. Success advances to the employer-side soft credit.</description>
         <name>Create_MatchSoftCredit_OnDonor</name>
         <label>Create Match SoftCredit (Donor GT)</label>
         <locationX>0</locationX>
@@ -5617,7 +5576,7 @@
         <inputReference>rsv_MatchSoftCredit_OnDonor</inputReference>
     </recordCreates>
     <recordCreates>
-        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Inserts the donor-Person-Account recognition GiftSoftCredit on the employer&apos;s GT (Role = &apos;Matched Donor&apos;, Recipient = donor Account). Fault path routes forward to Decide_Match_Post_Route (best-effort — the pair itself is already persisted; a soft-credit insert failure doesn&apos;t abort the flow). Success also routes to Decide_Match_Post_Route which handles the branch back to Screen_Success or the terminal chain.</description>
+        <description>Phase F3b (launcher plan §Matching-gift branch §Soft credits, lines 132-136). Inserts the donor-Person-Account recognition GiftSoftCredit on the employer&apos;s GT (Role = &apos;Matched Donor&apos;, Recipient = donor Account). Fault path routes forward to Decide_Match_Post_Route (best-effort — the pair itself is already persisted; a soft-credit insert failure doesn&apos;t abort the flow). Success also routes to Decide_Match_Post_Route which handles the branch back to Screen_Success or the terminal chain.</description>
         <name>Create_MatchSoftCredit_OnEmployer</name>
         <label>Create Match SoftCredit (Employer GT)</label>
         <locationX>0</locationX>
@@ -5645,7 +5604,7 @@
         <inputReference>rsv_GiftCommitment</inputReference>
     </recordCreates>
     <recordCreates>
-        <description>Phase F3c (wizard plan §Recurring Gift, lines 246-249). Posts the Recurring commitment&apos;s first payment as a Paid GiftTransaction dated dtRecurringStart. Runs after Process_Recurring_Commitment has activated the schedule and after Decide_Create_Default_Designation has run the designation fan-out. Connector routes to Decide_Insert_Employer_GT_Insert so pkNeedsMatch=Yes drops into the same employer-GT + ACR + soft-credit chain that Outright and PP use. Fault path shares Err_Create — a failed first-payment GT insert leaves the GC + GCS activated in the org (schedule engine will still fan out Expected GTs) and the user has to clean up manually or re-record the first payment, matching all other Create_* fault contracts.</description>
+        <description>Phase F3c (launcher plan §Recurring Gift, lines 246-249). Posts the Recurring commitment&apos;s first payment as a Paid GiftTransaction dated dtRecurringStart. Runs after Process_Recurring_Commitment has activated the schedule and after Decide_Create_Default_Designation has run the designation fan-out. Connector routes to Decide_Insert_Employer_GT_Insert so pkNeedsMatch=Yes drops into the same employer-GT + ACR + soft-credit chain that Outright and PP use. Fault path shares Err_Create — a failed first-payment GT insert leaves the GC + GCS activated in the org (schedule engine will still fan out Expected GTs) and the user has to clean up manually or re-record the first payment, matching all other Create_* fault contracts.</description>
         <name>Create_Recurring_First_Payment_GT</name>
         <label>Create Recurring First Payment GT</label>
         <locationX>0</locationX>
@@ -6075,7 +6034,7 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Phase F3a (wizard plan §Employer picker line 117, §Decisions locked #2). Checks whether an AccountContactRelation already links the donor PersonContact (Get_Account.PersonContactId) to the picked employer Account (lkpMatchEmployer.recordId). Reached from Create_Employer_GT. If found, Decide_ACR_Exists skips ahead to Assign_Pair_Onto_Donor_GT unchanged. If empty, the flow routes into Assign_ACR_Fields + Create_MatchACR so the relationship persists for future gifts. Match branch is Person-Account-only (Decide_Match_Needed gates on Get_Account.IsPersonAccount), so PersonContactId is always populated here. Fault path routes straight to Assign_Pair_Onto_Donor_GT — an ACR-lookup failure shouldn&apos;t abort the pair. Filter uses IsActive=true to avoid short-circuiting on soft-deleted relationships (verified via describe: AccountContactRelation.IsActive is a filterable boolean, default true).</description>
+        <description>Phase F3a (launcher plan §Employer picker line 117, §Decisions locked #2). Checks whether an AccountContactRelation already links the donor PersonContact (Get_Account.PersonContactId) to the picked employer Account (lkpMatchEmployer.recordId). Reached from Create_Employer_GT. If found, Decide_ACR_Exists skips ahead to Assign_Pair_Onto_Donor_GT unchanged. If empty, the flow routes into Assign_ACR_Fields + Create_MatchACR so the relationship persists for future gifts. Match branch is Person-Account-only (Decide_Match_Needed gates on Get_Account.IsPersonAccount), so PersonContactId is always populated here. Fault path routes straight to Assign_Pair_Onto_Donor_GT — an ACR-lookup failure shouldn&apos;t abort the pair. Filter uses IsActive=true to avoid short-circuiting on soft-deleted relationships (verified via describe: AccountContactRelation.IsActive is a filterable boolean, default true).</description>
         <name>Get_Existing_ACR</name>
         <label>Get Existing ACR</label>
         <locationX>0</locationX>
@@ -6107,7 +6066,7 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Phase E1 (wizard plan): pull open Expected GTs already fanned out on the picked commitment (Status IN Unpaid / Pending / Failed), ordered by TransactionDueDate ASC. Feeds the Screen_Existing_GTs datatable so the user can post an existing scheduled payment rather than double-inserting a fresh one. Zero-row case (Simple Pledge, fully-posted schedule) routes past the datatable and falls through to the existing fresh-insert path via Decide_Has_Existing_GTs.</description>
+        <description>Phase E1 (launcher plan): pull open Expected GTs already fanned out on the picked commitment (Status IN Unpaid / Pending / Failed), ordered by TransactionDueDate ASC. Feeds the Screen_Existing_GTs datatable so the user can post an existing scheduled payment rather than double-inserting a fresh one. Zero-row case (Simple Pledge, fully-posted schedule) routes past the datatable and falls through to the existing fresh-insert path via Decide_Has_Existing_GTs.</description>
         <name>Get_Existing_GTs</name>
         <label>Get Existing Open Gift Transactions</label>
         <locationX>0</locationX>
@@ -6455,7 +6414,7 @@
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Screen_Wizard_Entry</targetReference>
+            <targetReference>Screen_Category</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Err_Load</targetReference>
@@ -6537,7 +6496,7 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
-        <description>Phase F2 (wizard plan §Matching-gift branch §Amount, line 124). Persists the MatchingEmployerTransactionId pair on the donor GT after Create_Employer_GT returns the employer row&apos;s Id. Runs on both the Insert and Update donor-GT branches — reached from Assign_Pair_Onto_Donor_GT. rsv_GiftTransaction.Id was populated by Create_Gift_Transaction (Insert path) or Assign_Update_GT_Fields → Update_Gift_Transaction (Update path), so this recordUpdates always targets the correct donor row. Only rsv_GiftTransaction.MatchingEmployerTransactionId is changed since Save at Insert; on the Update path the earlier Update_Gift_Transaction already wrote Status=Paid + user-editable fields, so this second write is idempotent for those. Phase F3b: connector now routes to Assign_MatchSoftCredit_OnDonor (was → Decide_Match_Post_Route) to insert the two paired GiftSoftCredit rows before the post-match terminal split.</description>
+        <description>Phase F2 (launcher plan §Matching-gift branch §Amount, line 124). Persists the MatchingEmployerTransactionId pair on the donor GT after Create_Employer_GT returns the employer row&apos;s Id. Runs on both the Insert and Update donor-GT branches — reached from Assign_Pair_Onto_Donor_GT. rsv_GiftTransaction.Id was populated by Create_Gift_Transaction (Insert path) or Assign_Update_GT_Fields → Update_Gift_Transaction (Update path), so this recordUpdates always targets the correct donor row. Only rsv_GiftTransaction.MatchingEmployerTransactionId is changed since Save at Insert; on the Update path the earlier Update_Gift_Transaction already wrote Status=Paid + user-editable fields, so this second write is idempotent for those. Phase F3b: connector now routes to Assign_MatchSoftCredit_OnDonor (was → Decide_Match_Post_Route) to insert the two paired GiftSoftCredit rows before the post-match terminal split.</description>
         <name>Update_Donor_With_Pair</name>
         <label>Update Donor GT with Employer Pair</label>
         <locationX>0</locationX>
@@ -6565,7 +6524,7 @@
         <inputReference>Get_GC_GDD_Post_Process</inputReference>
     </recordUpdates>
     <recordUpdates>
-        <description>Phase E2 (wizard plan §Pledge Payment logic). Posts an existing Expected GiftTransaction as paid. Runs on the Update branch of Pledge Payment (pkPledgePaymentMode=Update AND rsv_SelectedGT.Id set). rsv_GiftTransaction.Id is stamped by Assign_Update_GT_Fields to point at rsv_SelectedGT.Id, so this recordUpdates targets the selected row rather than inserting. Phase F2: connector routes to Decide_Insert_Employer_GT_Update (was Screen_Success). When no match is opted-in (pkNeedsMatch=No), that decision defaults straight to Screen_Success — the platform engine already fanned out GiftDefaultDesignation / GTDesignation when it materialized the Expected GT, so we do NOT re-run designation / soft credit fan-out on this path.</description>
+        <description>Phase E2 (launcher plan §Pledge Payment logic). Posts an existing Expected GiftTransaction as paid. Runs on the Update branch of Pledge Payment (pkPledgePaymentMode=Update AND rsv_SelectedGT.Id set). rsv_GiftTransaction.Id is stamped by Assign_Update_GT_Fields to point at rsv_SelectedGT.Id, so this recordUpdates targets the selected row rather than inserting. Phase F2: connector routes to Decide_Insert_Employer_GT_Update (was Screen_Success). When no match is opted-in (pkNeedsMatch=No), that decision defaults straight to Screen_Success — the platform engine already fanned out GiftDefaultDesignation / GTDesignation when it materialized the Expected GT, so we do NOT re-run designation / soft credit fan-out on this path.</description>
         <name>Update_Gift_Transaction</name>
         <label>Update Gift Transaction</label>
         <locationX>0</locationX>
@@ -6774,7 +6733,7 @@
         <showHeader>true</showHeader>
     </screens>
     <screens>
-        <description>Phase E1 (wizard plan). Pledge Payment leaf, gated on Get_Existing_GTs returning ≥1 row (see Decide_Has_Existing_GTs). Renders the picked commitment&apos;s open Expected GTs (Unpaid/Pending/Failed, oldest first) as a single-select datatable and asks whether to post an existing scheduled payment or record a fresh one. Selection lands in rsv_SelectedGT via firstSelectedRow. Mode captured in pkPledgePaymentMode. Phase E1 routes both toggle values to the existing fresh-insert path (Decide_Prefill_From_Schedule); Phase E2 replaces that pass-through with the real Update_Gift_Transaction + amount-mismatch logic.</description>
+        <description>Phase E1 (launcher plan). Pledge Payment leaf, gated on Get_Existing_GTs returning ≥1 row (see Decide_Has_Existing_GTs). Renders the picked commitment&apos;s open Expected GTs (Unpaid/Pending/Failed, oldest first) as a single-select datatable and asks whether to post an existing scheduled payment or record a fresh one. Selection lands in rsv_SelectedGT via firstSelectedRow. Mode captured in pkPledgePaymentMode. Phase E1 routes both toggle values to the existing fresh-insert path (Decide_Prefill_From_Schedule); Phase E2 replaces that pass-through with the real Update_Gift_Transaction + amount-mismatch logic.</description>
         <name>Screen_Existing_GTs</name>
         <label>Post an existing scheduled payment?</label>
         <locationX>0</locationX>
@@ -6806,6 +6765,7 @@
             <defaultSelectedChoiceReference>Choice_PledgePayment_Update</defaultSelectedChoiceReference>
             <fieldText>How should we record this payment?</fieldText>
             <fieldType>RadioButtons</fieldType>
+            <helpText>Post = you&apos;re recording a payment against a scheduled row that has already been generated for you. New = you&apos;re logging an extra one-off payment that leaves the schedule rows untouched.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
@@ -6927,8 +6887,9 @@
             <defaultValue>
                 <elementReference>var_GiftAmount</elementReference>
             </defaultValue>
-            <fieldText>Amount</fieldText>
+            <fieldText>Amount (Original Amount)</fieldText>
             <fieldType>InputField</fieldType>
+            <helpText>Full amount of the gift as received from the donor, before any split for benefits or non-deductible portions.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <scale>2</scale>
@@ -6992,6 +6953,7 @@
             <dataType>Currency</dataType>
             <fieldText>Benefit received (non-deductible portion)</fieldText>
             <fieldType>InputField</fieldType>
+            <helpText>The fair market value of what the donor got in exchange (meal, entertainment, goods). Written to the NonTaxDeductibleAmount field on the gift.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <scale>2</scale>
@@ -7227,6 +7189,7 @@
             <defaultSelectedChoiceReference>Choice_NeedsSoftCredit_No</defaultSelectedChoiceReference>
             <fieldText>Add soft credits (recognize another donor for this gift)?</fieldText>
             <fieldType>RadioButtons</fieldType>
+            <helpText>Soft credit is a way to recognize a donor other than the one legally credited for the gift — e.g., recognize a spouse, a household, or a corporate matching entity.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
@@ -7276,6 +7239,7 @@
             <defaultSelectedChoiceReference>Choice_NeedsMatch_No</defaultSelectedChoiceReference>
             <fieldText>Pair this gift with an employer match?</fieldText>
             <fieldType>RadioButtons</fieldType>
+            <helpText>Yes if the donor&apos;s employer matches this gift under a matching-gift program. You&apos;ll pick the employer and confirm the match amount on the next screens.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
@@ -7338,7 +7302,7 @@
             <defaultValue>
                 <booleanValue>false</booleanValue>
             </defaultValue>
-            <fieldText>None of the below campaigns match this gift, I want to search for another existing campaign.</fieldText>
+            <fieldText>None of the campaigns below match this gift — search for another existing campaign.</fieldText>
             <fieldType>InputField</fieldType>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
@@ -7540,7 +7504,7 @@
             <defaultValue>
                 <booleanValue>false</booleanValue>
             </defaultValue>
-            <fieldText>None of the below campaigns match this gift, I want to search for another existing campaign.</fieldText>
+            <fieldText>None of the campaigns below match this gift — search for another existing campaign.</fieldText>
             <fieldType>InputField</fieldType>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
@@ -7816,7 +7780,7 @@
             <defaultValue>
                 <booleanValue>false</booleanValue>
             </defaultValue>
-            <fieldText>None of the below commitments match this gift, I want to search for another existing commitment.</fieldText>
+            <fieldText>None of the commitments below match this gift — search for another existing commitment.</fieldText>
             <fieldType>InputField</fieldType>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
@@ -8018,7 +7982,7 @@
             <defaultValue>
                 <booleanValue>false</booleanValue>
             </defaultValue>
-            <fieldText>None of the below designations match this gift, I want to search for another existing designation.</fieldText>
+            <fieldText>None of the designations below match this gift — search for another existing designation.</fieldText>
             <fieldType>InputField</fieldType>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
@@ -8203,7 +8167,7 @@
         </connector>
         <fields>
             <name>MatchHelp</name>
-            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Employer Match&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Pick the employer that will match this gift from the table below (drawn from the donor&apos;s employer relationships and match-program details). If you don&apos;t see the right organization, check the box below to search for another Account instead.&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Employer Match&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Pick the employer that will match this gift from the table below (drawn from the donor&apos;s employer relationships and match-program details). If you don&apos;t see the right organization, mark the checkbox below to search for another Account instead.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -8221,7 +8185,7 @@
             <defaultValue>
                 <booleanValue>false</booleanValue>
             </defaultValue>
-            <fieldText>None of the below employers match this gift — I want to search for another organization.</fieldText>
+            <fieldText>None of the employers below match this gift — search for another organization.</fieldText>
             <fieldType>InputField</fieldType>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
@@ -8368,7 +8332,7 @@
         </fields>
         <fields>
             <name>EmployerFilterHelp</name>
-            <fieldText>&lt;p&gt;&lt;i&gt;The table shows employers linked to this donor through Account-Contact Relationships whose group type is &lt;b&gt;Group&lt;/b&gt; (Household PRGs are excluded automatically). When you tick the checkbox above, the search box falls back to any Account — admins can restrict it further by adding a lookup filter on &lt;b&gt;Account.ParentId&lt;/b&gt; (for example, excluding Household PRGs). See the FQS README post-install steps.&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;i&gt;The table shows employers linked to this donor through their Account-Contact relationships. Household relationships are excluded automatically. When you mark the checkbox above, the search box falls back to any Account — admins can restrict it further by adding a lookup filter on &lt;b&gt;Account.ParentId&lt;/b&gt; (for example, excluding household groupings). See the FQS README post-install steps.&lt;/i&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -8415,7 +8379,7 @@
             <choiceReferences>Choice_Restriction_Permanent</choiceReferences>
             <dataType>String</dataType>
             <defaultSelectedChoiceReference>Choice_Restriction_Purpose</defaultSelectedChoiceReference>
-            <fieldText>Restriction Type</fieldText>
+            <fieldText>What kind of restriction did the donor place?</fieldText>
             <fieldType>RadioButtons</fieldType>
             <helpText>Purpose = donor named a specific program, project, or fund. Time = donor said WHEN it must be used (e.g., &quot;for our FY27 budget&quot;) — multi-year pledges paid in installments are NOT time-restricted unless the donor said so. Permanent = endowment or permanently restricted principal. If a gift is genuinely both Purpose and Time, pick the stricter one here and adjust on the record.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
@@ -8463,7 +8427,7 @@
             <defaultValue>
                 <booleanValue>false</booleanValue>
             </defaultValue>
-            <fieldText>None of the below accounts match this gift, I want to search for another existing account.</fieldText>
+            <fieldText>None of the accounts below match this gift — search for another existing account.</fieldText>
             <fieldType>InputField</fieldType>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
@@ -8684,6 +8648,7 @@
             <dataType>Currency</dataType>
             <fieldText>How much is the donor committing? (Expected Total Commitment Amount)</fieldText>
             <fieldType>InputField</fieldType>
+            <helpText>Total amount the donor is committing across all future payments. Reports on projected income roll up from this field.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <scale>2</scale>
@@ -8714,11 +8679,11 @@
             </styleProperties>
         </fields>
         <fields>
-            <name>dtNextTransactionDate</name>
+            <name>dtExpectedEndDate</name>
             <dataType>Date</dataType>
-            <fieldText>When will the payment be made? (Next Transaction Date)</fieldText>
+            <fieldText>When is the payment expected? (Expected End Date)</fieldText>
             <fieldType>InputField</fieldType>
-            <helpText>When the pledge/grant payment is expected. Written to Next Transaction Date on the commitment; used by pipeline reports to project expected future income. Since this is a Simple leaf (no schedule), the payment amount is assumed equal to the full commitment amount.</helpText>
+            <helpText>On a Simple Pledge / Grant with a single expected payment, this is when the commitment as a whole is expected to finish. Written to Expected End Date on the commitment (stable across time, unlike Next Transaction Date which the platform updates as payments post). Pipeline reports read from Expected End Date + Expected Total Commitment Amount at creation time.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
@@ -8778,7 +8743,7 @@
             <defaultSelectedChoiceReference>Choice_MatchEligible_No</defaultSelectedChoiceReference>
             <fieldText>Is this donor employed at a match-program organization? (Match Eligible)</fieldText>
             <fieldType>RadioButtons</fieldType>
-            <helpText>Flag this commitment so payment posts will default the employer-match prompt to Yes. Written to FQS_Match_Eligible__c on the GiftCommitment record.</helpText>
+            <helpText>Flag this commitment so payment posts will default the employer-match prompt to Yes. Written to Match Eligible on the Gift Commitment record.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
@@ -8893,7 +8858,7 @@
             <defaultSelectedChoiceReference>Choice_MatchEligible_No</defaultSelectedChoiceReference>
             <fieldText>Is this donor employed at a match-program organization? (Match Eligible)</fieldText>
             <fieldType>RadioButtons</fieldType>
-            <helpText>Flag this commitment so payment posts will default the employer-match prompt to Yes. Written to FQS_Match_Eligible__c on the GiftCommitment record.</helpText>
+            <helpText>Flag this commitment so payment posts will default the employer-match prompt to Yes. Written to Match Eligible on the Gift Commitment record.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
@@ -9037,7 +9002,7 @@
         <showHeader>true</showHeader>
     </screens>
     <screens>
-        <description>Scheduled Pledge/Grant leaf (Phase C.2a — Regular schedule only; Custom rows come in Phase C.2b). Question-style labels reference the underlying FundFirst field in parens. Removed IsAssetTransferExpected (assigned literal false in Assign_Scheduled_Defaults — not a launcher-time concern; toggle post-create). Dropped Quarterly from period picker — FundFirst GiftCommitmentSchedule.TransactionPeriod is Monthly/Daily/Weekly/Yearly/Custom (verified via describe 2026-07-19; Choice_Period_Quarterly kept in metadata as unreferenced choice for cheap add-back if needed). The equal-installments Yes/No radio routes to either the Regular Assign_Scheduled_Defaults path (this deploy) or the Custom placeholder (Phase C.2b). NextTransactionDate / NextTransactionAmount are NOT collected here — the platform engine populates them from the first GiftCommitmentSchedule row inserted by Create_Scheduled_Schedule.</description>
+        <description>Scheduled Pledge/Grant leaf (Phase C.2a — Regular schedule only; Custom rows come in Phase C.2b). Question-style labels reference the underlying FundFirst field in parens. Removed IsAssetTransferExpected (assigned literal false in Assign_Scheduled_Defaults — not a launcher-time concern; toggle post-create). Dropped Quarterly from period picker — FundFirst GiftCommitmentSchedule.TransactionPeriod is Monthly/Daily/Weekly/Yearly/Custom (verified via describe 2026-07-19). The equal-installments Yes/No radio routes to either the Regular Assign_Scheduled_Defaults path (this deploy) or the Custom placeholder (Phase C.2b). NextTransactionDate / NextTransactionAmount are NOT collected here — the platform engine populates them from the first GiftCommitmentSchedule row inserted by Create_Scheduled_Schedule.</description>
         <name>Screen_Scheduled_Details</name>
         <label>Scheduled Pledge / Grant Details</label>
         <locationX>0</locationX>
@@ -9160,7 +9125,7 @@
             <defaultSelectedChoiceReference>Choice_MatchEligible_No</defaultSelectedChoiceReference>
             <fieldText>Is this donor employed at a match-program organization? (Match Eligible)</fieldText>
             <fieldType>RadioButtons</fieldType>
-            <helpText>Flag this commitment so payment posts will default the employer-match prompt to Yes. Written to FQS_Match_Eligible__c on the GiftCommitment record.</helpText>
+            <helpText>Flag this commitment so payment posts will default the employer-match prompt to Yes. Written to Match Eligible on the Gift Commitment record.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
@@ -9261,8 +9226,9 @@
             <defaultValue>
                 <numberValue>2.0</numberValue>
             </defaultValue>
-            <fieldText>How many payments?</fieldText>
+            <fieldText>How many payments? (1–12)</fieldText>
             <fieldType>InputField</fieldType>
+            <helpText>Number of installments the donor will make. Combined with Period and Interval to compute the end date.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <scale>0</scale>
@@ -9569,7 +9535,7 @@
             </defaultValue>
             <fieldText>Match Amount</fieldText>
             <fieldType>InputField</fieldType>
-            <helpText>Default = donor gift amount × the employer&apos;s FQS_Match_Ratio__c (e.g., 1.0 = 1:1, 2.0 = 2:1). Fallback to the donor gift amount if no ratio configured. Adjust manually if this gift qualifies for a different match.</helpText>
+            <helpText>Default = donor gift amount × the employer&apos;s Match Ratio (e.g., 1.0 = 1:1, 2.0 = 2:1). Falls back to the donor gift amount if no ratio is configured. Adjust manually if this gift qualifies for a different match.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <scale>2</scale>
@@ -9616,8 +9582,9 @@
             <choiceReferences>Choice_SoftCredit_Partial</choiceReferences>
             <dataType>String</dataType>
             <defaultSelectedChoiceReference>Choice_SoftCredit_Full</defaultSelectedChoiceReference>
-            <fieldText>Credit type</fieldText>
+            <fieldText>How much of the gift should this recipient receive credit for?</fieldText>
             <fieldType>RadioButtons</fieldType>
+            <helpText>Full = the recipient is credited for 100% of the gift. Partial = the recipient is credited for a percent you enter below.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
@@ -9632,8 +9599,9 @@
         <fields>
             <name>numSoftCreditPercent</name>
             <dataType>Number</dataType>
-            <fieldText>Percent (0-100)</fieldText>
+            <fieldText>What percent of the gift should this recipient receive?</fieldText>
             <fieldType>InputField</fieldType>
+            <helpText>Enter a whole number between 1 and 100 (e.g., 50 = half credit).</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
             <scale>2</scale>
@@ -9824,7 +9792,7 @@
         <showHeader>true</showHeader>
     </screens>
     <screens>
-        <description>Phase E2 (wizard plan §Pledge Payment logic, lines 160-162). Informational-only interstitial on the Pledge Payment Update branch when the user&apos;s entered amount differs from the selected scheduled row&apos;s OriginalAmount. Explains that the payment will post as-entered and that OriginalAmount stays untouched; user manages any commitment upgrade on the GC record itself. Single Next button — the flow continues to Assign_Update_GT_Fields → Update_Gift_Transaction regardless (this is a warning, not a confirmation). Reached only from Decide_Amount_Mismatch.</description>
+        <description>Phase E2 (launcher plan §Pledge Payment logic, lines 160-162). Informational-only interstitial on the Pledge Payment Update branch when the user&apos;s entered amount differs from the selected scheduled row&apos;s OriginalAmount. Explains that the payment will post as-entered and that OriginalAmount stays untouched; user manages any commitment upgrade on the GC record itself. Single Next button — the flow continues to Assign_Update_GT_Fields → Update_Gift_Transaction regardless (this is a warning, not a confirmation). Reached only from Decide_Amount_Mismatch.</description>
         <name>Screen_Warning_Amount_Mismatch</name>
         <label>Amount Mismatch — Confirm</label>
         <locationX>0</locationX>
@@ -9944,8 +9912,8 @@
         <showHeader>true</showHeader>
     </screens>
     <screens>
-        <description>Wizard scaffold (Phase B, consolidated). Single entry screen: user picks a Category (Monetary / Future / Special), and the follow-up Leaf radio for that category reveals inline via visibilityRule. Flow clears hidden field values on submit, so switching category mid-screen never leaks a stale leaf pick. See .planning/fqs-gift-entry-wizard-plan.md §Screen 1–2.</description>
-        <name>Screen_Wizard_Entry</name>
+        <description>Category scaffold (Phase B, consolidated). Single entry screen: user picks a Category (Monetary / Future / Special), and the follow-up Leaf radio for that category reveals inline via visibilityRule. Flow clears hidden field values on submit, so switching category mid-screen never leaks a stale leaf pick. See .planning/fqs-gift-entry-wizard-plan.md §Screen 1–2.</description>
+        <name>Screen_Category</name>
         <label>New Single Gift Entry</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
@@ -9956,7 +9924,7 @@
             <targetReference>Decide_Category</targetReference>
         </connector>
         <fields>
-            <name>WizardHeader_Intro</name>
+            <name>HeaderIntro</name>
             <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 18px;&quot;&gt;New Single Gift Entry&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;For donor: &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;{!Get_Account.Name}&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;What are you recording today?&lt;/strong&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
@@ -10075,8 +10043,8 @@
             </visibilityRule>
         </fields>
         <fields>
-            <name>WizardHeader_Footer</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); font-size: 16px;&quot;&gt;This action will create a single gift, to enter multiple gifts or payments use the New Gift Entry action.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <name>HeaderFooter</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); font-size: 16px;&quot;&gt;This action creates one gift. To enter multiple gifts or payments, use the New Gift Entry action.&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -10280,7 +10248,7 @@
         <objectType>GiftCommitmentSchedule</objectType>
     </variables>
     <variables>
-        <description>Phase G2 (wizard plan §Matching-gift branch, Recurring leaf). Record variable staged by Assign_Employer_Recurring_GC and inserted by Create_Employer_Recurring_GC. Represents the parallel Recurring GiftCommitment on the employer Account that mirrors the donor&apos;s recurring GC one-for-one — same TransactionPeriod/Interval/StartDate; TransactionAmount=numMatchAmount; DonorId=lkpMatchEmployer.recordId; CampaignId=rsv_SelectedCampaign.Id; RecurrenceType=OpenEnded. The employer&apos;s paired GT (rsv_MatchEmployerGT) parents to this new GC so future expected match payments fan out on the employer&apos;s side. Runs only on Recurring + match=Yes.</description>
+        <description>Phase G2 (launcher plan §Matching-gift branch, Recurring leaf). Record variable staged by Assign_Employer_Recurring_GC and inserted by Create_Employer_Recurring_GC. Represents the parallel Recurring GiftCommitment on the employer Account that mirrors the donor&apos;s recurring GC one-for-one — same TransactionPeriod/Interval/StartDate; TransactionAmount=numMatchAmount; DonorId=lkpMatchEmployer.recordId; CampaignId=rsv_SelectedCampaign.Id; RecurrenceType=OpenEnded. The employer&apos;s paired GT (rsv_MatchEmployerGT) parents to this new GC so future expected match payments fan out on the employer&apos;s side. Runs only on Recurring + match=Yes.</description>
         <name>rsv_EmployerRecurring_GC</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
@@ -10370,7 +10338,7 @@
         <objectType>GiftSoftCredit</objectType>
     </variables>
     <variables>
-        <description>Phase F3a (wizard plan §Employer picker line 117). Record variable staged by Assign_ACR_Fields and inserted by Create_MatchACR. Represents the AccountContactRelation persisted between donor PersonContact and picked employer Account when Get_Existing_ACR finds no prior row. AccountId = employer, ContactId = donor PersonContact, Roles = &apos;Employee&apos;. Insert fault is best-effort (routes past to Assign_Pair_Onto_Donor_GT so the pair still succeeds).</description>
+        <description>Phase F3a (launcher plan §Employer picker line 117). Record variable staged by Assign_ACR_Fields and inserted by Create_MatchACR. Represents the AccountContactRelation persisted between donor PersonContact and picked employer Account when Get_Existing_ACR finds no prior row. AccountId = employer, ContactId = donor PersonContact, Roles = &apos;Employee&apos;. Insert fault is best-effort (routes past to Assign_Pair_Onto_Donor_GT so the pair still succeeds).</description>
         <name>rsv_MatchACR</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
@@ -10379,7 +10347,7 @@
         <objectType>AccountContactRelation</objectType>
     </variables>
     <variables>
-        <description>Phase F2 (wizard plan §Matching-gift branch). Record variable staged by Assign_Employer_GT_Fields and inserted by Create_Employer_GT. Represents the paired employer-match GiftTransaction — DonorId = employer Account, OriginalAmount = numMatchAmount, GiftType = Organizational, Status = Paid, GiftCommitmentId inherited from donor GT (null on Outright, populated on Pledge Payment / Recurring per wizard plan §Amount). Pairing to the donor GT lives on the donor GT&apos;s MatchingEmployerTransactionId lookup (GT→GT self-reference on the donor row), populated by Assign_Pair_Donor_GT + Update_Donor_With_Pair after this row&apos;s Id lands.</description>
+        <description>Phase F2 (launcher plan §Matching-gift branch). Record variable staged by Assign_Employer_GT_Fields and inserted by Create_Employer_GT. Represents the paired employer-match GiftTransaction — DonorId = employer Account, OriginalAmount = numMatchAmount, GiftType = Organizational, Status = Paid, GiftCommitmentId inherited from donor GT (null on Outright, populated on Pledge Payment / Recurring per launcher plan §Amount). Pairing to the donor GT lives on the donor GT&apos;s MatchingEmployerTransactionId lookup (GT→GT self-reference on the donor row), populated by Assign_Pair_Donor_GT + Update_Donor_With_Pair after this row&apos;s Id lands.</description>
         <name>rsv_MatchEmployerGT</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
@@ -10388,7 +10356,7 @@
         <objectType>GiftTransaction</objectType>
     </variables>
     <variables>
-        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Record variable staged by Assign_MatchSoftCredit_OnDonor and inserted by Create_MatchSoftCredit_OnDonor. Represents the corporate-Account recognition on the donor GT (Role = &apos;Matched Donor&apos;, Recipient = employer Account, GiftTransactionId = donor GT). Separate from rsv_GiftSoftCredit / rsv_InKind_SoftCredit so the manual soft-credit and in-kind self-credit paths don&apos;t stomp on this row.</description>
+        <description>Phase F3b (launcher plan §Matching-gift branch §Soft credits, lines 132-136). Record variable staged by Assign_MatchSoftCredit_OnDonor and inserted by Create_MatchSoftCredit_OnDonor. Represents the corporate-Account recognition on the donor GT (Role = &apos;Matched Donor&apos;, Recipient = employer Account, GiftTransactionId = donor GT). Separate from rsv_GiftSoftCredit / rsv_InKind_SoftCredit so the manual soft-credit and in-kind self-credit paths don&apos;t stomp on this row.</description>
         <name>rsv_MatchSoftCredit_OnDonor</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
@@ -10397,7 +10365,7 @@
         <objectType>GiftSoftCredit</objectType>
     </variables>
     <variables>
-        <description>Phase F3b (wizard plan §Matching-gift branch §Soft credits, lines 132-136). Record variable staged by Assign_MatchSoftCredit_OnEmployer and inserted by Create_MatchSoftCredit_OnEmployer. Represents the donor-Person-Account recognition on the employer GT (Role = &apos;Matched Donor&apos;, Recipient = donor Account, GiftTransactionId = employer GT).</description>
+        <description>Phase F3b (launcher plan §Matching-gift branch §Soft credits, lines 132-136). Record variable staged by Assign_MatchSoftCredit_OnEmployer and inserted by Create_MatchSoftCredit_OnEmployer. Represents the donor-Person-Account recognition on the employer GT (Role = &apos;Matched Donor&apos;, Recipient = donor Account, GiftTransactionId = employer GT).</description>
         <name>rsv_MatchSoftCredit_OnEmployer</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
@@ -10451,7 +10419,7 @@
         <objectType>Account</objectType>
     </variables>
     <variables>
-        <description>Phase E1 (wizard plan): the open Expected GiftTransaction the user picked on Screen_Existing_GTs to post as this payment. Populated by dtExistingGTs.firstSelectedRow. Consumed by Phase E2&apos;s Update_Gift_Transaction (only when pkPledgePaymentMode = &apos;Update&apos;). Left null on the fresh-insert branch.</description>
+        <description>Phase E1 (launcher plan): the open Expected GiftTransaction the user picked on Screen_Existing_GTs to post as this payment. Populated by dtExistingGTs.firstSelectedRow. Consumed by Phase E2&apos;s Update_Gift_Transaction (only when pkPledgePaymentMode = &apos;Update&apos;). Left null on the fresh-insert branch.</description>
         <name>rsv_SelectedGT</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>

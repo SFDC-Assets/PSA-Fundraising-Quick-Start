@@ -168,6 +168,39 @@ Legal donor (the `DonorId` on each GT) is never soft-credited to its own transac
 
 ---
 
+## Open follow-up — convert Simple leaf to GCS-backed shape (2026-07-28, Justin)
+
+**Status:** design-parked; ship after G7.5 and the fee-designation interlock land.
+
+**Motivation.** The Simple leaf today creates GC only. `NextTransactionDate` and `NextTransactionAmount` are written directly by `Assign_Pledge_Defaults` (not platform-derived), so the values silently drift once a payment posts — the platform recomputes `NextTransactionDate` from open GTs' `TransactionDueDate`. Meanwhile Recurring, Scheduled Regular, and Scheduled Custom all get uniform forecast-field behavior because a child GCS drives the schedule engine. Simple is the odd one out.
+
+**Proposal.** Refactor Simple to create GC + one GCS row (Custom period, single installment). Platform derives `NextTransactionDate` / `NextTransactionAmount` / `CurrentGiftCmtScheduleId` uniformly. GCS shape:
+- `TransactionPeriod = 'Custom'`
+- `TransactionAmount = numPledgeAmount`
+- `StartDate = dtExpectedEndDate`
+- `Type = 'CreateTransactions'`
+- `TransactionInterval` / `TransactionDay` omitted (platform back-fills 1)
+
+Parent GC:
+- `RecurrenceType = 'FixedLength'`
+- `ExpectedTotalCmtAmount = numPledgeAmount`
+- `ExpectedEndDate = dtExpectedEndDate` (still writes; stable across time regardless of GCS)
+- Drop the direct writes to `NextTransactionDate` / `NextTransactionAmount` from `Assign_Pledge_Defaults` (platform derives)
+
+**Coordinates with:**
+- G7.5.a's `dtNextTransactionDate → dtExpectedEndDate` rename (already shipped — the input variable is already correctly named for its downstream role).
+- The Scheduled Custom leaf's GCS-authoring approach (`TransactionPeriod = 'Custom'` per Custom scenario) — Simple becomes structurally identical with N=1.
+
+**Blockers before executing:**
+- Verify the managed `processGiftCommitment` action activates a single-row Custom GCS the same way it activates a multi-row Custom or a Recurring GCS. Apex seed's Custom-shape grants have proven this works; the launcher path just needs its own probe.
+- Decide whether to keep the "Simple" name in the leaf-picker after the refactor. Structurally Simple = Scheduled Custom(N=1); user-facing distinction is that Simple asks for one date, Scheduled Custom asks for many. Probably keep the distinction — the UX simplification is real even if the underlying shape converges.
+
+**Memory refs:** [[fundfirst-custom-schedule-shape]] (Apex-seed path works; Flow-launcher path hasn't been probed for single-row Custom); [[gc-current-schedule-activation]] (platform activation semantics — the whole reason to do this).
+
+**Ship gate:** not before wizard Phase G. Bundle with the Phase 6.7/6.8 designations launcher edits (same file, same regression pass).
+
+---
+
 ## Simple Pledge/Grant leaf — GC only, no GCS
 
 Set on GC directly (no schedule engine stamping):
@@ -335,6 +368,7 @@ No match question.
 9. **Manual QA matrix**
    - Row per leaf × (match=Y/N) × (has designation default / no default) × (donor is Person Account / Organization for grant leaves).
    - Verify records created match the mapping table above.
+   - **Soft-credit UAT (never tested end-to-end yet — carried over from parity plan).** Walk `pkNeedsSoftCredits = Yes` through `Screen_Pick_SoftCredit` + `Screen_SoftCredit_Amount` on at least: (a) Outright leaf, (b) Pledge Payment leaf, (c) one leaf with a cross-household soft-credit reach via CCR. Confirm `GiftSoftCredit` rows are inserted with correct `Role`, correct parent GT, and correct `Amount`. Pre-req: verify seed has ContactContactRelation rows populated (see `fqs-seed-improvements-plan.md` §data-side gap 2026-07-18 finding) — without CCRs, the ACR-only reach can't exercise cross-household selection.
 10. **Commit** — Justin gates.
 
 ---
