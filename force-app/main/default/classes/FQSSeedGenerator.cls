@@ -1711,6 +1711,15 @@ public with sharing class FQSSeedGenerator {
                     IsActive = true,
                     PartyRoleRelationId = prrId
                 ));
+                // Real-world data carries both directions; insert the inverse row too so the
+                // launcher's soft-credit reach subflow (which walks ContactId → RelatedContactId)
+                // surfaces the partner from either donor's Account.
+                newCCRs.add(new ContactContactRelation(
+                    ContactId = paContactIds[b],
+                    RelatedContactId = paContactIds[a],
+                    IsActive = true,
+                    PartyRoleRelationId = prrId
+                ));
                 // Record both directions so a lookup by either donor finds their partner.
                 if (!partnersByDonorAccount.containsKey(paAccountIds[a])) partnersByDonorAccount.put(paAccountIds[a], new List<Map<String, Object>>());
                 if (!partnersByDonorAccount.containsKey(paAccountIds[b])) partnersByDonorAccount.put(paAccountIds[b], new List<Map<String, Object>>());

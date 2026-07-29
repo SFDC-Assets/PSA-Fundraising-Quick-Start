@@ -2443,6 +2443,7 @@
         </connector>
     </assignments>
     <assignments>
+        <description>Partial path — writes PartialPercent from numSoftCreditPercent (raw Number screen input, since ObjectProvided binding to a Percent-typed field is not supported in Screen Flows). PartialAmount deliberately left null so platform derives SoftCreditAmount = GT.OriginalAmount × PartialPercent / 100.</description>
         <name>Assign_SoftCredit_Partial</name>
         <label>Build SoftCredit (Partial)</label>
         <locationX>0</locationX>
@@ -2472,7 +2473,7 @@
             <assignToReference>rsv_GiftSoftCredit.PartialPercent</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>var_SoftCreditPercent</elementReference>
+                <elementReference>numSoftCreditPercent</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -2981,7 +2982,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Full vs Partial. Full → PartialAmount = OriginalAmount, PartialPercent null. Partial → PartialAmount = OriginalAmount × Percent/100, PartialPercent = var_SoftCreditPercent.</description>
+        <description>Full vs Partial. Full → PartialAmount = OriginalAmount, PartialPercent null. Partial → PartialPercent already written by the ObjectProvided input on Screen_SoftCredit_Amount (bound to rsv_GiftSoftCredit.PartialPercent), PartialAmount left null so platform derives SoftCreditAmount = OriginalAmount × Percent / 100. Uses StartsWith to compare against the choice&apos;s choiceText (Flow RadioButtons store the display label into the String variable, not the choice&apos;s stringValue — per [[flow-radio-stores-choicetext]]).</description>
         <name>Assign_Build_SoftCredit</name>
         <label>Build SoftCredit</label>
         <locationX>0</locationX>
@@ -2995,7 +2996,7 @@
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>pkSoftCreditType</leftValueReference>
-                <operator>EqualTo</operator>
+                <operator>StartsWith</operator>
                 <rightValue>
                     <stringValue>Partial</stringValue>
                 </rightValue>
@@ -8481,7 +8482,7 @@
             <inputParameters>
                 <name>columns</name>
                 <value>
-                    <stringValue>[{&quot;apiName&quot;:&quot;Name&quot;,&quot;label&quot;:&quot;Name&quot;,&quot;type&quot;:&quot;text&quot;,&quot;order&quot;:0},{&quot;apiName&quot;:&quot;Type&quot;,&quot;label&quot;:&quot;Type&quot;,&quot;type&quot;:&quot;text&quot;,&quot;order&quot;:1}]</stringValue>
+                    <stringValue>[{&quot;apiName&quot;:&quot;Name&quot;,&quot;label&quot;:&quot;Name&quot;,&quot;type&quot;:&quot;text&quot;,&quot;order&quot;:0}]</stringValue>
                 </value>
             </inputParameters>
             <inputParameters>
@@ -9599,9 +9600,9 @@
         <fields>
             <name>numSoftCreditPercent</name>
             <dataType>Number</dataType>
-            <fieldText>What percent of the gift should this recipient receive?</fieldText>
+            <fieldText>Percent of the gift (0-100) &lt;b&gt;%&lt;/b&gt;</fieldText>
             <fieldType>InputField</fieldType>
-            <helpText>Enter a whole number between 1 and 100 (e.g., 50 = half credit).</helpText>
+            <helpText>Enter a whole number between 1 and 100. Example: 50 means the recipient gets credit for half of the gift.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
             <scale>2</scale>
@@ -9617,7 +9618,7 @@
                 <conditionLogic>and</conditionLogic>
                 <conditions>
                     <leftValueReference>pkSoftCreditType</leftValueReference>
-                    <operator>EqualTo</operator>
+                    <operator>StartsWith</operator>
                     <rightValue>
                         <stringValue>Partial</stringValue>
                     </rightValue>
@@ -10085,7 +10086,7 @@
         <inputAssignments>
             <name>col_AccountContactIds</name>
             <value>
-                <elementReference>col_AccountContactIds</elementReference>
+                <elementReference>Transform_Ids_Into_Text_String</elementReference>
             </value>
         </inputAssignments>
         <outputAssignments>
@@ -10135,14 +10136,6 @@
             </transformValueActions>
         </transformValues>
     </transforms>
-    <variables>
-        <description>Contact Ids on this Account (household). Feeder collection for related-ACR / related-CCR / CampaignMember lookups.</description>
-        <name>col_AccountContactIds</name>
-        <dataType>String</dataType>
-        <isCollection>true</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
     <variables>
         <description>Campaign Ids where any Contact on this Account is a CampaignMember.</description>
         <name>col_CampaignIds</name>
@@ -10557,15 +10550,6 @@
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <description>Soft credit percent (0-100). Only used when var_SoftCreditType = &apos;Partial&apos;.</description>
-        <name>var_SoftCreditPercent</name>
-        <dataType>Number</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <scale>2</scale>
     </variables>
     <variables>
         <description>G4: Unified employer AccountId consumed by every downstream node in the match subflow (Get_Match_Employer, Assign_MatchACR, Assign_Employer_GT_Fields, Assign_Employer_Recurring_GC, Assign_MatchSoftCredit_OnDonor, Decide_ACR_Exists). Written once by Decide_Employer_Source: (a) datatable path — from rsv_SelectedEmployer.Id via Assign_EmployerId_FromTable; (b) lookup path — from lkpMatchEmployer.recordId via Assign_EmployerId_FromLookup. Replaces the prior direct reads of lkpMatchEmployer.recordId so the fallback lookup and the datatable can both feed the same downstream chain.</description>
