@@ -3512,9 +3512,9 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Screen_Success</targetReference>
+            <targetReference>Decide_Needs_Commitment_SoftCredit</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>No soft credit</defaultConnectorLabel>
+        <defaultConnectorLabel>No soft credit — check GDSC then Screen_Success</defaultConnectorLabel>
         <rules>
             <name>Decide_Create_SoftCredit_HasSoftCredit</name>
             <conditionLogic>and</conditionLogic>
@@ -4269,7 +4269,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>GDSC Item B — Post-commitment-create router. Gates on pkCommitmentNeedsSoftCredits (the radio on Screen_Pledge_Details, present only on Simple leaf in the reference build; other leaves get the field once cloned). Yes → invoke the soft-credit reach subflow tailored for GC scope → picker → role/percent screen → Create_GiftDefaultSoftCredit → Screen_Success. Default → Screen_Success unchanged. Reached from Decide_Recurring_First_Payment_Or_Success default (non-Recurring GC-create leaves). Safe on all leaves: reading pkCommitmentNeedsSoftCredits when the screen never rendered returns null, which matches neither rule and falls through to default.</description>
+        <description>GDSC Item B — Post-commitment-create router. Gates on the leaf-specific pkCommitmentNeedsSoftCredits* radio: Simple → pkCommitmentNeedsSoftCredits (Screen_Pledge_Details); Scheduled → pkCommitmentNeedsSoftCredits_Scheduled (Screen_Scheduled_Details); Recurring → pkCommitmentNeedsSoftCredits_Recurring (Screen_Recurring_Details). Yes on ANY of the three → picker → role/percent screen → Create_GiftDefaultSoftCredit → Screen_Success. Default → Screen_Success unchanged. Reached from Decide_Recurring_First_Payment_Or_Success default (Simple + Scheduled) AND from the Recurring-first-payment terminal via Decide_Match_Post_Route. Safe on all leaves: reading a screen field whose screen never rendered returns null, which matches neither rule and falls through to default.</description>
         <name>Decide_Needs_Commitment_SoftCredit</name>
         <label>Add default soft credit to commitment?</label>
         <locationX>0</locationX>
@@ -4280,9 +4280,23 @@
         <defaultConnectorLabel>No — Screen_Success</defaultConnectorLabel>
         <rules>
             <name>Decide_Needs_Commitment_SoftCredit_Yes</name>
-            <conditionLogic>and</conditionLogic>
+            <conditionLogic>1 OR 2 OR 3</conditionLogic>
             <conditions>
                 <leftValueReference>pkCommitmentNeedsSoftCredits</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Yes</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>pkCommitmentNeedsSoftCredits_Scheduled</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Yes</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>pkCommitmentNeedsSoftCredits_Recurring</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <stringValue>Yes</stringValue>
@@ -5648,7 +5662,7 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Screen_Success</targetReference>
+            <targetReference>Decide_Needs_Commitment_SoftCredit</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Err_Create</targetReference>
@@ -9269,6 +9283,26 @@
                 </width>
             </styleProperties>
         </fields>
+        <fields>
+            <name>pkCommitmentNeedsSoftCredits_Recurring</name>
+            <choiceReferences>Choice_NeedsSoftCredit_No</choiceReferences>
+            <choiceReferences>Choice_NeedsSoftCredit_Yes</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>Choice_NeedsSoftCredit_No</defaultSelectedChoiceReference>
+            <fieldText>Add a default soft credit for this commitment?</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <helpText>A default soft credit on the commitment recognizes a related account (spouse, solicitor, influencer, etc.) on every future payment automatically. Choose Yes to pick a recipient and role after the commitment is created.</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
     </screens>
@@ -9746,6 +9780,26 @@
                     </rightValue>
                 </conditions>
             </visibilityRule>
+        </fields>
+        <fields>
+            <name>pkCommitmentNeedsSoftCredits_Scheduled</name>
+            <choiceReferences>Choice_NeedsSoftCredit_No</choiceReferences>
+            <choiceReferences>Choice_NeedsSoftCredit_Yes</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>Choice_NeedsSoftCredit_No</defaultSelectedChoiceReference>
+            <fieldText>Add a default soft credit for this commitment?</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <helpText>A default soft credit on the commitment recognizes a related account (spouse, solicitor, influencer, etc.) on every future payment automatically. Choose Yes to pick a recipient and role after the commitment is created.</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
