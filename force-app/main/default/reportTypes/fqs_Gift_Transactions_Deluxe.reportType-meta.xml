@@ -283,7 +283,7 @@
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
-            <field>FQS_InKind_Fair_Market_Value__c</field>
+            <field>FQS_Fair_Market_Value_Amount__c</field>
             <table>GiftTransaction</table>
         </columns>
         <masterLabel>Gift Transactions</masterLabel>

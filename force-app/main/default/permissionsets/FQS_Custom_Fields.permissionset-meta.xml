@@ -239,7 +239,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>GiftTransaction.FQS_InKind_Fair_Market_Value__c</field>
+        <field>GiftTransaction.FQS_Fair_Market_Value_Amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

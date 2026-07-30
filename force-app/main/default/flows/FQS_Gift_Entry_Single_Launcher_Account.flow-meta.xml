@@ -398,7 +398,7 @@
             <assignToReference>rsv_InKind_SoftCredit.PartialAmount</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>rsv_GiftTransaction.FQS_InKind_Fair_Market_Value__c</elementReference>
+                <elementReference>rsv_GiftTransaction.FQS_Fair_Market_Value_Amount__c</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -1352,7 +1352,7 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>rsv_GiftTransaction.FQS_InKind_Fair_Market_Value__c</assignToReference>
+            <assignToReference>rsv_GiftTransaction.FQS_Fair_Market_Value_Amount__c</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>numGiftAmount</elementReference>
@@ -3614,7 +3614,7 @@
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>rsv_GiftTransaction.FQS_InKind_Fair_Market_Value__c</leftValueReference>
+                <leftValueReference>rsv_GiftTransaction.FQS_Fair_Market_Value_Amount__c</leftValueReference>
                 <operator>GreaterThan</operator>
                 <rightValue>
                     <numberValue>0.0</numberValue>
@@ -3719,7 +3719,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Routes to the correct fanout assignment before Create_Gift_Transaction. In-Kind gifts write FMV to FQS_InKind_Fair_Market_Value__c and zero out OriginalAmount / NonTaxDeductibleAmount so hard-credit cash rollups stay clean; all other transaction types write the entered Amount to OriginalAmount as usual. Phase E2: cash-flow default is retargeted at Decide_Update_Or_Insert so the Pledge Payment update branch (pkPledgePaymentMode=Update) can post an existing Expected GT instead of inserting a fresh one. In-Kind stays on the insert-only path (no update semantics apply to In-Kind — those never have parent GTs to update).</description>
+        <description>Routes to the correct fanout assignment before Create_Gift_Transaction. In-Kind gifts write FMV to FQS_Fair_Market_Value_Amount__c and zero out OriginalAmount / NonTaxDeductibleAmount so hard-credit cash rollups stay clean; all other transaction types write the entered Amount to OriginalAmount as usual. Phase E2: cash-flow default is retargeted at Decide_Update_Or_Insert so the Pledge Payment update branch (pkPledgePaymentMode=Update) can post an existing Expected GT instead of inserting a fresh one. In-Kind stays on the insert-only path (no update semantics apply to In-Kind — those never have parent GTs to update).</description>
         <name>Decide_Fanout_Path</name>
         <label>Route: fanout path</label>
         <locationX>0</locationX>
