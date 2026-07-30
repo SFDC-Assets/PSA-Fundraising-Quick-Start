@@ -548,7 +548,7 @@
             <assignToReference>rsv_CustomGT.Status</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Expected</stringValue>
+                <elementReference>formulaCustomGTStatus</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -600,6 +600,13 @@
                 <elementReference>rsv_CustomGT</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>var_FirstCustomRow_Seen</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>Loop_Build_Custom_GTs</targetReference>
         </connector>
@@ -629,6 +636,13 @@
             <operator>Add</operator>
             <value>
                 <elementReference>rsv_CustomScheduleRow</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>var_FirstCustomRow_Seen</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
             </value>
         </assignmentItems>
         <connector>
@@ -2086,6 +2100,86 @@
         </connector>
     </assignments>
     <assignments>
+        <description>Pledge-with-first-payment: stages rsv_GiftTransaction for the first-payment GT posted alongside a Simple or Scheduled Regular pledge. Mirrors Assign_Recurring_First_Payment_Defaults but sources amount/date/method from the leaf-appropriate scalars via BLANKVALUE-style formulas (formulaFirstPaymentAmount / formulaFirstPaymentDate / formulaFirstPaymentMethod) so a single Assign works for both Simple and Scheduled Regular. Status is derived by formulaFirstPaymentStatus — Paid when date &lt;= TODAY, else Pending — implementing the uniform rule across leaves. Category = &apos;Pledge Payment&apos; (the first payment IS a pledge payment against the just-created commitment). Deliberately does not write GiftType (platform derives from DonorId) or CampaignId (rsv_GiftCommitment.CampaignId read is unsafe when the picker was skipped — see [[flow-unread-sobject-field-throws]]).</description>
+        <name>Assign_Pledge_First_Payment_Defaults</name>
+        <label>Defaults: Pledge First Payment GT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.DonorId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.GiftCommitmentId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_GiftCommitment.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.FQS_Gift_Transaction_Category__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Pledge Payment</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.FQS_In_Kind__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaFirstPaymentStatus</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.PaymentMethod</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaFirstPaymentMethod</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.TaxReceiptStatus</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>To Be Sent</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.OriginalAmount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaFirstPaymentAmount</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.TransactionDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaFirstPaymentDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GiftTransaction.TransactionDueDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>formulaFirstPaymentDate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_Pledge_First_Payment_GT</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <description>Phase C.3: builds the single open-ended GiftCommitmentSchedule row for a Recurring Gift. Type=CreateTransactions tells the NPC engine to fan out Expected GTs per TransactionPeriod / TransactionInterval / TransactionAmount / StartDate. No EndDate — the schedule is open-ended and continues until the donor cancels (deactivates the commitment). GC.RecurrenceType=OpenEnded (set in Assign_Recurring_Defaults) plus the null EndDate on GCS keep the stream running.</description>
         <name>Assign_Recurring_Schedule_Row</name>
         <label>Build Recurring Schedule Row</label>
@@ -2716,6 +2810,22 @@
         <dataType>String</dataType>
         <value>
             <stringValue>Written</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_IncludesFirstPayment_No</name>
+        <choiceText>No — the pledge stands alone; the first payment is expected later</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>No</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_IncludesFirstPayment_Yes</name>
+        <choiceText>Yes — the donor is making the first payment now (or has already)</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Yes</stringValue>
         </value>
     </choices>
     <choices>
@@ -4651,9 +4761,9 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Phase F3c. After Process_Recurring_Commitment activates the schedule + designation fan-out has completed (via existing terminal chain), branch: if this is the Recurring leaf, post the first-payment GT (Assign_Recurring_First_Payment_Defaults → Create_Recurring_First_Payment_GT) → shared match chain via Decide_Insert_Employer_GT_Insert. Otherwise → Screen_Success unchanged. Reached from Create_GiftDefaultDesignation (was → Screen_Success). Rule uses pkLeafMonetary; no risk of unassigned-field read since pkLeafMonetary is a top-level flow radio.</description>
+        <description>Phase F3c + pledge-with-first-payment. Two routes off this decision. (a) Recurring leaf → Assign_Recurring_First_Payment_Defaults → Create_Recurring_First_Payment_GT (existing). (b) Simple Pledge or Scheduled Regular with the include-first-payment opt-in → Decide_First_Payment_Effective_Status, which shows Screen_Confirm_First_Payment_Paid on the Paid outcome and then feeds Assign_Pledge_First_Payment_Defaults → Create_Pledge_First_Payment_GT. Both first-payment terminals converge on Decide_Insert_Employer_GT_Insert so match wiring stays shared. Custom leaf is NOT routed here — Custom&apos;s Paid stamping happens inline in Loop_Build_Custom_GTs via formulaCustomGTStatus (row 1 only). Default → Decide_Needs_Commitment_SoftCredit unchanged (GDSC opt-in gate → Screen_Success).</description>
         <name>Decide_Recurring_First_Payment_Or_Success</name>
-        <label>Recurring — post first payment?</label>
+        <label>Post first payment?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
@@ -4673,7 +4783,55 @@
             <connector>
                 <targetReference>Assign_Recurring_First_Payment_Defaults</targetReference>
             </connector>
-            <label>Yes — post first-payment GT + wire match</label>
+            <label>Yes — Recurring first-payment GT + wire match</label>
+        </rules>
+        <rules>
+            <name>Decide_Recurring_First_Payment_Or_Success_IsPledgeWithFirstPayment</name>
+            <conditionLogic>1 OR 2</conditionLogic>
+            <conditions>
+                <leftValueReference>pkPledgeIncludesFirstPayment</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_IncludesFirstPayment_Yes</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>pkScheduledIncludesFirstPayment</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_IncludesFirstPayment_Yes</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Decide_First_Payment_Effective_Status</targetReference>
+            </connector>
+            <label>Yes — Pledge or Scheduled first-payment GT</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Pledge-with-first-payment: after Decide_Recurring_First_Payment_Or_Success routes the Simple/Scheduled-Regular first-payment sub-chain here, gate on whether the effective status is Paid (date &lt;= TODAY) vs Pending (future date). Paid → Screen_Confirm_First_Payment_Paid interstitial so the user can confirm before we stamp Paid; Pending → straight to Assign_Pledge_First_Payment_Defaults (no confirmation needed on future-dated payments — nothing surprising to warn about).</description>
+        <name>Decide_First_Payment_Effective_Status</name>
+        <label>First payment is Paid?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Assign_Pledge_First_Payment_Defaults</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No — Pending (future-dated), skip confirmation</defaultConnectorLabel>
+        <rules>
+            <name>Decide_First_Payment_Effective_Status_IsPaid</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>formulaFirstPaymentIsPaid</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Confirm_First_Payment_Paid</targetReference>
+            </connector>
+            <label>Yes — Paid, show confirmation</label>
         </rules>
     </decisions>
     <decisions>
@@ -5600,6 +5758,55 @@
         <dataType>String</dataType>
         <expression>IF(ISBLANK({!dtExpectedEndDate}), &quot;___&quot;, CASE(MONTH({!dtExpectedEndDate}), 1, &quot;Jan&quot;, 2, &quot;Feb&quot;, 3, &quot;Mar&quot;, 4, &quot;Apr&quot;, 5, &quot;May&quot;, 6, &quot;Jun&quot;, 7, &quot;Jul&quot;, 8, &quot;Aug&quot;, 9, &quot;Sep&quot;, 10, &quot;Oct&quot;, 11, &quot;Nov&quot;, 12, &quot;Dec&quot;, &quot;&quot;) &amp; &quot; &quot; &amp; TEXT(DAY({!dtExpectedEndDate})) &amp; &quot;, &quot; &amp; TEXT(YEAR({!dtExpectedEndDate})))</expression>
     </formulas>
+    <formulas>
+        <description>Pledge-with-first-payment: unified first-payment amount across Simple + Scheduled Regular. BLANKVALUE picks whichever leaf populated it. Custom is separate (row 1 amount lives on the Repeater item, not a top-level scalar).</description>
+        <name>formulaFirstPaymentAmount</name>
+        <dataType>Number</dataType>
+        <expression>BLANKVALUE({!numFirstPaymentAmount}, {!numScheduledFirstPaymentAmount})</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <description>Pledge-with-first-payment: unified first-payment date. Simple leaf uses dtExpectedEndDate (single-payment IS the first payment); Scheduled Regular uses dtScheduledStart. Not used for Custom (row 1 date lives on the Repeater item).</description>
+        <name>formulaFirstPaymentDate</name>
+        <dataType>Date</dataType>
+        <expression>IF(NOT(ISBLANK({!dtExpectedEndDate})), {!dtExpectedEndDate}, {!dtScheduledStart})</expression>
+    </formulas>
+    <formulas>
+        <description>Pledge-with-first-payment: unified first-payment method. Simple leaf uses pkFirstPaymentMethod; Scheduled Regular uses pkScheduledFirstPaymentMethod. BLANKVALUE picks whichever leaf populated it.</description>
+        <name>formulaFirstPaymentMethod</name>
+        <dataType>String</dataType>
+        <expression>BLANKVALUE({!pkFirstPaymentMethod}, {!pkScheduledFirstPaymentMethod})</expression>
+    </formulas>
+    <formulas>
+        <description>Pledge-with-first-payment: uniform rule — if the first-payment date is on or before TODAY, stamp Paid; otherwise Pending. Same rule applies across Simple + Scheduled Regular. (Custom's row-1 date is stamped inline in Assign_Custom_GT_Row.)</description>
+        <name>formulaFirstPaymentStatus</name>
+        <dataType>String</dataType>
+        <expression>IF(NOT(ISBLANK({!formulaFirstPaymentDate})), IF({!formulaFirstPaymentDate} &lt;= TODAY(), &quot;Paid&quot;, &quot;Pending&quot;), &quot;Pending&quot;)</expression>
+    </formulas>
+    <formulas>
+        <description>Pledge-with-first-payment: Boolean gate for the confirmation screen — true when the first-payment date is on or before TODAY (i.e., the money has already changed hands and we're recording it as Paid). Drives Decide_First_Payment_Effective_Status routing.</description>
+        <name>formulaFirstPaymentIsPaid</name>
+        <dataType>Boolean</dataType>
+        <expression>AND(NOT(ISBLANK({!formulaFirstPaymentDate})), {!formulaFirstPaymentDate} &lt;= TODAY())</expression>
+    </formulas>
+    <formulas>
+        <description>Pledge-with-first-payment: friendly &quot;Mon DD, YYYY&quot; display of the first-payment date for the confirmation screen text. Same date-format shape as formulaRecurringStartDateDisplay.</description>
+        <name>formulaFirstPaymentDateDisplay</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!formulaFirstPaymentDate}), &quot;___&quot;, CASE(MONTH({!formulaFirstPaymentDate}), 1, &quot;Jan&quot;, 2, &quot;Feb&quot;, 3, &quot;Mar&quot;, 4, &quot;Apr&quot;, 5, &quot;May&quot;, 6, &quot;Jun&quot;, 7, &quot;Jul&quot;, 8, &quot;Aug&quot;, 9, &quot;Sep&quot;, 10, &quot;Oct&quot;, 11, &quot;Nov&quot;, 12, &quot;Dec&quot;, &quot;&quot;) &amp; &quot; &quot; &amp; TEXT(DAY({!formulaFirstPaymentDate})) &amp; &quot;, &quot; &amp; TEXT(YEAR({!formulaFirstPaymentDate})))</expression>
+    </formulas>
+    <formulas>
+        <description>Pledge-with-first-payment: friendly &quot;$X.XX&quot; display of the first-payment amount for the confirmation screen text. See formulaDisplay_NumGiftAmount.</description>
+        <name>formulaFirstPaymentAmountDisplay</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!formulaFirstPaymentAmount}), &quot;$0.00&quot;, &quot;$&quot; &amp; TEXT(ROUND({!formulaFirstPaymentAmount}, 2)))</expression>
+    </formulas>
+    <formulas>
+        <description>Pledge-with-first-payment (Custom leaf): status stamp for each Custom-branch installment row inside Loop_Build_Custom_GTs. First iteration (var_FirstCustomRow_Seen=false) AND row date &lt;= TODAY → &quot;Paid&quot;. Otherwise → &quot;Expected&quot; (existing Custom Expected-GT default). Rows 2..N always evaluate to Expected because var_FirstCustomRow_Seen is flipped true after the first iteration.</description>
+        <name>formulaCustomGTStatus</name>
+        <dataType>String</dataType>
+        <expression>IF(AND(NOT({!var_FirstCustomRow_Seen}), {!Loop_Build_Custom_GTs.field_Custom_Date} &lt;= TODAY()), &quot;Paid&quot;, &quot;Expected&quot;)</expression>
+    </formulas>
     <interviewLabel>FQS Gift Entry Single Launcher — Account {!$Flow.CurrentDateTime}</interviewLabel>
     <label>FQS Gift Entry Single Launcher — Account</label>
     <loops>
@@ -5985,6 +6192,20 @@
         <description>Phase F3c (launcher plan §Recurring Gift, lines 246-249). Posts the Recurring commitment&apos;s first payment as a Paid GiftTransaction dated dtRecurringStart. Runs after Process_Recurring_Commitment has activated the schedule and after Decide_Create_Default_Designation has run the designation fan-out. Connector routes to Decide_Insert_Employer_GT_Insert so pkNeedsMatch=Yes drops into the same employer-GT + ACR + soft-credit chain that Outright and PP use. Fault path shares Err_Create — a failed first-payment GT insert leaves the GC + GCS activated in the org (schedule engine will still fan out Expected GTs) and the user has to clean up manually or re-record the first payment, matching all other Create_* fault contracts.</description>
         <name>Create_Recurring_First_Payment_GT</name>
         <label>Create Recurring First Payment GT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Decide_Insert_Employer_GT_Insert</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Create</targetReference>
+        </faultConnector>
+        <inputReference>rsv_GiftTransaction</inputReference>
+    </recordCreates>
+    <recordCreates>
+        <description>Pledge-with-first-payment: posts the first-payment GiftTransaction alongside a Simple Pledge or Scheduled Regular commitment. Runs after Decide_Recurring_First_Payment_Or_Success routes to the pledge-first-payment sub-chain (via Decide_First_Payment_Effective_Status ± Screen_Confirm_First_Payment_Paid). Status is stamped by Assign_Pledge_First_Payment_Defaults (Paid when date &lt;= TODAY, else Pending). Connector routes to Decide_Insert_Employer_GT_Insert so pkNeedsMatch=Yes flows into the same employer-GT chain the other leaves use. Fault path shares Err_Create — a failed insert leaves the GC (+ any child schedule) already in the org; users clean up manually, matching all other Create_* fault contracts.</description>
+        <name>Create_Pledge_First_Payment_GT</name>
+        <label>Create Pledge First Payment GT</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
@@ -7147,6 +7368,47 @@
         <fields>
             <name>ConfirmPPUpdateBody</name>
             <fieldText>&lt;p&gt;Posting &lt;b&gt;{!formulaDisplay_NumGiftAmount}&lt;/b&gt; on the scheduled payment due &lt;b&gt;{!formulaDisplay_TransactionDueDate}&lt;/b&gt; as &lt;b&gt;{!formulaDisplay_PaymentMethod}&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to record the payment, or &lt;b&gt;Previous&lt;/b&gt; to adjust the details.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Pledge-with-first-payment: interstitial fired only when the effective first-payment status resolves to Paid (date &lt;= TODAY). Warns the user that we&apos;ll stamp the first-payment Gift Transaction as Paid rather than Pending, and gives a Back option to change the date if that&apos;s wrong. Reads formulaFirstPaymentAmountDisplay + formulaFirstPaymentDateDisplay — both use BLANKVALUE across numFirstPaymentAmount / dtExpectedEndDate (Simple) and numScheduledFirstPaymentAmount / dtScheduledStart (Scheduled Regular). Custom leaf does NOT reach this screen — its row-1 Paid stamping happens inline via formulaCustomGTStatus + var_FirstCustomRow_Seen; the FirstPaymentTeachingText_Custom DisplayText above the Repeater is the user warning for that path. allowBack=true so users can go back and edit the date; allowFinish=true so Next renders correctly per [[flow-allowfinish-blocks-next]]. Downstream connector → Assign_Pledge_First_Payment_Defaults.</description>
+        <name>Screen_Confirm_First_Payment_Paid</name>
+        <label>Confirm First Payment as Paid</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Assign_Pledge_First_Payment_Defaults</targetReference>
+        </connector>
+        <fields>
+            <name>ConfirmFirstPaymentPaid_Header</name>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Record the first payment as Paid?&lt;/b&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>ConfirmFirstPaymentPaid_Body</name>
+            <fieldText>&lt;p&gt;The first payment of &lt;b&gt;{!formulaFirstPaymentAmountDisplay}&lt;/b&gt; on &lt;b&gt;{!formulaFirstPaymentDateDisplay}&lt;/b&gt; has already been made — we&apos;ll record it as &lt;b&gt;Paid&lt;/b&gt; on the Gift Transaction.&lt;/p&gt;&lt;p&gt;Click &lt;b&gt;Next&lt;/b&gt; to continue, or &lt;b&gt;Previous&lt;/b&gt; to change the date if this is incorrect.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -9347,6 +9609,10 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+            <validationRule>
+                <errorMessage>First payment date must be on or after the pledge date. A gift given before a pledge is made is an Outright Gift — use that leaf instead.</errorMessage>
+                <formulaExpression>OR(NOT(BEGINS({!pkPledgeIncludesFirstPayment}, &quot;Yes&quot;)), {!dtExpectedEndDate} &gt;= {!dtPledgeEffectiveStart})</formulaExpression>
+            </validationRule>
         </fields>
         <fields>
             <name>pkPledgeFormalType</name>
@@ -9410,6 +9676,113 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+        </fields>
+        <fields>
+            <name>pkPledgeIncludesFirstPayment</name>
+            <choiceReferences>Choice_IncludesFirstPayment_No</choiceReferences>
+            <choiceReferences>Choice_IncludesFirstPayment_Yes</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>Choice_IncludesFirstPayment_No</defaultSelectedChoiceReference>
+            <fieldText>Is the donor making the first payment now?</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <helpText>Yes if the donor is handing you a check (or the money already cleared) along with signing the pledge. We&apos;ll record the pledge and a Gift Transaction for the first payment. No if the pledge stands alone and the first payment is expected later.</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>FirstPaymentTeachingText_Pledge</name>
+            <fieldText>&lt;p&gt;&lt;i&gt;If the first-payment date is on or before today, we&apos;ll record the first payment as &lt;b&gt;Paid&lt;/b&gt; automatically. Future-dated first payments are recorded as &lt;b&gt;Pending&lt;/b&gt; until the money clears.&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkPledgeIncludesFirstPayment</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_IncludesFirstPayment_Yes</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>numFirstPaymentAmount</name>
+            <dataType>Currency</dataType>
+            <defaultValue>
+                <elementReference>numPledgeAmount</elementReference>
+            </defaultValue>
+            <fieldText>First payment amount</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>How much of the pledge is the first payment. Defaults to the full pledge amount for a Single Payment pledge; adjust down if the first payment is a partial amount. Overpayment is allowed if the donor gave more than the pledged amount at inception.</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <scale>2</scale>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkPledgeIncludesFirstPayment</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_IncludesFirstPayment_Yes</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>pkFirstPaymentMethod</name>
+            <choiceReferences>Choice_Payment_Cash</choiceReferences>
+            <choiceReferences>Choice_Payment_Check</choiceReferences>
+            <choiceReferences>Choice_Payment_CreditCard</choiceReferences>
+            <choiceReferences>Choice_Payment_ACH</choiceReferences>
+            <choiceReferences>Choice_Payment_Stock</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>Choice_Payment_Check</defaultSelectedChoiceReference>
+            <fieldText>How did the donor pay? (Payment Method)</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <helpText>Payment method for the first-payment Gift Transaction. Check is the default because it&apos;s the typical &quot;pledge card + check dropped off together&quot; scenario.</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkPledgeIncludesFirstPayment</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_IncludesFirstPayment_Yes</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
         </fields>
         <fields>
             <name>pkCommitmentNeedsSoftCredits</name>
@@ -10018,6 +10391,10 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+            <validationRule>
+                <errorMessage>First payment date must be on or after the pledge date. A gift given before a pledge is made is an Outright Gift — use that leaf instead.</errorMessage>
+                <formulaExpression>OR(NOT(BEGINS({!pkScheduledIncludesFirstPayment}, &quot;Yes&quot;)), {!dtScheduledStart} &gt;= {!dtScheduledEffectiveStart})</formulaExpression>
+            </validationRule>
             <visibilityRule>
                 <conditionLogic>and</conditionLogic>
                 <conditions>
@@ -10048,6 +10425,167 @@
                     <operator>EqualTo</operator>
                     <rightValue>
                         <elementReference>Choice_EqualInstallments_Yes</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>pkScheduledIncludesFirstPayment</name>
+            <choiceReferences>Choice_IncludesFirstPayment_No</choiceReferences>
+            <choiceReferences>Choice_IncludesFirstPayment_Yes</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>Choice_IncludesFirstPayment_No</defaultSelectedChoiceReference>
+            <fieldText>Is the donor making the first payment now?</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <helpText>Yes if the donor is handing you the first installment (or the money already cleared) along with signing the pledge. We&apos;ll record the pledge, the future schedule, and a Gift Transaction for the first payment. No if the pledge stands alone and the first installment is expected later.</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkScheduledEqualInstallments</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_EqualInstallments_Yes</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>FirstPaymentTeachingText_Scheduled</name>
+            <fieldText>&lt;p&gt;&lt;i&gt;If the first-payment date is on or before today, we&apos;ll record the first payment as &lt;b&gt;Paid&lt;/b&gt; automatically. Future-dated first payments are recorded as &lt;b&gt;Pending&lt;/b&gt; until the money clears.&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>1 AND 2</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkScheduledEqualInstallments</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_EqualInstallments_Yes</elementReference>
+                    </rightValue>
+                </conditions>
+                <conditions>
+                    <leftValueReference>pkScheduledIncludesFirstPayment</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_IncludesFirstPayment_Yes</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>numScheduledFirstPaymentAmount</name>
+            <dataType>Currency</dataType>
+            <defaultValue>
+                <elementReference>formulaScheduledInstallmentAmount</elementReference>
+            </defaultValue>
+            <fieldText>First payment amount</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>How much the donor is paying in the first installment. Defaults to the per-installment amount (total ÷ number of payments); adjust if the first payment differs. Overpayment is allowed.</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <scale>2</scale>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>1 AND 2</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkScheduledEqualInstallments</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_EqualInstallments_Yes</elementReference>
+                    </rightValue>
+                </conditions>
+                <conditions>
+                    <leftValueReference>pkScheduledIncludesFirstPayment</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_IncludesFirstPayment_Yes</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>pkScheduledFirstPaymentMethod</name>
+            <choiceReferences>Choice_Payment_Cash</choiceReferences>
+            <choiceReferences>Choice_Payment_Check</choiceReferences>
+            <choiceReferences>Choice_Payment_CreditCard</choiceReferences>
+            <choiceReferences>Choice_Payment_ACH</choiceReferences>
+            <choiceReferences>Choice_Payment_Stock</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>Choice_Payment_Check</defaultSelectedChoiceReference>
+            <fieldText>How did the donor pay? (Payment Method)</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <helpText>Payment method for the first-payment Gift Transaction. Distinct from the per-installment Payment Method above — the first payment may use a different method (e.g., signing-day check) than the ongoing schedule (ACH).</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>1 AND 2</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkScheduledEqualInstallments</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_EqualInstallments_Yes</elementReference>
+                    </rightValue>
+                </conditions>
+                <conditions>
+                    <leftValueReference>pkScheduledIncludesFirstPayment</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_IncludesFirstPayment_Yes</elementReference>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>FirstPaymentTeachingText_Custom</name>
+            <fieldText>&lt;p&gt;&lt;i&gt;On a Custom Schedule, the &lt;b&gt;first row&lt;/b&gt; below IS the first payment. If its date is on or before today, we&apos;ll record it as &lt;b&gt;Paid&lt;/b&gt; automatically; otherwise it&apos;s &lt;b&gt;Pending (Expected)&lt;/b&gt;. All remaining rows are Pending (Expected) until each payment clears. Row dates should be on or after the pledge date above — a payment received before the pledge is made is an Outright Gift, not a pledge payment.&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>pkScheduledEqualInstallments</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <elementReference>Choice_EqualInstallments_No</elementReference>
                     </rightValue>
                 </conditions>
             </visibilityRule>
@@ -11344,6 +11882,17 @@
         <scale>0</scale>
         <value>
             <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+    <variables>
+        <description>Pledge-with-first-payment: Custom Repeater row-1 detection. Loop_Build_Custom_GTs iterates AllItems; Assign_Custom_GT_Row uses this to detect &quot;this is the first iteration&quot; so it can stamp row 1 as Paid (when its date &lt;= TODAY) instead of Expected. First iteration flips this to true; subsequent iterations skip the Paid check. Reset to false in Assign_Custom_SeedFirstRow so re-entry from Back-nav works.</description>
+        <name>var_FirstCustomRow_Seen</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
         </value>
     </variables>
     <variables>
