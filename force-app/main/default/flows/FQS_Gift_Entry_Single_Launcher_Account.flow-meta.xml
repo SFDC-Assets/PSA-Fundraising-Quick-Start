@@ -189,7 +189,7 @@
             <assignToReference>rsv_GiftDefaultSoftCredit.RecipientId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>lkpGDSCRecipient.recordId</elementReference>
+                <elementReference>var_GDSCRecipientId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -245,6 +245,126 @@
         </assignmentItems>
         <connector>
             <targetReference>Create_GTDesignation</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>GDSC Item B fix — Router body when user picked from the reach datatable. Copies rsv_SelectedGDSCRecipient.Id into var_GDSCRecipientId, which Assign_Build_Default_SoftCredit reads.</description>
+        <name>Assign_GDSCRecipient_FromTable</name>
+        <label>GDSC recipient — from datatable</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_GDSCRecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_SelectedGDSCRecipient.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Build_Default_SoftCredit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>GDSC Item B fix — Router body when user checked chkUseGDSCLookup and picked via the fallback flowruntime:lookup. Copies lkpGDSCRecipient.recordId into var_GDSCRecipientId.</description>
+        <name>Assign_GDSCRecipient_FromLookup</name>
+        <label>GDSC recipient — from lookup</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_GDSCRecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>lkpGDSCRecipient.recordId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Build_Default_SoftCredit</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>GDSC Item C — Router body for Pledge Payment leaf. Stamps var_GDSCFanout_ParentGCId = rsv_SelectedCommitment.Id (the picked GC from Screen_Pick_Commitment; always populated on PP). Downstream Get_GC_GDSCs queries GDSCs off this Id.</description>
+        <name>Assign_Fanout_ParentId_FromCommitment</name>
+        <label>Stamp Fanout Parent Id (from picked GC)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_GDSCFanout_ParentGCId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_SelectedCommitment.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Existing_GSCs_On_GT</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>GDSC Item C — Router body for Recurring first-payment leaf. Stamps var_GDSCFanout_ParentGCId = rsv_GiftCommitment.Id (the just-created Recurring GC). Downstream Get_GC_GDSCs queries GDSCs off this Id — captures the GDSC the user opted in for on Screen_Recurring_Details (Item B) so the first payment gets a matching GSC.</description>
+        <name>Assign_Fanout_ParentId_FromGC</name>
+        <label>Stamp Fanout Parent Id (from new GC)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_GDSCFanout_ParentGCId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_GiftCommitment.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Existing_GSCs_On_GT</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>GDSC Item C — Inside Loop_Fanout_GDSC_To_GSC. Builds one GiftSoftCredit row per GDSC on the parent GC, stages it into col_GSCs_FromGDSCs for bulk-insert on loop drain. Fields mirror the GDSC exactly (RecipientId, Role, PartialPercent). GiftTransactionId is the just-created / just-updated rsv_GiftTransaction.Id. Also increments var_GSCsFanoutCount so Screen_Success can render a summary line.</description>
+        <name>Assign_Build_GSC_From_GDSC</name>
+        <label>Build GSC from GDSC (loop body)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_GSC_FromGDSC.GiftTransactionId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_GiftTransaction.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GSC_FromGDSC.RecipientId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_GDSCLoopItem.RecipientId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GSC_FromGDSC.Role</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_GDSCLoopItem.Role</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_GSC_FromGDSC.PartialPercent</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>rsv_GDSCLoopItem.PartialPercent</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>col_GSCs_FromGDSCs</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>rsv_GSC_FromGDSC</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>var_GSCsFanoutCount</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Fanout_GDSC_To_GSC</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -3514,7 +3634,7 @@
         <defaultConnector>
             <targetReference>Decide_Needs_Commitment_SoftCredit</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>No soft credit — check GDSC then Screen_Success</defaultConnectorLabel>
+        <defaultConnectorLabel>No soft credit — check GDSC opt-in then GDSC fanout</defaultConnectorLabel>
         <rules>
             <name>Decide_Create_SoftCredit_HasSoftCredit</name>
             <conditionLogic>and</conditionLogic>
@@ -3866,9 +3986,9 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Screen_Success</targetReference>
+            <targetReference>Decide_Needs_Commitment_SoftCredit</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>No — Screen_Success</defaultConnectorLabel>
+        <defaultConnectorLabel>No — GDSC opt-in then fanout then Screen_Success</defaultConnectorLabel>
         <rules>
             <name>Decide_Insert_Employer_GT_Update_MatchOptedIn</name>
             <conditionLogic>and</conditionLogic>
@@ -4263,9 +4383,102 @@
                 </rightValue>
             </conditions>
             <connector>
+                <targetReference>Decide_Needs_Commitment_SoftCredit</targetReference>
+            </connector>
+            <label>Update path — GDSC opt-in then fanout then Screen_Success</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>GDSC Item C — Pre-fanout guard. If Get_Existing_GSCs_On_GT returned a row, the platform already fanned out the GDSCs to this GT (schedule-engine behavior on PP Update against a materialized Expected GT). Skip fanout entirely to avoid DUPLICATE_VALUE on GiftTransactionId unique key. If no row, proceed to Get_GC_GDSCs → Loop → bulk-insert.</description>
+        <name>Decide_Existing_GSCs_On_GT</name>
+        <label>Existing GSCs on GT?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Get_GC_GDSCs</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No existing GSCs — fanout</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Existing_GSCs_On_GT_HasRow</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Existing_GSCs_On_GT.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
                 <targetReference>Screen_Success</targetReference>
             </connector>
-            <label>Update path — Screen_Success</label>
+            <label>Existing GSCs found — skip fanout, Screen_Success</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>GDSC Item B fix — Route based on chkUseGDSCLookup toggle: unchecked → datatable path (Assign_GDSCRecipient_FromTable copies rsv_SelectedGDSCRecipient.Id); checked → lookup path (Assign_GDSCRecipient_FromLookup copies lkpGDSCRecipient.recordId). Both Assigns write var_GDSCRecipientId then flow to Assign_Build_Default_SoftCredit. Mirrors the Decide_Use_SoftCredit_Lookup pattern used by the GT-level picker.</description>
+        <name>Decide_Use_GDSC_Lookup</name>
+        <label>Use GDSC lookup?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Assign_GDSCRecipient_FromTable</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Datatable path</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Use_GDSC_Lookup_UseLookup</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>chkUseGDSCLookup</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_GDSCRecipient_FromLookup</targetReference>
+            </connector>
+            <label>Lookup path</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>GDSC Item C — Fanout router. Before Decide_Needs_Commitment_SoftCredit, route on leaf to stamp var_GDSCFanout_ParentGCId then Get_GC_GDSCs → Loop → bulk-insert. PP (fresh insert or update) → Assign_Fanout_ParentId_FromCommitment reads rsv_SelectedCommitment.Id. Recurring (first payment) → Assign_Fanout_ParentId_FromGC reads rsv_GiftCommitment.Id. Everything else (Outright, In-Kind, Simple/Scheduled/Grant post-create-only paths) falls through to Decide_Needs_Commitment_SoftCredit — no fanout, since Outright has no parent GC and Simple/Scheduled/Grant don&apos;t reach this router via post-first-payment traversal (they exit via Decide_Recurring_First_Payment_Or_Success default earlier). Safe: never reads rsv_GiftTransaction.GiftCommitmentId (that field throws on Outright), reads only rsv_SelectedCommitment.Id / rsv_GiftCommitment.Id which are null-safe on all leaves.</description>
+        <name>Decide_Fanout_GDSC_To_GSC</name>
+        <label>Fan out GDSCs to GSCs?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Success</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No parent GC — Screen_Success</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Fanout_GDSC_To_GSC_IsPledgePayment</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_PledgePayment</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Fanout_ParentId_FromCommitment</targetReference>
+            </connector>
+            <label>PP — fanout from picked GC</label>
+        </rules>
+        <rules>
+            <name>Decide_Fanout_GDSC_To_GSC_IsRecurring</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>pkLeafMonetary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>Choice_Leaf_RecurringGift</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Fanout_ParentId_FromGC</targetReference>
+            </connector>
+            <label>Recurring first-payment — fanout from new GC</label>
         </rules>
     </decisions>
     <decisions>
@@ -4275,9 +4488,9 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Screen_Success</targetReference>
+            <targetReference>Decide_Fanout_GDSC_To_GSC</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>No — Screen_Success</defaultConnectorLabel>
+        <defaultConnectorLabel>No — check GDSC fanout then Screen_Success</defaultConnectorLabel>
         <rules>
             <name>Decide_Needs_Commitment_SoftCredit_Yes</name>
             <conditionLogic>1 OR 2 OR 3</conditionLogic>
@@ -4303,9 +4516,9 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Screen_Pick_SoftCredit_Commitment</targetReference>
+                <targetReference>Sub_Soft_Credit_Reach_Commitment</targetReference>
             </connector>
-            <label>Yes — pick recipient + role</label>
+            <label>Yes — invoke reach subflow, pick recipient + role</label>
         </rules>
     </decisions>
     <decisions>
@@ -5435,6 +5648,22 @@
         </noMoreValuesConnector>
     </loops>
     <loops>
+        <description>GDSC Item C — iterates Get_GC_GDSCs (the parent GC&apos;s GDSCs) to build one GiftSoftCredit per row into col_GSCs_FromGDSCs. On drain, Create_GSCs_FromGDSCs bulk-inserts. Reached from Decide_Fanout_GDSC_To_GSC when the leaf has a parent GC (PP or Recurring first-payment) AND Get_GC_GDSCs returned rows. If the collection is empty (GC has no GDSCs), the loop drains immediately and Create_GSCs_FromGDSCs inserts an empty list (no-op).</description>
+        <name>Loop_Fanout_GDSC_To_GSC</name>
+        <label>Fan out GDSCs to GSCs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNextValueToReference>rsv_GDSCLoopItem</assignNextValueToReference>
+        <collectionReference>Get_GC_GDSCs</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Assign_Build_GSC_From_GDSC</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Create_GSCs_FromGDSCs</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
         <description>Designation hierarchy multi-GDD support — iterates Get_Campaign_GDDs_Multi to fan out one GTD per Campaign GDD onto the just-created GT (rsv_GiftTransaction.Id) when var_PlatformSplitApplies=true and var_CampaignGDDCount &gt; 1. Reached from Decide_Split_Source_For_Fanout&apos;s default branch. Body Assign_Build_Split_GTD_Campaign appends a per-row GTD to col_SplitGTDs; on drain, Create_Split_GTDs bulk-inserts. Amount per row = rsv_GiftTransaction.OriginalAmount * (AllocatedPercentage / 100).</description>
         <name>Loop_Fanout_Split_GTDs_Campaign</name>
         <label>Fan out split GTDs (Campaign)</label>
@@ -5643,13 +5872,27 @@
         <inputReference>rsv_GiftDefaultDesignation</inputReference>
     </recordCreates>
     <recordCreates>
+        <description>GDSC Item C — Bulk-inserts col_GSCs_FromGDSCs (built by Loop_Fanout_GDSC_To_GSC). One GSC per GDSC on the parent GC, all parented to rsv_GiftTransaction.Id. If the collection is empty (GC had no GDSCs), this insert is a no-op. Fault path shares Err_Create — a failed insert leaves the just-created / just-updated GT in place; user has to add soft credits manually.</description>
+        <name>Create_GSCs_FromGDSCs</name>
+        <label>Create GSCs from GDSCs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Screen_Success</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Create</targetReference>
+        </faultConnector>
+        <inputReference>col_GSCs_FromGDSCs</inputReference>
+    </recordCreates>
+    <recordCreates>
         <description>GDSC Item B — Inserts rsv_GiftDefaultSoftCredit on the just-created parent GC. Runs on GC-creating leaves (Simple ref; Recurring/Grant/Pledge clones next) when pkCommitmentNeedsSoftCredits=Yes. Fault path shares Err_Create — a GDSC insert failure leaves the GC + designation state intact; user has to add the soft credit manually. Connector routes to Screen_Success.</description>
         <name>Create_GiftDefaultSoftCredit</name>
         <label>Create Gift Default Soft Credit</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Screen_Success</targetReference>
+            <targetReference>Decide_Fanout_GDSC_To_GSC</targetReference>
         </connector>
         <faultConnector>
             <targetReference>Err_Create</targetReference>
@@ -6324,6 +6567,56 @@
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>GiftDefaultDesignation</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>GDSC Item C — Pre-fanout guard. Query existing GSCs on rsv_GiftTransaction.Id (the just-updated or just-inserted GT). The platform&apos;s schedule engine already fans out GDSC → GSC when it materializes Expected GTs, so scheduled-payment GTs already have GSCs by the time PP Update runs; re-inserting would trip a DUPLICATE_VALUE unique key on GiftTransactionId. Decide_Existing_GSCs_On_GT reads this result: rows found → skip fanout (already done by platform); zero rows → proceed to Get_GC_GDSCs. Recurring first-payment and PP Fresh Insert typically return zero rows here since the GT was just posted by this flow.</description>
+        <name>Get_Existing_GSCs_On_GT</name>
+        <label>Get Existing GSCs on GT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decide_Existing_GSCs_On_GT</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Load</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>GiftTransactionId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>rsv_GiftTransaction.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>GiftSoftCredit</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>GDSC Item C — Loads all GDSCs on the parent GC (whichever leaf we&apos;re on). ParentRecordId comes from var_GDSCFanout_ParentGCId, stamped by Assign_Fanout_ParentId_FromCommitment (PP) or Assign_Fanout_ParentId_FromGC (Recurring first-payment) before this lookup. Returns rows → Loop_Fanout_GDSC_To_GSC iterates them. Returns 0 → loop drains immediately → Create_GSCs_FromGDSCs inserts an empty col_GSCs_FromGDSCs (no-op).</description>
+        <name>Get_GC_GDSCs</name>
+        <label>Get GC GDSCs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Loop_Fanout_GDSC_To_GSC</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Err_Load</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ParentRecordId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>var_GDSCFanout_ParentGCId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>GiftDefaultSoftCredit</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -8555,11 +8848,11 @@
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
-            <targetReference>Assign_Build_Default_SoftCredit</targetReference>
+            <targetReference>Decide_Use_GDSC_Lookup</targetReference>
         </connector>
         <fields>
             <name>GDSCHelp</name>
-            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Add a Default Soft Credit&lt;/b&gt;&lt;/p&gt;&lt;p&gt;A default soft credit recognizes a related Account on every payment tied to this commitment. Pick a recipient, a role, and (optionally) a percent for partial recognition.&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Add a Default Soft Credit&lt;/b&gt;&lt;/p&gt;&lt;p&gt;A default soft credit recognizes a related Account on every payment tied to this commitment. Pick a recipient from the donor&apos;s household or related accounts, choose a role, and (optionally) a percent for partial recognition.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -8569,6 +8862,124 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+        </fields>
+        <fields>
+            <name>chkUseGDSCLookup</name>
+            <dataType>Boolean</dataType>
+            <defaultValue>
+                <booleanValue>false</booleanValue>
+            </defaultValue>
+            <fieldText>None of the accounts below match — search for another existing account.</fieldText>
+            <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>dtGDSCRecipient</name>
+            <dataTypeMappings>
+                <typeName>T</typeName>
+                <typeValue>Account</typeValue>
+            </dataTypeMappings>
+            <extensionName>flowruntime:datatable</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Related Accounts</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>selectionMode</name>
+                <value>
+                    <stringValue>SINGLE_SELECT</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>minRowSelection</name>
+                <value>
+                    <numberValue>0.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>maxRowSelection</name>
+                <value>
+                    <numberValue>1.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>tableData</name>
+                <value>
+                    <elementReference>col_SoftCreditAccountsFromSubflow</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>columns</name>
+                <value>
+                    <stringValue>[{&quot;apiName&quot;:&quot;Name&quot;,&quot;label&quot;:&quot;Name&quot;,&quot;type&quot;:&quot;text&quot;,&quot;order&quot;:0}]</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>keyField</name>
+                <value>
+                    <complexValue>{&quot;dataType&quot;:&quot;SObject&quot;,&quot;objectType&quot;:&quot;Account&quot;,&quot;fieldReferences&quot;:[&quot;Id&quot;],&quot;elementReference&quot;:&quot;col_SoftCreditAccountsFromSubflow&quot;}</complexValue>
+                    <complexValueType>ComplexObjectFieldDetails</complexValueType>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <outputParameters>
+                <assignToReference>rsv_SelectedGDSCRecipient</assignToReference>
+                <name>firstSelectedRow</name>
+            </outputParameters>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>chkUseGDSCLookup</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>false</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>GDSCLookupHelp</name>
+            <fieldText>&lt;p&gt;&lt;i&gt;Search for any Account here:&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>chkUseGDSCLookup</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
         </fields>
         <fields>
             <name>lkpGDSCRecipient</name>
@@ -8589,13 +9000,13 @@
             <inputParameters>
                 <name>label</name>
                 <value>
-                    <stringValue>Soft-credit recipient (Account)</stringValue>
+                    <stringValue>Search for an Account</stringValue>
                 </value>
             </inputParameters>
             <inputParameters>
                 <name>required</name>
                 <value>
-                    <booleanValue>true</booleanValue>
+                    <booleanValue>false</booleanValue>
                 </value>
             </inputParameters>
             <inputParameters>
@@ -8615,6 +9026,16 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>chkUseGDSCLookup</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
         </fields>
         <fields>
             <name>pkGDSCRole</name>
@@ -8644,9 +9065,9 @@
         <fields>
             <name>numGDSCPartialPercent</name>
             <dataType>Number</dataType>
-            <fieldText>Percent of each payment (0-100) %</fieldText>
+            <fieldText>Percent of each payment (1-100) %</fieldText>
             <fieldType>InputField</fieldType>
-            <helpText>Leave blank for full recognition — the recipient will be credited for the full amount of every payment. Enter a number between 0 and 100 to recognize only a portion (for example, 50 for a spouse who shares half the household&apos;s giving).</helpText>
+            <helpText>Leave blank for full recognition — the recipient will be credited for the full amount of every payment. Enter a number between 1 and 100 to recognize only a portion (for example, 50 for a spouse who shares half the household&apos;s giving). Zero is not a valid partial percent — leave blank to skip.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
             <scale>0</scale>
@@ -8658,6 +9079,10 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+            <validationRule>
+                <errorMessage>Percent must be between 1 and 100, or leave blank for full recognition. Zero is not a valid partial percent.</errorMessage>
+                <formulaExpression>OR( ISBLANK({!numGDSCPartialPercent}), AND({!numGDSCPartialPercent} &gt;= 1, {!numGDSCPartialPercent} &lt;= 100) )</formulaExpression>
+            </validationRule>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
@@ -9988,6 +10413,29 @@
             </styleProperties>
         </fields>
         <fields>
+            <name>SuccessGDSCFanoutLine</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(46, 132, 74);&quot;&gt;&amp;#10003;&lt;/span&gt; &lt;b&gt;{!var_GSCsFanoutCount}&lt;/b&gt; default soft credit(s) from this commitment were also applied to this payment.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>var_GSCsFanoutCount</leftValueReference>
+                    <operator>GreaterThan</operator>
+                    <rightValue>
+                        <numberValue>0.0</numberValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
             <name>SuccessKeptDesignationsWarning</name>
             <fieldText>&lt;p&gt;&lt;i&gt;Existing designations on this scheduled payment were kept as-is. To change them, edit the Gift Transaction Designations directly.&lt;/i&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
@@ -10392,6 +10840,33 @@
     </start>
     <status>Active</status>
     <subflows>
+        <description>GDSC Item B fix — same reach subflow as Sub_Soft_Credit_Reach but routes to Screen_Pick_SoftCredit_Commitment. Only called when user opts into a default soft credit on a GC-creating leaf (Simple/Scheduled/Recurring). Fills col_SoftCreditAccountsFromSubflow with ACR/CCR-reachable Accounts so the household/related-org picker on the commitment screen matches the GT-level picker&apos;s behavior.</description>
+        <name>Sub_Soft_Credit_Reach_Commitment</name>
+        <label>Compute Soft-Credit Reach (Commitment)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Screen_Pick_SoftCredit_Commitment</targetReference>
+        </connector>
+        <flowName>FQS_Gift_Entry_Soft_Credit_Reach</flowName>
+        <inputAssignments>
+            <name>recordId</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>col_AccountContactIds</name>
+            <value>
+                <elementReference>Transform_Ids_Into_Text_String</elementReference>
+            </value>
+        </inputAssignments>
+        <outputAssignments>
+            <assignToReference>col_SoftCreditAccountsFromSubflow</assignToReference>
+            <name>outCollection_SoftCreditAccounts</name>
+        </outputAssignments>
+    </subflows>
+    <subflows>
         <description>R5: invokes the ACR/CCR-driven soft-credit reach subflow. Only called when the user opts into soft credits on Screen_Gift_Details (pkNeedsSoftCredits = Yes).</description>
         <name>Sub_Soft_Credit_Reach</name>
         <label>Compute Soft-Credit Reach</label>
@@ -10494,6 +10969,15 @@
         <isInput>false</isInput>
         <isOutput>false</isOutput>
         <objectType>Account</objectType>
+    </variables>
+    <variables>
+        <description>GDSC Item C — scratch collection of GiftSoftCredit rows built inside Loop_Fanout_GDSC_To_GSC by Assign_Build_GSC_From_GDSC. Bulk-inserted by Create_GSCs_FromGDSCs on loop drain. One row per GDSC on the parent GC.</description>
+        <name>col_GSCs_FromGDSCs</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftSoftCredit</objectType>
     </variables>
     <variables>
         <description>Designation hierarchy multi-GDD support — scratch collection of GiftTransactionDesignation records built by Assign_Build_Split_GTD during Loop_Fanout_Split_GTDs_* iterations, bulk-inserted by Create_Split_GTDs on loop drain. One row per Campaign or GC GDD when Platform_Split fires.</description>
@@ -10772,6 +11256,24 @@
         <objectType>Account</objectType>
     </variables>
     <variables>
+        <description>GDSC Item C — loop iteration variable for Loop_Fanout_GDSC_To_GSC. Exposes the current GDD (RecipientId, Role, PartialPercent) to Assign_Build_GSC_From_GDSC.</description>
+        <name>rsv_GDSCLoopItem</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftDefaultSoftCredit</objectType>
+    </variables>
+    <variables>
+        <description>GDSC Item C — scratch GiftSoftCredit record built each iteration of Loop_Fanout_GDSC_To_GSC. Assign_Build_GSC_From_GDSC populates its fields and appends to col_GSCs_FromGDSCs.</description>
+        <name>rsv_GSC_FromGDSC</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftSoftCredit</objectType>
+    </variables>
+    <variables>
         <description>Designation hierarchy multi-GDD support — loop iteration variable for Loop_Fanout_Split_GTDs_Campaign / _GC. Exposes the current GDD (GiftDesignationId, AllocatedPercentage) to Assign_Build_Split_GTD.</description>
         <name>rsv_SplitGDDLoopItem</name>
         <dataType>SObject</dataType>
@@ -10813,6 +11315,43 @@
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>GDSC Item B fix — Normalized Account Id of the picked GDSC recipient. Written by Assign_GDSCRecipient_FromTable (datatable path) or Assign_GDSCRecipient_FromLookup (fallback lookup path); read by Assign_Build_Default_SoftCredit.</description>
+        <name>var_GDSCRecipientId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>GDSC Item B fix — Account row picked from the reach datatable on Screen_Pick_SoftCredit_Commitment. Separate from rsv_SelectedSoftCreditAccount (GT-level picker) so the two branches don&apos;t collide when both fire in the same flow run.</description>
+        <name>rsv_SelectedGDSCRecipient</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+    <variables>
+        <description>GDSC Item C — Parent GC Id used as the ParentRecordId filter on Get_GC_GDSCs. Stamped by Assign_Fanout_ParentId_FromCommitment (PP: rsv_SelectedCommitment.Id) or Assign_Fanout_ParentId_FromGC (Recurring first-payment: rsv_GiftCommitment.Id). Never read directly by anything else.</description>
+        <name>var_GDSCFanout_ParentGCId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>GDSC Item C — Counter incremented inside Loop_Fanout_GDSC_To_GSC. Drives the Screen_Success summary line that tells the user how many default soft credits were propagated. Starts at 0; visibility of the summary line hinges on it being &gt; 0.</description>
+        <name>var_GSCsFanoutCount</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
     </variables>
     <variables>
         <description>Designation hierarchy multi-GDD support — count of active GDDs on the picked Campaign. Populated by Loop_Count_Campaign_GDDs. Feeds Platform_Split detection so the resolver defers to the platform when Campaign has &gt;1 GDD.</description>
