@@ -1415,23 +1415,6 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Erin item 7 (designation-derived fulfillment). Writes rsv_GiftCommitment.FulfillmentType from formulaFulfillmentFromDesignation (Unconditional when the resolved designation carries Without Donor Restriction; Conditional otherwise). Reached from Decide_Derive_FulfillmentType only when rsv_SelectedDesignation.Id is non-null. Overwrites the Unconditional hardcoded default seeded in Assign_Pledge_Defaults / Assign_Scheduled_Defaults / Assign_Recurring_Defaults. Runs after Decide_After_Designation_IsPledge so Platform_Split leaves (which leave rsv_SelectedDesignation.Id null) skip this assign and keep the Unconditional default — per Erin, Platform_Split is v1-acceptable to leave as Unconditional.</description>
-        <name>Assign_FulfillmentType_From_Designation</name>
-        <label>Derive FulfillmentType from Designation</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>rsv_GiftCommitment.FulfillmentType</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>formulaFulfillmentFromDesignation</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Assign_Pledge_Campaign</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
         <description>Designation hierarchy Phase 5d follow-up — stages the platform-auto GDD row for Update_GC_GDD, rewriting its GiftDesignationId to the resolver&apos;s pick (var_ResolvedDesignationId, which for Override paths is the user&apos;s manual pick). AllocatedPercentage is preserved at 100 because the platform&apos;s auto-insert always uses 100 in the single-GDD case; multi-GDD is skipped upstream via the reconciliation gate.</description>
         <name>Assign_GC_GDD_Update_Fields</name>
         <label>Stage GC GDD Update</label>
@@ -1828,13 +1811,6 @@
             <operator>Assign</operator>
             <value>
                 <stringValue>Active</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_GiftCommitment.FulfillmentType</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Unconditional</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -2422,13 +2398,6 @@
             <operator>Assign</operator>
             <value>
                 <stringValue>Active</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_GiftCommitment.FulfillmentType</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Unconditional</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -3334,7 +3303,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Decide_Derive_FulfillmentType</targetReference>
+                <targetReference>Assign_Pledge_Campaign</targetReference>
             </connector>
             <label>Simple, Scheduled, or Recurring — commit commitment</label>
         </rules>
@@ -3650,32 +3619,6 @@
                 <targetReference>Assign_Build_SoftCredit</targetReference>
             </connector>
             <label>Yes — build + create</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <description>Erin item 7 — designation-derived fulfillment gate. Reached from Decide_After_Designation_IsPledge on Simple / Scheduled / Recurring commitment-creating leaves. If rsv_SelectedDesignation.Id is populated (single-designation resolver path OR user Override), route to Assign_FulfillmentType_From_Designation so the derived FulfillmentType (Unconditional for Without Donor Restriction, Conditional otherwise) overwrites the hardcoded Unconditional default. If rsv_SelectedDesignation.Id is null (Platform_Split — resolver deliberately did NOT populate it per Assign_Resolve_Designation_PlatformSplit), default straight to Assign_Pledge_Campaign so FulfillmentType keeps the Unconditional default from Assign_Pledge_Defaults / Assign_Scheduled_Defaults / Assign_Recurring_Defaults. IsNull guard also protects against [[flow-unread-sobject-field-throws]] — reading .FQS_Restriction_Type__c on an un-touched SObject variable would throw at runtime.</description>
-        <name>Decide_Derive_FulfillmentType</name>
-        <label>Derive FulfillmentType from Designation?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Assign_Pledge_Campaign</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No designation resolved (Platform_Split) — keep Unconditional default</defaultConnectorLabel>
-        <rules>
-            <name>Decide_Derive_FulfillmentType_HasDesignation</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>rsv_SelectedDesignation.Id</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_FulfillmentType_From_Designation</targetReference>
-            </connector>
-            <label>Designation resolved — derive from restriction type</label>
         </rules>
     </decisions>
     <decisions>
@@ -5484,18 +5427,6 @@
         <expression>{!Get_Match_Employer.Name} &amp; &quot; - Recurring Gift &quot; &amp; TEXT({!numMatchAmount}) &amp; &quot; &quot; &amp; {!formulaRecurringPeriodWord}</expression>
     </formulas>
     <formulas>
-        <description>Derives GiftCommitment.FulfillmentType from the resolved designation&apos;s FQS_Restriction_Type__c. Without Donor Restriction → Unconditional; any With Donor Restriction — * value → Conditional. Read by Assign_FulfillmentType_From_Designation, which runs after Decide_After_Designation_IsPledge on Simple / Scheduled / Recurring leaves whenever rsv_SelectedDesignation.Id is non-null (i.e., a single-designation resolver path or User_Override). On Platform_Split leaves rsv_SelectedDesignation.Id is null and this formula is not evaluated; FulfillmentType falls back to the Unconditional hardcoded default in Assign_Pledge_Defaults / Assign_Scheduled_Defaults / Assign_Recurring_Defaults. Replaces the removed pkFulfillmentType / pkScheduledFulfillmentType user prompts — the designation now owns the restriction context, and the commitment inherits from it.</description>
-        <name>formulaFulfillmentFromDesignation</name>
-        <dataType>String</dataType>
-        <expression>IF(TEXT({!Get_Resolved_GD.FQS_Restriction_Type__c}) = &quot;Without Donor Restriction&quot;, &quot;Unconditional&quot;, &quot;Conditional&quot;)</expression>
-    </formulas>
-    <formulas>
-        <description>Context header on Screen_Confirm_Designation and Screen_Pick_Designation: tells the user &quot;This designation lands the commitment as Conditional&quot; (or Unconditional) so they understand the downstream effect of the resolved designation. Reads rsv_SelectedDesignation.FQS_Restriction_Type__c on Confirm (populated by resolver) or on Pick (populated after user picks via lookup / datatable). Guarded on rsv_SelectedDesignation.Id — if not yet populated (Platform_Split, or Pick screen before user selection), returns empty string so the DisplayText renders blank.</description>
-        <name>formulaFulfillmentContextHeader</name>
-        <dataType>String</dataType>
-        <expression>IF(ISBLANK({!Get_Resolved_GD.Id}), &quot;&quot;, IF(TEXT({!Get_Resolved_GD.FQS_Restriction_Type__c}) = &quot;Without Donor Restriction&quot;, &quot;This designation carries &lt;b&gt;no donor restriction&lt;/b&gt; — the resulting Gift Commitment will be recorded as &lt;b&gt;Unconditional&lt;/b&gt;.&quot;, &quot;This designation carries a &lt;b&gt;donor restriction&lt;/b&gt; (&quot; &amp; TEXT({!Get_Resolved_GD.FQS_Restriction_Type__c}) &amp; &quot;) — the resulting Gift Commitment will be recorded as &lt;b&gt;Conditional&lt;/b&gt;.&quot;))</expression>
-    </formulas>
-    <formulas>
         <description>Auto-generated Name for a new GiftCommitment created by this launcher. Pattern: &quot;&lt;Donor Name&gt; - &lt;Expected Total Amount&gt; &lt;Category&gt;&quot; (e.g., &quot;Aaron Mitchell - 500 Pledged Gift&quot; or &quot;ACME Foundation - 25000 Grant Payout&quot;). Category comes from rsv_GiftCommitment.FQS_Gift_Commitment_Category__c (assigned before this formula fires) — reading the picklist stringValue directly, NOT the RadioButton choiceText which includes an em-dash description. Once fqs-record-naming-flows-plan.md lands, the RecordAfterSave naming flow overwrites this — the launcher formula becomes dead weight then and should be stripped.</description>
         <name>formulaGiftCommitmentName</name>
         <dataType>String</dataType>
@@ -7118,57 +7049,6 @@
             </visibilityRule>
         </fields>
         <fields>
-            <name>ConfirmDesignationFulfillmentContext</name>
-            <fieldText>&lt;p&gt;&lt;i&gt;{!formulaFulfillmentContextHeader}&lt;/i&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-            <visibilityRule>
-                <conditionLogic>1 AND 2 AND (3 OR 4 OR 5)</conditionLogic>
-                <conditions>
-                    <leftValueReference>var_PlatformSplitApplies</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <booleanValue>false</booleanValue>
-                    </rightValue>
-                </conditions>
-                <conditions>
-                    <leftValueReference>rsv_SelectedDesignation.Id</leftValueReference>
-                    <operator>IsNull</operator>
-                    <rightValue>
-                        <booleanValue>false</booleanValue>
-                    </rightValue>
-                </conditions>
-                <conditions>
-                    <leftValueReference>pkLeafFuture</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <elementReference>Choice_Leaf_SimplePledgeGrant</elementReference>
-                    </rightValue>
-                </conditions>
-                <conditions>
-                    <leftValueReference>pkLeafFuture</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <elementReference>Choice_Leaf_ScheduledPledgeGrant</elementReference>
-                    </rightValue>
-                </conditions>
-                <conditions>
-                    <leftValueReference>pkLeafMonetary</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <elementReference>Choice_Leaf_RecurringGift</elementReference>
-                    </rightValue>
-                </conditions>
-            </visibilityRule>
-        </fields>
-        <fields>
             <name>ConfirmDesignationSplitExplain</name>
             <fieldText>&lt;p&gt;&lt;i&gt;This {!formulaSplitSource} uses a split of &lt;b&gt;{!formulaSplitCount}&lt;/b&gt; designations. The platform applies the split automatically to this gift — open the record after save to see the individual designations and percentages.&lt;/i&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
@@ -8484,43 +8364,6 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
-        </fields>
-        <fields>
-            <name>DesignationFulfillmentContext</name>
-            <fieldText>&lt;p&gt;&lt;i&gt;The designation you pick determines whether this commitment is recorded as &lt;b&gt;Conditional&lt;/b&gt; or &lt;b&gt;Unconditional&lt;/b&gt;. Designations with &lt;b&gt;Without Donor Restriction&lt;/b&gt; land the commitment as Unconditional; designations with any &lt;b&gt;With Donor Restriction — Purpose / Time / Permanent&lt;/b&gt; land it as Conditional.&lt;/i&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-            <visibilityRule>
-                <conditionLogic>1 OR 2 OR 3</conditionLogic>
-                <conditions>
-                    <leftValueReference>pkLeafFuture</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <elementReference>Choice_Leaf_SimplePledgeGrant</elementReference>
-                    </rightValue>
-                </conditions>
-                <conditions>
-                    <leftValueReference>pkLeafFuture</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <elementReference>Choice_Leaf_ScheduledPledgeGrant</elementReference>
-                    </rightValue>
-                </conditions>
-                <conditions>
-                    <leftValueReference>pkLeafMonetary</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <elementReference>Choice_Leaf_RecurringGift</elementReference>
-                    </rightValue>
-                </conditions>
-            </visibilityRule>
         </fields>
         <fields>
             <name>chkUseDesignationLookup</name>
