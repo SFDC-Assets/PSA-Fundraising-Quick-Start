@@ -2734,7 +2734,7 @@
     </choices>
     <choices>
         <name>Choice_Fulfillment_Conditional</name>
-        <choiceText>Conditional — the donor placed a restriction on this pledge; choose which restriction below</choiceText>
+        <choiceText>Conditional — the donor placed a restriction on this pledge; choose which restriction later</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Conditional</stringValue>
@@ -2870,7 +2870,7 @@
     </choices>
     <choices>
         <name>Choice_Leaf_SimplePledgeGrant</name>
-        <choiceText>Single Installment Pledge / Grant — one future payment, full amount at once</choiceText>
+        <choiceText>Single Payment Pledge / Grant — one future payment, full amount at once</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Simple</stringValue>
@@ -2902,7 +2902,7 @@
     </choices>
     <choices>
         <name>Choice_NeedsMatch_Yes</name>
-        <choiceText>Yes — pair this gift with an employer match</choiceText>
+        <choiceText>Yes — a corporate match is coming that pairs with this donor gift</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Yes</stringValue>
@@ -5429,7 +5429,7 @@
         <description>Phase G6 (Success screen rewrite). Renders a leaf-specific one-line summary sentence for Screen_Success. References ONLY top-level scalar variables (pkLeaf*, num*, dt*) — never SObject field-paths — so it evaluates safely on every terminal path without tripping [[flow-unread-sobject-field-throws]]. The three leaf radios (pkLeafMonetary / pkLeafFuture / pkLeafSpecial) are mutually exclusive per run — only the one whose category was picked on Screen_Category is populated — so BLANKVALUE(BLANKVALUE(monetary, future), special) yields a single key we CASE on. Dates on monetary/special paths use TODAY() rather than the user-entered TransactionDate — the entered date lives on rsv_GiftTransaction.TransactionDate which we can&apos;t read cross-path without throwing on pledge branches. TODAY() is accurate for the default (unmodified) case and off by at most a few days for backdated entries; a small imprecision on a confirmation screen we deemed acceptable versus the alternative of gating summary lines with visibility rules per leaf.</description>
         <name>formulaSuccessSummary</name>
         <dataType>String</dataType>
-        <expression>CASE(BLANKVALUE(BLANKVALUE({!pkLeafMonetary}, {!pkLeafFuture}), {!pkLeafSpecial}), &quot;Outright&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Outright Gift on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;PledgePayment&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Pledge Payment on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;Recurring&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numRecurringAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Recurring Gift starting &lt;b&gt;&quot; &amp; {!formulaRecurringStartDateDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;Simple&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numPledgeAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Simple Pledge/Grant.&quot;, &quot;Scheduled&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numScheduledTotal}, 0), 2)) &amp; &quot;&lt;/b&gt; Scheduled Pledge/Grant starting &lt;b&gt;&quot; &amp; {!formulaScheduledStartDateDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;InKind&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; In-Kind Gift on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;EarnedIncome&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Earned Income payment on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;EventRegistration&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Event Registration on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt; (&lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numEventRegBenefit}, 0), 2)) &amp; &quot;&lt;/b&gt; benefit).&quot;, &quot;Record created.&quot;)</expression>
+        <expression>CASE(BLANKVALUE(BLANKVALUE({!pkLeafMonetary}, {!pkLeafFuture}), {!pkLeafSpecial}), &quot;Outright&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Outright Gift on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;PledgePayment&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Pledge Payment on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;Recurring&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numRecurringAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Recurring Gift starting &lt;b&gt;&quot; &amp; {!formulaRecurringStartDateDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;Simple&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numPledgeAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Single Payment Pledge/Grant.&quot;, &quot;Scheduled&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numScheduledTotal}, 0), 2)) &amp; &quot;&lt;/b&gt; Scheduled Pledge/Grant starting &lt;b&gt;&quot; &amp; {!formulaScheduledStartDateDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;InKind&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; In-Kind Gift on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;EarnedIncome&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Earned Income payment on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt;.&quot;, &quot;EventRegistration&quot;, &quot;Recorded a &lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numGiftAmount}, 0), 2)) &amp; &quot;&lt;/b&gt; Event Registration on &lt;b&gt;&quot; &amp; {!formulaTodayDisplay} &amp; &quot;&lt;/b&gt; (&lt;b&gt;$&quot; &amp; TEXT(ROUND(BLANKVALUE({!numEventRegBenefit}, 0), 2)) &amp; &quot;&lt;/b&gt; benefit).&quot;, &quot;Record created.&quot;)</expression>
     </formulas>
     <formulas>
         <description>Phase G6 (Success screen rewrite). Renders TODAY() as &quot;Mon DD, YYYY&quot; for the Success summary sentence on monetary + special paths where no dedicated start-date scalar exists. Same date-format shape as formulaRecurringStartDateDisplay.</description>
@@ -7345,31 +7345,8 @@
             </styleProperties>
         </fields>
         <fields>
-            <name>InKindAmountHelp</name>
-            <fieldText>&lt;p&gt;&lt;i&gt;For in-kind gifts, enter your estimated fair market value. Hard-credit cash totals remain zero for this gift — the donor is soft-credited for the FMV so recognition rollups still reflect the value. The donor determines the actual tax-deductible amount on their own return.&lt;/i&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-            <visibilityRule>
-                <conditionLogic>and</conditionLogic>
-                <conditions>
-                    <leftValueReference>pkLeafSpecial</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <elementReference>Choice_Leaf_InKindGift</elementReference>
-                    </rightValue>
-                </conditions>
-            </visibilityRule>
-        </fields>
-        <fields>
             <name>EventRegBenefitHelp</name>
-            <fieldText>&lt;p&gt;&lt;i&gt;For event registrations, enter the &lt;b&gt;full amount paid&lt;/b&gt; above and the &lt;b&gt;benefit received&lt;/b&gt; below (the fair market value of the meal, entertainment, or goods provided). The remaining portion is the tax-deductible donation.&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;i&gt;For event registrations, enter the &lt;b&gt;full amount paid&lt;/b&gt; above and the &lt;b&gt;fair market value&lt;/b&gt; of what the donor received below (meal, entertainment, or goods provided). The remaining portion is the tax-deductible donation.&lt;/i&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -7393,9 +7370,9 @@
         <fields>
             <name>numEventRegBenefit</name>
             <dataType>Currency</dataType>
-            <fieldText>Benefit received (non-deductible portion)</fieldText>
+            <fieldText>Fair Market Value Amount / Non Tax Deductible Amount</fieldText>
             <fieldType>InputField</fieldType>
-            <helpText>The fair market value of what the donor got in exchange (meal, entertainment, goods). Written to the NonTaxDeductibleAmount field on the gift.</helpText>
+            <helpText>The fair market value of goods or services the donor got in exchange (meal, entertainment, auction item, etc.) — this is the non-tax-deductible portion of the event registration. Written to Non-Tax-Deductible Amount on the gift; the platform derives Tax Deduction Amount = Original Amount − this value.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <scale>2</scale>
@@ -7679,9 +7656,9 @@
             <choiceReferences>Choice_NeedsMatch_Yes</choiceReferences>
             <dataType>String</dataType>
             <defaultSelectedChoiceReference>Choice_NeedsMatch_No</defaultSelectedChoiceReference>
-            <fieldText>Pair this gift with an employer match?</fieldText>
+            <fieldText>Is a corporate matching gift coming to pair with this donor gift?</fieldText>
             <fieldType>RadioButtons</fieldType>
-            <helpText>Yes if the donor&apos;s employer matches this gift under a matching-gift program. You&apos;ll pick the employer and confirm the match amount on the next screens.</helpText>
+            <helpText>The donor gift you just entered is primary. Choose Yes if a corporate match will follow from the donor&apos;s employer under a matching-gift program — you&apos;ll pick the employer and confirm the match amount on the next screens, and the two gifts will be paired.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
@@ -9302,7 +9279,7 @@
         </connector>
         <fields>
             <name>PledgeHelp</name>
-            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Pledge / Grant Details&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Creating a &lt;b&gt;Simple Pledge / Grant&lt;/b&gt; commitment for &lt;b&gt;{!Get_Account.Name}&lt;/b&gt; — full amount, single future payment.&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;font-size: 18px;&quot;&gt;Pledge / Grant Details&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Creating a &lt;b&gt;Single Payment Pledge / Grant&lt;/b&gt; commitment for &lt;b&gt;{!Get_Account.Name}&lt;/b&gt; — full amount, single future payment.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -9371,9 +9348,9 @@
         <fields>
             <name>dtExpectedEndDate</name>
             <dataType>Date</dataType>
-            <fieldText>When is the payment expected? (Expected End Date)</fieldText>
+            <fieldText>When is this single payment expected? (Expected End Date)</fieldText>
             <fieldType>InputField</fieldType>
-            <helpText>On a Simple Pledge / Grant with a single expected payment, this is when the commitment as a whole is expected to finish. Written to Expected End Date on the commitment (stable across time, unlike Next Transaction Date which the platform updates as payments post). Pipeline reports read from Expected End Date + Expected Total Commitment Amount at creation time.</helpText>
+            <helpText>This is a single-payment pledge/grant, so the date the last (only) payment is expected IS the date the commitment finishes. Written to Expected End Date on the commitment; because there&apos;s only one payment, Expected End Date equals the expected payment date. Stable across time (unlike Next Transaction Date, which the platform updates as payments post). Pipeline reports read from Expected End Date + Expected Total Commitment Amount at creation time.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
@@ -9518,7 +9495,7 @@
         </fields>
         <fields>
             <name>RecurringDisclaimer</name>
-            <fieldText>&lt;p&gt;&lt;b style=&quot;color: rgb(184, 108, 0); font-size: 14px;&quot;&gt;⚠ Integration disclaimer&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Most recurring gifts will be created through an integration with your donation form tool. This option is included in case you ever needed to enter in a gift from a non-integrated tool for any reason. If your donation form tool has stopped working, investigate why and resolve the issue before entering data here to avoid potential duplicates.&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;b style=&quot;color: rgb(184, 108, 0); font-size: 14px;&quot;&gt;⚠ Integration disclaimer&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Most recurring gifts will be created through an integration with your donation form tool. This option is included in case you ever need to enter a gift from a non-integrated tool for any reason. If your donation form tool has stopped working, contact your &lt;b&gt;Salesforce administrator&lt;/b&gt; or your &lt;b&gt;donation form tool&apos;s support team&lt;/b&gt; to resolve the issue before entering data here. Manual entry while an integration is broken risks duplicate recurring commitments once the integration is restored.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -9627,6 +9604,19 @@
             </styleProperties>
         </fields>
         <fields>
+            <name>RecurringSection_Schedule_Help</name>
+            <fieldText>&lt;p&gt;&lt;i&gt;Set the cadence of the recurring gifts by selecting the interval and the period below. The default is set to &lt;b&gt;every third&lt;/b&gt; (interval) &lt;b&gt;month&lt;/b&gt; (period) to represent a quarterly recurrence.&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
             <name>numRecurringInterval</name>
             <choiceReferences>Choice_Interval_Every</choiceReferences>
             <choiceReferences>Choice_Interval_EveryOther</choiceReferences>
@@ -9637,7 +9627,7 @@
             <choiceReferences>Choice_Interval_EverySeventh</choiceReferences>
             <choiceReferences>Choice_Interval_EveryEighth</choiceReferences>
             <dataType>Number</dataType>
-            <defaultSelectedChoiceReference>Choice_Interval_Every</defaultSelectedChoiceReference>
+            <defaultSelectedChoiceReference>Choice_Interval_EveryThird</defaultSelectedChoiceReference>
             <fieldText>Every how many periods? (Transaction Interval)</fieldText>
             <fieldType>DropdownBox</fieldType>
             <helpText>Multiplier on the Period below. 1 = every period, 2 = every other period, etc.</helpText>
@@ -9662,7 +9652,7 @@
             <defaultSelectedChoiceReference>Choice_Period_Monthly</defaultSelectedChoiceReference>
             <fieldText>How often will the donor pay? (Transaction Period)</fieldText>
             <fieldType>DropdownBox</fieldType>
-            <helpText>Weekly / Monthly / Yearly. Combine with the Interval field above to express &quot;every 2 months&quot;, etc.</helpText>
+            <helpText>Weekly / Monthly / Yearly. Combine with the Interval field above to express custom cadences — e.g., Monthly + Interval 2 = every 2 months, Monthly + Interval 3 = every 3 months (Quarterly), Monthly + Interval 6 = twice a year. FundFirst does not carry a native Quarterly value; use Monthly + 3 to express it.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
@@ -9931,6 +9921,19 @@
             </styleProperties>
         </fields>
         <fields>
+            <name>ScheduledSection_Schedule_Help</name>
+            <fieldText>&lt;p&gt;&lt;i&gt;Set the cadence of the scheduled payments by selecting the interval and the period below. The default is set to &lt;b&gt;every third&lt;/b&gt; (interval) &lt;b&gt;month&lt;/b&gt; (period) to represent a quarterly recurrence.&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
             <name>pkScheduledEqualInstallments</name>
             <choiceReferences>Choice_EqualInstallments_Yes</choiceReferences>
             <choiceReferences>Choice_EqualInstallments_No</choiceReferences>
@@ -10031,7 +10034,7 @@
             <defaultSelectedChoiceReference>Choice_Period_Monthly</defaultSelectedChoiceReference>
             <fieldText>How often will the donor pay? (Transaction Period)</fieldText>
             <fieldType>DropdownBox</fieldType>
-            <helpText>Weekly / Monthly / Yearly. Combine with the Interval field above to express &quot;every 2 months&quot; (Monthly + 2), &quot;every 3 months&quot; (Monthly + 3), etc. FundFirst does not carry a native Quarterly value.</helpText>
+            <helpText>Weekly / Monthly / Yearly. Combine with the Interval field above to express custom cadences — e.g., Monthly + Interval 2 = every 2 months, Monthly + Interval 3 = every 3 months (Quarterly), Monthly + Interval 6 = twice a year. FundFirst does not carry a native Quarterly value; use Monthly + 3 to express it.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
