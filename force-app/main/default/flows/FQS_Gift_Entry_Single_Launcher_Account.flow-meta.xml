@@ -978,7 +978,7 @@
             <assignToReference>rsv_MatchEmployerGT.Status</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Paid</stringValue>
+                <elementReference>pkMatchReceived</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -2860,6 +2860,22 @@
         <dataType>String</dataType>
         <value>
             <stringValue>Yes</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_MatchReceived_No</name>
+        <choiceText>No — the corporate match is expected but hasn&apos;t arrived yet</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Pending</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_MatchReceived_Yes</name>
+        <choiceText>Yes — the corporate match has already been received</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Paid</stringValue>
         </value>
     </choices>
     <choices>
@@ -10222,6 +10238,26 @@
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <scale>2</scale>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>pkMatchReceived</name>
+            <choiceReferences>Choice_MatchReceived_No</choiceReferences>
+            <choiceReferences>Choice_MatchReceived_Yes</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>Choice_MatchReceived_No</defaultSelectedChoiceReference>
+            <fieldText>Has the corporate match already been received?</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <helpText>Written to the employer Gift Transaction&apos;s Status. No → Pending (the match is expected but hasn&apos;t cleared yet); Yes → Paid (the check has already cleared). You can update the Gift Transaction later when the match arrives.</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
                     <stringValue>top</stringValue>
