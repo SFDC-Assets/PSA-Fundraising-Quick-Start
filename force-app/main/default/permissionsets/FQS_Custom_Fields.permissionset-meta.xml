@@ -208,6 +208,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftDefaultSoftCredit.FQS_Parent_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>GiftDesignation.External_Id__c</field>
         <readable>true</readable>
@@ -234,12 +239,12 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>GiftTransaction.FQS_Gift_Transaction_Category__c</field>
+        <field>GiftTransaction.FQS_Fair_Market_Value_Amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>GiftTransaction.FQS_Fair_Market_Value_Amount__c</field>
+        <field>GiftTransaction.FQS_Gift_Transaction_Category__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -269,6 +274,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>GiftTransaction.FQS_Processed_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>GiftTransaction.FQS_Recurring__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -280,6 +290,21 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>GiftTransaction.FQS_Skip_Naming__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>GiftTransaction.FQS_Stewardship_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>GiftTransaction.FQS_Stewardship_Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>GiftTransaction.FQS_Tax_Receipt_Date__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
