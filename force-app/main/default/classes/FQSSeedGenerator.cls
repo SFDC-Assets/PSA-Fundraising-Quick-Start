@@ -293,7 +293,7 @@ public with sharing class FQSSeedGenerator {
         allAskCampaignIds.addAll(askIdsByFY.get(24));
 
         // allDesignationIds = designations valid for contribution-type GTs (everything except Earned Revenue).
-        // feeDesignationIds  = designations for exchange-transaction revenue only; consumed for Fee/Payment GTDs.
+        // feeDesignationIds  = designations for exchange-transaction revenue only; consumed for Other-category GTDs (earned income, event registration, fees).
         // Segregating the two pools keeps earned revenue out of contribution-restriction rollups and vice versa.
         List<Id> allDesignationIds = new List<Id>();
         List<Id> restrictedDesignationIds = new List<Id>();
@@ -1187,7 +1187,7 @@ public with sharing class FQSSeedGenerator {
             }
         }
 
-        // ============ One-off quota-based GTs (Outright + Fee/Payment only) ============
+        // ============ One-off quota-based GTs (Outright + Other only) ============
         // Recurring/Pledge/Grant payments are now emitted from commitment ladders above. This
         // loop covers the remaining categories: outright cash gifts (one-time contributions)
         // and fee/payment revenue (event registrations, program fees). Quota reuses the
@@ -1211,10 +1211,10 @@ public with sharing class FQSSeedGenerator {
 
             for (Integer g = 0; g < oneOffCount; g++) {
                 Integer catRoll = Math.mod(prng(globalIdx, 301 + g), 100);
-                String cat = (catRoll < 90) ? 'Outright Gift' : 'Fee/Payment';
+                String cat = (catRoll < 90) ? 'Outright Gift' : 'Other';
 
                 Decimal baseAmount;
-                if (cat == 'Fee/Payment')   baseAmount = randRange(globalIdx, 302 + g, 5, 100);
+                if (cat == 'Other')         baseAmount = randRange(globalIdx, 302 + g, 5, 100);
                 else if (level == 0)        baseAmount = randRange(globalIdx, 302 + g, bands.entryMin, bands.entryMax);
                 else if (level == 1)        baseAmount = randRange(globalIdx, 302 + g, bands.midMin,   bands.midMax);
                 else                        baseAmount = randRange(globalIdx, 302 + g, bands.majorMin, bands.majorMax);
@@ -1355,7 +1355,7 @@ public with sharing class FQSSeedGenerator {
         //    Don't Send (donor opt-out)
         //  - FQS_Tax_Receipt_Date__c: ~10% of Paid gifts older than 30 days (manual entry
         //    field per docs; leaving most null is correct)
-        //  - Fee/Payment category excluded from ack + stewardship (matches flow filters)
+        //  - Other category excluded from ack + stewardship (matches flow filters)
         Map<String, Schema.SObjectField> gtFieldMap = Schema.SObjectType.GiftTransaction.fields.getMap();
         Boolean hasProcessedDate  = gtFieldMap.containsKey('fqs_processed_date__c');
         Boolean hasStewardStatus  = gtFieldMap.containsKey('fqs_stewardship_status__c');
@@ -1370,7 +1370,7 @@ public with sharing class FQSSeedGenerator {
             if (txnDate == null) continue;
             Boolean isPaid = (gt.Status == 'Paid');
             String cat = (String) gt.FQS_Gift_Transaction_Category__c;
-            Boolean isFee = ('Fee/Payment'.equals(cat));
+            Boolean isFee = ('Other'.equals(cat));
 
             if (hasProcessedDate) {
                 gt.put('FQS_Processed_Date__c', txnDate.addDays(randInt(globalIdx, 320 + instIdx, 0, 3)));
@@ -1541,19 +1541,19 @@ public with sharing class FQSSeedGenerator {
         }
         if (!corpMatchGifts.isEmpty()) insert corpMatchGifts;
 
-        // Fee/Payment GTs land on an Earned Revenue designation so reports that group by
+        // Other-category GTs land on an Earned Revenue designation so reports that group by
         // FQS_Restriction_Type__c separate exchange-transaction revenue from contribution
         // revenue. All other GTs round-robin across allDesignationIds (contribution
         // designations only — Earned Revenue designations are excluded from that pool).
         // ~15% of contribution GTs split across two designations (60/40) to exercise the
-        // launcher's split-designation shape and multi-GTD report groupings. Fee/Payment
+        // launcher's split-designation shape and multi-GTD report groupings. Other-category
         // GTs always stay single-designation (exchange transactions aren't split in practice).
         List<GiftTransactionDesignation> newGTDs = new List<GiftTransactionDesignation>();
         for (Integer i = 0; i < newGifts.size(); i++) {
             GiftTransaction gt = newGifts[i];
             Integer di = giftDonorIdx[i];
             Integer globalIdx = batchOffset + di;
-            Boolean isFee = 'Fee/Payment'.equals(giftCategory[i]);
+            Boolean isFee = 'Other'.equals(giftCategory[i]);
             Boolean splitDesignation = !isFee && allDesignationIds.size() >= 2
                 && randBool(globalIdx, 220 + i, 0.15);
             if (splitDesignation) {
@@ -1753,7 +1753,7 @@ public with sharing class FQSSeedGenerator {
         //   - Grant GC (Org donor) → skip. Corp-side match GDSCs are the matching-gift flow's
         //     job, not the base seed's.
         //   - Grant Opp (Org donor) → skip. No linked individual to credit at seed time.
-        //   - Outright/one-off GTs, Fee/Payment → no GDSC (GDSC is a default; one-offs have
+        //   - Outright/one-off GTs, Other → no GDSC (GDSC is a default; one-offs have
         //     no downstream GT that would inherit).
         // Dedupe key inside this transaction is (ParentRecordId, RecipientId, Role).
         List<GiftDefaultSoftCredit> newGDSCs = new List<GiftDefaultSoftCredit>();

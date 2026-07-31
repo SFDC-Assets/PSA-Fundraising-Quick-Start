@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>FQS_Fees_And_Payments</fullName>
+    <fullName>FQS_Transaction_Category_Other</fullName>
     <columns>Name</columns>
     <columns>Donor</columns>
     <columns>TransactionDate</columns>
@@ -10,7 +10,7 @@
     <filters>
         <field>FQS_Gift_Transaction_Category__c</field>
         <operation>equals</operation>
-        <value>Fee/Payment</value>
+        <value>Other</value>
     </filters>
-    <label>Fees &amp; Payments</label>
+    <label>Transaction Category - Other</label>
 </ListView>

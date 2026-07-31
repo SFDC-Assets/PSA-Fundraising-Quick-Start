@@ -278,7 +278,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
             <label>Email Path</label>
         </rules>
     </decisions>
-    <description>Scheduled flow that runs daily and processes GiftTransaction records where Status = Paid, TransactionDate is at least 3 days in the past, and AcknowledgementStatus is blank or To Be Sent. The 3-day window lets digital-platform ingest and refunds/reversals settle before an acknowledgement fires. Fee/Payment category is excluded — donors don&apos;t get receipts for processing fees.
+    <description>Scheduled flow that runs daily and processes GiftTransaction records where Status = Paid, TransactionDate is at least 3 days in the past, and AcknowledgementStatus is blank or To Be Sent. The 3-day window lets digital-platform ingest and refunds/reversals settle before an acknowledgement fires. Other category is excluded — donors don&apos;t get receipts for earned income / event registration / processing-fee records.
 
 Acknowledgement is the universal &quot;we got your gift, thanks, here is your deduction info&quot; touch — every donor with a valid email address receives one. No donor-grouping / CMDT / lifetime-donor filtering; every eligible gift gets a receipt. Tier-based routing lives in the FQS_Stewardship_Response flow, which is a separate follow-up touch that reinforces mission and deepens the donor relationship.
 
@@ -473,7 +473,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Queries all GiftTransaction records that qualify for acknowledgement: Status = Paid, TransactionDate on or before frmThreeDaysAgo, AcknowledgementStatus blank or To Be Sent, and category is not Fee/Payment. External-tool integrations that already sent their own thank-you should have written AcknowledgementStatus = Sent to opt out of this flow.</description>
+        <description>Queries all GiftTransaction records that qualify for acknowledgement: Status = Paid, TransactionDate on or before frmThreeDaysAgo, AcknowledgementStatus blank or To Be Sent, and category is not Other. External-tool integrations that already sent their own thank-you should have written AcknowledgementStatus = Sent to opt out of this flow.</description>
         <name>Get_GiftTransactions</name>
         <label>Get Gift Transactions to Acknowledge</label>
         <locationX>0</locationX>
@@ -515,7 +515,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
             <field>FQS_Gift_Transaction_Category__c</field>
             <operator>NotEqualTo</operator>
             <value>
-                <stringValue>Fee/Payment</stringValue>
+                <stringValue>Other</stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>

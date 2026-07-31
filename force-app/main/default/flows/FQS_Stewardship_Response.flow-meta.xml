@@ -571,7 +571,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Queries all GiftTransaction records that qualify for stewardship outreach: Status = Paid, AcknowledgementStatus = Sent (only steward gifts that were successfully acknowledged first), TransactionDate on or before frmFourteenDaysAgo (today minus 14 days), FQS_Stewardship_Status__c blank or To Be Sent, and FQS_Gift_Transaction_Category__c != Fee/Payment (never steward internal fee/refund records). Records with FQS_Stewardship_Status__c = Sent or Don&apos;t Send are excluded. Results feed Loop_GiftTransactions.</description>
+        <description>Queries all GiftTransaction records that qualify for stewardship outreach: Status = Paid, AcknowledgementStatus = Sent (only steward gifts that were successfully acknowledged first), TransactionDate on or before frmFourteenDaysAgo (today minus 14 days), FQS_Stewardship_Status__c blank or To Be Sent, and FQS_Gift_Transaction_Category__c != Other (never steward earned income / event registration / fee records). Records with FQS_Stewardship_Status__c = Sent or Don&apos;t Send are excluded. Results feed Loop_GiftTransactions.</description>
         <name>Get_GiftTransactions</name>
         <label>Get Gift Transactions to Steward</label>
         <locationX>0</locationX>
@@ -620,7 +620,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
             <field>FQS_Gift_Transaction_Category__c</field>
             <operator>NotEqualTo</operator>
             <value>
-                <stringValue>Fee/Payment</stringValue>
+                <stringValue>Other</stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>
