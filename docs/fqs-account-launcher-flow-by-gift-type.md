@@ -12,7 +12,7 @@ The FQS data model supports five single-donor gift-entry scenarios:
 |---|---|---|---|
 | Outright Gift | `GiftTransaction` | Optional `GiftTransactionDesignation`, `GiftSoftCredit` | [`FQS_Gift_Transaction_Category__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) = `Outright Gift` |
 | In-Kind Gift | `GiftTransaction` | Optional `GiftTransactionDesignation`, `GiftSoftCredit` | `FQS_Gift_Transaction_Category__c` = `Outright Gift` (with [`FQS_In_Kind__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_In_Kind__c.field-meta.xml) = `true`) |
-| Fee-for-Service | `GiftTransaction` | Optional `GiftTransactionDesignation`, `GiftSoftCredit` | `FQS_Gift_Transaction_Category__c` = `Fee/Payment` |
+| Earned Income / Event Registration | `GiftTransaction` | Optional `GiftTransactionDesignation`, `GiftSoftCredit` | `FQS_Gift_Transaction_Category__c` = `Other` |
 | Pledge Payment | `GiftTransaction` (against existing `GiftCommitment`) | Optional `GiftTransactionDesignation`, `GiftSoftCredit` | `FQS_Gift_Transaction_Category__c` = `Pledge Payment` |
 | New Pledge | `GiftCommitment` | Optional `GiftDefaultDesignation` (and a `GiftCommitmentSchedule` — see notes) | [`FQS_Gift_Commitment_Category__c`](../force-app/main/default/objects/GiftCommitment/fields/FQS_Gift_Commitment_Category__c.field-meta.xml) = `Pledged Gift` |
 
@@ -162,7 +162,7 @@ All other fields follow the Outright pattern (dates, receipt status, campaign, e
 
 | Field | Value |
 |---|---|
-| [`FQS_Gift_Transaction_Category__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) | `Fee/Payment` |
+| [`FQS_Gift_Transaction_Category__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) | `Other` |
 | [`FQS_In_Kind__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_In_Kind__c.field-meta.xml) | `false` |
 | `TaxReceiptStatus` | `Don't Send` (there is no charitable portion to receipt). |
 | **`OriginalAmount`** | Full payment amount, e.g. `250.00` for a $250 event ticket. |

@@ -10,7 +10,7 @@ Filter:
 - `AcknowledgementStatus = 'Sent'` (acknowledgement is a prerequisite)
 - `TransactionDate <= today - 14 days` (two-week gap after the gift so the ack has landed and any donor response has had time to arrive)
 - `FQS_Stewardship_Status__c IS NULL` OR `FQS_Stewardship_Status__c = 'To Be Sent'`
-- `Category != Fee/Payment`
+- `Category != Other` (excludes earned income, event registrations, and service fees — not gifts)
 
 Stewardship is **not** a second thank-you. It is a follow-up mission-oriented touch meant to deepen the donor's connection to the mission — a story, program update, or impact metric that ties the specific gift to real work.
 

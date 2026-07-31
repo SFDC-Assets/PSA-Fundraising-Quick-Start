@@ -116,9 +116,11 @@ Date. Manual only — FQS does not automate year-end tax receipting; standard `T
 
 ## Category exclusion
 
-Both flows skip `GiftTransaction.Category = 'Fee/Payment'`. Fee/Payment transactions are event tickets, service fees, or other non-gift income — the org has already delivered value, and sending a "thank you for your generosity" note would be off-brand.
+Both flows skip `GiftTransaction.FQS_Gift_Transaction_Category__c = 'Other'`. The `Other` category covers earned income, event registrations, service fees, and any transaction where the org has already delivered value — sending a "thank you for your generosity" note would be off-brand.
 
-If your external tool wants to acknowledge fee-for-service transactions on its own schedule, do so. FQS will not compete.
+**Restricted picklist note:** `FQS_Gift_Transaction_Category__c` is a restricted picklist. Allowed values are `Outright Gift`, `Pledge Payment`, `Recurring Gift Payment`, `Grant Payment`, `Other`. Sending any other value (including the retired `Fee/Payment` value) will fail with `INVALID_OR_NULL_FOR_RESTRICTED_PICKLIST`.
+
+If your external tool wants to acknowledge earned-income or fee-for-service transactions on its own schedule, do so. FQS will not compete.
 
 ---
 

@@ -33,7 +33,7 @@ Object-by-object recap of the 48 custom fields (`__c`) added by the Fundraising 
 | API Name | Type | Notes |
 |---|---|---|
 | `External_Id__c` | Text(64), external ID | |
-| `FQS_Gift_Transaction_Category__c` | restricted Picklist | Values: Outright Gift, Pledge Payment, Grant Payment, Fee/Payment. |
+| `FQS_Gift_Transaction_Category__c` | restricted Picklist | Values: Outright Gift, Pledge Payment, Recurring Gift Payment, Grant Payment, Other. |
 | `FQS_In_Kind__c` | Checkbox | Non-cash gift flag. |
 | `FQS_Matched__c` | Checkbox | Employer/third-party match indicator; drives conditional related list. |
 | `FQS_Recurring__c` | Checkbox | Recurring-series membership. |
@@ -276,7 +276,7 @@ Every field that ships with an admin-facing description — visible only to admi
 | API Name | Kind | Admin Description |
 |---|---|---|
 | `External_Id__c` | Custom | External identifier used by FQS seed scripts for idempotent upserts and teardown. Pattern: FQS-<OBJ>-<idx>[-<subidx>]. |
-| `FQS_Gift_Transaction_Category__c` | Custom | Classifies the transaction kind. Allowed values: Outright Gift, Pledge Payment, Grant Payment, Fee/Payment. |
+| `FQS_Gift_Transaction_Category__c` | Custom | Classifies the transaction kind. Allowed values: Outright Gift, Pledge Payment, Recurring Gift Payment, Grant Payment, Other. |
 | `FQS_In_Kind__c` | Custom | Indicates this transaction is an in-kind (non-cash) gift such as goods, services, or property. |
 | `FQS_Is_Entry_Gift__c` | Custom | Boolean formula that returns TRUE when CurrentAmount meets or exceeds the Entry.One_Time_Min_Amount__c value in FQS_Donor_Grouping custom metadata, OR when the parent GiftCommitment.ExpectedTotalCmtAmount meets or exceeds Entry.Lifetime_Min_Amount__c (installment inheritance — a payment against a large commitment inherits the commitment's tier). Thresholds are configured via Setup → Custom Metadata Types → FQS Donor Grouping or the FQS Donor Grouping Configurator screen flow. Changing threshold values recalculates this field across all Gift Transaction records retroactively — no redeployment or batch job required. Reports and dashboards using this field will reflect the new values immediately. |
 | `FQS_Is_Major_Gift__c` | Custom | Boolean formula that returns TRUE when CurrentAmount meets or exceeds the Major.One_Time_Min_Amount__c value in FQS_Donor_Grouping custom metadata, OR when the parent GiftCommitment.ExpectedTotalCmtAmount meets or exceeds Major.Lifetime_Min_Amount__c (installment inheritance — a payment against a large commitment inherits the commitment's tier). Thresholds are configured via Setup → Custom Metadata Types → FQS Donor Grouping or the FQS Donor Grouping Configurator screen flow. Changing threshold values recalculates this field across all Gift Transaction records retroactively — no redeployment or batch job required. Reports and dashboards using this field will reflect the new values immediately. |

@@ -2,7 +2,7 @@
 
 ## What it does
 
-The **FQS Gift Acknowledgement** flow runs on a daily schedule (06:00 UTC). It queries all `GiftTransaction` records where `Status = Paid`, `TransactionDate` is at least 3 days in the past, `AcknowledgementStatus` is blank or `To Be Sent`, and `Category != Fee/Payment`. The 3-day window lets digital-platform ingest and any refunds or reversals settle before an acknowledgement fires. `Fee/Payment` transactions (event tickets, service fees) are excluded because they are not gifts.
+The **FQS Gift Acknowledgement** flow runs on a daily schedule (06:00 UTC). It queries all `GiftTransaction` records where `Status = Paid`, `TransactionDate` is at least 3 days in the past, `AcknowledgementStatus` is blank or `To Be Sent`, and `Category != Other`. The 3-day window lets digital-platform ingest and any refunds or reversals settle before an acknowledgement fires. `Other`-category transactions (earned income, event registrations, service fees) are excluded because they are not gifts.
 
 Acknowledgement is a **universal rule** — every donor with a valid email receives one, regardless of donor tier or lifetime giving. Its job is to confirm receipt: "we got your gift, thanks, here is your deduction info." Tier-differentiated relationship-building lives in the separate **FQS Stewardship Response** flow (see `docs/gift-stewardship-flow.md`), which fires ~14 days after acknowledgement is sent.
 

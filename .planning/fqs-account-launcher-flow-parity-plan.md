@@ -789,8 +789,8 @@ Defaulting rules per ask type — set in the Assignment nodes before `Screen_Gif
 | `GiftType` | `Individual` when `Get_Account.IsPersonAccount = true`; `Organizational` otherwise. Auto-derived in Assignment, **not shown on screen.** | No user decision needed. |
 | `DonorId` | `recordId` | Already the case. |
 | `AcknowledgementStatus` | `To Be Sent` (keep native default). | Consistent with FQS conventions. |
-| `TaxReceiptStatus` | `To Be Sent` for Outright / In-Kind / Pledge Payment; `Don't Send` for Fee-for-Service. | Fee/Payment isn't tax-deductible. |
-| `NonTaxDeductibleAmount` | `0` for Outright / Pledge Payment / In-Kind; `= OriginalAmount` for Fee-for-Service. | Fee/Payment is 100% non-deductible. In-Kind uses `TaxDeductionAmount` for FMV instead. |
+| `TaxReceiptStatus` | `To Be Sent` for Outright / In-Kind / Pledge Payment; `Don't Send` for Earned Income / Event Registration. | The `Other` category (earned income, event registration, fees) isn't tax-deductible. |
+| `NonTaxDeductibleAmount` | `0` for Outright / Pledge Payment / In-Kind; `= OriginalAmount` for Earned Income / Event Registration. | `Other`-category transactions are 100% non-deductible. In-Kind uses `TaxDeductionAmount` for FMV instead. |
 
 **Outright Gift (`pkAskType = 'Outright'`):**
 - `FQS_Gift_Transaction_Category__c = 'Outright Gift'`
@@ -810,7 +810,7 @@ Defaulting rules per ask type — set in the Assignment nodes before `Screen_Gif
 *Platform reality: `GiftTransaction.CurrentAmount` and `GiftTransaction.TaxDeductionAmount` are both calculated fields and cannot be written directly. The original plan of "OriginalAmount = 0, FMV on TaxDeductionAmount" wasn't possible; the implementation stores FMV on OriginalAmount and lets the calculated fields resolve. Currency fields also cannot be exposed via `ObjectProvided` bindings in v66, so `Amount` and Pledge `ExpectedTotalCmtAmount` are plain InputFields with Assignment fanout.*
 
 **Fee-for-Service (`pkAskType = 'FeeForService'`):**
-- `FQS_Gift_Transaction_Category__c = 'Fee/Payment'`
+- `FQS_Gift_Transaction_Category__c = 'Other'`
 - `FQS_In_Kind__c = false`
 - `NonTaxDeductibleAmount = OriginalAmount` (see universal table)
 - `TaxReceiptStatus = 'Don't Send'`

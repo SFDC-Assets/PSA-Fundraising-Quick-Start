@@ -88,7 +88,7 @@ The 2026-07-27 and -07-28 seed passes added coverage that the current 5-report s
 **Report:** `FQS_Stewardship_Pipeline` (GT base, `fqs_Gift_Transactions_Deluxe` CRT)
 - Format: Matrix
 - Row group: `FQS_Stewardship_Status__c` (Sent / To Be Sent / Don't Send / null)
-- Col group: `Category` (Contribution / Fee/Payment — filter to Contribution)
+- Col group: `Category` (Contribution / Other — filter to Contribution)
 - Filter: `Status='Paid' AND TransactionDate >= LAST_N_MONTHS:6`
 - Aggregates: RowCount + SUM(CurrentAmount)
 - Chart: Stacked Column, groupingColumn = `FQS_Stewardship_Status__c`

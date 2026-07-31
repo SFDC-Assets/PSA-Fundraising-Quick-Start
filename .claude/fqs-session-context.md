@@ -107,13 +107,13 @@ File: `force-app/main/default/flexipages/FQS_GiftCommitment_Record_Page.flexipag
 ## GiftTransaction — COMPLETE (deployed)
 
 ### What deployed successfully
-- `FQS_Gift_Transaction_Category__c` — restricted picklist (Outright Gift, Pledge Payment, Grant Payment, Fee/Payment)
+- `FQS_Gift_Transaction_Category__c` — restricted picklist (Outright Gift, Pledge Payment, Recurring Gift Payment, Grant Payment, Other)
 - `FQS_Is_Matched__c` — Checkbox
 - `FQS_Is_In_Kind__c` — Checkbox
 - `FQS_Is_Recurring__c` — Checkbox
 - `GiftType.field-meta.xml` — standard field patch (description added: Allowed values: Individual, Organizational)
 - `GiftTransaction.object-meta.xml` — searchLayouts patch (no excludeButtons — not supported on NPC objects)
-- List views: `FQS_Outright_Gifts`, `FQS_Pledge_Payments`, `FQS_Grant_Payments`, `FQS_Fees_And_Payments`
+- List views: `FQS_Outright_Gifts`, `FQS_Pledge_Payments`, `FQS_Recurring_Gift_Payments`, `FQS_Grant_Payments`, `FQS_Transaction_Category_Other`
 - Quick actions: `FQS_New_Outright_Gift`, `FQS_New_Pledge_Payment`, `FQS_New_Grant_Payment`, `FQS_New_Fee_Payment`
   ⚠ Quick actions appear via the **page layout's Mobile & Lightning Actions** section — not via FlexiPage actionNames (custom quick actions cannot be validated by dynamicHighlights)
 - `FQS_GiftTransaction_Status` — PathAssistant (Status field, 7 steps, non-linear: Unpaid, Pending, Paid, Failed, Fully Refunded, Written-Off, Canceled)
@@ -125,10 +125,11 @@ File: `force-app/main/default/flexipages/FQS_GiftCommitment_Record_Page.flexipag
 Segmentation map for GiftTransaction:
   Discriminator: FQS_Gift_Transaction_Category__c
   Kinds:
-    - Outright Gift  — standalone gift, no parent GiftCommitment required
-    - Pledge Payment — fulfills a pledge or recurring commitment
-    - Grant Payment  — fulfills a grant payout commitment
-    - Fee/Payment    — event fees or other non-gift transactions
+    - Outright Gift          — standalone gift, no parent GiftCommitment required
+    - Pledge Payment         — fulfills a pledge commitment (closed, recurring or custom schedules)
+    - Recurring Gift Payment — fulfills a recurring commitment (open-ended)
+    - Grant Payment          — fulfills a grant payout commitment
+    - Other                  — earned income, event registrations, service fees, or other non-gift transactions
   Mechanism: Custom restricted picklist field
 ```
 
