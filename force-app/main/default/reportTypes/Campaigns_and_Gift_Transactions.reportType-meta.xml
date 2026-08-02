@@ -540,7 +540,7 @@
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
-            <field>FQS_Processed_Date__c</field>
+            <field>FQS_Donor_Tax_Acknowledgement_Date__c</field>
             <table>Campaign.GiftTransaction</table>
         </columns>
         <columns>

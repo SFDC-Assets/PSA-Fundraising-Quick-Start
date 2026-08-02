@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Donor_Tax_Acknowledgement_Date__c</fullName>
+    <description>The date the gift is treated as having left the donor's control for tax-receipt purposes. Varies by payment channel and local law — postmark date for mailed checks, charge-authorization date for credit-card gifts, delivery date for stock or in-kind gifts. Distinct from Transaction Date (Transaction Completion Date), which is when the gift is fully in the org's hands. Optional for most orgs — leave blank when the org has no operationally meaningful gap between the two dates (typical for low-volume, credit-card-heavy, or jurisdiction-simple orgs).</description>
+    <externalId>false</externalId>
+    <inlineHelpText>The date the donor is credited for tax purposes — postmark for mailed checks, charge date for cards, delivery date for stock. Leave blank if your org treats the Transaction Date as the tax date (fine for most orgs).</inlineHelpText>
+    <label>Donor Tax Acknowledgement Date</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

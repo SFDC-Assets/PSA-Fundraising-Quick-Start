@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>AcknowledgementDate</fullName>
+    <description>Standard: the date the donor was thanked for this gift (a card, an email, a call, a personal note). Written by the FQS Gift Acknowledgement flow when the acknowledgement is delivered — normally not set by hand. Distinct from Donor Tax Acknowledgement Date, which records when the gift left the donor's control for tax-receipt purposes, and from Tax Receipt Date, which records when the year-end tax receipt was issued.</description>
+    <inlineHelpText>When this donor was thanked for the gift. Usually set automatically by the FQS Gift Acknowledgement flow when the thank-you goes out. Not the tax receipt date and not the donor tax acknowledgement date.</inlineHelpText>
     <trackHistory>false</trackHistory>
 </CustomField>

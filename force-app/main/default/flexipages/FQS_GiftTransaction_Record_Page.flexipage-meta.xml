@@ -494,8 +494,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.FQS_Processed_Date__c</fieldItem>
-                <identifier>RecordFQS_Processed_Date_cField</identifier>
+                <fieldItem>Record.FQS_Donor_Tax_Acknowledgement_Date__c</fieldItem>
+                <identifier>RecordFQS_Donor_Tax_Acknowledgement_Date_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>

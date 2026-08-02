@@ -239,6 +239,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>GiftTransaction.FQS_Donor_Tax_Acknowledgement_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>GiftTransaction.FQS_Fair_Market_Value_Amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -270,11 +275,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>GiftTransaction.FQS_Matched__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>GiftTransaction.FQS_Processed_Date__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
