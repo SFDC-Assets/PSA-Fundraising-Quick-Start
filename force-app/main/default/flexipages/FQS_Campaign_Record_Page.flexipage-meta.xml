@@ -84,6 +84,141 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>cacheAge</name>
+                    <value>1440</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Gift Transactions by Status</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>reportFilter</name>
+                    <value>Campaign.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>reportName</name>
+                    <value>Campaign_Record_Page_Report_nLT</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showRefreshButton</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:reportChart</componentName>
+                <identifier>flexipage_reportChart</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Hierarchy_Depth__c}</leftValue>
+                        <operator>GE</operator>
+                        <rightValue>3</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>cacheAge</name>
+                    <value>1440</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Gift Transactions by Status (Child Campaigns)</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>reportFilter</name>
+                    <value>Campaign.Parent.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>reportName</name>
+                    <value>Campaign_Record_Page_Report_Level2_zMR</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showRefreshButton</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:reportChart</componentName>
+                <identifier>flexipage_reportChart_level2</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Hierarchy_Depth__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>2</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>cacheAge</name>
+                    <value>1440</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Gift Transactions by Status (Grandchild Campaigns)</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>reportFilter</name>
+                    <value>Campaign.Parent.Parent.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>reportName</name>
+                    <value>Campaign_Record_Page_Report_Level1_pWX</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showRefreshButton</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:reportChart</componentName>
+                <identifier>flexipage_reportChart_level1</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Hierarchy_Depth__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>1</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>displayLastUpdated</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>enableEditCreate</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>groups</name>
+                    <value>[{&quot;groupName&quot;:&quot;Top Line Numbers&quot;,&quot;index&quot;:3,&quot;allFields&quot;:[{&quot;value&quot;:&quot;DonorCount&quot;},{&quot;value&quot;:&quot;TotalGiftTransactionAmount&quot;},{&quot;value&quot;:&quot;AverageGiftAmount&quot;},{&quot;value&quot;:&quot;AttributedAmount&quot;}]},{&quot;groupName&quot;:&quot;Outwright Gifts&quot;,&quot;index&quot;:4,&quot;allFields&quot;:[{&quot;value&quot;:&quot;OnetimeDonorCount&quot;},{&quot;value&quot;:&quot;TotalOnetimeGiftAmount&quot;},{&quot;value&quot;:&quot;AverageOnetimeGiftAmount&quot;}]},{&quot;groupName&quot;:&quot;Pledged and Recurring Gifts &quot;,&quot;index&quot;:5,&quot;allFields&quot;:[{&quot;value&quot;:&quot;RecurringDonorCount&quot;},{&quot;value&quot;:&quot;TotalRecurringGiftAmount&quot;},{&quot;value&quot;:&quot;AverageRecurringGiftAmount&quot;}]},{&quot;groupName&quot;:&quot;System Information&quot;,&quot;index&quot;:6,&quot;allFields&quot;:[{&quot;value&quot;:&quot;Name&quot;},{&quot;value&quot;:&quot;LastModifiedDate&quot;},{&quot;value&quot;:&quot;SystemModstamp&quot;}]}]</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>panelName</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedEntity</name>
+                    <value>OutreachSummary:CampaignId</value>
+                </componentInstanceProperties>
+                <componentName>runtime_industries_fundraising:relatedRecordDetailDisplay</componentName>
+                <identifier>runtime_industries_fundraising_relatedRecordDetailDisplay</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Hierarchy_Depth__c}</leftValue>
+                        <operator>GE</operator>
+                        <rightValue>3</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-f9e00f7a-424a-4548-818d-c8581aec901e</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
                     <name>lookupFieldName</name>
                     <value>Campaign.Id</value>
                 </componentInstanceProperties>
@@ -557,131 +692,21 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>cacheAge</name>
-                    <value>1440</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Gift Transactions by Status</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>reportFilter</name>
-                    <value>Campaign.Id</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>reportName</name>
-                    <value>Campaign_Record_Page_Report_nLT</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>showRefreshButton</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:reportChart</componentName>
-                <identifier>flexipage_reportChart</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.FQS_Hierarchy_Depth__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>3</rightValue>
-                    </criteria>
-                </visibilityRule>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>cacheAge</name>
-                    <value>1440</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Gift Transactions by Status (Child Campaigns)</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>reportFilter</name>
-                    <value>Campaign.Parent.Id</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>reportName</name>
-                    <value>Campaign_Record_Page_Report_Level2_zMR</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>showRefreshButton</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:reportChart</componentName>
-                <identifier>flexipage_reportChart_level2</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.FQS_Hierarchy_Depth__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>2</rightValue>
-                    </criteria>
-                </visibilityRule>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>cacheAge</name>
-                    <value>1440</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Gift Transactions by Status (Grandchild Campaigns)</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>reportFilter</name>
-                    <value>Campaign.Parent.Parent.Id</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>reportName</name>
-                    <value>Campaign_Record_Page_Report_Level1_pWX</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>showRefreshButton</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:reportChart</componentName>
-                <identifier>flexipage_reportChart_level1</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.FQS_Hierarchy_Depth__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>1</rightValue>
-                    </criteria>
-                </visibilityRule>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>displayLastUpdated</name>
+                    <name>active</name>
                     <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>enableEditCreate</name>
-                    <value>false</value>
+                    <name>body</name>
+                    <value>Facet-f9e00f7a-424a-4548-818d-c8581aec901e</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>groups</name>
-                    <value>[{&quot;groupName&quot;:&quot;Top Line Numbers&quot;,&quot;index&quot;:3,&quot;allFields&quot;:[{&quot;value&quot;:&quot;DonorCount&quot;},{&quot;value&quot;:&quot;TotalGiftTransactionAmount&quot;},{&quot;value&quot;:&quot;AverageGiftAmount&quot;},{&quot;value&quot;:&quot;AttributedAmount&quot;}]},{&quot;groupName&quot;:&quot;Outwright Gifts&quot;,&quot;index&quot;:4,&quot;allFields&quot;:[{&quot;value&quot;:&quot;OnetimeDonorCount&quot;},{&quot;value&quot;:&quot;TotalOnetimeGiftAmount&quot;},{&quot;value&quot;:&quot;AverageOnetimeGiftAmount&quot;}]},{&quot;groupName&quot;:&quot;Pledged and Recurring Gifts &quot;,&quot;index&quot;:5,&quot;allFields&quot;:[{&quot;value&quot;:&quot;RecurringDonorCount&quot;},{&quot;value&quot;:&quot;TotalRecurringGiftAmount&quot;},{&quot;value&quot;:&quot;AverageRecurringGiftAmount&quot;}]},{&quot;groupName&quot;:&quot;System Information&quot;,&quot;index&quot;:6,&quot;allFields&quot;:[{&quot;value&quot;:&quot;Name&quot;},{&quot;value&quot;:&quot;LastModifiedDate&quot;},{&quot;value&quot;:&quot;SystemModstamp&quot;}]}]</value>
+                    <name>title</name>
+                    <value>Results</value>
                 </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>panelName</name>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedEntity</name>
-                    <value>OutreachSummary:CampaignId</value>
-                </componentInstanceProperties>
-                <componentName>runtime_industries_fundraising:relatedRecordDetailDisplay</componentName>
-                <identifier>runtime_industries_fundraising_relatedRecordDetailDisplay</identifier>
+                <componentName>flexipage:tab</componentName>
+                <identifier>flexipage_tab</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-f9e00f7a-424a-4548-818d-c8581aec901e</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
@@ -730,24 +755,6 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>fqs_cam_tab_outreach</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>active</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-f9e00f7a-424a-4548-818d-c8581aec901e</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Results</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>flexipage_tab</identifier>
             </componentInstance>
         </itemInstances>
         <mode>Replace</mode>
