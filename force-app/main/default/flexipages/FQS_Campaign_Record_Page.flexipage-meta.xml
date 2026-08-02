@@ -11,9 +11,16 @@
                         </valueListItems>
                         <valueListItems>
                             <value>CreateSourceCode</value>
+                            <visibilityRule>
+                                <criteria>
+                                    <leftValue>{!Record.FQS_Hierarchy_Depth__c}</leftValue>
+                                    <operator>GE</operator>
+                                    <rightValue>3</rightValue>
+                                </criteria>
+                            </visibilityRule>
                         </valueListItems>
                         <valueListItems>
-                            <value>NewSampleManagement</value>
+                            <value>Clone</value>
                         </valueListItems>
                         <valueListItems>
                             <value>DeepClone</value>
@@ -45,7 +52,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>numVisibleActions</name>
-                    <value>5</value>
+                    <value>4</value>
                 </componentInstanceProperties>
                 <componentName>force:highlightsPanel</componentName>
                 <identifier>fqs_cam_highlightsPanel</identifier>
@@ -77,40 +84,100 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>displayLastUpdated</name>
-                    <value>false</value>
+                    <name>lookupFieldName</name>
+                    <value>Campaign.Id</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>enableEditCreate</name>
-                    <value>false</value>
+                    <name>titleFieldName</name>
+                    <value>Hierarchy Details</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>groups</name>
-                    <value>[{&quot;groupName&quot;:&quot;Top Line Numbers&quot;,&quot;index&quot;:3,&quot;allFields&quot;:[{&quot;value&quot;:&quot;DonorCount&quot;},{&quot;value&quot;:&quot;TotalGiftTransactionAmount&quot;},{&quot;value&quot;:&quot;AverageGiftAmount&quot;},{&quot;value&quot;:&quot;AttributedAmount&quot;}]},{&quot;groupName&quot;:&quot;Outwright Gifts&quot;,&quot;index&quot;:4,&quot;allFields&quot;:[{&quot;value&quot;:&quot;OnetimeDonorCount&quot;},{&quot;value&quot;:&quot;TotalOnetimeGiftAmount&quot;},{&quot;value&quot;:&quot;AverageOnetimeGiftAmount&quot;}]},{&quot;groupName&quot;:&quot;Pledged and Recurring Gifts &quot;,&quot;index&quot;:5,&quot;allFields&quot;:[{&quot;value&quot;:&quot;RecurringDonorCount&quot;},{&quot;value&quot;:&quot;TotalRecurringGiftAmount&quot;},{&quot;value&quot;:&quot;AverageRecurringGiftAmount&quot;}]},{&quot;groupName&quot;:&quot;System Information&quot;,&quot;index&quot;:6,&quot;allFields&quot;:[{&quot;value&quot;:&quot;Name&quot;},{&quot;value&quot;:&quot;LastModifiedDate&quot;},{&quot;value&quot;:&quot;SystemModstamp&quot;}]}]</value>
+                    <name>updateQuickActionName</name>
+                    <value>Campaign.Hierarchy_Metrics</value>
                 </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>panelName</name>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedEntity</name>
-                    <value>OutreachSummary:CampaignId</value>
-                </componentInstanceProperties>
-                <componentName>runtime_industries_fundraising:relatedRecordDetailDisplay</componentName>
-                <identifier>runtime_industries_fundraising_relatedRecordDetailDisplay</identifier>
+                <componentName>console:relatedRecord</componentName>
+                <identifier>console_relatedRecord3</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-f9e00f7a-424a-4548-818d-c8581aec901e</name>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Campaign.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>ChildCampaigns</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListComponentOverride</name>
+                    <value>NONE</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>rowsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer12</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-jnkfnlrje1</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>force:detailPanel</componentName>
-                <identifier>fqs_cam_detailPanel</identifier>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-jnkfnlrje1</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>HIerarchy Info</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>name</name>
+                    <value>accordionSection1</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>flexipage_accordionSection4</identifier>
             </componentInstance>
         </itemInstances>
-        <mode>Replace</mode>
-        <name>detailTabContent</name>
+        <name>Facet-87m06z7gwjv</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Campaign.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>ChildCampaigns</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListComponentOverride</name>
+                    <value>NONE</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>rowsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>force:relatedListSingleContainer</componentName>
+                <identifier>force_relatedListSingleContainer</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-dfbkpdspjy6</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -166,37 +233,57 @@
                 <identifier>force_relatedListSingleContainer3</identifier>
             </componentInstance>
         </itemInstances>
+        <name>Facet-fb3f4d3f-7566-4f99-80b3-1cb2a948a2cc</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>parentFieldApiName</name>
-                    <value>Campaign.Id</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedListApiName</name>
-                    <value>ChildCampaigns</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>relatedListComponentOverride</name>
-                    <value>NONE</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>rowsToDisplay</name>
-                    <value>10</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>showActionBar</name>
+                    <name>decorate</name>
                     <value>true</value>
                 </componentInstanceProperties>
-                <componentName>force:relatedListSingleContainer</componentName>
-                <identifier>force_relatedListSingleContainer</identifier>
-                <visibilityRule>
-                    <criteria>
-                        <leftValue>{!Record.FQS_Campaign_Category__c}</leftValue>
-                        <operator>EQUAL</operator>
-                        <rightValue>Fundraising Top Level Campaign</rightValue>
-                    </criteria>
-                </visibilityRule>
+                <componentInstanceProperties>
+                    <name>richTextValue</name>
+                    <value>&lt;p&gt;&lt;strong style=&quot;font-size: 20px;&quot;&gt;Bulk Edit Outreach Source Codes&lt;/strong&gt;&lt;/p&gt;</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:richText</componentName>
+                <identifier>flexipage_richText</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>fieldConfig</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>{&quot;objectApiName&quot;:&quot;OutreachSourceCode&quot;,&quot;fieldName&quot;:&quot;Name&quot;,&quot;isRequired&quot;:true,&quot;isEditable&quot;:true,&quot;isHidden&quot;:false,&quot;isDbRequiredFieldDisabled&quot;:true,&quot;isCalculated&quot;:false}</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>{&quot;objectApiName&quot;:&quot;OutreachSourceCode&quot;,&quot;fieldName&quot;:&quot;SourceCode&quot;,&quot;isRequired&quot;:true,&quot;isEditable&quot;:true,&quot;isHidden&quot;:false,&quot;isDbRequiredFieldDisabled&quot;:true,&quot;isCalculated&quot;:false}</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>{&quot;objectApiName&quot;:&quot;OutreachSourceCode&quot;,&quot;fieldName&quot;:&quot;Status&quot;,&quot;isRequired&quot;:false,&quot;isEditable&quot;:true,&quot;isHidden&quot;:false,&quot;isDbRequiredFieldDisabled&quot;:false,&quot;isCalculated&quot;:false,&quot;defaultValue&quot;:&quot;Active&quot;}</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>{&quot;objectApiName&quot;:&quot;OutreachSourceCode&quot;,&quot;fieldName&quot;:&quot;FQS_Platform__c&quot;,&quot;isRequired&quot;:false,&quot;isEditable&quot;:true,&quot;isHidden&quot;:false,&quot;isDbRequiredFieldDisabled&quot;:false,&quot;isCalculated&quot;:false}</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>{&quot;objectApiName&quot;:&quot;OutreachSourceCode&quot;,&quot;fieldName&quot;:&quot;MessageChannel&quot;,&quot;isRequired&quot;:false,&quot;isEditable&quot;:true,&quot;isHidden&quot;:false,&quot;isDbRequiredFieldDisabled&quot;:false,&quot;isCalculated&quot;:false}</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>{&quot;objectApiName&quot;:&quot;OutreachSourceCode&quot;,&quot;fieldName&quot;:&quot;AudienceInformation&quot;,&quot;isRequired&quot;:false,&quot;isEditable&quot;:true,&quot;isHidden&quot;:false,&quot;isDbRequiredFieldDisabled&quot;:false,&quot;isCalculated&quot;:false}</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>{&quot;objectApiName&quot;:&quot;OutreachSourceCode&quot;,&quot;fieldName&quot;:&quot;AudienceCount&quot;,&quot;isRequired&quot;:false,&quot;isEditable&quot;:true,&quot;isHidden&quot;:false,&quot;isDbRequiredFieldDisabled&quot;:false,&quot;isCalculated&quot;:false}</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>{&quot;objectApiName&quot;:&quot;OutreachSourceCode&quot;,&quot;fieldName&quot;:&quot;MessageContentTitle&quot;,&quot;isRequired&quot;:false,&quot;isEditable&quot;:true,&quot;isHidden&quot;:false,&quot;isDbRequiredFieldDisabled&quot;:false,&quot;isCalculated&quot;:false}</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentName>runtime_industries_fundraising:createSourceCodesLauncher</componentName>
+                <identifier>runtime_industries_fundraising_createSourceCodesLauncher</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -225,7 +312,124 @@
                 <identifier>force_relatedListSingleContainer4</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-fqs-cam-subcampaigns</name>
+        <name>Facet-370d8383-ce69-40f0-bedf-60f7c3002cf9</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-dfbkpdspjy6</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Hierarchy</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>name</name>
+                    <value>accordionSection--0zlj0ipuvyi</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>flexipage_accordionSection5</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-fb3f4d3f-7566-4f99-80b3-1cb2a948a2cc</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>C.M. Statuses and Default Designations</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>name</name>
+                    <value>accordionSection1</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>flexipage_accordionSection2</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-370d8383-ce69-40f0-bedf-60f7c3002cf9</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Outreach Source Codes</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>name</name>
+                    <value>accordionSection--z31qjbenmhi</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>flexipage_accordionSection3</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-60ef614e-ca6d-4d39-8ea8-3579b1177998</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>accordionSections</name>
+                    <value>Facet-87m06z7gwjv</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordion</componentName>
+                <identifier>flexipage_accordion2</identifier>
+                <visibilityRule>
+                    <booleanFilter>1 OR 2</booleanFilter>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Campaign_Category__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Fundraising Top Level Campaign</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Hierarchy_Depth__c}</leftValue>
+                        <operator>LT</operator>
+                        <rightValue>3</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>accordionSections</name>
+                    <value>Facet-60ef614e-ca6d-4d39-8ea8-3579b1177998</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>defaultSectionName</name>
+                    <value>accordionSection1</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordion</componentName>
+                <identifier>flexipage_accordion</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Hierarchy_Depth__c}</leftValue>
+                        <operator>GE</operator>
+                        <rightValue>3</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-667c901d-21e0-4f5d-b0fd-12ab1fb5b1bd</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentName>force:detailPanel</componentName>
+                <identifier>fqs_cam_detailPanel</identifier>
+            </componentInstance>
+        </itemInstances>
+        <mode>Replace</mode>
+        <name>detailTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -353,19 +557,147 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>cacheAge</name>
+                    <value>1440</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Gift Transactions by Status</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>reportFilter</name>
+                    <value>Campaign.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>reportName</name>
+                    <value>Campaign_Record_Page_Report_nLT</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showRefreshButton</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:reportChart</componentName>
+                <identifier>flexipage_reportChart</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Hierarchy_Depth__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>3</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>cacheAge</name>
+                    <value>1440</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Gift Transactions by Status (Child Campaigns)</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>reportFilter</name>
+                    <value>Campaign.Parent.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>reportName</name>
+                    <value>Campaign_Record_Page_Report_Level2_zMR</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showRefreshButton</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:reportChart</componentName>
+                <identifier>flexipage_reportChart_level2</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Hierarchy_Depth__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>2</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>cacheAge</name>
+                    <value>1440</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Gift Transactions by Status (Grandchild Campaigns)</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>reportFilter</name>
+                    <value>Campaign.Parent.Parent.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>reportName</name>
+                    <value>Campaign_Record_Page_Report_Level1_pWX</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showRefreshButton</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:reportChart</componentName>
+                <identifier>flexipage_reportChart_level1</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Hierarchy_Depth__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>1</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>displayLastUpdated</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>enableEditCreate</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>groups</name>
+                    <value>[{&quot;groupName&quot;:&quot;Top Line Numbers&quot;,&quot;index&quot;:3,&quot;allFields&quot;:[{&quot;value&quot;:&quot;DonorCount&quot;},{&quot;value&quot;:&quot;TotalGiftTransactionAmount&quot;},{&quot;value&quot;:&quot;AverageGiftAmount&quot;},{&quot;value&quot;:&quot;AttributedAmount&quot;}]},{&quot;groupName&quot;:&quot;Outwright Gifts&quot;,&quot;index&quot;:4,&quot;allFields&quot;:[{&quot;value&quot;:&quot;OnetimeDonorCount&quot;},{&quot;value&quot;:&quot;TotalOnetimeGiftAmount&quot;},{&quot;value&quot;:&quot;AverageOnetimeGiftAmount&quot;}]},{&quot;groupName&quot;:&quot;Pledged and Recurring Gifts &quot;,&quot;index&quot;:5,&quot;allFields&quot;:[{&quot;value&quot;:&quot;RecurringDonorCount&quot;},{&quot;value&quot;:&quot;TotalRecurringGiftAmount&quot;},{&quot;value&quot;:&quot;AverageRecurringGiftAmount&quot;}]},{&quot;groupName&quot;:&quot;System Information&quot;,&quot;index&quot;:6,&quot;allFields&quot;:[{&quot;value&quot;:&quot;Name&quot;},{&quot;value&quot;:&quot;LastModifiedDate&quot;},{&quot;value&quot;:&quot;SystemModstamp&quot;}]}]</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>panelName</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedEntity</name>
+                    <value>OutreachSummary:CampaignId</value>
+                </componentInstanceProperties>
+                <componentName>runtime_industries_fundraising:relatedRecordDetailDisplay</componentName>
+                <identifier>runtime_industries_fundraising_relatedRecordDetailDisplay</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-f9e00f7a-424a-4548-818d-c8581aec901e</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
                     <name>active</name>
                     <value>true</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-f9e00f7a-424a-4548-818d-c8581aec901e</value>
+                    <value>Facet-667c901d-21e0-4f5d-b0fd-12ab1fb5b1bd</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Results</value>
+                    <value>Manage Campaigns</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
-                <identifier>flexipage_tab</identifier>
+                <identifier>flexipage_tab2</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -380,24 +712,10 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Standard.Tab.fields</value>
+                    <value>Standard.Tab.candidateDetails</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>fqs_cam_tab_detail</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-fqs-cam-subcampaigns</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Manage Campaigns</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>fqs_cam_tab_subcampaigns</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -412,6 +730,24 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>fqs_cam_tab_outreach</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>active</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-f9e00f7a-424a-4548-818d-c8581aec901e</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>title</name>
+                    <value>Results</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:tab</componentName>
+                <identifier>flexipage_tab</identifier>
             </componentInstance>
         </itemInstances>
         <mode>Replace</mode>
