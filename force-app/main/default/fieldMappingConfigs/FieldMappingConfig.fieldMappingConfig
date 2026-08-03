@@ -13,6 +13,12 @@
         <sourceFieldId>FQS_Donor_Tax_Date__c</sourceFieldId>
     </fieldMappingConfigItems>
     <fieldMappingConfigItems>
+        <destinationFieldId>FQS_Restriction_Release_Date__c</destinationFieldId>
+        <destinationObjectId>GiftTransaction</destinationObjectId>
+        <sequence>6</sequence>
+        <sourceFieldId>FQS_GT_Restriction_Release_Date__c</sourceFieldId>
+    </fieldMappingConfigItems>
+    <fieldMappingConfigItems>
         <destinationFieldId>FQS_Stewardship_Status__c</destinationFieldId>
         <destinationObjectId>GiftTransaction</destinationObjectId>
         <sequence>10</sequence>
@@ -43,22 +49,28 @@
         <sourceFieldId>FQS_Match_Status__c</sourceFieldId>
     </fieldMappingConfigItems>
     <fieldMappingConfigItems>
-        <destinationFieldId>FQS_Restriction_Release_Date__c</destinationFieldId>
-        <destinationObjectId>GiftTransaction</destinationObjectId>
-        <sequence>5</sequence>
-        <sourceFieldId>FQS_Restriction_Release_Date__c</sourceFieldId>
-    </fieldMappingConfigItems>
-    <fieldMappingConfigItems>
-        <destinationFieldId>FQS_Skip_Naming__c</destinationFieldId>
-        <destinationObjectId>GiftTransaction</destinationObjectId>
-        <sequence>7</sequence>
-        <sourceFieldId>FQS_Skip_Naming__c</sourceFieldId>
-    </fieldMappingConfigItems>
-    <fieldMappingConfigItems>
         <destinationFieldId>FQS_Stewardship_Date__c</destinationFieldId>
         <destinationObjectId>GiftTransaction</destinationObjectId>
         <sequence>9</sequence>
         <sourceFieldId>FQS_Stewardship_Date__c</sourceFieldId>
+    </fieldMappingConfigItems>
+    <fieldMappingConfigItems>
+        <destinationFieldId>FQS_Restriction_Release_Date__c</destinationFieldId>
+        <destinationObjectId>GiftCommitment</destinationObjectId>
+        <sequence>5</sequence>
+        <sourceFieldId>FQS_GC_Restriction_Release_Date__c</sourceFieldId>
+    </fieldMappingConfigItems>
+    <fieldMappingConfigItems>
+        <destinationFieldId>FQS_Skip_Naming__c</destinationFieldId>
+        <destinationObjectId>GiftCommitment</destinationObjectId>
+        <sequence>7</sequence>
+        <sourceFieldId>FQS_GC_Skip_Naming__c</sourceFieldId>
+    </fieldMappingConfigItems>
+    <fieldMappingConfigItems>
+        <destinationFieldId>FQS_Skip_Naming__c</destinationFieldId>
+        <destinationObjectId>GiftTransaction</destinationObjectId>
+        <sequence>8</sequence>
+        <sourceFieldId>FQS_GT_Skip_Naming__c</sourceFieldId>
     </fieldMappingConfigItems>
     <masterLabel>FieldMappingConfig</masterLabel>
     <processType>GiftEntry</processType>

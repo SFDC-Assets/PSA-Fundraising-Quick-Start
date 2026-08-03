@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_GT_Skip_Naming__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Staging mirror routed to GiftTransaction.FQS_Skip_Naming__c on commit. When TRUE, the FQS Auto Name Gift Transaction flow skips the resulting GT record and leaves Name as-is. Paired with FQS_GC_Skip_Naming__c on the commitment side — Salesforce enforces one GiftEntry source field to one destination field per FieldMappingConfig. Use for imports or integration writes that carry an authoritative external Name.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Check to prevent the FQS auto-naming flow from overwriting the Name on the resulting Gift Transaction.</inlineHelpText>
+    <label>Skip FQS Auto Naming (GT)</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

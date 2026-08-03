@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_GT_Restriction_Release_Date__c</fullName>
+    <description>Staging mirror routed to GiftTransaction.FQS_Restriction_Release_Date__c on commit. Convention: one year past the transaction's date. Blank means no time restriction on the transaction. Paired with FQS_GC_Restriction_Release_Date__c on the commitment side — Salesforce enforces one GiftEntry source field to one destination field per FieldMappingConfig, so GC and GT need separate staging columns. See docs/gift-entry-field-mapping.md.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>The date restricted funds from this payment become available for either general use or for their designated purpose. Populates onto the Gift Transaction on commit.</inlineHelpText>
+    <label>Restriction Release Date (GT)</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>
