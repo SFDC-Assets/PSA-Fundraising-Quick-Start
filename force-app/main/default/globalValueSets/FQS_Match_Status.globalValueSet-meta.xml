@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Eligible</fullName>
+        <default>false</default>
+        <label>Eligible</label>
+    </customValue>
+    <customValue>
+        <fullName>Request Confirmed</fullName>
+        <default>false</default>
+        <label>Request Confirmed</label>
+    </customValue>
+    <customValue>
+        <fullName>Received</fullName>
+        <default>false</default>
+        <label>Received</label>
+    </customValue>
+    <customValue>
+        <fullName>Declined</fullName>
+        <default>false</default>
+        <label>Declined</label>
+    </customValue>
+    <customValue>
+        <fullName>N/A</fullName>
+        <default>false</default>
+        <label>N/A</label>
+    </customValue>
+    <description>Tracks the lifecycle of a corporate matching-gift request against a Gift Transaction. Shared between GiftTransaction.FQS_Match_Status__c (canonical) and GiftEntry.FQS_Match_Status__c (staging mirror). Distinct from FQS_Matched__c (boolean, set when the matching-employer transaction is linked): Match Status covers the whole workflow — Eligible (identified as match-eligible), Request Confirmed (submitted to employer), Received (match arrived, MatchingEmployerTransactionId now set), Declined (employer refused), N/A (no match expected).</description>
+    <masterLabel>FQS Match Status</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

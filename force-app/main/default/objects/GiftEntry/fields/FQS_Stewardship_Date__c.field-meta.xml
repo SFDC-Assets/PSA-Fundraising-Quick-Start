@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Stewardship_Date__c</fullName>
+    <description>Staging mirror of GiftTransaction.FQS_Stewardship_Date__c. Carries a manual override date when stewardship was performed outside the automated flow (personal note, phone call, in-person). Written to GiftTransaction.FQS_Stewardship_Date__c on commit. Blank on most entries — the automated FQS_Stewardship_Response flow writes the field post-commit when the stewardship touch is delivered.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Date the stewardship follow-up occurred — only fill in if stewardship happened outside Salesforce. The automated stewardship flow otherwise writes this on delivery.</inlineHelpText>
+    <label>Stewardship Date</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

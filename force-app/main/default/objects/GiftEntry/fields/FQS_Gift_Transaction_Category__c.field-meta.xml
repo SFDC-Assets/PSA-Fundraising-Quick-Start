@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Gift_Transaction_Category__c</fullName>
+    <description>Staging mirror of GiftTransaction.FQS_Gift_Transaction_Category__c. Both fields source their picklist values from the FQS_Gift_Transaction_Category GlobalValueSet so the launcher staging value always matches what lands on the transaction. Written to GiftTransaction.FQS_Gift_Transaction_Category__c on commit.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Category that classifies this transaction: Outright Gift, Pledge Payment, Recurring Gift Payment, Grant Payment, or Other.</inlineHelpText>
+    <label>Gift Transaction Category</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>FQS_Gift_Transaction_Category</valueSetName>
+    </valueSet>
+</CustomField>

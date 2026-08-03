@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>TransactionDate</fullName>
-    <description>Standard: Transaction Completion Date. The date the gift is fully in the org's hands and reconciled — check cleared, card settled, wire received, stock sold, in-kind item taken into custody. This is FQS's canonical "when did this gift happen" date and drives cash-flow reporting, aging, and rollups on the parent commitment. Distinct from Donor Tax Acknowledgement Date, which records when the gift left the donor's control (a different date for mailed checks, delivered stock, etc.).</description>
-    <inlineHelpText>When the org fully received and reconciled the gift — check cleared, card settled, wire received. If you also track when the donor sent the gift (postmark, charge date), use Donor Tax Acknowledgement Date. Required when Status is Paid or Fully Refunded.</inlineHelpText>
+    <description>Standard: Transaction Completion Date. The date the gift is fully in the org's hands and reconciled — check cleared, card settled, wire received, stock sold, in-kind item taken into custody. This is FQS's canonical "when did this gift happen" date and drives cash-flow reporting, aging, and rollups on the parent commitment. Distinct from Donor Tax Date, which records when the gift left the donor's control (a different date for mailed checks, delivered stock, etc.).</description>
+    <inlineHelpText>When the org fully received and reconciled the gift — check cleared, card settled, wire received. If you also track when the donor sent the gift (postmark, charge date), use Donor Tax Date. Required when Status is Paid or Fully Refunded.</inlineHelpText>
     <trackHistory>false</trackHistory>
 </CustomField>

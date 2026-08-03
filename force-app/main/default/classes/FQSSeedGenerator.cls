@@ -1346,7 +1346,7 @@ public with sharing class FQSSeedGenerator {
         }
 
         // Stewardship/Ack lifecycle stamping on every GT.
-        //  - FQS_Donor_Tax_Acknowledgement_Date__c: payment-type aware; blank on most cards
+        //  - FQS_Donor_Tax_Date__c: payment-type aware; blank on most cards
         //    (org treats TransactionDate as tax date), postmark-style lag on checks and
         //    stock, equal to TransactionDate on cash — models real-world variability
         //  - AcknowledgementStatus / AcknowledgementDate: Paid gifts older than 14 days
@@ -1359,7 +1359,7 @@ public with sharing class FQSSeedGenerator {
         //    field per docs; leaving most null is correct)
         //  - Other category excluded from ack + stewardship (matches flow filters)
         Map<String, Schema.SObjectField> gtFieldMap = Schema.SObjectType.GiftTransaction.fields.getMap();
-        Boolean hasTaxAckDate     = gtFieldMap.containsKey('fqs_donor_tax_acknowledgement_date__c');
+        Boolean hasTaxAckDate     = gtFieldMap.containsKey('fqs_donor_tax_date__c');
         Boolean hasStewardStatus  = gtFieldMap.containsKey('fqs_stewardship_status__c');
         Boolean hasStewardDate    = gtFieldMap.containsKey('fqs_stewardship_date__c');
         Boolean hasTaxReceiptDate = gtFieldMap.containsKey('fqs_tax_receipt_date__c');
@@ -1381,13 +1381,13 @@ public with sharing class FQSSeedGenerator {
                 String pm = gt.PaymentMethod;
                 if ('Check'.equals(pm)) {
                     // Postmark lag: 1-5 days before TransactionDate
-                    gt.put('FQS_Donor_Tax_Acknowledgement_Date__c', txnDate.addDays(-randInt(globalIdx, 320 + instIdx, 1, 5)));
+                    gt.put('FQS_Donor_Tax_Date__c', txnDate.addDays(-randInt(globalIdx, 320 + instIdx, 1, 5)));
                 } else if ('Stock'.equals(pm) || 'In-Kind'.equals(pm)) {
                     // Delivery-to-custody lag: 2-7 days before TransactionDate
-                    gt.put('FQS_Donor_Tax_Acknowledgement_Date__c', txnDate.addDays(-randInt(globalIdx, 321 + instIdx, 2, 7)));
+                    gt.put('FQS_Donor_Tax_Date__c', txnDate.addDays(-randInt(globalIdx, 321 + instIdx, 2, 7)));
                 } else if ('Cash'.equals(pm) && randBool(globalIdx, 322 + instIdx, 0.60)) {
                     // 60% of Cash: equal to TransactionDate; 40% blank (org doesn't distinguish)
-                    gt.put('FQS_Donor_Tax_Acknowledgement_Date__c', txnDate);
+                    gt.put('FQS_Donor_Tax_Date__c', txnDate);
                 }
                 // Credit Card and everything else: leave blank (charge date is the txn date)
             }

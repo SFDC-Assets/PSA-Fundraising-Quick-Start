@@ -527,24 +527,24 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
 5. **Add help text to Gift Transaction: Transaction Date**
 
-   `GiftTransaction.TransactionDate` (Transaction Completion Date) is a Nonprofit Cloud–owned standard field. FQS treats it as the canonical "when did this gift happen" date — the date the gift is fully in the org's hands and reconciled (check cleared, card settled, wire received, stock sold, in-kind item taken into custody). Documenting the field on the record heads off the most common misuse: end users default to entering the donor's mailing / signing / postmark date, which belongs on the separate `FQS_Donor_Tax_Acknowledgement_Date__c` field. FQS's cash-flow reporting, aging, and rollups all anchor to Transaction Date; getting it wrong misstates when the org actually received the funds.
+   `GiftTransaction.TransactionDate` (Transaction Completion Date) is a Nonprofit Cloud–owned standard field. FQS treats it as the canonical "when did this gift happen" date — the date the gift is fully in the org's hands and reconciled (check cleared, card settled, wire received, stock sold, in-kind item taken into custody). Documenting the field on the record heads off the most common misuse: end users default to entering the donor's mailing / signing / postmark date, which belongs on the separate `FQS_Donor_Tax_Date__c` field. FQS's cash-flow reporting, aging, and rollups all anchor to Transaction Date; getting it wrong misstates when the org actually received the funds.
 
    1. From Setup, click the **Object Manager** tab.
    2. Search for and click **Gift Transaction**, then select **Fields & Relationships**.
    3. Click the field **Transaction Date**.
    4. Click **Edit**.
-   5. In the **Help Text** field, enter: *When the org fully received and reconciled the gift — check cleared, card settled, wire received. If you also track when the donor sent the gift (postmark, charge date), use Donor Tax Acknowledgement Date. Required when Status is Paid or Fully Refunded.*
+   5. In the **Help Text** field, enter: *When the org fully received and reconciled the gift — check cleared, card settled, wire received. If you also track when the donor sent the gift (postmark, charge date), use Donor Tax Date. Required when Status is Paid or Fully Refunded.*
    6. Click **Save**.
 
 6. **Add help text to Gift Transaction: Acknowledgement Date**
 
-   `GiftTransaction.AcknowledgementDate` is a Nonprofit Cloud–owned standard field. FQS writes it automatically from the Gift Acknowledgement flow when the thank-you is delivered — end users normally do not set it by hand. Documenting the field prevents confusion with two adjacent dates: `FQS_Donor_Tax_Acknowledgement_Date__c` (when the gift left the donor's control for tax-receipt purposes — postmark for checks, delivery for stock) and `FQS_Tax_Receipt_Date__c` (when the year-end tax receipt was issued).
+   `GiftTransaction.AcknowledgementDate` is a Nonprofit Cloud–owned standard field. FQS writes it automatically from the Gift Acknowledgement flow when the thank-you is delivered — end users normally do not set it by hand. Documenting the field prevents confusion with two adjacent dates: `FQS_Donor_Tax_Date__c` (when the gift left the donor's control for tax-receipt purposes — postmark for checks, delivery for stock) and `FQS_Tax_Receipt_Date__c` (when the year-end tax receipt was issued).
 
    1. From Setup, click the **Object Manager** tab.
    2. Search for and click **Gift Transaction**, then select **Fields & Relationships**.
    3. Click the field **Acknowledgement Date**.
    4. Click **Edit**.
-   5. In the **Help Text** field, enter: *When this donor was thanked for the gift. Usually set automatically by the FQS Gift Acknowledgement flow when the thank-you goes out. Not the tax receipt date and not the donor tax acknowledgement date.*
+   5. In the **Help Text** field, enter: *When this donor was thanked for the gift. Usually set automatically by the FQS Gift Acknowledgement flow when the thank-you goes out. Not the tax receipt date and not the donor tax date.*
    6. Click **Save**.
 
 **V. Configure Designation, Soft Credit, and Tribute Objects**

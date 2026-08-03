@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Gift_Transaction_Category__c</fullName>
-    <description>Classifies the transaction kind. Allowed values: Outright Gift, Pledge Payment, Recurring Gift Payment, Grant Payment, Other.</description>
+    <description>Classifies the transaction kind. Allowed values: Outright Gift, Pledge Payment, Recurring Gift Payment, Grant Payment, Other. Values are kept in sync manually with the FQS_Gift_Transaction_Category GlobalValueSet used by the GiftEntry staging mirror; Salesforce blocks converting this existing inline picklist to a GVS reference.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Category that classifies this transaction: Outright Gift, Pledge Payment, Recurring Gift Payment, Grant Payment, or Other.</inlineHelpText>
     <label>Gift Transaction Category</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>

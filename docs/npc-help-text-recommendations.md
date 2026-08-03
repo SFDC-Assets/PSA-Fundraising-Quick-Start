@@ -149,6 +149,11 @@ Update the `<description>` element directly on each `.recordType-meta.xml` file 
 
 ## Open questions for review
 
-- Do we want to also cover the FQS custom fields (`FQS_Recurring__c`, `FQS_In_Kind__c`, `FQS_Matched__c`, `FQS_Gift_Transaction_Category__c`, `FQS_Gift_Commitment_Category__c`, `FQS_Campaign_Category__c`, `FQS_Restriction_Type__c`) in the same doc, or split them out?
 - Any fields on this list where the current NPC-shipped help text is already good and we shouldn't override?
 - Confirm the three fields nominated for `<description>` overrides (`GiftCommitment.ScheduleType`, `OutreachSourceCode.UsageType`, `GiftDesignation.IsActive`), or adjust the shortlist.
+
+## Related — FQS custom field help text
+
+FQS custom field help text lives in **`docs/custom-fields-recap.md`** (the "Help Text (`inlineHelpText`)" and "Admin Descriptions (`description`)" sections), not this doc. That split by design: this doc is for standard-field *overrides*, that doc is for FQS-owned customs.
+
+**Cross-object picklist consistency (2026-08-02):** Three FQS picklist fields now share GlobalValueSets between their canonical GiftTransaction location and their GiftEntry staging mirror — `FQS_Gift_Transaction_Category`, `FQS_Stewardship_Status`, `FQS_Match_Status`. When an admin edits values in one place (Setup → Custom Metadata Types → Global Value Sets), both mirrored fields pick up the change; no risk of divergence between the launcher staging row and what lands on the transaction. Adjust admin descriptions on those three GT fields and their GE mirrors to reference the GlobalValueSet as the source of truth, not the field-local `<valueSet>`.

@@ -14,7 +14,7 @@ Two distinct real-world dates are currently muddled behind the FQS custom field 
 | Concept | Meaning | Field it should live on |
 |---|---|---|
 | **Transaction complete** | The gift is fully in the org's hands and reconciled — check cleared, card charge settled, wire received, stock sold, in-kind item received | `GiftTransaction.TransactionDate` (standard, "Transaction Completion Date") |
-| **Donor tax acknowledgement** | The date the org treats the gift as leaving the donor's control for tax-receipt purposes. Varies by payment channel, local law, and org policy — postmark for mailed checks, charge date for cards, delivery date for stock, etc. | New custom field `GiftTransaction.FQS_Donor_Tax_Acknowledgement_Date__c` |
+| **Donor tax date** | The date the org treats the gift as leaving the donor's control for tax-receipt purposes. Varies by payment channel, local law, and org policy — postmark for mailed checks, charge date for cards, delivery date for stock, etc. | New custom field `GiftTransaction.FQS_Donor_Tax_Date__c` |
 
 Many orgs have no meaningful gap between the two (low volume, few mailed gifts, jurisdictions that prioritize receipt). FQS documentation and the field itself must make the distinction explicit **and** signal that the distinction is optional for most orgs — "leave blank; the platform will assume equal to Transaction Date."
 
@@ -34,7 +34,7 @@ The `FQS_Processed_Date__c` field carried a third, less-useful concept ("date th
 
 - Metadata edit: `GiftTransaction.TransactionDate.field-meta.xml` — write description + help text.
 - Metadata edit: `GiftTransaction.AcknowledgementDate.field-meta.xml` — write description + help text.
-- New field: `GiftTransaction.FQS_Donor_Tax_Acknowledgement_Date__c` — full `<CustomField>` XML.
+- New field: `GiftTransaction.FQS_Donor_Tax_Date__c` — full `<CustomField>` XML.
 - Permset update: add read/edit on new field; remove `FQS_Processed_Date__c` FLS.
 - GT record page: add new field, remove old.
 - GT layout: same swap.
@@ -69,18 +69,18 @@ Skipping this prerequisite = the deploy either overwrites live sections 4/5/7 wi
 
 ## Work items
 
-### 1. New field — `GiftTransaction.FQS_Donor_Tax_Acknowledgement_Date__c`
+### 1. New field — `GiftTransaction.FQS_Donor_Tax_Date__c`
 
-**Path:** `force-app/main/default/objects/GiftTransaction/fields/FQS_Donor_Tax_Acknowledgement_Date__c.field-meta.xml`
+**Path:** `force-app/main/default/objects/GiftTransaction/fields/FQS_Donor_Tax_Date__c.field-meta.xml`
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>FQS_Donor_Tax_Acknowledgement_Date__c</fullName>
+    <fullName>FQS_Donor_Tax_Date__c</fullName>
     <description>The date the gift is treated as having left the donor's control for tax-receipt purposes. Varies by payment channel and local law — postmark date for mailed checks, charge-authorization date for credit-card gifts, delivery date for stock or in-kind gifts. Distinct from Transaction Date (Transaction Completion Date), which is when the gift is fully in the org's hands. Optional for most orgs — leave blank when the org has no operationally meaningful gap between the two dates (typical for low-volume, credit-card-heavy, or jurisdiction-simple orgs).</description>
     <externalId>false</externalId>
     <inlineHelpText>The date the donor is credited for tax purposes — postmark for mailed checks, charge date for cards, delivery date for stock. Leave blank if your org treats the Transaction Date as the tax date (fine for most orgs).</inlineHelpText>
-    <label>Donor Tax Acknowledgement Date</label>
+    <label>Donor Tax Date</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
@@ -96,8 +96,8 @@ Currently `force-app/main/default/objects/GiftTransaction/fields/TransactionDate
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>TransactionDate</fullName>
-    <description>Standard: Transaction Completion Date. The date the gift is fully in the org's hands and reconciled — check cleared, card settled, wire received, stock sold, in-kind item taken into custody. This is FQS's canonical "when did this gift happen" date and drives cash-flow reporting, aging, and rollups on the parent commitment. Distinct from Donor Tax Acknowledgement Date, which records when the gift left the donor's control (a different date for mailed checks, delivered stock, etc.).</description>
-    <inlineHelpText>When the org fully received and reconciled the gift — check cleared, card settled, wire received. If you also track when the donor sent the gift (postmark, charge date), use Donor Tax Acknowledgement Date. Required when Status is Paid or Fully Refunded.</inlineHelpText>
+    <description>Standard: Transaction Completion Date. The date the gift is fully in the org's hands and reconciled — check cleared, card settled, wire received, stock sold, in-kind item taken into custody. This is FQS's canonical "when did this gift happen" date and drives cash-flow reporting, aging, and rollups on the parent commitment. Distinct from Donor Tax Date, which records when the gift left the donor's control (a different date for mailed checks, delivered stock, etc.).</description>
+    <inlineHelpText>When the org fully received and reconciled the gift — check cleared, card settled, wire received. If you also track when the donor sent the gift (postmark, charge date), use Donor Tax Date. Required when Status is Paid or Fully Refunded.</inlineHelpText>
     <trackHistory>false</trackHistory>
 </CustomField>
 ```
@@ -114,7 +114,7 @@ Optional but cheap while adjacent — clarify that this is the *thank-you* date,
 
 | File | Field(s) referenced | Action |
 |---|---|---|
-| `flexipages/FQS_GiftTransaction_Record_Page.flexipage-meta.xml` | `FQS_Processed_Date__c`, `TransactionDate`, `AcknowledgementDate`, `FQS_Tax_Receipt_Date__c` | Remove `FQS_Processed_Date__c` field block; add `FQS_Donor_Tax_Acknowledgement_Date__c` field block adjacent to `TransactionDate` (same section). Field-order convention: `TransactionDate` first, `FQS_Donor_Tax_Acknowledgement_Date__c` second (the tax-anchor date follows the canonical gift date). |
+| `flexipages/FQS_GiftTransaction_Record_Page.flexipage-meta.xml` | `FQS_Processed_Date__c`, `TransactionDate`, `AcknowledgementDate`, `FQS_Tax_Receipt_Date__c` | Remove `FQS_Processed_Date__c` field block; add `FQS_Donor_Tax_Date__c` field block adjacent to `TransactionDate` (same section). Field-order convention: `TransactionDate` first, `FQS_Donor_Tax_Date__c` second (the tax-anchor date follows the canonical gift date). |
 | `layouts/GiftTransaction-Gift Transaction Layout.layout-meta.xml` | `FQS_Processed_Date__c` | Same swap — remove old `<layoutItems>` block, add new one in the same section. |
 | `flexipages/FQS_Account_Record_Page.flexipage-meta.xml` | `TransactionDate` in a `Paid and Pending Gift Transactions` dynamic related list (columns + sortField) | **No change.** Related list already shows Transaction Date — that's still the canonical anchor. Do NOT add the new tax-ack field to this related list; it would clutter the account overview without adding donor-facing value. |
 | `flexipages/FQS_GiftCommitment_Record_Page.flexipage-meta.xml` | `LastPaidTransactionDate`, `NextTransactionDate` (both GC rollup fields, not GT.TransactionDate directly) | **No change.** Rollup fields have their own semantics unrelated to this refactor. |
@@ -124,7 +124,7 @@ Optional but cheap while adjacent — clarify that this is the *thank-you* date,
 | `flexipages/FQS_GiftDesignation_Record_Page.flexipage-meta.xml` | `TransactionDate` reference | **No change** — audit at execution time. |
 | `flexipages/FQS_OutreachSourceCode_Record_Page.flexipage-meta.xml` | `TransactionDate` reference | **No change** — audit at execution time. |
 
-**Rule of thumb for the "no change" rows:** `TransactionDate` is *already* the canonical anchor across the accelerator — the refactor renames what people mean by it (from "the gift date" muddle to "the gift is complete") but doesn't change which field appears on any related list. `FQS_Donor_Tax_Acknowledgement_Date__c` is an *opt-in nuance field* — only surface it on the GT record page + layout, not on cross-object related lists.
+**Rule of thumb for the "no change" rows:** `TransactionDate` is *already* the canonical anchor across the accelerator — the refactor renames what people mean by it (from "the gift date" muddle to "the gift is complete") but doesn't change which field appears on any related list. `FQS_Donor_Tax_Date__c` is an *opt-in nuance field* — only surface it on the GT record page + layout, not on cross-object related lists.
 
 **List views on GiftTransaction (grepped 2026-08-02):**
 
@@ -137,18 +137,18 @@ Optional but cheap while adjacent — clarify that this is the *thank-you* date,
 
 **No GT list view references `FQS_Processed_Date__c` today** — that's a happy discovery from the grep; deprecating the field doesn't break any shipped list view.
 
-**Optional follow-up (not in this refactor):** consider a new list view `FQS_Gifts_Where_Tax_Ack_Differs` filtered on `FQS_Donor_Tax_Acknowledgement_Date__c != null AND FQS_Donor_Tax_Acknowledgement_Date__c != TransactionDate` (or equivalent formula) for orgs that want to audit gifts where the two dates diverge. Skip on v1 — user hasn't asked for it and the semantic guidance in the home page copy covers the concept.
+**Optional follow-up (not in this refactor):** consider a new list view `FQS_Gifts_Where_Tax_Ack_Differs` filtered on `FQS_Donor_Tax_Date__c != null AND FQS_Donor_Tax_Date__c != TransactionDate` (or equivalent formula) for orgs that want to audit gifts where the two dates diverge. Skip on v1 — user hasn't asked for it and the semantic guidance in the home page copy covers the concept.
 
 ### 5. Deprecate `FQS_Processed_Date__c`
 
 Two-phase deprecation (reversible until Phase B ships):
 
 **Phase A — dereference (single deploy):**
-- Remove `<field>GiftTransaction.FQS_Processed_Date__c</field>` block from `force-app/main/default/permissionsets/FQS_Custom_Fields.permissionset-meta.xml` (line 277). Add read/edit for `FQS_Donor_Tax_Acknowledgement_Date__c` adjacent.
+- Remove `<field>GiftTransaction.FQS_Processed_Date__c</field>` block from `force-app/main/default/permissionsets/FQS_Custom_Fields.permissionset-meta.xml` (line 277). Add read/edit for `FQS_Donor_Tax_Date__c` adjacent.
 - Flexipage / layout edits per work item 4.
 - Update `force-app/main/default/classes/FQSSeedGenerator.cls`:
   - Delete line 1349 comment and line 1376 assignment.
-  - Add adjacent line writing `FQS_Donor_Tax_Acknowledgement_Date__c` with a payment-type-aware offset from `TransactionDate` (e.g., Check → `TransactionDate.addDays(-randInt(0, 5))` for postmark lag; Credit Card → equals `TransactionDate`; Stock → `TransactionDate.addDays(-randInt(2, 7))`; leave blank on ~40% of Cash gifts to model the "org doesn't distinguish" case). Payment-type map lives inline in seed — no CMDT needed.
+  - Add adjacent line writing `FQS_Donor_Tax_Date__c` with a payment-type-aware offset from `TransactionDate` (e.g., Check → `TransactionDate.addDays(-randInt(0, 5))` for postmark lag; Credit Card → equals `TransactionDate`; Stock → `TransactionDate.addDays(-randInt(2, 7))`; leave blank on ~40% of Cash gifts to model the "org doesn't distinguish" case). Payment-type map lives inline in seed — no CMDT needed.
 
 **Phase B — hard-remove (separate follow-up deploy):**
 - After Phase A ships and any lingering data on `FQS_Processed_Date__c` is either backfilled to the new field or accepted as lost, add to `manifest/destructiveChanges.xml`:
@@ -172,9 +172,9 @@ Phase B is a separate PR so Phase A can bake and be reverted independently if a 
 <p>FQS separates two ideas that many orgs blur together:</p>
 <ul>
   <li><strong>Transaction Date</strong> — when the gift is fully in your hands and reconciled. Check cleared, card settled, wire received, stock sold, in-kind item taken in. This is your canonical "when did this gift happen" date.</li>
-  <li><strong>Donor Tax Acknowledgement Date</strong> — when the gift left the donor's control for tax-receipt purposes. Postmark date for a mailed check, charge date for a card, delivery date for stock. This is the date on the donor's receipt for tax purposes.</li>
+  <li><strong>Donor Tax Date</strong> — when the gift left the donor's control for tax-receipt purposes. Postmark date for a mailed check, charge date for a card, delivery date for stock. This is the date on the donor's receipt for tax purposes.</li>
 </ul>
-<p>Many orgs don't have a meaningful gap between the two — low volume, mostly card gifts, jurisdictions that treat receipt as the acknowledgement date. In those cases, leave Donor Tax Acknowledgement Date blank and let Transaction Date speak for both. FQS's acknowledgement, stewardship, and tax-receipting flows use Transaction Date as the anchor.</p>
+<p>Many orgs don't have a meaningful gap between the two — low volume, mostly card gifts, jurisdictions that treat receipt as the acknowledgement date. In those cases, leave Donor Tax Date blank and let Transaction Date speak for both. FQS's acknowledgement, stewardship, and tax-receipting flows use Transaction Date as the anchor.</p>
 <p><strong>Other date fields on a gift</strong></p>
 <ul>
   <li><strong>Acknowledgement Date</strong> — when the donor was thanked. Written automatically by the FQS Gift Acknowledgement flow.</li>
@@ -197,7 +197,7 @@ Append to `.planning/fqs-release-readiness.md` under the "Deferred / open items"
   are under active refactor (Gate A Stages 2–5) and are deliberately not touched here. When Stage 2/3
   extraction resumes: (a) drop the `FQS_Processed_Date__c` assignment nodes, (b) if a "when did we
   key this" concept is still useful, wire to `CreatedDate` in downstream reports rather than
-  reintroducing a custom field, (c) add a `FQS_Donor_Tax_Acknowledgement_Date__c` input screen with
+  reintroducing a custom field, (c) add a `FQS_Donor_Tax_Date__c` input screen with
   a per-payment-type default (blank on card, blank on cash if org policy allows, prompt on check /
   stock / in-kind). Semantic rationale in `.planning/fqs-process-date-refactor-plan.md`.
 ```
@@ -209,7 +209,7 @@ Under §Post-install steps (or wherever standard-field help text lives — see [
 - Add step: **"Verify Transaction Date help text"** — quote the description + inline help text from work item 2. Ships via metadata deploy, but the README step is required per accelerator policy (documents every standard-field edit so partial re-installs and manual audits stay accurate).
 - Add step (only if `AcknowledgementDate` help text is refreshed): same pattern.
 
-New custom field `FQS_Donor_Tax_Acknowledgement_Date__c` doesn't need a post-install step — the unmanaged package deploys it directly.
+New custom field `FQS_Donor_Tax_Date__c` doesn't need a post-install step — the unmanaged package deploys it directly.
 
 ---
 
@@ -227,10 +227,10 @@ Rationale for splitting Phase A/B: destructive deploys are non-reversible and lo
 
 Post-Phase-A deploy:
 
-- [ ] Open a Gift Transaction record page. `Donor Tax Acknowledgement Date` renders with the help-text bubble; `Processed Date` is gone.
+- [ ] Open a Gift Transaction record page. `Donor Tax Date` renders with the help-text bubble; `Processed Date` is gone.
 - [ ] Hover the `?` on `Transaction Date` — new inline help renders.
 - [ ] Home page → section 6 renders the new copy (not "Placeholder"); other sections unaffected.
-- [ ] Run seed generator (`sf apex run -f scripts/apex/fqs-seed.apex`) — no compile error; sample query returns `FQS_Donor_Tax_Acknowledgement_Date__c` populated on check gifts, blank on some cash gifts, equal to Transaction Date on card gifts.
+- [ ] Run seed generator (`sf apex run -f scripts/apex/fqs-seed.apex`) — no compile error; sample query returns `FQS_Donor_Tax_Date__c` populated on check gifts, blank on some cash gifts, equal to Transaction Date on card gifts.
 - [ ] Permset FQS_Custom_Fields → GT field list shows new field, not old.
 - [ ] Guided Gift Entry launcher still runs (do NOT deploy flow changes; sanity-check the flow still works because the field it writes still exists — it's just deprecated on the layout).
 - [ ] `git grep FQS_Processed_Date` returns only the release-readiness tracker entry, the field file itself, and the two flows.
@@ -245,7 +245,7 @@ Post-Phase-B deploy:
 ## Open questions
 
 - Does the seed generator have a `PaymentMethod` handle at the point where it currently writes `FQS_Processed_Date__c` (line 1376 of `FQSSeedGenerator.cls`)? Confirm before drafting the payment-type-aware default logic in work item 5-Phase-A.
-- Should the home page section 6 copy also link to the object help text on `GT.TransactionDate` / `GT.FQS_Donor_Tax_Acknowledgement_Date__c`? Cross-navigation would help, but flexipage rich text doesn't support Salesforce-relative links cleanly. Skip on v1.
+- Should the home page section 6 copy also link to the object help text on `GT.TransactionDate` / `GT.FQS_Donor_Tax_Date__c`? Cross-navigation would help, but flexipage rich text doesn't support Salesforce-relative links cleanly. Skip on v1.
 
 ---
 

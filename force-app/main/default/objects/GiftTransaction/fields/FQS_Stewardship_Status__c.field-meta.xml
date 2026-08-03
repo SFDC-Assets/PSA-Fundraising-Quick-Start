@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Stewardship_Status__c</fullName>
-    <description>Tracks whether a post-acknowledgement stewardship touch has been delivered for this gift. Stewardship is separate from acknowledgement: acknowledgement confirms the gift was received; stewardship is a follow-up outreach to deepen donor connection. Written by the FQS_Stewardship_Response flow. See .planning/fqs-gift-followup-redesign.md.</description>
+    <description>Tracks whether a post-acknowledgement stewardship touch has been delivered for this gift. Allowed values: To Be Sent, Sent, Don't Send. Values are kept in sync manually with the FQS_Stewardship_Status GlobalValueSet used by the GiftEntry staging mirror; Salesforce blocks converting this existing inline picklist to a GVS reference. Stewardship is separate from acknowledgement: acknowledgement confirms the gift was received; stewardship is a follow-up outreach to deepen donor connection. Written by the FQS_Stewardship_Response flow. See .planning/fqs-gift-followup-redesign.md.</description>
     <externalId>false</externalId>
     <inlineHelpText>Status of the follow-up stewardship touch (email or task) for this gift. Set to "Don't Send" to suppress automated stewardship. Distinct from Acknowledgement Status, which tracks the initial thank-you.</inlineHelpText>
     <label>Stewardship Status</label>
@@ -24,9 +24,9 @@
                 <label>Sent</label>
             </value>
             <value>
-                <fullName>Don't Send</fullName>
+                <fullName>Don&apos;t Send</fullName>
                 <default>false</default>
-                <label>Don't Send</label>
+                <label>Don&apos;t Send</label>
             </value>
         </valueSetDefinition>
     </valueSet>

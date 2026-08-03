@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Match_Status__c</fullName>
+    <description>Tracks the lifecycle of a corporate matching-gift request against this transaction. Values sourced from the FQS_Match_Status GlobalValueSet so the staging GiftEntry mirror and canonical GiftTransaction copy stay in lockstep. Distinct from FQS_Matched__c (boolean, flips true when MatchingEmployerTransactionId is linked): Match Status covers the whole workflow — Eligible (identified as match-eligible), Request Confirmed (submitted to employer), Received (match arrived), Declined (employer refused), N/A (no match expected).</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Where this gift stands in the corporate matching lifecycle. Leave blank or N/A if no match is expected. Complements the boolean Matched field, which only flips true once the matching transaction is linked.</inlineHelpText>
+    <label>Match Status</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>FQS_Match_Status</valueSetName>
+    </valueSet>
+</CustomField>

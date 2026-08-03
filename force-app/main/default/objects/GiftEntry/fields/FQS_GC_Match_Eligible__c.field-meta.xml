@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_GC_Match_Eligible__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Staging mirror of GiftCommitment.FQS_Match_Eligible__c. Written to the parent Gift Commitment (not the resulting Gift Transaction) on commit. The GC_ prefix disambiguates the mirror from any future FQS_Match_Eligible__c on the GT itself and makes the routing intent explicit. When TRUE, a corporate matching gift is expected against this commitment; downstream match-request flows read the flag to default their eligibility question.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Check if a corporate matching gift is expected against the Gift Commitment being created. Populates the Match Eligible flag on the commitment, not on each individual transaction.</inlineHelpText>
+    <label>GC Match Eligible</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Stewardship_Status__c</fullName>
+    <description>Staging mirror of GiftTransaction.FQS_Stewardship_Status__c. Both fields source their picklist values from the FQS_Stewardship_Status GlobalValueSet so the launcher staging value always matches what lands on the transaction. Written to GiftTransaction.FQS_Stewardship_Status__c on commit.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Status of the follow-up stewardship touch. Set to "Don't Send" to suppress automated stewardship. Distinct from Acknowledgement Status, which tracks the initial thank-you.</inlineHelpText>
+    <label>Stewardship Status</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>FQS_Stewardship_Status</valueSetName>
+    </valueSet>
+</CustomField>

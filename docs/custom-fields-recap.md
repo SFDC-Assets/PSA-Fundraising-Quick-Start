@@ -1,6 +1,8 @@
 # FQS Custom Fields Recap
 
-Object-by-object recap of the 48 custom fields (`__c`) added by the Fundraising Quick Start project, across 16 objects and custom metadata types.
+Object-by-object recap of the custom fields (`__c`) added by the Fundraising Quick Start project, across the standard objects and custom metadata types it extends.
+
+> **NOTE (2026-08-02):** The GiftTransaction, GiftCommitment, GiftEntry sections and totals in this doc lag reality — several fields (stewardship, tax dates, match lifecycle, GiftEntry staging mirrors, and more) have been added over multiple sessions without back-filling the summary tables. Treat the field-by-field help text / admin description tables further down as authoritative for the fields they cover, and the object folders under `force-app/main/default/objects/` as the true source of truth. A full recap rewrite is a separate cleanup pass.
 
 ---
 
@@ -160,9 +162,12 @@ Every field that ships with in-app help text — the tooltip a user sees next to
 
 | API Name | Kind | Help Text |
 |---|---|---|
+| `FQS_Donor_Tax_Date__c` | Custom | The date the donor is credited for tax purposes — postmark for mailed checks, charge date for cards, delivery date for stock. Leave blank if your org treats the Transaction Date as the tax date (fine for most orgs). |
 | `FQS_Is_Entry_Gift__c` | Custom | Automatically calculated. Marked TRUE when this gift's amount qualifies for the Entry giving tier, or when it is an installment payment against an Entry-tier commitment. Your administrator controls the threshold amounts. |
 | `FQS_Is_Major_Gift__c` | Custom | Automatically calculated. Marked TRUE when this gift's amount qualifies for the Major giving tier, or when it is an installment payment against a Major-tier commitment. Your administrator controls the threshold amounts. |
 | `FQS_Is_Mid_Gift__c` | Custom | Automatically calculated. Marked TRUE when this gift's amount qualifies for the Mid giving tier, or when it is an installment payment against a Mid-tier commitment. Your administrator controls the threshold amounts. |
+| `FQS_Match_Status__c` | Custom | Where this gift stands in the corporate matching lifecycle. Leave blank or N/A if no match is expected. Complements the boolean Matched field, which only flips true once the matching transaction is linked. |
+| `FQS_Stewardship_Status__c` | Custom | Status of the follow-up stewardship touch (email or task) for this gift. Set to "Don't Send" to suppress automated stewardship. Distinct from Acknowledgement Status, which tracks the initial thank-you. |
 | `CurrentAmount` | Standard (override) | The remaining amount after any refunds or adjustments. Updates automatically. |
 | `OriginalAmount` | Standard (override) | The full gift amount as originally committed. For refunds or adjustments, don't change this — record a Gift Refund instead. |
 | `OutreachSourceCodeId` | Standard (override) | The appeal, event, or channel that generated this gift. Must belong to the Campaign selected on this record. |
@@ -200,6 +205,23 @@ Every field that ships with in-app help text — the tooltip a user sees next to
 | API Name | Kind | Help Text |
 |---|---|---|
 | `FQS_Restriction_Type__c` | Custom | FASB/GAAP restriction classification inherited from the parent Gift Designation. |
+
+### GiftEntry — Gift Entry launcher staging
+
+Every field on this object is a staging mirror for a downstream GiftCommitment / GiftTransaction column. Values are written to their target field on commit.
+
+| API Name | Kind | Help Text |
+|---|---|---|
+| `FQS_Donor_Tax_Date__c` | Custom | The date the donor is credited for tax purposes — postmark for mailed checks, charge date for cards, delivery date for stock. Leave blank if your org treats the Transaction Date as the tax date. |
+| `FQS_Fair_Market_Value_Amount__c` | Custom | Estimated fair market value of the donated goods or services. Used for the tax receipt and reporting only — the donor determines the actual tax-deductible value on their own return. |
+| `FQS_GC_Match_Eligible__c` | Custom | Check if a corporate matching gift is expected against the Gift Commitment being created. Populates the Match Eligible flag on the commitment, not on each individual transaction. |
+| `FQS_Gift_Transaction_Category__c` | Custom | Category that classifies this transaction: Outright Gift, Pledge Payment, Recurring Gift Payment, Grant Payment, or Other. |
+| `FQS_Match_Status__c` | Custom | Where this gift stands in the corporate matching lifecycle. Leave blank or N/A if no match is expected. Complements the boolean Matched field on the transaction, which only flips true once the matching transaction is linked. |
+| `FQS_Restriction_Release_Date__c` | Custom | The date restricted funds from this payment become available for either general use or for their designated purpose. Populates onto both the Gift Commitment and each Gift Transaction on commit. |
+| `FQS_Skip_Naming__c` | Custom | Check to prevent the FQS auto-naming flow from overwriting the Name on the resulting Gift Transaction. |
+| `FQS_Stewardship_Date__c` | Custom | Date the stewardship follow-up occurred — only fill in if stewardship happened outside Salesforce. The automated stewardship flow otherwise writes this on delivery. |
+| `FQS_Stewardship_Status__c` | Custom | Status of the follow-up stewardship touch. Set to "Don't Send" to suppress automated stewardship. Distinct from Acknowledgement Status, which tracks the initial thank-you. |
+| `FQS_Tax_Receipt_Date__c` | Custom | Date this gift's tax receipt was issued to the donor. Usually filled in by an annual bulk update — enter here only if the receipt was issued before entering the gift into Salesforce. |
 
 ### GiftTransactionDesignation
 
@@ -276,7 +298,10 @@ Every field that ships with an admin-facing description — visible only to admi
 | API Name | Kind | Admin Description |
 |---|---|---|
 | `External_Id__c` | Custom | External identifier used by FQS seed scripts for idempotent upserts and teardown. Pattern: FQS-<OBJ>-<idx>[-<subidx>]. |
-| `FQS_Gift_Transaction_Category__c` | Custom | Classifies the transaction kind. Allowed values: Outright Gift, Pledge Payment, Recurring Gift Payment, Grant Payment, Other. |
+| `FQS_Donor_Tax_Date__c` | Custom | The date the gift is treated as having left the donor's control for tax-receipt purposes. Varies by payment channel and local law — postmark for mailed checks, charge-authorization date for credit-card gifts, delivery date for stock or in-kind gifts. Distinct from Transaction Date (Transaction Completion Date), which is when the gift is fully in the org's hands. Optional for most orgs. Renamed from FQS_Donor_Tax_Acknowledgement_Date__c on 2026-08-02 to avoid confusion with the standard AcknowledgementDate (thank-you date). |
+| `FQS_Gift_Transaction_Category__c` | Custom | Classifies the transaction kind. Values sourced from the FQS_Gift_Transaction_Category GlobalValueSet (shared with GiftEntry.FQS_Gift_Transaction_Category__c staging mirror). Allowed values: Outright Gift, Pledge Payment, Recurring Gift Payment, Grant Payment, Other. |
+| `FQS_Match_Status__c` | Custom | Tracks the lifecycle of a corporate matching-gift request against this transaction. Values sourced from the FQS_Match_Status GlobalValueSet (shared with GiftEntry.FQS_Match_Status__c staging mirror). Distinct from FQS_Matched__c (boolean, flips true when MatchingEmployerTransactionId is linked): Match Status covers the whole workflow — Eligible, Request Confirmed, Received, Declined, N/A. |
+| `FQS_Stewardship_Status__c` | Custom | Tracks whether a post-acknowledgement stewardship touch has been delivered for this gift. Values sourced from the FQS_Stewardship_Status GlobalValueSet (shared with GiftEntry.FQS_Stewardship_Status__c staging mirror). Written by the FQS_Stewardship_Response flow. Allowed values: To Be Sent, Sent, Don't Send. |
 | `FQS_In_Kind__c` | Custom | Indicates this transaction is an in-kind (non-cash) gift such as goods, services, or property. |
 | `FQS_Is_Entry_Gift__c` | Custom | Boolean formula that returns TRUE when CurrentAmount meets or exceeds the Entry.One_Time_Min_Amount__c value in FQS_Donor_Grouping custom metadata, OR when the parent GiftCommitment.ExpectedTotalCmtAmount meets or exceeds Entry.Lifetime_Min_Amount__c (installment inheritance — a payment against a large commitment inherits the commitment's tier). Thresholds are configured via Setup → Custom Metadata Types → FQS Donor Grouping or the FQS Donor Grouping Configurator screen flow. Changing threshold values recalculates this field across all Gift Transaction records retroactively — no redeployment or batch job required. Reports and dashboards using this field will reflect the new values immediately. |
 | `FQS_Is_Major_Gift__c` | Custom | Boolean formula that returns TRUE when CurrentAmount meets or exceeds the Major.One_Time_Min_Amount__c value in FQS_Donor_Grouping custom metadata, OR when the parent GiftCommitment.ExpectedTotalCmtAmount meets or exceeds Major.Lifetime_Min_Amount__c (installment inheritance — a payment against a large commitment inherits the commitment's tier). Thresholds are configured via Setup → Custom Metadata Types → FQS Donor Grouping or the FQS Donor Grouping Configurator screen flow. Changing threshold values recalculates this field across all Gift Transaction records retroactively — no redeployment or batch job required. Reports and dashboards using this field will reflect the new values immediately. |
@@ -329,6 +354,23 @@ Every field that ships with an admin-facing description — visible only to admi
 |---|---|---|
 | `FQS_Parent_Type__c` | Custom | Formula: returns the type of the polymorphic ParentRecordId (GiftCommitment, Opportunity, Campaign, or blank if unset). |
 | `FQS_Restriction_Type__c` | Custom | Formula: mirrors the Restriction Type from the related Gift Designation. Read-only. |
+
+### GiftEntry — Gift Entry launcher staging
+
+Every field on this object is a staging mirror for a downstream GiftCommitment / GiftTransaction column. Values are written to their target field on commit. See `docs/gift-entry-field-mapping.md` for the full mapping.
+
+| API Name | Kind | Admin Description |
+|---|---|---|
+| `FQS_Donor_Tax_Date__c` | Custom | Staging mirror of GiftTransaction.FQS_Donor_Tax_Date__c. Captured on the Gift Entry launcher when the donor's tax-credit date differs from the Transaction Date. Written to GiftTransaction.FQS_Donor_Tax_Date__c on commit. |
+| `FQS_Fair_Market_Value_Amount__c` | Custom | Staging mirror of GiftTransaction.FQS_Fair_Market_Value_Amount__c. Captured on the Gift Entry launcher for in-kind gifts. Written to GiftTransaction.FQS_Fair_Market_Value_Amount__c on commit. |
+| `FQS_GC_Match_Eligible__c` | Custom | Staging mirror of GiftCommitment.FQS_Match_Eligible__c. Written to the parent Gift Commitment (not the resulting Gift Transaction) on commit. The GC_ prefix disambiguates the mirror from any future FQS_Match_Eligible__c on the GT and makes the routing intent explicit. |
+| `FQS_Gift_Transaction_Category__c` | Custom | Staging mirror of GiftTransaction.FQS_Gift_Transaction_Category__c. Both fields source their picklist values from the FQS_Gift_Transaction_Category GlobalValueSet so the launcher staging value always matches what lands on the transaction. |
+| `FQS_Match_Status__c` | Custom | Staging mirror of GiftTransaction.FQS_Match_Status__c. Both fields source their picklist values from the FQS_Match_Status GlobalValueSet so the launcher staging value always matches what lands on the transaction. |
+| `FQS_Restriction_Release_Date__c` | Custom | Staging mirror. Written to both GiftCommitment.FQS_Restriction_Release_Date__c (on commitment creation) and GiftTransaction.FQS_Restriction_Release_Date__c (on the transaction fanout) at commit. |
+| `FQS_Skip_Naming__c` | Custom | Staging mirror. Written to GiftTransaction.FQS_Skip_Naming__c on commit. When TRUE, the FQS Auto Name Gift Transaction flow skips the resulting GT and leaves Name as-is. |
+| `FQS_Stewardship_Date__c` | Custom | Staging mirror of GiftTransaction.FQS_Stewardship_Date__c. Carries a manual override date when stewardship was performed outside the automated flow. Blank on most entries — the automated FQS_Stewardship_Response flow writes the field post-commit when the stewardship touch is delivered. |
+| `FQS_Stewardship_Status__c` | Custom | Staging mirror of GiftTransaction.FQS_Stewardship_Status__c. Both fields source their picklist values from the FQS_Stewardship_Status GlobalValueSet so the launcher staging value always matches what lands on the transaction. |
+| `FQS_Tax_Receipt_Date__c` | Custom | Staging mirror of GiftTransaction.FQS_Tax_Receipt_Date__c. Rare on Gift Entry — year-end tax receipting is out of scope for FQS automation and typically handled by bulk update. Kept for the edge case where a gift is entered retroactively with its tax receipt already issued. |
 
 ### GiftTransactionDesignation
 

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>To Be Sent</fullName>
+        <default>false</default>
+        <label>To Be Sent</label>
+    </customValue>
+    <customValue>
+        <fullName>Sent</fullName>
+        <default>false</default>
+        <label>Sent</label>
+    </customValue>
+    <customValue>
+        <fullName>Don't Send</fullName>
+        <default>false</default>
+        <label>Don't Send</label>
+    </customValue>
+    <description>Tracks whether a post-acknowledgement stewardship touch has been delivered for this gift. Shared between GiftTransaction.FQS_Stewardship_Status__c (canonical) and GiftEntry.FQS_Stewardship_Status__c (staging mirror). Distinct from Acknowledgement Status, which tracks the initial thank-you.</description>
+    <masterLabel>FQS Stewardship Status</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>
