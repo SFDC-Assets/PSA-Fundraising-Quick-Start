@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <choices>
+        <name>choiceTemplate_IndividualOutrightGifts</name>
+        <choiceText>Individual Outright Gifts — one-time cash, check, or card gifts. No pledge, no schedule; a single completed transaction per row.</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>FQS_Individual_Outright_Gifts</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>choiceTemplate_SinglePaymentPledges</name>
+        <choiceText>Single Payment Pledges — a pledge commitment with only one expected payment. Creates the parent Gift Commitment and its first (and only) Gift Transaction in a single row. Includes match-eligibility and restriction fields.</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>FQS_Single_Payment_Pledges</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>choiceTemplate_PledgePayments</name>
+        <choiceText>Pledge Payments — individual payments applied against pledges that already exist. Each row picks a commitment; designations cascade from the commitment&apos;s defaults.</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>FQS_Pledge_Payments</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>choiceTemplate_EventRegistrations</name>
+        <choiceText>Event Registrations — ticket / registration payments where part or all of the amount is fee-for-service. Includes a Fair Market Value column so the deductible portion can be split from the goods-received portion.</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>FQS_Event_Registrations</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>choiceTemplate_Default</name>
+        <choiceText>Undefined Batch — uses the default Salesforce Standard Template, a clean baseline that mirrors what Salesforce ships out of the box with no FQS columns added. Use it as a starting point when you want to build your own template from scratch.</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Default</stringValue>
+        </value>
+    </choices>
+    <description>Home-page launcher that creates a new GiftBatch from three inputs: template (radio with fuller descriptions than the raw picklist labels), estimated value, and estimated gift count. Auto-number Name field is populated by the platform on insert. Success screen mirrors FQS_Gift_Entry_Single_Launcher_Account.Success_GiftCreated voice — green-check header, one-line summary, /lightning/r/GiftBatch/{Id}/view link. Embedded on FQS_Home_Page_Default sidebar in the &quot;Create Gift Batch&quot; accordion section, directly under Guided Gift Entry.</description>
+    <environments>Default</environments>
+    <interviewLabel>FQS Create Gift Batch {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Create Gift Batch</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <recordCreates>
+        <description>Inserts the GiftBatch with the three user-supplied fields. Name is auto-number so the platform fills it in. storeOutputAutomatically=true so {!Create_GiftBatch} returns the new record Id used by Screen_Success&apos;s link.</description>
+        <name>Create_GiftBatch</name>
+        <label>Create Gift Batch</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Screen_Success</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>ScreenTemplateName</field>
+            <value>
+                <elementReference>pkScreenTemplate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ExpectedValueofGiftsinBatch</field>
+            <value>
+                <elementReference>numExpectedValue</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>EstimatedGiftCount</field>
+            <value>
+                <elementReference>numEstimatedCount</elementReference>
+            </value>
+        </inputAssignments>
+        <object>GiftBatch</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <screens>
+        <description>Single input screen. Radio picker with the 5 shipped Screen Template values, each surfaced with a fuller sentence-length description rather than the terse Salesforce label. Estimated gift count and expected total value collect the reconciliation targets used by the Gift Batch record page&apos;s dry-run and process-batch checks.</description>
+        <name>Screen_Batch_Details</name>
+        <label>Create a Gift Batch</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Create_GiftBatch</targetReference>
+        </connector>
+        <fields>
+            <name>DisplayText_Intro</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Start a new Gift Batch.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Pick the template that matches the shape of gifts you&apos;re about to enter, then estimate the count and total value so the batch can reconcile against your source (deposit slip, event roster, mail run) during dry-run and processing.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>pkScreenTemplate</name>
+            <choiceReferences>choiceTemplate_IndividualOutrightGifts</choiceReferences>
+            <choiceReferences>choiceTemplate_SinglePaymentPledges</choiceReferences>
+            <choiceReferences>choiceTemplate_PledgePayments</choiceReferences>
+            <choiceReferences>choiceTemplate_EventRegistrations</choiceReferences>
+            <choiceReferences>choiceTemplate_Default</choiceReferences>
+            <dataType>String</dataType>
+            <defaultSelectedChoiceReference>choiceTemplate_IndividualOutrightGifts</defaultSelectedChoiceReference>
+            <fieldText>Screen Template</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <helpText>The template controls which columns appear on every row of the grid. You can&apos;t change the template after the batch is created — if you pick the wrong one, delete the batch and start again.</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>numExpectedValue</name>
+            <dataType>Currency</dataType>
+            <fieldText>Estimated Batch Value</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>The total dollar value you expect this batch to add up to — from your deposit slip, event ticket roster, or the sum of the checks in front of you. Dry-run compares this against the sum of entered gifts and flags a mismatch.</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <scale>2</scale>
+        </fields>
+        <fields>
+            <name>numEstimatedCount</name>
+            <dataType>Number</dataType>
+            <fieldText>Estimated Gift Count</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>The number of gift entries you expect to add to this batch. Dry-run compares this against the actual row count and flags a mismatch.</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <scale>0</scale>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <description>Terminal confirmation screen. Voice / spacing mirror FQS_Gift_Entry_Single_Launcher_Account.Success_GiftCreated: green-check header, one-line summary, record-open link. {!Create_GiftBatch} resolves to the just-inserted record Id (storeOutputAutomatically).</description>
+        <name>Screen_Success</name>
+        <label>Success - Gift Batch Created</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>SuccessHeader</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(46, 132, 74); font-size: 20px;&quot;&gt;&amp;#10003;&lt;/span&gt; &lt;strong style=&quot;font-size: 20px;&quot;&gt;Gift Batch created.&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>SuccessSummary</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Open the batch to set defaults, then start entering gifts. Dry-run and process from the batch record page when you&apos;re ready.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>SuccessLink</name>
+            <fieldText>&lt;p style=&quot;font-size: 16px;&quot;&gt;&lt;a href=&quot;/lightning/r/GiftBatch/{!Create_GiftBatch}/view&quot; target=&quot;_top&quot;&gt;Open the new Gift Batch &amp;rarr;&lt;/a&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>SuccessFooter</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;em&gt;Click &lt;strong&gt;Finish&lt;/strong&gt; to close, or open the record above to keep working.&lt;/em&gt;&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Screen_Batch_Details</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+</Flow>
