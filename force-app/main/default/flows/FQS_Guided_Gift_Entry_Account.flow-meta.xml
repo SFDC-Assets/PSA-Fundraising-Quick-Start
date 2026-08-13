@@ -483,7 +483,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>GC-context entry stager. Runs only when the flow is invoked as a subflow from FQS_Gift_Entry_Guide_GiftCommitment (contextCommitmentId is set). Writes recordId with rsv_GC_Selected.DonorId so the downstream Account-prep chain (Get_Acct → Get_Contacts_ForAcct → Get_CampaignMember_ForAcct → Get_Camp_ForAcctMemberships) runs against the donor&apos;s Account. rsv_GC_Selected is already populated by Get_GC_Context via outputReference, so no SObject-copy happens here — that pattern silently drops field values on downstream reads (see [[flow-sobject-assign-drops-fields]]). Connects to Get_Acct.</description>
+        <description>GC-context entry stager. Runs only when the flow is invoked as a subflow from FQS_Guided_Gift_Entry_GiftCommitment (contextCommitmentId is set). Writes recordId with rsv_GC_Selected.DonorId so the downstream Account-prep chain (Get_Acct → Get_Contacts_ForAcct → Get_CampaignMember_ForAcct → Get_Camp_ForAcctMemberships) runs against the donor&apos;s Account. rsv_GC_Selected is already populated by Get_GC_Context via outputReference, so no SObject-copy happens here — that pattern silently drops field values on downstream reads (see [[flow-sobject-assign-drops-fields]]). Connects to Get_Acct.</description>
         <name>Assign_GC_Context_Entry</name>
         <label>G. Commitment — Context Entry</label>
         <locationX>0</locationX>
@@ -2630,14 +2630,6 @@
         </value>
     </choices>
     <choices>
-        <name>Choice_Restriction_Time</name>
-        <choiceText>With Donor Restriction — Time</choiceText>
-        <dataType>String</dataType>
-        <value>
-            <stringValue>With Donor Restriction - Time</stringValue>
-        </value>
-    </choices>
-    <choices>
         <name>Choice_Restriction_Without</name>
         <choiceText>Without Donor Restriction</choiceText>
         <dataType>String</dataType>
@@ -3267,7 +3259,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Entry-mode router at flow start. When contextCommitmentId is set (subflow invocation from FQS_Gift_Entry_Guide_GiftCommitment) → Get_GC_Context loads the commitment record, copies DonorId into recordId, and pre-selects Pledge Payment. Otherwise (Account quick action, Home flexipage, purposeful launcher parent) falls through to Decide_Preselect_Route.</description>
+        <description>Entry-mode router at flow start. When contextCommitmentId is set (subflow invocation from FQS_Guided_Gift_Entry_GiftCommitment) → Get_GC_Context loads the commitment record, copies DonorId into recordId, and pre-selects Pledge Payment. Otherwise (Account quick action, Home flexipage, purposeful launcher parent) falls through to Decide_Preselect_Route.</description>
         <name>Decide_Screen_Entry_Mode</name>
         <label>Screen — Entry Mode?</label>
         <locationX>0</locationX>
@@ -4796,8 +4788,8 @@
         <expression>BLANKVALUE({!SinglePayment_num_Amount}, {!Recurring_num_Amount})</expression>
         <scale>2</scale>
     </formulas>
-    <interviewLabel>FQS Gift Entry Single Launcher — Account {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>FQS Gift Entry Single Launcher — Account</label>
+    <interviewLabel>FQS Guided Gift Entry — Account {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Guided Gift Entry — Account</label>
     <loops>
         <description>First pass over Scheduled_rep_CustomInstallments.AllItems — the synthetic RepeaterItem collection whose fields are the inner Screen field names (field_Custom_Date, field_Custom_Amount) rather than SObject field names (per [[flow-repeater-output-quirk]]). Body Assign_GCS_Custom_Row builds a fresh Yearly N=1 GCS per item and appends to col_GCS_Custom; on drain, Create_GCS_Custom bulk-inserts. No assignNextValueToReference — the current item is referenced as {!Loop_GCS_CustomBuildFromRepeater.field_Custom_Date} / .field_Custom_Amount.</description>
         <name>Loop_GCS_CustomBuildFromRepeater</name>
@@ -8705,9 +8697,9 @@
             <targetReference>Decide_Screen_Entry_Mode</targetReference>
         </connector>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <subflows>
-        <description>Invokes FQS_Gift_Entry_Soft_Credit_Reach with recordId + col_AccountContactIds (from Transform_Contacts_Ids); returns outCollection_SoftCreditAccounts into col_Acct_ReachSubflow. Called only when the user opts into soft credits on Screen_Gift_Details (SinglePayment_pk_NeedsSoftCredits=Yes). Connector routes to Pick_SoftCredit.</description>
+        <description>Invokes FQS_Guided_Gift_Entry_Subflow_Soft_Credit_Reach with recordId + col_AccountContactIds (from Transform_Contacts_Ids); returns outCollection_SoftCreditAccounts into col_Acct_ReachSubflow. Called only when the user opts into soft credits on Screen_Gift_Details (SinglePayment_pk_NeedsSoftCredits=Yes). Connector routes to Pick_SoftCredit.</description>
         <name>Sub_Soft_Credit_Reach</name>
         <label>Compute Soft-Credit Reach</label>
         <locationX>0</locationX>
@@ -8715,7 +8707,7 @@
         <connector>
             <targetReference>Pick_SoftCredit</targetReference>
         </connector>
-        <flowName>FQS_Gift_Entry_Soft_Credit_Reach</flowName>
+        <flowName>FQS_Guided_Gift_Entry_Subflow_Soft_Credit_Reach</flowName>
         <inputAssignments>
             <name>recordId</name>
             <value>
@@ -8734,7 +8726,7 @@
         </outputAssignments>
     </subflows>
     <subflows>
-        <description>Invokes the same FQS_Gift_Entry_Soft_Credit_Reach subflow as Sub_Soft_Credit_Reach with the same inputs (recordId + Transform_Contacts_Ids) but routes to Pick_SoftCreditForCommitment. Called only when the user opts into a default soft credit on a GC-creating leaf (Simple / Scheduled / Recurring). Fills col_Acct_ReachSubflow with ACR / CCR-reachable Accounts so the household / related-org picker on the commitment screen matches the GT-level picker&apos;s behavior.</description>
+        <description>Invokes the same FQS_Guided_Gift_Entry_Subflow_Soft_Credit_Reach subflow as Sub_Soft_Credit_Reach with the same inputs (recordId + Transform_Contacts_Ids) but routes to Pick_SoftCreditForCommitment. Called only when the user opts into a default soft credit on a GC-creating leaf (Simple / Scheduled / Recurring). Fills col_Acct_ReachSubflow with ACR / CCR-reachable Accounts so the household / related-org picker on the commitment screen matches the GT-level picker&apos;s behavior.</description>
         <name>Sub_Soft_Credit_Reach_Commitment</name>
         <label>Compute Soft-Credit Reach (Commitment)</label>
         <locationX>0</locationX>
@@ -8742,7 +8734,7 @@
         <connector>
             <targetReference>Pick_SoftCreditForCommitment</targetReference>
         </connector>
-        <flowName>FQS_Gift_Entry_Soft_Credit_Reach</flowName>
+        <flowName>FQS_Guided_Gift_Entry_Subflow_Soft_Credit_Reach</flowName>
         <inputAssignments>
             <name>recordId</name>
             <value>
@@ -8761,7 +8753,7 @@
         </outputAssignments>
     </subflows>
     <subflows>
-        <description>Invokes FQS_Gift_Entry_Subflow_Campaign_Designation_Resolver — the Campaign + Designation resolver that owns the picker screens, restriction handling, GDD lookups, and split detection. Key inputs: contextCommitmentId, varLeafFutureEffective, var_ResolverInput_LeafMonetary / _LeafSpecial / _PledgePaymentMode, Get_Camp_ForAcctMemberships collection, rsv_GC_Selected.Id, and Get_Camp_ForGC.Id (for the GC-context inherited Campaign). Returns the resolvedPath discriminator, var_ResolverOutput_SelectedCampaignId, rsv_GD_Selected SObject, var_GD_ResolvedId + _Source, var_GTD_PlatformSplitApplies + var_GC_GDDCount for split routing, col_GDD_ResolverCampaign / _GCGDDs for the split-GTD loops, plus var_ResolverOutput_DidError / _ErrorMessage propagators. Connector routes to Decide_Resolver_DidError.</description>
+        <description>Invokes FQS_Guided_Gift_Entry_Subflow_Campaign_Designation_Resolver — the Campaign + Designation resolver that owns the picker screens, restriction handling, GDD lookups, and split detection. Key inputs: varLeafFutureEffective, var_ResolverInput_LeafMonetary / _LeafSpecial / _PledgePaymentMode, Get_Camp_ForAcctMemberships collection, rsv_GC_Selected.Id, and Get_Camp_ForGC.Id (for the GC-context inherited Campaign). Returns the resolvedPath discriminator, var_ResolverOutput_SelectedCampaignId, rsv_GD_Selected SObject, var_GD_ResolvedId + _Source, var_GTD_PlatformSplitApplies + var_GC_GDDCount for split routing, col_GDD_ResolverCampaign / _GCGDDs for the split-GTD loops, plus var_ResolverOutput_DidError / _ErrorMessage propagators. Connector routes to Decide_Resolver_DidError.</description>
         <name>Subflow_Call_Campaign_Designation_Resolver</name>
         <label>Resolve Campaign + Designation</label>
         <locationX>0</locationX>
@@ -8769,13 +8761,7 @@
         <connector>
             <targetReference>Decide_Resolver_DidError</targetReference>
         </connector>
-        <flowName>FQS_Gift_Entry_Subflow_Campaign_Designation_Resolver</flowName>
-        <inputAssignments>
-            <name>in_contextCommitmentId</name>
-            <value>
-                <elementReference>contextCommitmentId</elementReference>
-            </value>
-        </inputAssignments>
+        <flowName>FQS_Guided_Gift_Entry_Subflow_Campaign_Designation_Resolver</flowName>
         <inputAssignments>
             <name>in_leafFutureEffective</name>
             <value>
@@ -8864,7 +8850,7 @@
         </outputAssignments>
     </subflows>
     <subflows>
-        <description>Invokes FQS_Gift_Entry_Subflow_Employer_Match with in_stage=&apos;resolveEmployer&apos; BEFORE the donor GT is created (post-Screen_Gift_Details or post-Screen_Recurring_Details on match=Yes). Subflow owns Pick_MatchEmployer, Get_Match_Employer, Details_MatchAmount, and Warning_MatchMaxExceeded. Inputs: donor Account + PersonContactId, var_GT_DonorAmount, contextCommitmentId. Returns matchAmount + matchStatus + matchEmployerId + matchEmployerName (stashed into var_Match* by Assign_Match_Stash_Resolve_Outputs for the second call) plus DidError / ErrorMessage propagators. Connector routes to Assign_Match_Stash_Resolve_Outputs.</description>
+        <description>Invokes FQS_Guided_Gift_Entry_Subflow_Employer_Match with in_stage=&apos;resolveEmployer&apos; BEFORE the donor GT is created (post-Screen_Gift_Details or post-Screen_Recurring_Details on match=Yes). Subflow owns Pick_MatchEmployer, Get_Match_Employer, Details_MatchAmount, and Warning_MatchMaxExceeded. Inputs: donor Account + PersonContactId, var_GT_DonorAmount, contextCommitmentId. Returns matchAmount + matchStatus + matchEmployerId + matchEmployerName (stashed into var_Match* by Assign_Match_Stash_Resolve_Outputs for the second call) plus DidError / ErrorMessage propagators. Connector routes to Assign_Match_Stash_Resolve_Outputs.</description>
         <name>Subflow_Call_Match_Resolve</name>
         <label>Employer Match — Resolve</label>
         <locationX>0</locationX>
@@ -8872,7 +8858,7 @@
         <connector>
             <targetReference>Assign_Match_Stash_Resolve_Outputs</targetReference>
         </connector>
-        <flowName>FQS_Gift_Entry_Subflow_Employer_Match</flowName>
+        <flowName>FQS_Guided_Gift_Entry_Subflow_Employer_Match</flowName>
         <inputAssignments>
             <name>in_stage</name>
             <value>
@@ -8929,7 +8915,7 @@
         </outputAssignments>
     </subflows>
     <subflows>
-        <description>Invokes FQS_Gift_Entry_Subflow_Employer_Match with in_stage=&apos;createAndPair&apos; AFTER the donor GT is created. Subflow owns Assign_Employer_GT_Fields, Create_Employer_GT, optional Recurring GC / GCS / GDD / Activate, ACR check / create, Update_Donor_With_Pair (shell record — subflow owns DML per [[flow-sobject-assign-drops-fields]]), and both soft credits. Inputs cover the full donor GT context (rsv_GT.Id + TransactionDate, rsv_GC_Selected / Campaign / Designation Ids, contextCommitmentId, Intro_pk_LeafMonetary, all recurring cadence values Recurring_dt_Start / Recurring_num_Interval / Recurring_pk_Period / formulaRecurringTransactionDay / formulaRecurringPeriodWord) plus the var_Match* values stashed from the resolve call. Returns var_MatchApplied=true on success + DidError / ErrorMessage propagators. Connector routes to Decide_Match_CreateAndPair_Return.</description>
+        <description>Invokes FQS_Guided_Gift_Entry_Subflow_Employer_Match with in_stage=&apos;createAndPair&apos; AFTER the donor GT is created. Subflow owns Assign_Employer_GT_Fields, Create_Employer_GT, optional Recurring GC / GCS / GDD / Activate, ACR check / create, Update_Donor_With_Pair (shell record — subflow owns DML per [[flow-sobject-assign-drops-fields]]), and both soft credits. Inputs cover the full donor GT context (rsv_GT.Id + TransactionDate, rsv_GC_Selected / Campaign / Designation Ids, contextCommitmentId, Intro_pk_LeafMonetary, all recurring cadence values Recurring_dt_Start / Recurring_num_Interval / Recurring_pk_Period / formulaRecurringTransactionDay / formulaRecurringPeriodWord) plus the var_Match* values stashed from the resolve call. Returns var_MatchApplied=true on success + DidError / ErrorMessage propagators. Connector routes to Decide_Match_CreateAndPair_Return.</description>
         <name>Subflow_Call_Match_CreateAndPair</name>
         <label>Employer Match — Create + Pair</label>
         <locationX>0</locationX>
@@ -8937,7 +8923,7 @@
         <connector>
             <targetReference>Decide_Match_CreateAndPair_Return</targetReference>
         </connector>
-        <flowName>FQS_Gift_Entry_Subflow_Employer_Match</flowName>
+        <flowName>FQS_Guided_Gift_Entry_Subflow_Employer_Match</flowName>
         <inputAssignments>
             <name>in_stage</name>
             <value>
@@ -9162,7 +9148,7 @@
         <objectType>GiftTransaction</objectType>
     </variables>
     <variables>
-        <description>Account collection returned from the FQS_Gift_Entry_Soft_Credit_Reach subflow. Bound to the soft-credit picker datatable as tableData.</description>
+        <description>Account collection returned from the FQS_Guided_Gift_Entry_Subflow_Soft_Credit_Reach subflow. Bound to the soft-credit picker datatable as tableData.</description>
         <name>col_Acct_ReachSubflow</name>
         <dataType>SObject</dataType>
         <isCollection>true</isCollection>
@@ -9180,7 +9166,7 @@
         <objectType>GiftTransactionDesignation</objectType>
     </variables>
     <variables>
-        <description>Optional input. When set, invokes the flow in GiftCommitment-context mode: Decide_Screen_Entry_Mode routes to Get_GC_Context which loads the GC, then Assign_GC_Context_Entry copies its DonorId into recordId, mirrors the GC into rsv_GC_Selected, and pre-selects the Pledge Payment leaf (Intro_pk_Category=Monetary, Intro_pk_LeafMonetary=PledgePayment). Decide_Screen_Skip_Category then bypasses Screen_Category and jumps to Get_GCS_ForGC (the Pledge Payment leaf&apos;s post-picker resume point). Null on Account-quick-action entry; the default branch preserves Account-entry behavior. Consumed by FQS_Gift_Entry_Guide_GiftCommitment as a subflow input.</description>
+        <description>Optional input. When set, invokes the flow in GiftCommitment-context mode: Decide_Screen_Entry_Mode routes to Get_GC_Context which loads the GC, then Assign_GC_Context_Entry copies its DonorId into recordId, mirrors the GC into rsv_GC_Selected, and pre-selects the Pledge Payment leaf (Intro_pk_Category=Monetary, Intro_pk_LeafMonetary=PledgePayment). Decide_Screen_Skip_Category then bypasses Screen_Category and jumps to Get_GCS_ForGC (the Pledge Payment leaf&apos;s post-picker resume point). Null on Account-quick-action entry; the default branch preserves Account-entry behavior. Consumed by FQS_Guided_Gift_Entry_GiftCommitment as a subflow input.</description>
         <name>contextCommitmentId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
@@ -9204,7 +9190,7 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <description>Optional input paired with preselectCategory. For Category=&quot;Future&quot;: pass Choice_Leaf_SimplePledgeGrant.value (&quot;Simple&quot;) or Choice_Leaf_ScheduledPledgeGrant.value (&quot;Scheduled&quot;). For Category=&quot;Monetary&quot;/&quot;Special&quot;: unused (screen still runs). When set, Assign_Preselect_Effectives writes this into varLeafFutureEffective so every downstream reader (Decide_Screen_Leaf_Future, Decide_GCS_Insert, Decide_GTD_After_Pledge, Decide_Override_Needs_Restriction_IsCommitmentCreation, Decide_Route_Outright_To_Resolver, Decide_GDD_Create_ScheduleLeaf, Success_LinkGC visibilityRule) sees the preselected value.</description>
+        <description>Optional input paired with preselectCategory. For Category=&quot;Future&quot;: pass Choice_Leaf_SimplePledgeGrant.value (&quot;Simple&quot;) or Choice_Leaf_ScheduledPledgeGrant.value (&quot;Scheduled&quot;). For Category=&quot;Monetary&quot;/&quot;Special&quot;: unused (screen still runs). When set, Assign_Preselect_Effectives writes this into varLeafFutureEffective so every downstream reader (Decide_Screen_Leaf_Future, Decide_GCS_Insert, Decide_GTD_After_Pledge, Decide_Override_Needs_Restriction_IsCommitmentCreation, Decide_GDD_Create_ScheduleLeaf, Success_LinkGC visibilityRule) sees the preselected value.</description>
         <name>preselectLeaf</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>

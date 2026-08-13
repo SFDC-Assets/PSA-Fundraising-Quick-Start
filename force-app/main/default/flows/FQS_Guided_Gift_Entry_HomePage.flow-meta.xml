@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>66.0</apiVersion>
-    <description>Universal entry point for the FQS Guided Gift Entry suite. Callable from the Account record page (via the Account.FQS_Guided_Gift_Entry quick action, which auto-injects recordId) and from the Home page (via a flexipage:flowComponent on FQS_Home_Page_Default, which leaves recordId null). The flow's only job is to fill in the missing Account context when the user launched from Home: if recordId is blank, show a screen with a native Account lookup and stamp the chosen Account Id into a local variable; otherwise reuse the caller-supplied recordId as-is. In both cases the flow then hands off to the shared monolith FQS_Gift_Entry_Single_Launcher_Account as a subflow, passing the resolved Account Id as recordId — the monolith's Get_Acct chain runs against that donor and every downstream leaf (Outright, Pledge, Recurring, Grant, In-Kind, Earned Income, Event Registration) works unchanged. No local screens after the subflow; the monolith's Screen_Success is terminal and the guide ends there.</description>
+    <description>Universal entry point for the FQS Guided Gift Entry suite. Callable from the Account record page (via the Account.FQS_Guided_Gift_Entry quick action, which auto-injects recordId) and from the Home page (via a flexipage:flowComponent on FQS_Home_Page_Default, which leaves recordId null). The flow's only job is to fill in the missing Account context when the user launched from Home: if recordId is blank, show a screen with a native Account lookup and stamp the chosen Account Id into a local variable; otherwise reuse the caller-supplied recordId as-is. In both cases the flow then hands off to the shared monolith FQS_Guided_Gift_Entry_Account as a subflow, passing the resolved Account Id as recordId — the monolith's Get_Acct chain runs against that donor and every downstream leaf (Outright, Pledge, Recurring, Grant, In-Kind, Earned Income, Event Registration) works unchanged. No local screens after the subflow; the monolith's Screen_Success is terminal and the guide ends there.</description>
     <environments>Default</environments>
-    <interviewLabel>FQS Gift Entry Guide — Universal {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>FQS Gift Entry Guide — Universal</label>
+    <interviewLabel>FQS Guided Gift Entry — Home Page {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Guided Gift Entry — Home Page</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value><stringValue>LightningFlowBuilder</stringValue></value>
@@ -19,7 +19,7 @@
     </processMetadataValues>
     <processType>Flow</processType>
     <runInMode>DefaultMode</runInMode>
-    <status>Obsolete</status>
+    <status>Active</status>
 
     <start>
         <locationX>176</locationX>
@@ -128,8 +128,8 @@
         <label>Guided Gift Entry (Shared)</label>
         <locationX>176</locationX>
         <locationY>480</locationY>
-        <description>Delegates to the shared FQS gift-entry monolith with recordId set to the resolved donor Account Id (either the caller-supplied recordId or the Home-page picked donor). No contextCommitmentId — that input is only set when the flow is invoked from the GiftCommitment surface (via FQS_Gift_Entry_Guide_GiftCommitment). With contextCommitmentId null, the monolith's Decide_Entry_Mode default branch falls through to Get_Acct and the standard category-picker chain runs. The monolith's Screen_Success is terminal so this parent has no downstream elements.</description>
-        <flowName>FQS_Gift_Entry_Single_Launcher_Account</flowName>
+        <description>Delegates to the shared FQS gift-entry monolith with recordId set to the resolved donor Account Id (either the caller-supplied recordId or the Home-page picked donor). No contextCommitmentId — that input is only set when the flow is invoked from the GiftCommitment surface (via FQS_Guided_Gift_Entry_GiftCommitment). With contextCommitmentId null, the monolith's Decide_Entry_Mode default branch falls through to Get_Acct and the standard category-picker chain runs. The monolith's Screen_Success is terminal so this parent has no downstream elements.</description>
+        <flowName>FQS_Guided_Gift_Entry_Account</flowName>
         <inputAssignments>
             <name>recordId</name>
             <value><elementReference>var_Acct_DonorId</elementReference></value>

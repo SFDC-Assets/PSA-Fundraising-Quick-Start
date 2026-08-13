@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <flowDefinition>FQS_Gift_Entry_Single_Launcher_GiftCommitment</flowDefinition>
-    <label>Manage Gift Commitment</label>
+    <flowDefinition>FQS_Guided_Gift_Entry_Account</flowDefinition>
+    <label>Guided Gift Entry</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <type>Flow</type>
 </QuickAction>

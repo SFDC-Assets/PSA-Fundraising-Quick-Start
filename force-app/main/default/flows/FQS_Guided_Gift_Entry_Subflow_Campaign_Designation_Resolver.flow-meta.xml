@@ -2,6 +2,7 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Resolves the Campaign and GiftDesignation for a gift, then returns to the caller monolith. Steps: (1) Route on entry — Pledge Payment path seeds Campaign from the GC and starts at GC lookups; In-Kind / Earned Income branch to an optional Campaign picker; every other leaf goes to the required Campaign picker. (2) Load Campaign default designation (single) and Campaign GDD collection (multi). If &gt;1 GDDs, flag Platform_Split. (3) On the Pledge Payment path, also load GC default designation and GC GDD collection; if &gt;1, flag Platform_Split. (4) Run the resolver decision to pick a designation source in this order: Platform_Split → GC default → Campaign default → org-wide default. (5) On Confirm, either accept the resolver&apos;s pick or override — override routes commitment-creation leaves through a restriction-type picker first, then a designation datatable, both with a lookup escape hatch. (6) Return: out_resolvedPath (Accepted / MissingOrgDefault), out_selectedCampaignId, var_GD_ResolvedId, var_GD_ResolvedSource, and multi-GDD collections out_campaignGDDs / out_gcGDDs for caller-side platform fan-out. Any lookup fault jumps to Assign_DidError_True; caller inspects out_didError post-return.</description>
     <assignments>
         <description>Fault-path terminal for all 10 record lookups. Writes out_didError=true + a generic message; no connector so subflow returns to caller. Caller inspects out_didError post-return and routes to its own Error_CouldNotLoadData terminal Finish per plan §Error-screen-boundary (Shape B).</description>
         <name>Assign_DidError_True</name>
@@ -211,7 +212,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Multi-GDD support — set true after Count_Campaign_GDDs assigns var_Camp_GDDCount &gt; 1. Reached from Decide_Set_PlatformSplit_From_Campaign; connector continues to Decide_Route_Outright_To_Resolver.</description>
+        <description>Multi-GDD support — set true after Count_Campaign_GDDs assigns var_Camp_GDDCount &gt; 1. Reached from Decide_Set_PlatformSplit_From_Campaign; connector continues to Resolve_Designation_Hierarchy.</description>
         <name>Assign_Set_PlatformSplitApplies_True_Campaign</name>
         <label>Set: Platform Split (Campaign multi-GDD)</label>
         <locationX>0</locationX>
@@ -224,7 +225,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Decide_Route_Outright_To_Resolver</targetReference>
+            <targetReference>Resolve_Designation_Hierarchy</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -342,14 +343,6 @@
         <dataType>String</dataType>
         <value>
             <stringValue>With Donor Restriction - Purpose</stringValue>
-        </value>
-    </choices>
-    <choices>
-        <name>Choice_Restriction_Time</name>
-        <choiceText>With Donor Restriction — Time</choiceText>
-        <dataType>String</dataType>
-        <value>
-            <stringValue>With Donor Restriction - Time</stringValue>
         </value>
     </choices>
     <choices>
@@ -528,158 +521,13 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Leaf gate — forks resolver-ready leaves into Resolve_Designation_Hierarchy. 8 rules cover every live leaf; default (Legacy R3 chain in monolith) now routes to Get_Org_Default_Designation as a defensive fallback — the default is unreachable in every documented leaf, but if inputs go unset the org-default lookup path is the safest exit. Rewritten from Choice_Leaf_* elementReference comparisons to inline stringValue comparisons.</description>
-        <name>Decide_Route_Outright_To_Resolver</name>
-        <label>Route to resolver?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Get_Org_Default_Designation</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Fallback — org default</defaultConnectorLabel>
-        <rules>
-            <name>Decide_Route_Outright_To_Resolver_IsOutright</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>in_leafMonetary</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Outright</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <isGoTo>true</isGoTo>
-                <targetReference>Resolve_Designation_Hierarchy</targetReference>
-            </connector>
-            <label>Outright — route to resolver</label>
-        </rules>
-        <rules>
-            <name>Decide_Route_Outright_To_Resolver_IsInKind</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>in_leafSpecial</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>InKind</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <isGoTo>true</isGoTo>
-                <targetReference>Resolve_Designation_Hierarchy</targetReference>
-            </connector>
-            <label>In-Kind — route to resolver</label>
-        </rules>
-        <rules>
-            <name>Decide_Route_Outright_To_Resolver_IsEarnedIncome</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>in_leafSpecial</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>EarnedIncome</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <isGoTo>true</isGoTo>
-                <targetReference>Resolve_Designation_Hierarchy</targetReference>
-            </connector>
-            <label>Earned Income — route to resolver</label>
-        </rules>
-        <rules>
-            <name>Decide_Route_Outright_To_Resolver_IsEventRegistration</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>in_leafSpecial</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>EventRegistration</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <isGoTo>true</isGoTo>
-                <targetReference>Resolve_Designation_Hierarchy</targetReference>
-            </connector>
-            <label>Event Registration — route to resolver</label>
-        </rules>
-        <rules>
-            <name>Decide_Route_Outright_To_Resolver_IsSimplePledge</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>in_leafFutureEffective</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Simple</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <isGoTo>true</isGoTo>
-                <targetReference>Resolve_Designation_Hierarchy</targetReference>
-            </connector>
-            <label>Simple Pledge/Grant — route to resolver</label>
-        </rules>
-        <rules>
-            <name>Decide_Route_Outright_To_Resolver_IsScheduledPledge</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>in_leafFutureEffective</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Scheduled</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Resolve_Designation_Hierarchy</targetReference>
-            </connector>
-            <label>Scheduled Pledge/Grant — route to resolver</label>
-        </rules>
-        <rules>
-            <name>Decide_Route_Outright_To_Resolver_IsPledgePayment</name>
-            <conditionLogic>1 OR 2</conditionLogic>
-            <conditions>
-                <leftValueReference>in_leafMonetary</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>PledgePayment</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>in_contextCommitmentId</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <isGoTo>true</isGoTo>
-                <targetReference>Resolve_Designation_Hierarchy</targetReference>
-            </connector>
-            <label>Pledge Payment — route to resolver</label>
-        </rules>
-        <rules>
-            <name>Decide_Route_Outright_To_Resolver_IsRecurring</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>in_leafMonetary</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Recurring</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <isGoTo>true</isGoTo>
-                <targetReference>Resolve_Designation_Hierarchy</targetReference>
-            </connector>
-            <label>Recurring — route to resolver</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <description>Multi-GDD support — after Count_Campaign_GDDs assigns var_Camp_GDDCount, if &gt;1 set Platform_Split flag; otherwise pass through to leaf gate.</description>
+        <description>Multi-GDD support — after Count_Campaign_GDDs assigns var_Camp_GDDCount, if &gt;1 set Platform_Split flag; otherwise pass through to the resolver decision.</description>
         <name>Decide_Set_PlatformSplit_From_Campaign</name>
         <label>Campaign has &gt;1 GDDs?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Decide_Route_Outright_To_Resolver</targetReference>
+            <targetReference>Resolve_Designation_Hierarchy</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>0-1 GDD — normal resolver</defaultConnectorLabel>
         <rules>
@@ -904,8 +752,8 @@
         <dataType>String</dataType>
         <expression>IF({!var_GC_GDDCount} &gt; 1, &quot;commitment&quot;, &quot;campaign&quot;)</expression>
     </formulas>
-    <interviewLabel>Campaign + Designation Resolver {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>FQS — Gift Entry Subflow: Campaign + Designation Resolver</label>
+    <interviewLabel>FQS Guided Gift Entry Subflow — Campaign + Designation Resolver {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Guided Gift Entry Subflow — Campaign + Designation Resolver</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -1970,13 +1818,12 @@
             <name>pkRestrictionType</name>
             <choiceReferences>Choice_Restriction_Without</choiceReferences>
             <choiceReferences>Choice_Restriction_Purpose</choiceReferences>
-            <choiceReferences>Choice_Restriction_Time</choiceReferences>
             <choiceReferences>Choice_Restriction_Permanent</choiceReferences>
             <dataType>String</dataType>
             <defaultSelectedChoiceReference>Choice_Restriction_Purpose</defaultSelectedChoiceReference>
             <fieldText>What kind of restriction did the donor place?</fieldText>
             <fieldType>RadioButtons</fieldType>
-            <helpText>Purpose = donor named a specific program, project, or fund. Time = donor said WHEN it must be used (e.g., &quot;for our FY27 budget&quot;) — multi-year pledges paid in installments are NOT time-restricted unless the donor said so. Permanent = endowment or permanently restricted principal. If a gift is genuinely both Purpose and Time, pick the stricter one here and adjust on the record.</helpText>
+            <helpText>Without = unrestricted (including internal board designations). Purpose = donor named a specific program, project, or fund. Permanent = endowment or permanently restricted principal. Time boundaries (e.g., &quot;for our FY27 budget&quot;) are NOT captured on the designation — a designation names WHAT the money is for, not WHEN it becomes spendable. Record time boundaries on the gift&apos;s Restriction Release Date field on the next screen instead.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <styleProperties>
@@ -1998,17 +1845,9 @@
             <targetReference>Decide_Resolver_Entry</targetReference>
         </connector>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <variables>
-        <description>Pledge Payment context Commitment Id — when set on the Guide entry path.</description>
-        <name>in_contextCommitmentId</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>true</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <description>Projected from caller's varLeafFutureEffective. Read by Decide_Route_Outright_To_Resolver + Decide_Override_Needs_Restriction. Values: "Simple", "Scheduled", or blank.</description>
+        <description>Projected from caller's varLeafFutureEffective. Read by Decide_Override_Needs_Restriction. Values: "Simple", "Scheduled", or blank.</description>
         <name>in_leafFutureEffective</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
@@ -2016,7 +1855,7 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <description>Projected from caller's Intro_pk_LeafMonetary screen auto-var via Assign_Resolver_Inputs. Values: "Outright" / "PledgePayment" / "Recurring".</description>
+        <description>Projected from caller's Intro_pk_LeafMonetary screen auto-var via Assign_Resolver_Inputs. Values: "Outright" / "PledgePayment" / "Recurring". Read by Decide_Override_Needs_Restriction.</description>
         <name>in_leafMonetary</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>

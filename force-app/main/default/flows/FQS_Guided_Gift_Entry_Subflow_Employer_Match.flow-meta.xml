@@ -866,8 +866,8 @@
         <dataType>String</dataType>
         <expression>IF(OR(ISBLANK({!numMatchAmount}), ISBLANK({!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c})), &quot;&quot;, &quot;That&apos;s $&quot; &amp; TEXT(ROUND({!numMatchAmount} - {!Get_Match_Employer.FQS_Match_Annual_Individual_Maximum__c}, 2)) &amp; &quot; over the annual cap.&quot;)</expression>
     </formulas>
-    <interviewLabel>FQS Gift Entry Subflow - Employer Match {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>FQS Gift Entry Subflow - Employer Match</label>
+    <interviewLabel>FQS Guided Gift Entry Subflow — Employer Match {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Guided Gift Entry Subflow — Employer Match</label>
     <processType>Flow</processType>
     <recordCreates>
         <description>Phase F2. Inserts the paired employer-match GiftTransaction via rsv_MatchEmployerGT. Reached from Decide_Employer_GT_Parent_To_Commitment default (Outright), IsPledgePayment (via ParentToCommitment), or IsRecurring (via ParentToEmployerRecurringGC). Fault → Shape B (Assign_DidError_True). Success → Get_Existing_ACR.</description>
@@ -1491,7 +1491,7 @@
             <targetReference>Assign_Entry</targetReference>
         </connector>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <transforms>
         <description>G4: Extracts AccountId from AccountContactRelation rows returned by Get_ACRs_Match into a text collection. Downstream Get_EmployerPRGs_Match reads it as its AccountId IN filter.</description>
         <name>Transform_ACR_AccountIds</name>

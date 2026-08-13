@@ -52,8 +52,8 @@
     </assignments>
     <description>Reach subflow: given an Account and its Contact Ids, resolve unique candidate soft-credit Accounts via active ACRs (Account-Contact Relations) and active CCRs (Contact-Contact Relations reachable from those Contacts). Called only when the user opts into soft credits on the parent flow&apos;s Gift Details screen. The donor&apos;s own Account is filtered out inline on the ACR query and on the CCR Contact resolution. Returns the deduped Account collection as outCollection_SoftCreditAccounts.</description>
     <environments>Default</environments>
-    <interviewLabel>FQS Gift Entry — Soft Credit Reach {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>FQS Gift Entry — Soft Credit Reach</label>
+    <interviewLabel>FQS Guided Gift Entry Subflow — Soft Credit Reach {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Guided Gift Entry Subflow — Soft Credit Reach</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -196,7 +196,7 @@
             <targetReference>Get_Related_ACRs</targetReference>
         </connector>
     </start>
-    <status>Obsolete</status>
+    <status>Active</status>
     <transforms>
         <description>Map each ACR row to its AccountId — the candidate soft-credit Account.</description>
         <name>Transform_ACR_Account_Ids</name>

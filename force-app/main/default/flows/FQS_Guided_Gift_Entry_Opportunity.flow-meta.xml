@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>66.0</apiVersion>
-    <description>Opportunity-surface purposeful launcher for the FQS Guided Gift Entry suite. Invoked from the Opportunity.FQS_Setup_Commitment quick action (Salesforce auto-injects recordId as the Opportunity Id). Presents ONE screen up front: pick single vs multi-payment + choose whether to close the Opp when the pledge is created (default: yes). Then delegates to the monolith FQS_Gift_Entry_Single_Launcher_Account with preselectCategory=Future + preselectLeaf=Simple|Scheduled + hideSuccessScreen=true; the monolith skips Screen_Category and drops the user directly onto Screen_Pledge_Details / Screen_Scheduled_Details for the chosen shape, runs the shared commitment-creation spine (campaign, restriction, GDD, GDSC, match, etc.), and returns rsv_GC as an output. After the subflow returns (guaranteed only if the GC was created), Decide_Close_Opp reads chkCloseOpp: yes → Get_Won_Stages (all IsActive+IsWon OpportunityStage rows) → cross-ref RecordType.DeveloperName (Grant→Awarded, else→Pledged, fallback→first row) → Update_Opportunity. In both close/no-close cases the flow lands on Screen_Success with conditional text explaining what happened. Ordering guarantee: GC always exists before Opp closes because the subflow only returns after a successful Create_GC_Pledge.</description>
+    <description>Opportunity-surface purposeful launcher for the FQS Guided Gift Entry suite. Invoked from the Opportunity.FQS_Setup_Commitment quick action (Salesforce auto-injects recordId as the Opportunity Id). Presents ONE screen up front: pick single vs multi-payment + choose whether to close the Opp when the pledge is created (default: yes). Then delegates to the monolith FQS_Guided_Gift_Entry_Account with preselectCategory=Future + preselectLeaf=Simple|Scheduled + hideSuccessScreen=true; the monolith skips Screen_Category and drops the user directly onto Screen_Pledge_Details / Screen_Scheduled_Details for the chosen shape, runs the shared commitment-creation spine (campaign, restriction, GDD, GDSC, match, etc.), and returns rsv_GC as an output. After the subflow returns (guaranteed only if the GC was created), Decide_Close_Opp reads chkCloseOpp: yes → Get_Won_Stages (all IsActive+IsWon OpportunityStage rows) → cross-ref RecordType.DeveloperName (Grant→Awarded, else→Pledged, fallback→first row) → Update_Opportunity. In both close/no-close cases the flow lands on Screen_Success with conditional text explaining what happened. Ordering guarantee: GC always exists before Opp closes because the subflow only returns after a successful Create_GC_Pledge.</description>
     <environments>Default</environments>
-    <interviewLabel>FQS Gift Entry Guide — Opportunity Setup Commitment {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>FQS Gift Entry Guide — Opportunity Setup Commitment</label>
+    <interviewLabel>FQS Guided Gift Entry — Opportunity {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Guided Gift Entry — Opportunity</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value><stringValue>LightningFlowBuilder</stringValue></value>
@@ -19,45 +19,7 @@
     </processMetadataValues>
     <processType>Flow</processType>
     <runInMode>DefaultMode</runInMode>
-    <status>Obsolete</status>
-
-    <assignments>
-        <name>Assign_Remap_Simple</name>
-        <label>Map to Monolith Simple Choice</label>
-        <locationX>50</locationX>
-        <locationY>300</locationY>
-        <description>Bridges Opp-guide choice values to the monolith's expected preselect strings. Flow radio-button fields store the choice's choiceText (long user-facing label), not its value — see [[flow-radio-stores-choicetext]]. The monolith's Decide_Screen_Leaf_Future rules compare varLeafFutureEffective against Choice_Leaf_SimplePledgeGrant's choiceText verbatim, so preselectLeaf must equal that exact string. This element writes the monolith's expected leaf label into var_MonolithLeaf and the matching category label into var_MonolithCategory so Sub_Monolith's inputAssignments pass strings that pattern-match on the monolith side.</description>
-        <assignmentItems>
-            <assignToReference>var_MonolithLeaf</assignToReference>
-            <operator>Assign</operator>
-            <value><stringValue>Single Payment Pledge / Grant — one future payment, full amount at once</stringValue></value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>var_MonolithCategory</assignToReference>
-            <operator>Assign</operator>
-            <value><stringValue>Set up a pledge or grant — one or more expected payments over time, even if you&apos;ve already received some of them</stringValue></value>
-        </assignmentItems>
-        <connector><targetReference>Sub_Monolith</targetReference></connector>
-    </assignments>
-
-    <assignments>
-        <name>Assign_Remap_Scheduled</name>
-        <label>Map to Monolith Scheduled Choice</label>
-        <locationX>300</locationX>
-        <locationY>300</locationY>
-        <description>Companion to Assign_Remap_Simple for the multi-payment branch. Writes the monolith's Choice_Leaf_ScheduledPledgeGrant.choiceText verbatim into var_MonolithLeaf so preselectLeaf matches inside the monolith's Decide_Leaf_Future_IsScheduled comparison.</description>
-        <assignmentItems>
-            <assignToReference>var_MonolithLeaf</assignToReference>
-            <operator>Assign</operator>
-            <value><stringValue>Scheduled Pledge / Grant — installments on a schedule</stringValue></value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>var_MonolithCategory</assignToReference>
-            <operator>Assign</operator>
-            <value><stringValue>Set up a pledge or grant — one or more expected payments over time, even if you&apos;ve already received some of them</stringValue></value>
-        </assignmentItems>
-        <connector><targetReference>Sub_Monolith</targetReference></connector>
-    </assignments>
+    <status>Active</status>
 
     <assignments>
         <name>Assign_Target_Stage_Match</name>
@@ -384,7 +346,7 @@
         <locationX>176</locationX>
         <locationY>360</locationY>
         <description>Delegates to the shared FQS gift-entry monolith. recordId = Get_Opportunity.AccountId (donor Account, NOT Opp Id). preselectCategory = "Future" (matches Choice_Cat_Future.value). preselectLeaf = pkPaymentStyle ("Simple"/"Scheduled"). hideSuccessScreen = true so monolith's Decide_Show_Success terminates and we own the success UI. Output rsv_GC captures the created GC. When this subflow returns, Create_GC_Pledge ran; if it errored, control never reaches Update_Opportunity.</description>
-        <flowName>FQS_Gift_Entry_Single_Launcher_Account</flowName>
+        <flowName>FQS_Guided_Gift_Entry_Account</flowName>
         <inputAssignments>
             <name>recordId</name>
             <value><elementReference>Get_Opportunity.AccountId</elementReference></value>
@@ -414,22 +376,6 @@
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <description>Monolith-preselect leaf label. Written by Assign_Remap_Simple or Assign_Remap_Scheduled with the monolith's Choice_Leaf_SimplePledgeGrant.choiceText / Choice_Leaf_ScheduledPledgeGrant.choiceText verbatim, then passed as preselectLeaf on Sub_Monolith.</description>
-        <name>var_MonolithLeaf</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <description>Monolith-preselect category label. Written by Assign_Remap_Simple / Assign_Remap_Scheduled with the monolith's Choice_Cat_Future.choiceText verbatim, then passed as preselectCategory on Sub_Monolith.</description>
-        <name>var_MonolithCategory</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
