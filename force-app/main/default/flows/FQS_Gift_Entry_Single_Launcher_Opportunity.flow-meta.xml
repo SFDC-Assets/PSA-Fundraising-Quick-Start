@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <description>Screen flow launched via quick action from an Opportunity record. Routes on Opportunity RecordType.DeveloperName: Major_Gift creates a Pledged Gift GiftCommitment, Grant creates a Grant Payout GiftCommitment. Any other record type shows a friendly early-exit. DonorId is copied from Opportunity.AccountId. Amount and StartDate default from the Opportunity but are editable on the confirmation screen. Every DML has a fault path to a single error screen so the user always sees why nothing was saved.</description>
+    <environments>Default</environments>
+    <interviewLabel>FQS Gift Entry Single Launcher — Opportunity {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Gift Entry Single Launcher — Opportunity</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value><stringValue>LightningFlowBuilder</stringValue></value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value><stringValue>AUTO_LAYOUT_CANVAS</stringValue></value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value><stringValue>LightningFlowBuilder</stringValue></value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <runInMode>DefaultMode</runInMode>
+    <status>Draft</status>
+
+    <start>
+        <locationX>176</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Get_Opportunity</targetReference></connector>
+    </start>
+
+    <recordLookups>
+        <name>Get_Opportunity</name>
+        <label>Get Opportunity</label>
+        <locationX>176</locationX>
+        <locationY>120</locationY>
+        <description>Loads Opportunity fields needed for routing and defaulting: Name, AccountId, Amount, CloseDate, RecordTypeId.</description>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector><targetReference>Get_RecordType_ForOpp</targetReference></connector>
+        <faultConnector><targetReference>Err_Load</targetReference></faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value><elementReference>recordId</elementReference></value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Opportunity</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_RecordType_ForOpp</name>
+        <label>Get RecordType (Opp)</label>
+        <locationX>176</locationX>
+        <locationY>240</locationY>
+        <description>Separate lookup on RecordType so decisions can filter on DeveloperName without parent traversal in Get_Opportunity's filter set.</description>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector><targetReference>Decide_RecordType</targetReference></connector>
+        <faultConnector><targetReference>Err_Load</targetReference></faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value><elementReference>Get_Opportunity.RecordTypeId</elementReference></value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>RecordType</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+
+    <decisions>
+        <name>Decide_RecordType</name>
+        <label>Route by Opportunity RecordType</label>
+        <locationX>176</locationX>
+        <locationY>360</locationY>
+        <description>Major_Gift routes to the pledge branch. Grant routes to the grant payout branch. Everything else exits with a friendly message rather than silently guessing.</description>
+        <defaultConnector><targetReference>Err_Unsupported_RecordType</targetReference></defaultConnector>
+        <defaultConnectorLabel>Unsupported</defaultConnectorLabel>
+        <rules>
+            <name>Decide_RecordType_IsMajorGift</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_RecordType_ForOpp.DeveloperName</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue><stringValue>Major_Gift</stringValue></rightValue>
+            </conditions>
+            <connector><targetReference>Screen_Pledge_Details</targetReference></connector>
+            <label>Major Gift → Pledge</label>
+        </rules>
+        <rules>
+            <name>Decide_RecordType_IsGrant</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_RecordType_ForOpp.DeveloperName</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue><stringValue>Grant</stringValue></rightValue>
+            </conditions>
+            <connector><targetReference>Screen_Grant_Details</targetReference></connector>
+            <label>Grant → Grant Payout</label>
+        </rules>
+    </decisions>
+
+    <screens>
+        <name>Screen_Pledge_Details</name>
+        <label>Pledge Details</label>
+        <locationX>50</locationX>
+        <locationY>480</locationY>
+        <description>Confirms creation of a Pledged Gift GiftCommitment. Amount and StartDate default from the Opportunity; the user can override.</description>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector><targetReference>Create_Pledge</targetReference></connector>
+        <fields>
+            <name>PledgeDetails_Help</name>
+            <fieldText>&lt;p&gt;&lt;b style="font-size: 18px;"&gt;Record a Pledge&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Creating a &lt;b&gt;Pledged Gift&lt;/b&gt; commitment linked to donor &lt;b&gt;{!Get_Opportunity.Account.Name}&lt;/b&gt; for opportunity &lt;b&gt;{!Get_Opportunity.Name}&lt;/b&gt;.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>numPledgeAmount</name>
+            <dataType>Number</dataType>
+            <defaultValue>
+                <elementReference>Get_Opportunity.Amount</elementReference>
+            </defaultValue>
+            <fieldText>Expected Total Commitment Amount</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+            <scale>2</scale>
+        </fields>
+        <fields>
+            <name>dtPledgeStartDate</name>
+            <dataType>Date</dataType>
+            <defaultValue>
+                <elementReference>Get_Opportunity.CloseDate</elementReference>
+            </defaultValue>
+            <fieldText>Start Date</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>pkPledgeFormalType</name>
+            <choiceReferences>Choice_Formal_Written</choiceReferences>
+            <choiceReferences>Choice_Formal_Verbal</choiceReferences>
+            <defaultSelectedChoiceReference>Choice_Formal_Written</defaultSelectedChoiceReference>
+            <dataType>String</dataType>
+            <fieldText>Formal Commitment Type</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>txtPledgeName</name>
+            <dataType>String</dataType>
+            <defaultValue>
+                <elementReference>Get_Opportunity.Name</elementReference>
+            </defaultValue>
+            <fieldText>Commitment Name</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Screen_Grant_Details</name>
+        <label>Grant Payout Details</label>
+        <locationX>302</locationX>
+        <locationY>480</locationY>
+        <description>Confirms creation of a Grant Payout GiftCommitment. Amount and StartDate default from the Opportunity.</description>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector><targetReference>Create_Grant_Payout</targetReference></connector>
+        <fields>
+            <name>GrantDetails_Help</name>
+            <fieldText>&lt;p&gt;&lt;b style="font-size: 18px;"&gt;Record a Grant Payout&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Creating a &lt;b&gt;Grant Payout&lt;/b&gt; commitment linked to funder &lt;b&gt;{!Get_Opportunity.Account.Name}&lt;/b&gt; for grant &lt;b&gt;{!Get_Opportunity.Name}&lt;/b&gt;.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>numGrantAmount</name>
+            <dataType>Number</dataType>
+            <defaultValue>
+                <elementReference>Get_Opportunity.Amount</elementReference>
+            </defaultValue>
+            <fieldText>Awarded Amount</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+            <scale>2</scale>
+        </fields>
+        <fields>
+            <name>dtGrantStartDate</name>
+            <dataType>Date</dataType>
+            <defaultValue>
+                <elementReference>Get_Opportunity.CloseDate</elementReference>
+            </defaultValue>
+            <fieldText>Start Date</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>pkGrantFormalType</name>
+            <choiceReferences>Choice_Formal_Written</choiceReferences>
+            <choiceReferences>Choice_Formal_Verbal</choiceReferences>
+            <defaultSelectedChoiceReference>Choice_Formal_Written</defaultSelectedChoiceReference>
+            <dataType>String</dataType>
+            <fieldText>Formal Commitment Type</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>txtGrantName</name>
+            <dataType>String</dataType>
+            <defaultValue>
+                <elementReference>Get_Opportunity.Name</elementReference>
+            </defaultValue>
+            <fieldText>Commitment Name</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Screen_Success</name>
+        <label>Commitment Created</label>
+        <locationX>176</locationX>
+        <locationY>720</locationY>
+        <description>Success end screen.</description>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Success_Body</name>
+            <fieldText>&lt;p&gt;&lt;span style="color: rgb(46, 132, 74);"&gt;&amp;#10003;&lt;/span&gt; &lt;b&gt;Commitment created.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Open the new record from the related list on this Opportunity, or return here to record another.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Err_Load</name>
+        <label>Error — Could Not Load Opportunity</label>
+        <locationX>528</locationX>
+        <locationY>120</locationY>
+        <description>Fault screen for the initial record lookups. Nothing has been saved.</description>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>ErrLoad_Body</name>
+            <fieldText>&lt;p&gt;&lt;b&gt;We couldn't load this opportunity.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Details: {!$Flow.FaultMessage}&lt;/p&gt;&lt;p&gt;Nothing has been changed. Please try again or contact your administrator.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Err_Unsupported_RecordType</name>
+        <label>Error — Unsupported Record Type</label>
+        <locationX>528</locationX>
+        <locationY>360</locationY>
+        <description>Shown when the Opportunity's RecordType is neither Major_Gift nor Grant. The launcher can be extended for more record types by adding decision rules above.</description>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>ErrUnsupported_Body</name>
+            <fieldText>&lt;p&gt;&lt;b&gt;This Opportunity record type isn't supported by the launcher.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Detected record type: &lt;b&gt;{!Get_RecordType_ForOpp.DeveloperName}&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Currently supported: &lt;b&gt;Major_Gift&lt;/b&gt; (creates a Pledged Gift commitment) and &lt;b&gt;Grant&lt;/b&gt; (creates a Grant Payout commitment).&lt;/p&gt;&lt;p&gt;Nothing has been changed.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Err_Create</name>
+        <label>Error — Commitment Not Saved</label>
+        <locationX>352</locationX>
+        <locationY>720</locationY>
+        <description>Fault screen for the Create Records elements. Rolls back cleanly because no other DML has happened.</description>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>ErrCreate_Body</name>
+            <fieldText>&lt;p&gt;&lt;b&gt;The commitment couldn't be saved.&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Details: {!$Flow.FaultMessage}&lt;/p&gt;&lt;p&gt;Please review the details and try again, or contact your administrator.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+
+    <recordCreates>
+        <name>Create_Pledge</name>
+        <label>Create Pledged Gift Commitment</label>
+        <locationX>50</locationX>
+        <locationY>600</locationY>
+        <description>Creates a GiftCommitment with FQS_Gift_Commitment_Category__c = 'Pledged Gift'. DonorId is copied from the Opportunity's AccountId. Fault path routes to Err_Create.</description>
+        <connector><targetReference>Screen_Success</targetReference></connector>
+        <faultConnector><targetReference>Err_Create</targetReference></faultConnector>
+        <inputAssignments>
+            <field>DonorId</field>
+            <value><elementReference>Get_Opportunity.AccountId</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ExpectedTotalCmtAmount</field>
+            <value><elementReference>numPledgeAmount</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>FQS_Gift_Commitment_Category__c</field>
+            <value><stringValue>Pledged Gift</stringValue></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>FormalCommitmentType</field>
+            <value><elementReference>pkPledgeFormalType</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Name</field>
+            <value><elementReference>txtPledgeName</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>StartDate</field>
+            <value><elementReference>dtPledgeStartDate</elementReference></value>
+        </inputAssignments>
+        <object>GiftCommitment</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordCreates>
+        <name>Create_Grant_Payout</name>
+        <label>Create Grant Payout Commitment</label>
+        <locationX>302</locationX>
+        <locationY>600</locationY>
+        <description>Creates a GiftCommitment with FQS_Gift_Commitment_Category__c = 'Grant Payout'. Fault path routes to Err_Create.</description>
+        <connector><targetReference>Screen_Success</targetReference></connector>
+        <faultConnector><targetReference>Err_Create</targetReference></faultConnector>
+        <inputAssignments>
+            <field>DonorId</field>
+            <value><elementReference>Get_Opportunity.AccountId</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ExpectedTotalCmtAmount</field>
+            <value><elementReference>numGrantAmount</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>FQS_Gift_Commitment_Category__c</field>
+            <value><stringValue>Grant Payout</stringValue></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>FormalCommitmentType</field>
+            <value><elementReference>pkGrantFormalType</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Name</field>
+            <value><elementReference>txtGrantName</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>StartDate</field>
+            <value><elementReference>dtGrantStartDate</elementReference></value>
+        </inputAssignments>
+        <object>GiftCommitment</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+
+    <choices>
+        <name>Choice_Formal_Written</name>
+        <choiceText>Written</choiceText>
+        <dataType>String</dataType>
+        <value><stringValue>Written</stringValue></value>
+    </choices>
+    <choices>
+        <name>Choice_Formal_Verbal</name>
+        <choiceText>Verbal</choiceText>
+        <dataType>String</dataType>
+        <value><stringValue>Verbal</stringValue></value>
+    </choices>
+
+    <variables>
+        <name>recordId</name>
+        <description>Input: Id of the Opportunity from which the flow is launched. Passed automatically by the Lightning quick action.</description>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

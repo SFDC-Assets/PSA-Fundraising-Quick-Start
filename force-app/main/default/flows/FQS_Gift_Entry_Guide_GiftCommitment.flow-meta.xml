@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <description>Bare-bones passthrough. Launched via quick action on a GiftCommitment record — Salesforce implicitly injects the GC Id as recordId. This flow does nothing but hand that Id to the shared monolith FQS_Gift_Entry_Single_Launcher_Account as BOTH recordId (initial value, immediately overwritten by the monolith's Assign_Context_Entry with the commitment's DonorId) AND contextCommitmentId (drives Decide_Entry_Mode's GC-context branch: Get_GC_Context loads the GC into rsv_SelectedCommitment via outputReference, then the Pledge Payment leaf pre-selects and jumps past Screen_Category to Screen_Existing_GTs). No local screens, no payability check (Flexipage visibility rule handles that upstream), no error handling (monolith owns the full experience). Monolith's Screen_Success is terminal — no duplicate confirmation.</description>
+    <environments>Default</environments>
+    <interviewLabel>FQS Gift Entry Guide — GiftCommitment {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Gift Entry Guide — GiftCommitment</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value><stringValue>LightningFlowBuilder</stringValue></value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value><stringValue>AUTO_LAYOUT_CANVAS</stringValue></value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value><stringValue>LightningFlowBuilder</stringValue></value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <runInMode>DefaultMode</runInMode>
+    <status>Active</status>
+
+    <start>
+        <locationX>176</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Sub_Monolith</targetReference></connector>
+    </start>
+
+    <subflows>
+        <name>Sub_Monolith</name>
+        <label>Record Pledge Payment (Guided)</label>
+        <locationX>176</locationX>
+        <locationY>120</locationY>
+        <description>Delegates directly to FQS_Gift_Entry_Single_Launcher_Account. Passes the quick-action-injected recordId (which IS the GC Id on this surface) as BOTH the monolith's recordId (transient — overwritten by Assign_Context_Entry to DonorId) AND contextCommitmentId (persistent — triggers the GC-context branch through Decide_Entry_Mode). No further wiring needed on this side; the monolith fully owns the experience.</description>
+        <flowName>FQS_Gift_Entry_Single_Launcher_Account</flowName>
+        <inputAssignments>
+            <name>recordId</name>
+            <value><elementReference>recordId</elementReference></value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>contextCommitmentId</name>
+            <value><elementReference>recordId</elementReference></value>
+        </inputAssignments>
+    </subflows>
+
+    <variables>
+        <name>recordId</name>
+        <description>Input: Id of the GiftCommitment from which the flow is launched. Passed automatically by the Lightning quick action (standard implicit behavior — no action-config binding required).</description>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

@@ -24,13 +24,13 @@
         </assignmentItems>
     </assignments>
     <assignments>
-        <description>PP-inherited entry: seeds subflow_rsv_Campaign.Id from the caller-supplied in_selectedCampaignId so the resolver's Tier 3 lookups (Get_Campaign_Default_Designations, Get_Campaign_GDDs_Multi) can filter on it. Only runs when in_selectedCommitmentId is non-null — Pledge Payment path where monolith's Assign_Campaign_From_Commitment_Selected already resolved the Campaign from the parent GC.</description>
+        <description>PP-inherited entry: seeds rsv_Camp.Id from the caller-supplied in_selectedCampaignId so the resolver's Tier 3 lookups (Get_Campaign_Default_Designations, Get_Campaign_GDDs_Multi) can filter on it. Only runs when in_selectedCommitmentId is non-null — Pledge Payment path where monolith's Assign_Campaign_From_Commitment_Selected already resolved the Campaign from the parent GC.</description>
         <name>Assign_Seed_Campaign_Id</name>
         <label>Seed subflow Campaign Id (PP path)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>subflow_rsv_Campaign.Id</assignToReference>
+            <assignToReference>rsv_Camp.Id</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>in_selectedCampaignId</elementReference>
@@ -41,27 +41,27 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Resolver Tier 3 Campaign_Default terminal. Ported unchanged from monolith except now writes rsv_SelectedDesignation.Id (subflow-local SObject) instead of relying on monolith's rsv_SelectedDesignation.</description>
+        <description>Resolver Tier 3 Campaign_Default terminal. Ported unchanged from monolith except now writes rsv_GD_Selected.Id (subflow-local SObject) instead of relying on monolith's rsv_GD_Selected.</description>
         <name>Assign_Resolve_Designation_CampaignDefault</name>
         <label>Resolved: from Campaign default</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>var_ResolvedDesignationId</assignToReference>
+            <assignToReference>var_GD_ResolvedId</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>Get_Campaign_Default_Designations.GiftDesignationId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>var_ResolvedDesignationSource</assignToReference>
+            <assignToReference>var_GD_ResolvedSource</assignToReference>
             <operator>Assign</operator>
             <value>
                 <stringValue>Campaign_Default</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>rsv_SelectedDesignation.Id</assignToReference>
+            <assignToReference>rsv_GD_Selected.Id</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>Get_Campaign_Default_Designations.GiftDesignationId</elementReference>
@@ -78,21 +78,21 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>var_ResolvedDesignationId</assignToReference>
+            <assignToReference>var_GD_ResolvedId</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>Get_GC_Default_Designation_For_Resolver.GiftDesignationId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>var_ResolvedDesignationSource</assignToReference>
+            <assignToReference>var_GD_ResolvedSource</assignToReference>
             <operator>Assign</operator>
             <value>
                 <stringValue>GC_Default</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>rsv_SelectedDesignation.Id</assignToReference>
+            <assignToReference>rsv_GD_Selected.Id</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>Get_GC_Default_Designation_For_Resolver.GiftDesignationId</elementReference>
@@ -110,21 +110,21 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>var_ResolvedDesignationId</assignToReference>
+            <assignToReference>var_GD_ResolvedId</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>Get_Org_Default_Designation.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>var_ResolvedDesignationSource</assignToReference>
+            <assignToReference>var_GD_ResolvedSource</assignToReference>
             <operator>Assign</operator>
             <value>
                 <stringValue>Org_Default</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>rsv_SelectedDesignation.Id</assignToReference>
+            <assignToReference>rsv_GD_Selected.Id</assignToReference>
             <operator>Assign</operator>
             <value>
                 <elementReference>Get_Org_Default_Designation.Id</elementReference>
@@ -136,13 +136,13 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Resolver Tier 0 Platform_Split terminal. Deliberately does NOT populate rsv_SelectedDesignation.Id — caller-side Decide_Create_Designation and Decide_Create_Default_Designation gate on .Id being non-null; leaving it null preserves platform native multi-row fanout.</description>
+        <description>Resolver Tier 0 Platform_Split terminal. Deliberately does NOT populate rsv_GD_Selected.Id — caller-side Decide_Create_Designation and Decide_Create_Default_Designation gate on .Id being non-null; leaving it null preserves platform native multi-row fanout.</description>
         <name>Assign_Resolve_Designation_PlatformSplit</name>
         <label>Resolved: platform split (multi-GDD)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>var_ResolvedDesignationSource</assignToReference>
+            <assignToReference>var_GD_ResolvedSource</assignToReference>
             <operator>Assign</operator>
             <value>
                 <stringValue>Platform_Split</stringValue>
@@ -153,20 +153,20 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Override terminal (Tier 4). Fires after Pick_Designation resolves. Copies rsv_SelectedDesignation.Id into var_ResolvedDesignationId so downstream reads see the user-picked designation. Connector was → Decide_After_Designation in monolith; here routes to Assign_Set_ResolvedPath_Accepted so subflow returns cleanly.</description>
+        <description>Override terminal (Tier 4). Fires after Pick_Designation resolves. Copies rsv_GD_Selected.Id into var_GD_ResolvedId so downstream reads see the user-picked designation. Connector was → Decide_After_Designation in monolith; here routes to Assign_Set_ResolvedPath_Accepted so subflow returns cleanly.</description>
         <name>Assign_Resolve_Designation_UserOverride</name>
         <label>Resolved: user override</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>var_ResolvedDesignationId</assignToReference>
+            <assignToReference>var_GD_ResolvedId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>rsv_SelectedDesignation.Id</elementReference>
+                <elementReference>rsv_GD_Selected.Id</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>var_ResolvedDesignationSource</assignToReference>
+            <assignToReference>var_GD_ResolvedSource</assignToReference>
             <operator>Assign</operator>
             <value>
                 <stringValue>User_Override</stringValue>
@@ -211,13 +211,13 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Multi-GDD support — set true after Count_Campaign_GDDs assigns var_CampaignGDDCount &gt; 1. Reached from Decide_Set_PlatformSplit_From_Campaign; connector continues to Decide_Route_Outright_To_Resolver.</description>
+        <description>Multi-GDD support — set true after Count_Campaign_GDDs assigns var_Camp_GDDCount &gt; 1. Reached from Decide_Set_PlatformSplit_From_Campaign; connector continues to Decide_Route_Outright_To_Resolver.</description>
         <name>Assign_Set_PlatformSplitApplies_True_Campaign</name>
         <label>Set: Platform Split (Campaign multi-GDD)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>var_PlatformSplitApplies</assignToReference>
+            <assignToReference>var_GTD_PlatformSplitApplies</assignToReference>
             <operator>Assign</operator>
             <value>
                 <booleanValue>true</booleanValue>
@@ -228,13 +228,13 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Multi-GDD support — set true after Count_GC_GDDs assigns var_GCGDDCount &gt; 1. Reached from Decide_Set_PlatformSplit_From_GC on PP branch; connector continues to Get_Campaign_Default_Designations (Tier 3 lookup) skipping Tier 2.</description>
+        <description>Multi-GDD support — set true after Count_GC_GDDs assigns var_GC_GDDCount &gt; 1. Reached from Decide_Set_PlatformSplit_From_GC on PP branch; connector continues to Get_Campaign_Default_Designations (Tier 3 lookup) skipping Tier 2.</description>
         <name>Assign_Set_PlatformSplitApplies_True_GC</name>
         <label>Set: Platform Split (GC multi-GDD)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>var_PlatformSplitApplies</assignToReference>
+            <assignToReference>var_GTD_PlatformSplitApplies</assignToReference>
             <operator>Assign</operator>
             <value>
                 <booleanValue>true</booleanValue>
@@ -246,7 +246,7 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Accepted-path terminal. Writes out_resolvedPath="Accepted" + out_selectedCampaignId (from subflow_rsv_Campaign.Id — which is populated by whichever entry path ran). No connector — subflow returns control to caller.</description>
+        <description>Accepted-path terminal. Writes out_resolvedPath="Accepted" + out_selectedCampaignId (from rsv_Camp.Id — which is populated by whichever entry path ran). No connector — subflow returns control to caller.</description>
         <name>Assign_Set_ResolvedPath_Accepted</name>
         <label>Set: resolved path = Accepted</label>
         <locationX>0</locationX>
@@ -262,7 +262,7 @@
             <assignToReference>out_selectedCampaignId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>subflow_rsv_Campaign.Id</elementReference>
+                <elementReference>rsv_Camp.Id</elementReference>
             </value>
         </assignmentItems>
     </assignments>
@@ -281,13 +281,13 @@
         </assignmentItems>
     </assignments>
     <assignments>
-        <description>Multi-GDD support — counts Get_Campaign_GDDs_Multi into var_CampaignGDDCount AND copies the collection into out_campaignGDDs (caller-side Loop_Fanout_Split_GTDs_Campaign iterates it). Routes to Decide_Set_PlatformSplit_From_Campaign.</description>
+        <description>Multi-GDD support — counts Get_Campaign_GDDs_Multi into var_Camp_GDDCount AND copies the collection into out_campaignGDDs (caller-side Loop_GDD_ResolverCampaign_FanoutGTD iterates it). Routes to Decide_Set_PlatformSplit_From_Campaign.</description>
         <name>Count_Campaign_GDDs</name>
         <label>Count Campaign GDDs</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>var_CampaignGDDCount</assignToReference>
+            <assignToReference>var_Camp_GDDCount</assignToReference>
             <operator>AssignCount</operator>
             <value>
                 <elementReference>Get_Campaign_GDDs_Multi</elementReference>
@@ -305,13 +305,13 @@
         </connector>
     </assignments>
     <assignments>
-        <description>Multi-GDD support — counts Get_GC_GDDs_Multi into var_GCGDDCount AND copies the collection into out_gcGDDs (caller-side Loop_Fanout_Split_GTDs_GC iterates). Only reachable on PP branch. Routes to Decide_Set_PlatformSplit_From_GC.</description>
+        <description>Multi-GDD support — counts Get_GC_GDDs_Multi into var_GC_GDDCount AND copies the collection into out_gcGDDs (caller-side Loop_GDD_ResolverGC_FanoutGTD iterates). Only reachable on PP branch. Routes to Decide_Set_PlatformSplit_From_GC.</description>
         <name>Count_GC_GDDs</name>
         <label>Count GC GDDs</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>var_GCGDDCount</assignToReference>
+            <assignToReference>var_GC_GDDCount</assignToReference>
             <operator>AssignCount</operator>
             <value>
                 <elementReference>Get_GC_GDDs_Multi</elementReference>
@@ -673,7 +673,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Multi-GDD support — after Count_Campaign_GDDs assigns var_CampaignGDDCount, if &gt;1 set Platform_Split flag; otherwise pass through to leaf gate.</description>
+        <description>Multi-GDD support — after Count_Campaign_GDDs assigns var_Camp_GDDCount, if &gt;1 set Platform_Split flag; otherwise pass through to leaf gate.</description>
         <name>Decide_Set_PlatformSplit_From_Campaign</name>
         <label>Campaign has &gt;1 GDDs?</label>
         <locationX>0</locationX>
@@ -686,7 +686,7 @@
             <name>Decide_Set_PlatformSplit_From_Campaign_IsMulti</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>var_CampaignGDDCount</leftValueReference>
+                <leftValueReference>var_Camp_GDDCount</leftValueReference>
                 <operator>GreaterThan</operator>
                 <rightValue>
                     <numberValue>1.0</numberValue>
@@ -712,7 +712,7 @@
             <name>Decide_Set_PlatformSplit_From_GC_IsMulti</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>var_GCGDDCount</leftValueReference>
+                <leftValueReference>var_GC_GDDCount</leftValueReference>
                 <operator>GreaterThan</operator>
                 <rightValue>
                     <numberValue>1.0</numberValue>
@@ -725,7 +725,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Pledge Payment Update branch skips Confirm_Designation. Keyed only on in_pledgePaymentMode='Update' — the second guard on rsv_SelectedGT.Id (present in the monolith) can't be safely projected as a subflow input per [[flow-unread-sobject-field-throws]] (Assign of unread SObject.Id throws). Update-mode is set via a radio selection so is always safely readable; if pkPledgePaymentMode='Update' without a selected GT that's an upstream data-integrity bug, not something to defend against here.</description>
+        <description>Pledge Payment Update branch skips Confirm_Designation. Keyed only on in_pledgePaymentMode='Update' — the second guard on rsv_SelectedGT.Id (present in the monolith) can't be safely projected as a subflow input per [[flow-unread-sobject-field-throws]] (Assign of unread SObject.Id throws). Update-mode is set via a radio selection so is always safely readable; if UseExistingSched_pk_Mode='Update' without a selected GT that's an upstream data-integrity bug, not something to defend against here.</description>
         <name>Decide_Skip_Confirm_On_Update</name>
         <label>Skip Confirm on PP Update?</label>
         <locationX>0</locationX>
@@ -804,7 +804,7 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Route Pick_Designation exit: unchecked lookup box → Assign_Resolve_Designation_UserOverride (accept the datatable pick); checked → Get_Looked_Up_Designation (which writes rsv_SelectedDesignation via outputReference then falls through to Assign_Resolve_Designation_UserOverride).</description>
+        <description>Route Pick_Designation exit: unchecked lookup box → Assign_Resolve_Designation_UserOverride (accept the datatable pick); checked → Get_Looked_Up_Designation (which writes rsv_GD_Selected via outputReference then falls through to Assign_Resolve_Designation_UserOverride).</description>
         <name>Decide_Use_Designation_Lookup</name>
         <label>Use Designation lookup?</label>
         <locationX>0</locationX>
@@ -843,7 +843,7 @@
             <name>Resolve_Designation_Hierarchy_TierPlatformSplit</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>var_PlatformSplitApplies</leftValueReference>
+                <leftValueReference>var_GTD_PlatformSplitApplies</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -887,22 +887,22 @@
     </decisions>
     <environments>Default</environments>
     <formulas>
-        <description>Confirm_Designation summary line. CASE-branches on var_ResolvedDesignationSource. ISBLANK guards on Get_Resolved_GD.Name for defensive null-handling.</description>
+        <description>Confirm_Designation summary line. CASE-branches on var_GD_ResolvedSource. ISBLANK guards on Get_Resolved_GD.Name for defensive null-handling.</description>
         <name>formulaResolvedDesignationSummary</name>
         <dataType>String</dataType>
-        <expression>&quot;Applying: &lt;b&gt;&quot; &amp; IF(ISBLANK({!Get_Resolved_GD.Name}), &quot;(no designation resolved)&quot;, {!Get_Resolved_GD.Name}) &amp; &quot;&lt;/b&gt; &quot; &amp; CASE({!var_ResolvedDesignationSource}, &quot;Campaign_Default&quot;, &quot;— from the campaign’s default.&quot;, &quot;GC_Default&quot;, &quot;— from the commitment’s default.&quot;, &quot;Org_Default&quot;, &quot;— the org default. No campaign or commitment default set.&quot;, &quot;User_Override&quot;, &quot;— chosen manually.&quot;, &quot;&quot;)</expression>
+        <expression>&quot;Applying: &lt;b&gt;&quot; &amp; IF(ISBLANK({!Get_Resolved_GD.Name}), &quot;(no designation resolved)&quot;, {!Get_Resolved_GD.Name}) &amp; &quot;&lt;/b&gt; &quot; &amp; CASE({!var_GD_ResolvedSource}, &quot;Campaign_Default&quot;, &quot;— from the campaign’s default.&quot;, &quot;GC_Default&quot;, &quot;— from the commitment’s default.&quot;, &quot;Org_Default&quot;, &quot;— the org default. No campaign or commitment default set.&quot;, &quot;User_Override&quot;, &quot;— chosen manually.&quot;, &quot;&quot;)</expression>
     </formulas>
     <formulas>
         <description>Multi-GDD support — number of GDDs contributing to the platform split. Picks the GC count when &gt;1 (PP branch takes precedence), otherwise the Campaign count.</description>
         <name>formulaSplitCount</name>
         <dataType>String</dataType>
-        <expression>TEXT(IF({!var_GCGDDCount} &gt; 1, {!var_GCGDDCount}, {!var_CampaignGDDCount}))</expression>
+        <expression>TEXT(IF({!var_GC_GDDCount} &gt; 1, {!var_GC_GDDCount}, {!var_Camp_GDDCount}))</expression>
     </formulas>
     <formulas>
         <description>Multi-GDD support — renders "campaign" or "commitment" in the Platform_Split explanation.</description>
         <name>formulaSplitSource</name>
         <dataType>String</dataType>
-        <expression>IF({!var_GCGDDCount} &gt; 1, &quot;commitment&quot;, &quot;campaign&quot;)</expression>
+        <expression>IF({!var_GC_GDDCount} &gt; 1, &quot;commitment&quot;, &quot;campaign&quot;)</expression>
     </formulas>
     <interviewLabel>Campaign + Designation Resolver {!$Flow.CurrentDateTime}</interviewLabel>
     <label>FQS — Gift Entry Subflow: Campaign + Designation Resolver</label>
@@ -944,7 +944,7 @@
             <field>ParentRecordId</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>subflow_rsv_Campaign.Id</elementReference>
+                <elementReference>rsv_Camp.Id</elementReference>
             </value>
         </filters>
         <filters>
@@ -977,7 +977,7 @@
             <field>ParentRecordId</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>subflow_rsv_Campaign.Id</elementReference>
+                <elementReference>rsv_Camp.Id</elementReference>
             </value>
         </filters>
         <filters>
@@ -1091,7 +1091,7 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Escape-hatch Campaign lookup (required screen). Writes via outputReference to subflow_rsv_Campaign so downstream reads see .Id populated without needing a follow-on Assign — avoids [[flow-sobject-assign-drops-fields]].</description>
+        <description>Escape-hatch Campaign lookup (required screen). Writes via outputReference to rsv_Camp so downstream reads see .Id populated without needing a follow-on Assign — avoids [[flow-sobject-assign-drops-fields]].</description>
         <name>Get_Looked_Up_Campaign</name>
         <label>Get Looked-Up Campaign</label>
         <locationX>0</locationX>
@@ -1114,7 +1114,7 @@
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Campaign</object>
-        <outputReference>subflow_rsv_Campaign</outputReference>
+        <outputReference>rsv_Camp</outputReference>
         <queriedFields>Id</queriedFields>
         <queriedFields>Name</queriedFields>
     </recordLookups>
@@ -1142,12 +1142,12 @@
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Campaign</object>
-        <outputReference>subflow_rsv_Campaign</outputReference>
+        <outputReference>rsv_Camp</outputReference>
         <queriedFields>Id</queriedFields>
         <queriedFields>Name</queriedFields>
     </recordLookups>
     <recordLookups>
-        <description>Escape-hatch Designation lookup. outputReference writes directly to rsv_SelectedDesignation so Assign_Designation_From_Lookup (deleted from monolith at extraction) is not needed.</description>
+        <description>Escape-hatch Designation lookup. outputReference writes directly to rsv_GD_Selected so Assign_Designation_From_Lookup (deleted from monolith at extraction) is not needed.</description>
         <name>Get_Looked_Up_Designation</name>
         <label>Get Looked-Up Designation</label>
         <locationX>0</locationX>
@@ -1170,7 +1170,7 @@
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>GiftDesignation</object>
-        <outputReference>rsv_SelectedDesignation</outputReference>
+        <outputReference>rsv_GD_Selected</outputReference>
         <queriedFields>Id</queriedFields>
     </recordLookups>
     <recordLookups>
@@ -1207,7 +1207,7 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Resolves var_ResolvedDesignationId to a GiftDesignation row so Confirm_Designation can render its Name in the summary formula.</description>
+        <description>Resolves var_GD_ResolvedId to a GiftDesignation row so Confirm_Designation can render its Name in the summary formula.</description>
         <name>Get_Resolved_GD</name>
         <label>Get Resolved GiftDesignation</label>
         <locationX>0</locationX>
@@ -1225,7 +1225,7 @@
             <field>Id</field>
             <operator>EqualTo</operator>
             <value>
-                <elementReference>var_ResolvedDesignationId</elementReference>
+                <elementReference>var_GD_ResolvedId</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -1272,7 +1272,7 @@
             <visibilityRule>
                 <conditionLogic>and</conditionLogic>
                 <conditions>
-                    <leftValueReference>var_PlatformSplitApplies</leftValueReference>
+                    <leftValueReference>var_GTD_PlatformSplitApplies</leftValueReference>
                     <operator>EqualTo</operator>
                     <rightValue>
                         <booleanValue>false</booleanValue>
@@ -1295,7 +1295,7 @@
             <visibilityRule>
                 <conditionLogic>and</conditionLogic>
                 <conditions>
-                    <leftValueReference>var_PlatformSplitApplies</leftValueReference>
+                    <leftValueReference>var_GTD_PlatformSplitApplies</leftValueReference>
                     <operator>EqualTo</operator>
                     <rightValue>
                         <booleanValue>true</booleanValue>
@@ -1324,7 +1324,7 @@
             <visibilityRule>
                 <conditionLogic>and</conditionLogic>
                 <conditions>
-                    <leftValueReference>var_PlatformSplitApplies</leftValueReference>
+                    <leftValueReference>var_GTD_PlatformSplitApplies</leftValueReference>
                     <operator>EqualTo</operator>
                     <rightValue>
                         <booleanValue>false</booleanValue>
@@ -1433,7 +1433,7 @@
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <outputParameters>
-                <assignToReference>subflow_rsv_Campaign</assignToReference>
+                <assignToReference>rsv_Camp</assignToReference>
                 <name>firstSelectedRow</name>
             </outputParameters>
             <styleProperties>
@@ -1635,7 +1635,7 @@
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <outputParameters>
-                <assignToReference>subflow_rsv_Campaign</assignToReference>
+                <assignToReference>rsv_Camp</assignToReference>
                 <name>firstSelectedRow</name>
             </outputParameters>
             <styleProperties>
@@ -1837,7 +1837,7 @@
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <outputParameters>
-                <assignToReference>rsv_SelectedDesignation</assignToReference>
+                <assignToReference>rsv_GD_Selected</assignToReference>
                 <name>firstSelectedRow</name>
             </outputParameters>
             <styleProperties>
@@ -2016,7 +2016,7 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <description>Projected from caller's pkLeafMonetary screen auto-var via Assign_Resolver_Inputs. Values: "Outright" / "PledgePayment" / "Recurring".</description>
+        <description>Projected from caller's Intro_pk_LeafMonetary screen auto-var via Assign_Resolver_Inputs. Values: "Outright" / "PledgePayment" / "Recurring".</description>
         <name>in_leafMonetary</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
@@ -2024,7 +2024,7 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <description>Projected from caller's pkLeafSpecial screen auto-var. Values: "InKind" / "EarnedIncome" / "EventRegistration" / blank.</description>
+        <description>Projected from caller's Intro_pk_LeafSpecial screen auto-var. Values: "InKind" / "EarnedIncome" / "EventRegistration" / blank.</description>
         <name>in_leafSpecial</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
@@ -2032,7 +2032,7 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <description>Caller-supplied member-Campaign collection — feeds the datatable in Pick_Campaign and Pick_CampaignOptional. Caller runs Get_Member_Campaigns and passes the collection; subflow does not re-query.</description>
+        <description>Caller-supplied member-Campaign collection — feeds the datatable in Pick_Campaign and Pick_CampaignOptional. Caller runs Get_Camp_ForAcctMemberships and passes the collection; subflow does not re-query.</description>
         <name>in_memberCampaigns</name>
         <dataType>SObject</dataType>
         <isCollection>true</isCollection>
@@ -2041,7 +2041,7 @@
         <objectType>Campaign</objectType>
     </variables>
     <variables>
-        <description>Projected from caller's pkPledgePaymentMode screen auto-var. Values: "Update" / "Direct" / blank.</description>
+        <description>Projected from caller's UseExistingSched_pk_Mode screen auto-var. Values: "Update" / "Direct" / blank.</description>
         <name>in_pledgePaymentMode</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
@@ -2049,7 +2049,7 @@
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <description>Caller-supplied pre-selected Campaign Id — populated on PP path (monolith's Assign_Campaign_From_Commitment_Selected stamps rsv_SelectedCampaign.Id from Get_Campaign_For_Commitment). Non-null means subflow skips Pick_Campaign(Optional) and seeds subflow_rsv_Campaign.Id directly.</description>
+        <description>Caller-supplied pre-selected Campaign Id — populated on PP path (monolith's Assign_Campaign_From_Commitment_Selected stamps rsv_SelectedCampaign.Id from Get_Camp_ForGC). Non-null means subflow skips Pick_Campaign(Optional) and seeds rsv_Camp.Id directly.</description>
         <name>in_selectedCampaignId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
@@ -2092,7 +2092,7 @@
         <isOutput>true</isOutput>
     </variables>
     <variables>
-        <description>Populated on the Accept path from subflow_rsv_Campaign.Id — caller uses this to stamp rsv_SelectedCampaign.Id downstream. Null when subflow errored or hit MissingOrgDefault.</description>
+        <description>Populated on the Accept path from rsv_Camp.Id — caller uses this to stamp rsv_SelectedCampaign.Id downstream. Null when subflow errored or hit MissingOrgDefault.</description>
         <name>out_selectedCampaignId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
@@ -2100,8 +2100,8 @@
         <isOutput>true</isOutput>
     </variables>
     <variables>
-        <description>Selected GiftDesignation (table selection, lookup, or tier-stamped). Marked isOutput=true so caller can read .Id for the 5 external readers of rsv_SelectedDesignation.Id. Written by: Pick_Designation.dtDesignations firstSelectedRow, Get_Looked_Up_Designation outputReference, and tier-terminals (which stamp .Id from their lookups).</description>
-        <name>rsv_SelectedDesignation</name>
+        <description>Selected GiftDesignation (table selection, lookup, or tier-stamped). Marked isOutput=true so caller can read .Id for the 5 external readers of rsv_GD_Selected.Id. Written by: Pick_Designation.dtDesignations firstSelectedRow, Get_Looked_Up_Designation outputReference, and tier-terminals (which stamp .Id from their lookups).</description>
+        <name>rsv_GD_Selected</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -2109,7 +2109,7 @@
         <objectType>GiftDesignation</objectType>
     </variables>
     <variables>
-        <description>Output-collection sink for Campaign GDDs. Populated by Assign_Copy_Campaign_GDDs after Get_Campaign_GDDs_Multi runs. Caller-side Loop_Fanout_Split_GTDs_Campaign iterates these rows to fan out one GTD per Campaign GDD when var_PlatformSplitApplies=true.</description>
+        <description>Output-collection sink for Campaign GDDs. Populated by Assign_Copy_Campaign_GDDs after Get_Campaign_GDDs_Multi runs. Caller-side Loop_GDD_ResolverCampaign_FanoutGTD iterates these rows to fan out one GTD per Campaign GDD when var_GTD_PlatformSplitApplies=true.</description>
         <name>out_campaignGDDs</name>
         <dataType>SObject</dataType>
         <isCollection>true</isCollection>
@@ -2118,7 +2118,7 @@
         <objectType>GiftDefaultDesignation</objectType>
     </variables>
     <variables>
-        <description>Output-collection sink for GC GDDs — PP branch only. Populated by Assign_Copy_GC_GDDs after Get_GC_GDDs_Multi runs. Caller-side Loop_Fanout_Split_GTDs_GC iterates.</description>
+        <description>Output-collection sink for GC GDDs — PP branch only. Populated by Assign_Copy_GC_GDDs after Get_GC_GDDs_Multi runs. Caller-side Loop_GDD_ResolverGC_FanoutGTD iterates.</description>
         <name>out_gcGDDs</name>
         <dataType>SObject</dataType>
         <isCollection>true</isCollection>
@@ -2128,7 +2128,7 @@
     </variables>
     <variables>
         <description>Subflow-local SObject Campaign — populated by Pick_Campaign / Pick_CampaignOptional firstSelectedRow, or by Get_Looked_Up_Campaign(_Optional) outputReference, or by Assign_Seed_Campaign_Id on the PP path. Read by Get_Campaign_Default_Designations + Get_Campaign_GDDs_Multi filter operands (.Id).</description>
-        <name>subflow_rsv_Campaign</name>
+        <name>rsv_Camp</name>
         <dataType>SObject</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -2137,7 +2137,7 @@
     </variables>
     <variables>
         <description>Count of active GDDs on the picked Campaign (multi-GDD support). Populated by Count_Campaign_GDDs.</description>
-        <name>var_CampaignGDDCount</name>
+        <name>var_Camp_GDDCount</name>
         <dataType>Number</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -2149,7 +2149,7 @@
     </variables>
     <variables>
         <description>Count of active GDDs on the picked GiftCommitment (PP branch only). Populated by Count_GC_GDDs. isOutput=true — caller's Decide_Split_Source_For_Fanout_IsGC reads it.</description>
-        <name>var_GCGDDCount</name>
+        <name>var_GC_GDDCount</name>
         <dataType>Number</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -2161,7 +2161,7 @@
     </variables>
     <variables>
         <description>True when either the picked Campaign OR the picked GC has &gt;1 GDD (a split default). isOutput=true — caller's Decide_Create_Designation and Decide_GC_GDD_Post_Process read it.</description>
-        <name>var_PlatformSplitApplies</name>
+        <name>var_GTD_PlatformSplitApplies</name>
         <dataType>Boolean</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -2172,7 +2172,7 @@
     </variables>
     <variables>
         <description>Id of the GiftDesignation chosen by Resolve_Designation_Hierarchy. isOutput=true — caller's Assign_GC_GDD_Update_Fields + Decide_GC_GDD_Post_Process read it.</description>
-        <name>var_ResolvedDesignationId</name>
+        <name>var_GD_ResolvedId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -2180,7 +2180,7 @@
     </variables>
     <variables>
         <description>Which tier of the resolver won: Campaign_Default / GC_Default / Org_Default / Platform_Split / User_Override.</description>
-        <name>var_ResolvedDesignationSource</name>
+        <name>var_GD_ResolvedSource</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>

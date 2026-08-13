@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <description>Universal entry point for the FQS Guided Gift Entry suite. Callable from the Account record page (via the Account.FQS_Guided_Gift_Entry quick action, which auto-injects recordId) and from the Home page (via a flexipage:flowComponent on FQS_Home_Page_Default, which leaves recordId null). The flow's only job is to fill in the missing Account context when the user launched from Home: if recordId is blank, show a screen with a native Account lookup and stamp the chosen Account Id into a local variable; otherwise reuse the caller-supplied recordId as-is. In both cases the flow then hands off to the shared monolith FQS_Gift_Entry_Single_Launcher_Account as a subflow, passing the resolved Account Id as recordId — the monolith's Get_Acct chain runs against that donor and every downstream leaf (Outright, Pledge, Recurring, Grant, In-Kind, Earned Income, Event Registration) works unchanged. No local screens after the subflow; the monolith's Screen_Success is terminal and the guide ends there.</description>
+    <environments>Default</environments>
+    <interviewLabel>FQS Gift Entry Guide — Universal {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Gift Entry Guide — Universal</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value><stringValue>LightningFlowBuilder</stringValue></value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value><stringValue>AUTO_LAYOUT_CANVAS</stringValue></value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value><stringValue>LightningFlowBuilder</stringValue></value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <runInMode>DefaultMode</runInMode>
+    <status>Active</status>
+
+    <start>
+        <locationX>176</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Decide_Has_RecordId</targetReference></connector>
+    </start>
+
+    <decisions>
+        <name>Decide_Has_RecordId</name>
+        <label>Have an Account Id already?</label>
+        <locationX>176</locationX>
+        <locationY>120</locationY>
+        <description>Entry-mode router. Account-quick-action entry supplies recordId (the Account Id). Home-page entry via the flexipage:flowComponent does not — user must pick a donor on the first screen. This decision routes on recordId presence: has a value routes past the picker; blank routes to Screen_Pick_Donor.</description>
+        <defaultConnector><targetReference>Screen_Pick_Donor</targetReference></defaultConnector>
+        <defaultConnectorLabel>Home entry — need to pick donor</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Has_RecordId_Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>recordId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue><booleanValue>false</booleanValue></rightValue>
+            </conditions>
+            <connector><targetReference>Assign_Donor_From_RecordId</targetReference></connector>
+            <label>Account-quick-action entry — recordId is set</label>
+        </rules>
+    </decisions>
+
+    <screens>
+        <name>Screen_Pick_Donor</name>
+        <label>Pick a Donor</label>
+        <locationX>50</locationX>
+        <locationY>240</locationY>
+        <description>Home-page entry only. Uses the native flowruntime:lookup on Account (fieldApiName=AccountId) so the org's Account lookup filters apply — that lets an admin scope the picker to donor record types via a filter on the lookup field rather than hard-coding a filter here. The chosen Account Id lands in lkpDonor.recordId and is stamped into var_Acct_DonorId by the next Assignment before the monolith subflow call. allowBack is true on this first screen per the flow-screen-authoring-gotchas memory.</description>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>PickDonor_Header</name>
+            <fieldText>&lt;p&gt;&lt;b&gt;Who is this gift for?&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Pick the Account of the donor, household, or organization giving the gift. You can search by name.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>lkpDonor</name>
+            <extensionName>flowruntime:lookup</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>objectApiName</name>
+                <value><stringValue>Opportunity</stringValue></value>
+            </inputParameters>
+            <inputParameters>
+                <name>fieldApiName</name>
+                <value><stringValue>AccountId</stringValue></value>
+            </inputParameters>
+            <inputParameters>
+                <name>label</name>
+                <value><stringValue>Donor Account</stringValue></value>
+            </inputParameters>
+            <inputParameters>
+                <name>required</name>
+                <value><booleanValue>true</booleanValue></value>
+            </inputParameters>
+            <inputParameters>
+                <name>maxValues</name>
+                <value><numberValue>1.0</numberValue></value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+        <connector><targetReference>Assign_Donor_From_Picker</targetReference></connector>
+    </screens>
+
+    <assignments>
+        <name>Assign_Donor_From_RecordId</name>
+        <label>Use Account-Page Record Id</label>
+        <locationX>302</locationX>
+        <locationY>240</locationY>
+        <description>Account-quick-action entry. recordId already holds the Account Id (Salesforce injects it via the quick action); copy it into var_Acct_DonorId so the downstream subflow call reads from a single source variable in both entry modes.</description>
+        <assignmentItems>
+            <assignToReference>var_Acct_DonorId</assignToReference>
+            <operator>Assign</operator>
+            <value><elementReference>recordId</elementReference></value>
+        </assignmentItems>
+        <connector><targetReference>Sub_Monolith</targetReference></connector>
+    </assignments>
+
+    <assignments>
+        <name>Assign_Donor_From_Picker</name>
+        <label>Use Picked Account</label>
+        <locationX>50</locationX>
+        <locationY>360</locationY>
+        <description>Home-page entry. lkpDonor is a flowruntime:lookup screen field on Account with fieldApiName=AccountId; its .recordId output holds the chosen Account Id (see flowruntime-lookup-pattern memory). Copy it into var_Acct_DonorId so the downstream subflow call reads from a single source variable in both entry modes.</description>
+        <assignmentItems>
+            <assignToReference>var_Acct_DonorId</assignToReference>
+            <operator>Assign</operator>
+            <value><elementReference>lkpDonor.recordId</elementReference></value>
+        </assignmentItems>
+        <connector><targetReference>Sub_Monolith</targetReference></connector>
+    </assignments>
+
+    <subflows>
+        <name>Sub_Monolith</name>
+        <label>Guided Gift Entry (Shared)</label>
+        <locationX>176</locationX>
+        <locationY>480</locationY>
+        <description>Delegates to the shared FQS gift-entry monolith with recordId set to the resolved donor Account Id (either the caller-supplied recordId or the Home-page picked donor). No contextCommitmentId — that input is only set when the flow is invoked from the GiftCommitment surface (via FQS_Gift_Entry_Guide_GiftCommitment). With contextCommitmentId null, the monolith's Decide_Entry_Mode default branch falls through to Get_Acct and the standard category-picker chain runs. The monolith's Screen_Success is terminal so this parent has no downstream elements.</description>
+        <flowName>FQS_Gift_Entry_Single_Launcher_Account</flowName>
+        <inputAssignments>
+            <name>recordId</name>
+            <value><elementReference>var_Acct_DonorId</elementReference></value>
+        </inputAssignments>
+    </subflows>
+
+    <variables>
+        <name>recordId</name>
+        <description>Optional input: Id of the Account from which the flow is launched. Populated automatically by the Account quick action; left blank by the Home-page flexipage:flowComponent. Decide_Has_RecordId branches on this variable's presence.</description>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+
+    <variables>
+        <name>var_Acct_DonorId</name>
+        <description>Resolved Account Id passed to the Sub_Monolith subflow's recordId input. Written by Assign_Donor_From_RecordId on the Account-entry path and by Assign_Donor_From_Picker on the Home-entry path. Read only by the subflow call. Existed to give the subflow call a single-source input regardless of entry surface.</description>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>
