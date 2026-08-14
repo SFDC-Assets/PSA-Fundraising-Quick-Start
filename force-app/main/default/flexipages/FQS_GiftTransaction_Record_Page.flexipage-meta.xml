@@ -191,8 +191,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.FQS_Matched__c</fieldItem>
-                <identifier>fqs_gt_d_fi_IsMatched</identifier>
+                <fieldItem>Record.FQS_Match_Status__c</fieldItem>
+                <identifier>fqs_gt_d_fi_MatchStatus</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-e9b16e52-82e1-4cdf-abaf-b3566728757e</name>
@@ -237,6 +237,26 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.FQS_Gift_Transaction_Category__c</fieldItem>
                 <identifier>fqs_gt_d_fi_Category</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_In_Kind__c</fieldItem>
+                <identifier>fqs_gt_d_fi_InKind</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Recurring__c</fieldItem>
+                <identifier>fqs_gt_d_fi_Recurring</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-f3252c33-3914-432e-8d7f-85f50fab34f5</name>
@@ -1342,7 +1362,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Donor Groupings</value>
+                    <value>Donor Tiers</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>fqs_gt_d_fieldSection_s0</identifier>
@@ -1851,9 +1871,9 @@
                 <identifier>flexipage_tab</identifier>
                 <visibilityRule>
                     <criteria>
-                        <leftValue>{!Record.FQS_Matched__c}</leftValue>
+                        <leftValue>{!Record.FQS_Match_Status__c}</leftValue>
                         <operator>EQUAL</operator>
-                        <rightValue>true</rightValue>
+                        <rightValue>Received</rightValue>
                     </criteria>
                 </visibilityRule>
             </componentInstance>

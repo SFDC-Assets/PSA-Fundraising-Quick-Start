@@ -9,7 +9,7 @@
         <actionName>emailSimple</actionName>
         <actionType>emailSimple</actionType>
         <connector>
-            <targetReference>Update_GT_Sent</targetReference>
+            <targetReference>Build_GT_Update_Sent</targetReference>
         </connector>
         <faultConnector>
             <isGoTo>true</isGoTo>
@@ -33,7 +33,7 @@
         <inputParameters>
             <name>recipientId</name>
             <value>
-                <elementReference>Get_Donor_Account.PersonContactId</elementReference>
+                <elementReference>varCurrentPersonContactId</elementReference>
                 <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
@@ -64,7 +64,7 @@
         <actionName>emailSimple</actionName>
         <actionType>emailSimple</actionType>
         <connector>
-            <targetReference>Update_GT_Sent</targetReference>
+            <targetReference>Build_GT_Update_Sent</targetReference>
         </connector>
         <faultConnector>
             <isGoTo>true</isGoTo>
@@ -88,7 +88,7 @@
         <inputParameters>
             <name>recipientId</name>
             <value>
-                <elementReference>Get_Donor_Account.PersonContactId</elementReference>
+                <elementReference>varCurrentPersonContactId</elementReference>
                 <inputConfiguratorMode>Resource</inputConfiguratorMode>
             </value>
         </inputParameters>
@@ -153,6 +153,199 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
+        <description>Extracts DonorId from each fetched GiftTransaction into a String collection so donor Accounts and open Opportunities can be pre-fetched in a single query each.</description>
+        <name>Build_DonorIds</name>
+        <label>Build: Donor Id Collection</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varDonorIds</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Loop_Build_DonorIds.DonorId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Build_DonorIds</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Extracts PersonContactId from each fetched donor Account into a String collection so the Contact records driving email routing can be pre-fetched in one query.</description>
+        <name>Build_ContactIds</name>
+        <label>Build: Person Contact Id Collection</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varContactIds</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Loop_Build_ContactIds.PersonContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Build_ContactIds</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Resets per-iteration tracking variables at the top of each main loop iteration. Prevents previous-iteration state from leaking into the current gift on edge cases where an inner Match loop yields zero iterations (org donor with no PersonContactId, donor with no open opportunities, etc.).</description>
+        <name>Reset_Iter_Vars</name>
+        <label>Reset Per-Iteration Variables</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varCurrentAccountId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentAccountName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentPersonContactId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentContactEmail</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentContactOptedOut</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentOppId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentOppName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varOppFound</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varTaskWhatId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Match_Account</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Copies scalar fields from the matched donor Account into per-iteration tracking variables. Runs inside a single-record inner loop because the collection filter output is a 1-record collection.</description>
+        <name>Set_Account_Vars</name>
+        <label>Set Account Match Variables</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varCurrentAccountId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_Match_Account.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentAccountName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_Match_Account.Name</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentPersonContactId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_Match_Account.PersonContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Match_Account</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Copies scalar fields from the matched donor Contact into per-iteration tracking variables so routing decisions no longer need to dereference the SObject repeatedly.</description>
+        <name>Set_Contact_Vars</name>
+        <label>Set Contact Match Variables</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varCurrentContactEmail</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_Match_Contact.Email</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentContactOptedOut</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_Match_Contact.HasOptedOutOfEmail</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Match_Contact</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Captures the first (soonest CloseDate) open Opportunity for this donor. Pre-fetched collection is already sorted CloseDate ASC, so the first inner-loop iteration is the soonest — the varOppFound flag prevents subsequent iterations from overwriting.</description>
+        <name>Set_Opp_Vars</name>
+        <label>Set Opportunity Match Variables (First Only)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varCurrentOppId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_Match_Opp.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varCurrentOppName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_Match_Opp.Name</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varOppFound</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Match_Opp</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <description>No open opportunity found — task WhatId falls back to the donor Account.</description>
         <name>Set_WhatId_To_Account</name>
         <label>Set WhatId to Account</label>
@@ -162,11 +355,11 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
             <assignToReference>varTaskWhatId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Get_Donor_Account.Id</elementReference>
+                <elementReference>varCurrentAccountId</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Create_Acknowledgement_Task</targetReference>
+            <targetReference>Build_Task_Record</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -179,15 +372,223 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
             <assignToReference>varTaskWhatId</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Get_Open_Opportunity.Id</elementReference>
+                <elementReference>varCurrentOppId</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Create_Acknowledgement_Task</targetReference>
+            <targetReference>Build_Task_Record</targetReference>
         </connector>
     </assignments>
+    <assignments>
+        <description>Builds a Task sObject in memory using the per-iteration variables and appends it to the varTasksToInsert record collection for post-loop bulk insert. Replaces the per-iteration Create_Acknowledgement_Task DML from the pre-bulkification design.</description>
+        <name>Build_Task_Record</name>
+        <label>Build Task Record and Append</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varTaskBuilder.ActivityDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>frmTaskActivityDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varTaskBuilder.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>frmTaskDescription</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varTaskBuilder.OwnerId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Queue_Id.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varTaskBuilder.Priority</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Normal</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varTaskBuilder.Status</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Not Started</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varTaskBuilder.Subject</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>frmTaskSubject</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varTaskBuilder.WhatId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>varTaskWhatId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varTaskBuilder.WhoId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>varCurrentPersonContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varTasksToInsert</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>varTaskBuilder</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Build_GT_Update_ToBeSent</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Builds a GiftTransaction update record stamping AcknowledgementStatus = Sent and AcknowledgementDate = today, then appends it to the varGTsToUpdate collection for post-loop bulk update.</description>
+        <name>Build_GT_Update_Sent</name>
+        <label>Build GT Update (Sent) and Append</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varGTUpdateBuilder.Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_GiftTransactions.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varGTUpdateBuilder.AcknowledgementStatus</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Sent</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varGTUpdateBuilder.AcknowledgementDate</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varGTsToUpdate</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>varGTUpdateBuilder</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_GiftTransactions</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Builds a GiftTransaction update record stamping AcknowledgementStatus = To Be Sent, then appends it to the varGTsToUpdate collection for post-loop bulk update. AcknowledgementDate is left blank until the queue member completes the personal outreach.</description>
+        <name>Build_GT_Update_ToBeSent</name>
+        <label>Build GT Update (To Be Sent) and Append</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>varGTUpdateBuilder.Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_GiftTransactions.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varGTUpdateBuilder.AcknowledgementStatus</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>To Be Sent</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varGTsToUpdate</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>varGTUpdateBuilder</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_GiftTransactions</targetReference>
+        </connector>
+    </assignments>
+    <collectionProcessors>
+        <description>Filters the pre-fetched donor Account collection to just the record whose Id matches the current gift&apos;s DonorId. Yields a single-record collection consumed by Loop_Match_Account.</description>
+        <name>Filter_Account_By_Donor</name>
+        <elementSubtype>FilterCollectionProcessor</elementSubtype>
+        <label>Filter: Donor Account by DonorId</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNextValueToReference>filterItem_Account</assignNextValueToReference>
+        <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
+        <collectionReference>Get_Donor_Accounts</collectionReference>
+        <conditionLogic>and</conditionLogic>
+        <conditions>
+            <leftValueReference>filterItem_Account.Id</leftValueReference>
+            <operator>EqualTo</operator>
+            <rightValue>
+                <elementReference>Loop_GiftTransactions.DonorId</elementReference>
+            </rightValue>
+        </conditions>
+        <connector>
+            <targetReference>Reset_Iter_Vars</targetReference>
+        </connector>
+    </collectionProcessors>
+    <collectionProcessors>
+        <description>Filters the pre-fetched Contact collection to just the record whose Id matches the current donor&apos;s PersonContactId. Yields a single-record collection consumed by Loop_Match_Contact.</description>
+        <name>Filter_Contact_By_PersonContactId</name>
+        <elementSubtype>FilterCollectionProcessor</elementSubtype>
+        <label>Filter: Contact by PersonContactId</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNextValueToReference>filterItem_Contact</assignNextValueToReference>
+        <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
+        <collectionReference>Get_Contacts</collectionReference>
+        <conditionLogic>and</conditionLogic>
+        <conditions>
+            <leftValueReference>filterItem_Contact.Id</leftValueReference>
+            <operator>EqualTo</operator>
+            <rightValue>
+                <elementReference>varCurrentPersonContactId</elementReference>
+            </rightValue>
+        </conditions>
+        <connector>
+            <targetReference>Loop_Match_Contact</targetReference>
+        </connector>
+    </collectionProcessors>
+    <collectionProcessors>
+        <description>Filters the pre-fetched open-Opportunity collection to just those on the current donor Account. Pre-fetch is already sorted CloseDate ASC so first-hit inside Loop_Match_Opp is the soonest.</description>
+        <name>Filter_Opps_By_Donor</name>
+        <elementSubtype>FilterCollectionProcessor</elementSubtype>
+        <label>Filter: Open Opportunities by DonorId</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNextValueToReference>filterItem_Opp</assignNextValueToReference>
+        <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
+        <collectionReference>Get_Open_Opportunities</collectionReference>
+        <conditionLogic>and</conditionLogic>
+        <conditions>
+            <leftValueReference>filterItem_Opp.AccountId</leftValueReference>
+            <operator>EqualTo</operator>
+            <rightValue>
+                <elementReference>Loop_GiftTransactions.DonorId</elementReference>
+            </rightValue>
+        </conditions>
+        <connector>
+            <targetReference>Loop_Match_Opp</targetReference>
+        </connector>
+    </collectionProcessors>
     <decisions>
-        <description>WhatId resolution. Open opportunity if found (soonest CloseDate); donor Account otherwise.</description>
+        <description>WhatId resolution. Open opportunity if found (soonest CloseDate); donor Account otherwise. Gates on varOppFound rather than dereferencing the Opp variable directly.</description>
         <name>Opp_Found</name>
         <label>Open Opportunity Found?</label>
         <locationX>0</locationX>
@@ -200,10 +601,10 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
             <name>Opp_Found_Yes</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Get_Open_Opportunity.Id</leftValueReference>
-                <operator>IsNull</operator>
+                <leftValueReference>varOppFound</leftValueReference>
+                <operator>EqualTo</operator>
                 <rightValue>
-                    <booleanValue>false</booleanValue>
+                    <booleanValue>true</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -246,27 +647,27 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
         </rules>
     </decisions>
     <decisions>
-        <description>Universal acknowledgement routing rule — every donor gets a receipt. Email path requires: (1) Contact has not opted out of email, AND (2) Contact has a non-blank Email address. Any single failing condition routes to the Task path so the queue member can send the acknowledgement by mail or another channel. No donor-grouping / CMDT / lifetime-donor filtering here — acknowledgement is universal; those tier considerations live in the FQS_Stewardship_Response flow.</description>
+        <description>Universal acknowledgement routing rule — every donor gets a receipt. Email path requires: (1) Contact has not opted out of email, AND (2) Contact has a non-blank Email address. Any single failing condition routes to the Task path so the queue member can send the acknowledgement by mail or another channel. No donor-tier / CMDT / lifetime-donor filtering here — acknowledgement is universal; those tier considerations live in the FQS_Stewardship_Response flow.</description>
         <name>Route_Email_Or_Task</name>
         <label>Route: Email or Task?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Get_Open_Opportunity</targetReference>
+            <targetReference>Filter_Opps_By_Donor</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Task Path</defaultConnectorLabel>
         <rules>
             <name>Email_Path</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Get_Contact.HasOptedOutOfEmail</leftValueReference>
+                <leftValueReference>varCurrentContactOptedOut</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>Get_Contact.Email</leftValueReference>
+                <leftValueReference>varCurrentContactEmail</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>false</booleanValue>
@@ -278,21 +679,51 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
             <label>Email Path</label>
         </rules>
     </decisions>
-    <description>Scheduled flow that runs daily and processes GiftTransaction records where Status = Paid, TransactionDate is at least 3 days in the past, and AcknowledgementStatus is blank or To Be Sent. The 3-day window lets digital-platform ingest and refunds/reversals settle before an acknowledgement fires. Other category is excluded — donors don&apos;t get receipts for earned income / event registration / processing-fee records.
+    <decisions>
+        <description>Ensures Set_Opp_Vars fires only on the first inner-loop iteration (the soonest opportunity, because the pre-fetch is sorted ASC). Subsequent iterations skip back to the inner loop without overwriting.</description>
+        <name>Decide_First_Opp</name>
+        <label>Decide: First Opportunity Iteration?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Loop_Match_Opp</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not First — Skip</defaultConnectorLabel>
+        <rules>
+            <name>First_Opp</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varOppFound</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Opp_Vars</targetReference>
+            </connector>
+            <label>First Iteration</label>
+        </rules>
+    </decisions>
+    <description>Bulk-safe scheduled flow that runs daily at 06:00 UTC and processes GiftTransaction records where Status = Paid, TransactionDate is at least 3 days in the past, AcknowledgementStatus is blank, and category is not Other. The 3-day window lets digital-platform ingest and refunds/reversals settle before an acknowledgement fires. Other category is excluded — donors don&apos;t get receipts for earned income / event registration / processing-fee records.
 
-Acknowledgement is the universal &quot;we got your gift, thanks, here is your deduction info&quot; touch — every donor with a valid email address receives one. No donor-grouping / CMDT / lifetime-donor filtering; every eligible gift gets a receipt. Tier-based routing lives in the FQS_Stewardship_Response flow, which is a separate follow-up touch that reinforces mission and deepens the donor relationship.
+Acknowledgement is the universal &quot;we got your gift, thanks, here is your deduction info&quot; touch — every donor with a valid email address receives one. No donor-tier / lifetime-donor filtering; every eligible gift gets a receipt. Tier-based routing lives in the FQS_Stewardship_Response flow.
 
-For each qualifying gift the flow: (1) fetches the donor Account and PersonContact; (2) routes to email or task on a universal rule — email if HasOptedOutOfEmail=FALSE AND Email is present, task otherwise; (3) stamps AcknowledgementStatus and AcknowledgementDate accordingly.
+Bulkification design: all SOQL fires pre-loop (Queue, GiftTransactions, donor Accounts, donor Contacts, open Opportunities) and all DML fires post-loop (bulk-insert acknowledgement Tasks, bulk-update GiftTransaction acknowledgement stamps). The main loop performs no SOQL and no DML — it uses Collection Filter elements against pre-fetched collections to resolve donor Account, donor Contact, and soonest open Opportunity, then either dispatches an emailSimple action or appends a Task record and a GT-update record to post-loop collections. Email dispatch is unavoidably per-recipient and stays inside the loop.
 
-Email path: sends the FQS Gift Acknowledgement template (or the Partial Deduction variant when TaxDeductionAmount &lt; CurrentAmount) via the emailSimple v3 template-aware action to the donor PersonContact; sets AcknowledgementStatus = Sent and AcknowledgementDate = today.
+For each qualifying gift the flow: (1) resolves donor Account, donor Contact, and soonest open Opportunity from pre-fetched collections; (2) routes to email or task on a universal rule — email if HasOptedOutOfEmail = false AND Email is not blank, task otherwise; (3) builds the appropriate Sent or To Be Sent GT stamp into a collection.
 
-Task path: creates a Task owned by the FQS Gift Acknowledgements queue with WhatId set to the soonest open opportunity (or donor Account fallback); sets AcknowledgementStatus = To Be Sent. Queue member completes the personal outreach and closes the task manually, then sets AcknowledgementStatus = Sent.
+Email path: sends the FQS Gift Acknowledgement template (or the Partial Deduction variant when TaxDeductionAmount &lt; CurrentAmount) via the emailSimple v3 template-aware action to the donor PersonContact; appends AcknowledgementStatus = Sent, AcknowledgementDate = today to the update collection.
 
-External-tool contract: donation-form integrations that send their own acknowledgement MUST write GiftTransaction.AcknowledgementStatus = &apos;Sent&apos; back to the record. This flow&apos;s filter (AcknowledgementStatus IS NULL OR = To Be Sent) then naturally excludes those gifts.
+Task path: appends a Task record owned by the FQS Gift Acknowledgements queue with WhatId set to the soonest open opportunity (or donor Account fallback) to the insert collection; appends AcknowledgementStatus = To Be Sent to the update collection. Queue member completes the personal outreach and closes the task manually, then sets AcknowledgementStatus = Sent.
+
+Pickup filter is AcknowledgementStatus IS NULL only. Records stamped To Be Sent are excluded from future runs so the task path does not create duplicate tasks day-over-day. Once the queue member closes out the outreach they set AcknowledgementStatus = Sent.
+
+External-tool contract: donation-form integrations that send their own acknowledgement MUST write GiftTransaction.AcknowledgementStatus = &apos;Sent&apos; back to the record so this flow&apos;s filter (AcknowledgementStatus IS NULL) skips them.
 
 Year-end tax receipting is out of scope for automation; see FQS_Tax_Receipt_Date__c for the manual capture field.
 
-Fault connectors on all action and DML elements route to Send_Fault_Email which notifies $User.Email. See .planning/fqs-gift-followup-redesign.md.</description>
+Fault connectors on all SOQL, DML, and action elements route to Send_Fault_Email which notifies $User.Email.</description>
     <environments>Default</environments>
     <formulas>
         <description>The date boundary used in the Get_GiftTransactions filter. Only gifts whose TransactionDate is on or before this date are included, preserving the 3-day settling window.</description>
@@ -311,23 +742,53 @@ Fault connectors on all action and DML elements route to Send_Fault_Email which 
         <name>frmTaskDescription</name>
         <dataType>String</dataType>
         <expression>&quot;Personal acknowledgement needed — automated email could not be sent. Reason: &quot; &amp;
-IF({!Get_Contact.HasOptedOutOfEmail}, &quot;Contact opted out of email.&quot;,
-   IF(ISBLANK({!Get_Contact.Email}), &quot;No email address on Contact.&quot;, &quot;Unknown.&quot;)) &amp;
+IF({!varCurrentContactOptedOut}, &quot;Contact opted out of email.&quot;,
+   IF(ISBLANK({!varCurrentContactEmail}), &quot;No email address on Contact.&quot;, &quot;Unknown.&quot;)) &amp;
 &quot; Related open opportunity: &quot; &amp;
-IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportunity.Name}) &amp; &quot;.&quot;</expression>
+IF({!varOppFound}, {!varCurrentOppName}, &quot;none&quot;) &amp; &quot;.&quot;</expression>
     </formulas>
     <formulas>
         <description>Task subject. Prepends [OPT-OUT — send by mail] when the donor has opted out of email so the queue member knows immediately to use a non-email channel.</description>
         <name>frmTaskSubject</name>
         <dataType>String</dataType>
-        <expression>IF({!Get_Contact.HasOptedOutOfEmail}, &quot;[OPT-OUT — send by mail] &quot;, &quot;&quot;) &amp;
+        <expression>IF({!varCurrentContactOptedOut}, &quot;[OPT-OUT — send by mail] &quot;, &quot;&quot;) &amp;
 &quot;Acknowledge gift: &quot; &amp;
-{!Get_Donor_Account.Name} &amp; &quot; — $&quot; &amp; TEXT({!Loop_GiftTransactions.CurrentAmount})</expression>
+{!varCurrentAccountName} &amp; &quot; — $&quot; &amp; TEXT({!Loop_GiftTransactions.CurrentAmount})</expression>
     </formulas>
     <interviewLabel>FQS Gift Acknowledgement {!$Flow.CurrentDateTime}</interviewLabel>
     <label>FQS Gift Acknowledgement</label>
     <loops>
-        <description>Iterates over all qualifying GiftTransaction records. For each: fetches Account, Contact, opportunity; routes to email or task; stamps AcknowledgementStatus.</description>
+        <description>Iterates over the fetched GiftTransaction collection to build a String collection of donor Ids for the bulk donor Account and Opportunity queries.</description>
+        <name>Loop_Build_DonorIds</name>
+        <label>Loop: Build Donor Ids</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_GiftTransactions</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Build_DonorIds</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Get_Donor_Accounts</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <description>Iterates over the fetched donor Account collection to build a String collection of PersonContact Ids for the bulk Contact query.</description>
+        <name>Loop_Build_ContactIds</name>
+        <label>Loop: Build Person Contact Ids</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_Donor_Accounts</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Build_ContactIds</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Get_Contacts</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <description>Main iteration over qualifying GiftTransactions. Performs no SOQL and no DML — resolves donor context from pre-fetched collections and either dispatches an email or appends to the post-loop Task insert and GT update collections.</description>
         <name>Loop_GiftTransactions</name>
         <label>Loop: Gift Transactions to Acknowledge</label>
         <locationX>0</locationX>
@@ -335,8 +796,56 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <collectionReference>Get_GiftTransactions</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
-            <targetReference>Get_Donor_Account</targetReference>
+            <targetReference>Filter_Account_By_Donor</targetReference>
         </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Insert_Tasks</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <description>Single-iteration inner loop that copies the filtered donor Account&apos;s scalar fields (Id, Name, PersonContactId) into per-iteration variables. Yields exactly one iteration because collection filter output is a 1-record collection keyed on Id.</description>
+        <name>Loop_Match_Account</name>
+        <label>Loop: Match Donor Account</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Filter_Account_By_Donor</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Set_Account_Vars</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Filter_Contact_By_PersonContactId</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <description>Single-iteration inner loop that copies the filtered Contact&apos;s Email and HasOptedOutOfEmail into per-iteration variables so Route_Email_Or_Task and the task formulas can read scalars rather than SObject fields.</description>
+        <name>Loop_Match_Contact</name>
+        <label>Loop: Match Donor Contact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Filter_Contact_By_PersonContactId</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Set_Contact_Vars</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Route_Email_Or_Task</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <loops>
+        <description>Iterates over the filtered open Opportunities for this donor. Pre-fetch is sorted CloseDate ASC and the Set_Opp_Vars assignment only overwrites when varOppFound is false, so the first (soonest) opportunity is captured. Zero iterations when the donor has no open opportunities.</description>
+        <name>Loop_Match_Opp</name>
+        <label>Loop: Match Soonest Open Opportunity</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Filter_Opps_By_Donor</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Decide_First_Opp</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Opp_Found</targetReference>
+        </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -358,77 +867,29 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordCreates>
-        <description>Creates the personal-outreach Task assigned to the FQS Gift Acknowledgements queue. WhoId = donor PersonContactId; WhatId = open opportunity Id or donor Account Id.</description>
-        <name>Create_Acknowledgement_Task</name>
-        <label>Create Acknowledgement Task</label>
+        <description>Bulk-inserts all acknowledgement Tasks accumulated during the main loop in a single DML statement. Replaces the per-iteration Create_Acknowledgement_Task pattern from the pre-bulkification design.</description>
+        <name>Insert_Tasks</name>
+        <label>Insert Acknowledgement Tasks (Bulk)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Update_GT_To_Be_Sent</targetReference>
+            <targetReference>Update_GTs</targetReference>
         </connector>
         <faultConnector>
             <isGoTo>true</isGoTo>
             <targetReference>Send_Fault_Email</targetReference>
         </faultConnector>
-        <inputAssignments>
-            <field>ActivityDate</field>
-            <value>
-                <elementReference>frmTaskActivityDate</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Description</field>
-            <value>
-                <elementReference>frmTaskDescription</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>OwnerId</field>
-            <value>
-                <elementReference>Get_Queue_Id.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Priority</field>
-            <value>
-                <stringValue>Normal</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>Not Started</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Subject</field>
-            <value>
-                <elementReference>frmTaskSubject</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>WhatId</field>
-            <value>
-                <elementReference>varTaskWhatId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>WhoId</field>
-            <value>
-                <elementReference>Get_Donor_Account.PersonContactId</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Task</object>
+        <inputReference>varTasksToInsert</inputReference>
     </recordCreates>
     <recordLookups>
-        <description>Fetches the PersonContact for the donor Account. HasOptedOutOfEmail and Email drive Route_Email_Or_Task.</description>
-        <name>Get_Contact</name>
-        <label>Get Donor Contact</label>
+        <description>Bulk-fetches all donor Accounts referenced by the qualifying GiftTransactions in one query. Populates Name and PersonContactId for downstream task subject and email recipient resolution.</description>
+        <name>Get_Donor_Accounts</name>
+        <label>Get Donor Accounts (Bulk)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Route_Email_Or_Task</targetReference>
+            <targetReference>Loop_Build_ContactIds</targetReference>
         </connector>
         <faultConnector>
             <isGoTo>true</isGoTo>
@@ -437,52 +898,58 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
-            <operator>EqualTo</operator>
+            <operator>In</operator>
             <value>
-                <elementReference>Get_Donor_Account.PersonContactId</elementReference>
+                <elementReference>varDonorIds</elementReference>
             </value>
         </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Contact</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <description>Fetches the donor Account. PersonContactId is required for email recipient and task WhoId; Id is task WhatId fallback; Name populates the task subject.</description>
-        <name>Get_Donor_Account</name>
-        <label>Get Donor Account</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Get_Contact</targetReference>
-        </connector>
-        <faultConnector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Send_Fault_Email</targetReference>
-        </faultConnector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Loop_GiftTransactions.DonorId</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
         <object>Account</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>PersonContactId</queriedFields>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Queries all GiftTransaction records that qualify for acknowledgement: Status = Paid, TransactionDate on or before frmThreeDaysAgo, AcknowledgementStatus blank or To Be Sent, and category is not Other. External-tool integrations that already sent their own thank-you should have written AcknowledgementStatus = Sent to opt out of this flow.</description>
+        <description>Bulk-fetches all donor Contacts referenced by the fetched donor Accounts in one query. HasOptedOutOfEmail and Email drive Route_Email_Or_Task.</description>
+        <name>Get_Contacts</name>
+        <label>Get Donor Contacts (Bulk)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Open_Opportunities</targetReference>
+        </connector>
+        <faultConnector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Send_Fault_Email</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>In</operator>
+            <value>
+                <elementReference>varContactIds</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Contact</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Email</queriedFields>
+        <queriedFields>HasOptedOutOfEmail</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Queries all GiftTransaction records that qualify for acknowledgement: Status = Paid, TransactionDate on or before frmThreeDaysAgo, AcknowledgementStatus IS NULL, and category is not Other. Note the filter dropped its previous &quot;OR AcknowledgementStatus = To Be Sent&quot; clause — records stamped To Be Sent are now excluded from future runs to prevent duplicate task creation on the task-path day over day. External-tool integrations that already sent their own thank-you should have written AcknowledgementStatus = Sent to opt out of this flow.</description>
         <name>Get_GiftTransactions</name>
         <label>Get Gift Transactions to Acknowledge</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Loop_GiftTransactions</targetReference>
+            <targetReference>Loop_Build_DonorIds</targetReference>
         </connector>
-        <filterLogic>1 and 2 and (3 or 4) and 5</filterLogic>
+        <filterLogic>and</filterLogic>
         <filters>
             <field>Status</field>
             <operator>EqualTo</operator>
@@ -505,13 +972,6 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
             </value>
         </filters>
         <filters>
-            <field>AcknowledgementStatus</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>To Be Sent</stringValue>
-            </value>
-        </filters>
-        <filters>
             <field>FQS_Gift_Transaction_Category__c</field>
             <operator>NotEqualTo</operator>
             <value>
@@ -523,21 +983,25 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Fetches the soonest open Opportunity on the donor Account for the task WhatId. Most donors — especially one-time entry donors — will have no open opportunity; the null case is handled by Opp_Found downstream.</description>
-        <name>Get_Open_Opportunity</name>
-        <label>Get Soonest Open Opportunity</label>
+        <description>Bulk-fetches all open Opportunities on donor Accounts referenced by the qualifying gifts in one query, sorted CloseDate ASC so the first-matching per-donor record inside Loop_Match_Opp is the soonest. Most donors — especially one-time entry donors — will have no open opportunity; the empty case is handled by the varOppFound flag.</description>
+        <name>Get_Open_Opportunities</name>
+        <label>Get Open Opportunities (Bulk)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Opp_Found</targetReference>
+            <targetReference>Loop_GiftTransactions</targetReference>
         </connector>
+        <faultConnector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Send_Fault_Email</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>AccountId</field>
-            <operator>EqualTo</operator>
+            <operator>In</operator>
             <value>
-                <elementReference>Loop_GiftTransactions.DonorId</elementReference>
+                <elementReference>varDonorIds</elementReference>
             </value>
         </filters>
         <filters>
@@ -547,10 +1011,12 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
                 <booleanValue>false</booleanValue>
             </value>
         </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
         <object>Opportunity</object>
         <queriedFields>Id</queriedFields>
         <queriedFields>Name</queriedFields>
+        <queriedFields>AccountId</queriedFields>
+        <queriedFields>CloseDate</queriedFields>
         <sortField>CloseDate</sortField>
         <sortOrder>Asc</sortOrder>
         <storeOutputAutomatically>true</storeOutputAutomatically>
@@ -589,67 +1055,16 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordUpdates>
-        <description>Stamps AcknowledgementStatus = Sent and AcknowledgementDate = today on the current GiftTransaction after the email has been dispatched.</description>
-        <name>Update_GT_Sent</name>
-        <label>Update GT — Acknowledged (Sent)</label>
+        <description>Bulk-updates all GiftTransaction acknowledgement stamps accumulated during the main loop in a single DML statement. Handles both Sent (email path) and To Be Sent (task path) writes.</description>
+        <name>Update_GTs</name>
+        <label>Update Gift Transaction Stamps (Bulk)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <connector>
-            <targetReference>Loop_GiftTransactions</targetReference>
-        </connector>
-        <faultConnector>
-            <targetReference>Send_Fault_Email</targetReference>
-        </faultConnector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Loop_GiftTransactions.Id</elementReference>
-            </value>
-        </filters>
-        <inputAssignments>
-            <field>AcknowledgementDate</field>
-            <value>
-                <elementReference>$Flow.CurrentDate</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>AcknowledgementStatus</field>
-            <value>
-                <stringValue>Sent</stringValue>
-            </value>
-        </inputAssignments>
-        <object>GiftTransaction</object>
-    </recordUpdates>
-    <recordUpdates>
-        <description>Stamps AcknowledgementStatus = To Be Sent on the current GiftTransaction after the personal-outreach Task has been created. Queue member sets AcknowledgementStatus = Sent and AcknowledgementDate after completing the outreach.</description>
-        <name>Update_GT_To_Be_Sent</name>
-        <label>Update GT — Pending Personal Acknowledgement (To Be Sent)</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <connector>
-            <targetReference>Loop_GiftTransactions</targetReference>
-        </connector>
         <faultConnector>
             <isGoTo>true</isGoTo>
             <targetReference>Send_Fault_Email</targetReference>
         </faultConnector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Loop_GiftTransactions.Id</elementReference>
-            </value>
-        </filters>
-        <inputAssignments>
-            <field>AcknowledgementStatus</field>
-            <value>
-                <stringValue>To Be Sent</stringValue>
-            </value>
-        </inputAssignments>
-        <object>GiftTransaction</object>
+        <inputReference>varGTsToUpdate</inputReference>
     </recordUpdates>
     <runInMode>SystemModeWithoutSharing</runInMode>
     <start>
@@ -669,11 +1084,154 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
     </start>
     <status>Active</status>
     <variables>
+        <description>Scratch iterator required by Filter_Account_By_Donor. Salesforce collection filter conditions reference the current-item scalar under this variable name; it is never read outside the filter&apos;s conditions block.</description>
+        <name>filterItem_Account</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+    <variables>
+        <description>Scratch iterator required by Filter_Contact_By_PersonContactId. Never read outside the filter&apos;s conditions block.</description>
+        <name>filterItem_Contact</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Contact</objectType>
+    </variables>
+    <variables>
+        <description>Scratch iterator required by Filter_Opps_By_Donor. Never read outside the filter&apos;s conditions block.</description>
+        <name>filterItem_Opp</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Opportunity</objectType>
+    </variables>
+    <variables>
+        <description>Collection of donor Ids extracted from Get_GiftTransactions for the bulk Account and Opportunity queries.</description>
+        <name>varDonorIds</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Collection of PersonContact Ids extracted from Get_Donor_Accounts for the bulk Contact query.</description>
+        <name>varContactIds</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Per-iteration scalar copy of the matched donor Account Id. Used as Task WhatId fallback when the donor has no open opportunity.</description>
+        <name>varCurrentAccountId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Per-iteration scalar copy of the matched donor Account Name. Populates the task subject.</description>
+        <name>varCurrentAccountName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Per-iteration scalar copy of the matched donor Account&apos;s PersonContactId. Used as emailSimple recipientId and Task WhoId.</description>
+        <name>varCurrentPersonContactId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Per-iteration scalar copy of the matched donor Contact&apos;s Email address. Drives Route_Email_Or_Task email-vs-task decision.</description>
+        <name>varCurrentContactEmail</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Per-iteration scalar copy of the matched donor Contact&apos;s HasOptedOutOfEmail flag. Drives Route_Email_Or_Task and the opt-out prefix in the task subject.</description>
+        <name>varCurrentContactOptedOut</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Per-iteration scalar copy of the soonest open Opportunity Id for the current donor, or blank when no open opportunity exists.</description>
+        <name>varCurrentOppId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Per-iteration scalar copy of the soonest open Opportunity Name for the current donor. Surfaces in the task Description formula when present.</description>
+        <name>varCurrentOppName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Per-iteration flag toggled by Set_Opp_Vars on the first inner-loop iteration. Prevents subsequent iterations of Loop_Match_Opp from overwriting the soonest opportunity, and gates the Opp_Found decision.</description>
+        <name>varOppFound</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
         <description>Holds the WhatId for the acknowledgement Task for the current loop iteration. Set by Set_WhatId_To_Opportunity or Set_WhatId_To_Account.</description>
         <name>varTaskWhatId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Scratch scalar Task record populated field-by-field in Build_Task_Record then appended to varTasksToInsert.</description>
+        <name>varTaskBuilder</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Task</objectType>
+    </variables>
+    <variables>
+        <description>Post-loop insert collection of acknowledgement Task records accumulated across all task-path iterations. Written to the database in one DML statement by Insert_Tasks.</description>
+        <name>varTasksToInsert</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Task</objectType>
+    </variables>
+    <variables>
+        <description>Scratch scalar GiftTransaction record populated in Build_GT_Update_Sent or Build_GT_Update_ToBeSent then appended to varGTsToUpdate.</description>
+        <name>varGTUpdateBuilder</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftTransaction</objectType>
+    </variables>
+    <variables>
+        <description>Post-loop update collection of GiftTransaction records with AcknowledgementStatus (and AcknowledgementDate on the Sent branch) stamped. Written to the database in one DML statement by Update_GTs.</description>
+        <name>varGTsToUpdate</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftTransaction</objectType>
     </variables>
 </Flow>

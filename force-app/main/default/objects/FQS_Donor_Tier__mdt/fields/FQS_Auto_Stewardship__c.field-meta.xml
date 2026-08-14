@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Auto_Stewardship__c</fullName>
+    <description>Controls how the FQS Stewardship Response flow handles gifts at this donor tier. Include All: every gift auto-emails the stewardship template. Exclude Lifetime: auto-email unless the donor is already a Lifetime Major donor (then creates a Task for personal outreach). Exclude All: always creates a Task. Flow defaults to Include All when blank. Note: this field governs the tier-differentiated stewardship touch that fires ~14 days after the initial acknowledgement — it does NOT govern the acknowledgement itself. Acknowledgement is a universal rule (every donor with a valid email receives one) handled by FQS_Gift_Acknowledgement.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Determines whether a gift in this donor tier triggers an automatic stewardship email (Include All), a personal-touch task (Exclude All), or a lifetime-escalating hybrid (Exclude Lifetime). Applies to the stewardship follow-up ~14 days after acknowledgement, not the acknowledgement itself. Configured per donor tier — no code redeploy needed when changed.</inlineHelpText>
+    <label>Auto Stewardship</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Include All</fullName>
+                <default>false</default>
+                <label>Include All</label>
+            </value>
+            <value>
+                <fullName>Exclude Lifetime</fullName>
+                <default>false</default>
+                <label>Exclude Lifetime</label>
+            </value>
+            <value>
+                <fullName>Exclude All</fullName>
+                <default>false</default>
+                <label>Exclude All</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

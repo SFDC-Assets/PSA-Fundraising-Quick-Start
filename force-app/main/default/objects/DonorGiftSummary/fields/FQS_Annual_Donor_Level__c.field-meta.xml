@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Annual_Donor_Level__c</fullName>
-    <description>Text formula that returns the generic donor grouping (Entry, Mid, Major, or blank for sub-Entry) based on annual giving against the Annual_Min_Amount__c thresholds in FQS_Donor_Grouping custom metadata. Each tier's Credit_Type__c setting controls whether soft credits (CurrentYearSoftCreditsAmount) are added to GiftsThisYearAmount for that tier's comparison. Note: GiftsThisYearAmount is a calendar-year rollup from NPC; if your org uses a non-calendar fiscal year, validate whether this aligns with your reporting expectations. Returns blank when the donor is below the Entry annual threshold. Thresholds and Credit_Type are configured via Setup → Custom Metadata Types → FQS Donor Grouping or the FQS Setup screen flow. Changing threshold or Credit_Type values recalculates this field across all Donor Gift Summary records retroactively — no redeployment or batch job required.</description>
+    <description>Text formula that returns the generic donor tier (Entry, Mid, Major, or blank for sub-Entry) based on annual giving against the Annual_Min_Amount__c thresholds in FQS_Donor_Tier custom metadata. Each tier's Credit_Type__c setting controls whether soft credits (CurrentYearSoftCreditsAmount) are added to GiftsThisYearAmount for that tier's comparison. Note: GiftsThisYearAmount is a calendar-year rollup from NPC; if your org uses a non-calendar fiscal year, validate whether this aligns with your reporting expectations. Returns blank when the donor is below the Entry annual threshold. Thresholds and Credit_Type are configured via Setup → Custom Metadata Types → FQS Donor Tier or the FQS Setup screen flow. Changing threshold or Credit_Type values recalculates this field across all Donor Gift Summary records retroactively — no redeployment or batch job required.</description>
     <externalId>false</externalId>
-    <formula>IF((GiftsThisYearAmount + IF(TEXT($CustomMetadata.FQS_Donor_Grouping__mdt.Major.Credit_Type__c) = "Hard + Soft Credits", CurrentYearSoftCreditsAmount, 0)) >= $CustomMetadata.FQS_Donor_Grouping__mdt.Major.Annual_Min_Amount__c, "Major",
-IF((GiftsThisYearAmount + IF(TEXT($CustomMetadata.FQS_Donor_Grouping__mdt.Mid.Credit_Type__c) = "Hard + Soft Credits", CurrentYearSoftCreditsAmount, 0)) >= $CustomMetadata.FQS_Donor_Grouping__mdt.Mid.Annual_Min_Amount__c, "Mid",
-IF((GiftsThisYearAmount + IF(TEXT($CustomMetadata.FQS_Donor_Grouping__mdt.Entry.Credit_Type__c) = "Hard + Soft Credits", CurrentYearSoftCreditsAmount, 0)) >= $CustomMetadata.FQS_Donor_Grouping__mdt.Entry.Annual_Min_Amount__c, "Entry",
+    <formula>IF((GiftsThisYearAmount + IF(TEXT($CustomMetadata.FQS_Donor_Tier__mdt.Major.Credit_Type__c) = "Hard + Soft Credits", CurrentYearSoftCreditsAmount, 0)) >= $CustomMetadata.FQS_Donor_Tier__mdt.Major.Annual_Min_Amount__c, "Major",
+IF((GiftsThisYearAmount + IF(TEXT($CustomMetadata.FQS_Donor_Tier__mdt.Mid.Credit_Type__c) = "Hard + Soft Credits", CurrentYearSoftCreditsAmount, 0)) >= $CustomMetadata.FQS_Donor_Tier__mdt.Mid.Annual_Min_Amount__c, "Mid",
+IF((GiftsThisYearAmount + IF(TEXT($CustomMetadata.FQS_Donor_Tier__mdt.Entry.Credit_Type__c) = "Hard + Soft Credits", CurrentYearSoftCreditsAmount, 0)) >= $CustomMetadata.FQS_Donor_Tier__mdt.Entry.Annual_Min_Amount__c, "Entry",
 "")))</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <inlineHelpText>Automatically calculated. Shows which annual donor grouping this donor belongs to (Entry, Mid, or Major) based on their giving in the current year. Blank means the donor is below the Entry annual threshold. Your administrator controls the threshold amounts.</inlineHelpText>
-    <label>Annual Donor Grouping</label>
+    <inlineHelpText>Automatically calculated. Shows which annual donor tier this donor belongs to (Entry, Mid, or Major) based on their giving in the current year. Blank means the donor is below the Entry annual threshold. Your administrator controls the threshold amounts.</inlineHelpText>
+    <label>Annual Donor Tier</label>
     <required>false</required>
     <type>Text</type>
     <unique>false</unique>

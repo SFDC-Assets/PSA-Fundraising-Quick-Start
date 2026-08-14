@@ -2,7 +2,7 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
         <name>Upsert_Cmdt</name>
-        <label>Save Donor Grouping CMDT</label>
+        <label>Save Donor Tier CMDT</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <actionName>FQS_CustomMetadataSaver</actionName>
@@ -12,7 +12,7 @@
         </connector>
         <dataTypeMappings>
             <typeName>T__customMetadataRecords</typeName>
-            <typeValue>FQS_Donor_Grouping__mdt</typeValue>
+            <typeValue>FQS_Donor_Tier__mdt</typeValue>
         </dataTypeMappings>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
@@ -27,66 +27,22 @@
     </actionCalls>
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <assignments>
-        <name>Assign_Ack_AllSame</name>
-        <label>Assign single value to all three donor groupings</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>varEntryAck</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>pkAllTiers</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varMidAck</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>pkAllTiers</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varMajorAck</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>pkAllTiers</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Build_Cmdt_Collection</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Ack_PerTier</name>
-        <label>Pass through per-grouping picks</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>varEntryAck</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>pkEntryAck</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varMidAck</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>pkMidAck</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varMajorAck</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>pkMajorAck</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Build_Cmdt_Collection</targetReference>
-        </connector>
-    </assignments>
+    <choices>
+        <name>choiceCreditTypeHardOnly</name>
+        <choiceText>Hard Credits Only</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Hard Credits Only</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>choiceCreditTypeHardPlusSoft</name>
+        <choiceText>Hard + Soft Credits</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Hard + Soft Credits</stringValue>
+        </value>
+    </choices>
     <assignments>
         <name>Build_Cmdt_Collection</name>
         <label>Build CMDT record collection</label>
@@ -121,10 +77,10 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>Get_Entry_CMDT.FQS_Auto_Stewardship__c</assignToReference>
+            <assignToReference>Get_Entry_CMDT.Credit_Type__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>varEntryAck</elementReference>
+                <elementReference>pkEntryCreditType</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -163,10 +119,10 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>Get_Mid_CMDT.FQS_Auto_Stewardship__c</assignToReference>
+            <assignToReference>Get_Mid_CMDT.Credit_Type__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>varMidAck</elementReference>
+                <elementReference>pkMidCreditType</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -205,10 +161,10 @@
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>Get_Major_CMDT.FQS_Auto_Stewardship__c</assignToReference>
+            <assignToReference>Get_Major_CMDT.Credit_Type__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>varMajorAck</elementReference>
+                <elementReference>pkMajorCreditType</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -222,59 +178,10 @@
             <targetReference>Upsert_Cmdt</targetReference>
         </connector>
     </assignments>
-    <choices>
-        <name>choiceAckExcludeAll</name>
-        <choiceText>Exclude All</choiceText>
-        <dataType>String</dataType>
-        <value>
-            <stringValue>Exclude All</stringValue>
-        </value>
-    </choices>
-    <choices>
-        <name>choiceAckExcludeLifetime</name>
-        <choiceText>Exclude Lifetime</choiceText>
-        <dataType>String</dataType>
-        <value>
-            <stringValue>Exclude Lifetime</stringValue>
-        </value>
-    </choices>
-    <choices>
-        <name>choiceAckIncludeAll</name>
-        <choiceText>Include All</choiceText>
-        <dataType>String</dataType>
-        <value>
-            <stringValue>Include All</stringValue>
-        </value>
-    </choices>
-    <decisions>
-        <name>Resolve_Ack_Values</name>
-        <label>Resolve effective ack values</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Assign_Ack_PerTier</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Use per-grouping picks</defaultConnectorLabel>
-        <rules>
-            <name>SetAllSame</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>cbSetAllSame</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_Ack_AllSame</targetReference>
-            </connector>
-            <label>Apply single value to all</label>
-        </rules>
-    </decisions>
-    <description>FQS Setup Flow — one-stop admin UI for tuning the three seeded FQS_Donor_Grouping__mdt donor grouping rows (Entry / Mid / Major). Screen 1 lets admins bulk-edit donor grouping thresholds. Screen 2 lets admins pick per-grouping automatic stewardship routing (Include All / Exclude Lifetime / Exclude All) with a &quot;set all to same&quot; shortcut — governs the tier-differentiated stewardship touch that fires ~14 days after acknowledgement, not the acknowledgement itself (acknowledgement is universal). New donor groupings must still be added manually via Setup → Custom Metadata Types → FQS Donor Grouping — this flow only updates existing rows. Launched from the Setup tab and the Setup utility bar item inside the Fundraising Quick Start Lightning app. Writes go through the FQS_CustomMetadataSaver Apex bridge, which enqueues a single asynchronous Metadata API deployment for all three donor groupings.</description>
+    <description>FQS Setup Flow — donor tier thresholds only. Bulk-edits the tier $ thresholds (One-Time / Annual / Lifetime) and branded name for the three seeded FQS_Donor_Tier__mdt rows (Entry / Mid / Major). Companion flow FQS_Setup_Stewardship_Response_Settings governs the stewardship-routing side (Include All / Exclude Lifetime / Exclude All). Writes go through the FQS_CustomMetadataSaver Apex bridge, which enqueues a single asynchronous Metadata API deployment for all three donor tiers. New donor tiers must still be added manually via Setup → Custom Metadata Types → FQS Donor Tier.</description>
     <environments>Default</environments>
-    <interviewLabel>FQS Setup — Donor Grouping {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>FQS Setup — Donor Grouping</label>
+    <interviewLabel>FQS Setup — Donor Tier Thresholds {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Setup — Donor Tier Thresholds</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -295,9 +202,9 @@
     </processMetadataValues>
     <processType>Flow</processType>
     <recordLookups>
-        <description>Loads the Entry donor grouping row so its Id and current field values seed Screen 1 defaults and the update action.</description>
+        <description>Loads the Entry donor tier row so its Id and current field values seed Screen 1 defaults and the update action.</description>
         <name>Get_Entry_CMDT</name>
-        <label>Get Entry Grouping CMDT Row</label>
+        <label>Get Entry Tier CMDT Row</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
@@ -306,19 +213,19 @@
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Grouping_Key__c</field>
+            <field>Tier_Key__c</field>
             <operator>EqualTo</operator>
             <value>
                 <stringValue>Entry</stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>FQS_Donor_Grouping__mdt</object>
+        <object>FQS_Donor_Tier__mdt</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
         <name>Get_Major_CMDT</name>
-        <label>Get Major Grouping CMDT Row</label>
+        <label>Get Major Tier CMDT Row</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
@@ -327,19 +234,19 @@
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Grouping_Key__c</field>
+            <field>Tier_Key__c</field>
             <operator>EqualTo</operator>
             <value>
                 <stringValue>Major</stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>FQS_Donor_Grouping__mdt</object>
+        <object>FQS_Donor_Tier__mdt</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
         <name>Get_Mid_CMDT</name>
-        <label>Get Mid Grouping CMDT Row</label>
+        <label>Get Mid Tier CMDT Row</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
@@ -348,195 +255,20 @@
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Grouping_Key__c</field>
+            <field>Tier_Key__c</field>
             <operator>EqualTo</operator>
             <value>
                 <stringValue>Mid</stringValue>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>FQS_Donor_Grouping__mdt</object>
+        <object>FQS_Donor_Tier__mdt</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <runInMode>DefaultMode</runInMode>
     <screens>
-        <name>Screen_Acknowledgement</name>
-        <label>Automatic Acknowledgement Routing</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <allowBack>false</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>false</allowPause>
-        <connector>
-            <targetReference>Resolve_Ack_Values</targetReference>
-        </connector>
-        <fields>
-            <name>DisplayText_AckEducation</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;How automatic stewardship routing works&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Every donor with a valid email receives an initial acknowledgement (a &amp;quot;we got your gift, thanks, here is your deduction info&amp;quot; receipt) — that flow is universal and has no per-grouping settings. About two weeks later, the &lt;/span&gt;&lt;em style=&quot;font-size: 16px;&quot;&gt;FQS Stewardship Response&lt;/em&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; scheduled flow runs a relationship-deepening touch, and each qualifying gift is routed to one of two paths — an automatic stewardship &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;email&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; to the donor, or a &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;task&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; for a fundraiser to follow up personally. The setting below controls that stewardship decision for each donor grouping.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Include All&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — every gift in this donor grouping is eligible for an automatic stewardship email. &lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Exclude Lifetime&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — automatic stewardship email for most donors in this donor grouping, &lt;/span&gt;&lt;em style=&quot;font-size: 16px;&quot;&gt;but&lt;/em&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; if the donor is already a lifetime major donor, route the gift to a task instead. &lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Exclude All&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — every gift in this donor grouping goes to a task for personal follow-up. &lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Email opt-outs on the donor&apos;s Contact always override these settings — those gifts always route to a task.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Important:&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; these settings only take effect after you activate the &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Stewardship Response&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; scheduled flow. If it&apos;s inactive, no stewardship touches will fire regardless of what you choose here.&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <fields>
-            <name>cbSetAllSame</name>
-            <dataType>Boolean</dataType>
-            <defaultValue>
-                <booleanValue>false</booleanValue>
-            </defaultValue>
-            <fieldText>Apply one setting to all three donor groupings</fieldText>
-            <fieldType>InputField</fieldType>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>true</isRequired>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <fields>
-            <name>pkMajorAck</name>
-            <choiceReferences>choiceAckIncludeAll</choiceReferences>
-            <choiceReferences>choiceAckExcludeLifetime</choiceReferences>
-            <choiceReferences>choiceAckExcludeAll</choiceReferences>
-            <dataType>String</dataType>
-            <defaultValue>
-                <elementReference>Get_Major_CMDT.FQS_Auto_Stewardship__c</elementReference>
-            </defaultValue>
-            <fieldText>Major donor grouping stewardship</fieldText>
-            <fieldType>DropdownBox</fieldType>
-            <helpText>Determines whether a gift in the Major donor grouping triggers an automatic stewardship email (Include All), a personal-touch task (Exclude All), or a lifetime-escalating hybrid (Exclude Lifetime). Applies to the stewardship follow-up ~14 days after acknowledgement, not the acknowledgement itself.</helpText>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>false</isRequired>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-            <visibilityRule>
-                <conditionLogic>and</conditionLogic>
-                <conditions>
-                    <leftValueReference>cbSetAllSame</leftValueReference>
-                    <operator>NotEqualTo</operator>
-                    <rightValue>
-                        <booleanValue>true</booleanValue>
-                    </rightValue>
-                </conditions>
-            </visibilityRule>
-        </fields>
-        <fields>
-            <name>pkMidAck</name>
-            <choiceReferences>choiceAckIncludeAll</choiceReferences>
-            <choiceReferences>choiceAckExcludeLifetime</choiceReferences>
-            <choiceReferences>choiceAckExcludeAll</choiceReferences>
-            <dataType>String</dataType>
-            <defaultValue>
-                <elementReference>Get_Mid_CMDT.FQS_Auto_Stewardship__c</elementReference>
-            </defaultValue>
-            <fieldText>Mid donor grouping stewardship</fieldText>
-            <fieldType>DropdownBox</fieldType>
-            <helpText>Determines whether a gift in the Mid donor grouping triggers an automatic stewardship email (Include All), a personal-touch task (Exclude All), or a lifetime-escalating hybrid (Exclude Lifetime). Applies to the stewardship follow-up ~14 days after acknowledgement, not the acknowledgement itself.</helpText>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>false</isRequired>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-            <visibilityRule>
-                <conditionLogic>and</conditionLogic>
-                <conditions>
-                    <leftValueReference>cbSetAllSame</leftValueReference>
-                    <operator>NotEqualTo</operator>
-                    <rightValue>
-                        <booleanValue>true</booleanValue>
-                    </rightValue>
-                </conditions>
-            </visibilityRule>
-        </fields>
-        <fields>
-            <name>pkEntryAck</name>
-            <choiceReferences>choiceAckIncludeAll</choiceReferences>
-            <choiceReferences>choiceAckExcludeLifetime</choiceReferences>
-            <choiceReferences>choiceAckExcludeAll</choiceReferences>
-            <dataType>String</dataType>
-            <defaultValue>
-                <elementReference>Get_Entry_CMDT.FQS_Auto_Stewardship__c</elementReference>
-            </defaultValue>
-            <fieldText>Entry donor grouping stewardship</fieldText>
-            <fieldType>DropdownBox</fieldType>
-            <helpText>Determines whether a gift in the Entry donor grouping triggers an automatic stewardship email (Include All), a personal-touch task (Exclude All), or a lifetime-escalating hybrid (Exclude Lifetime). Applies to the stewardship follow-up ~14 days after acknowledgement, not the acknowledgement itself.</helpText>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>false</isRequired>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-            <visibilityRule>
-                <conditionLogic>and</conditionLogic>
-                <conditions>
-                    <leftValueReference>cbSetAllSame</leftValueReference>
-                    <operator>NotEqualTo</operator>
-                    <rightValue>
-                        <booleanValue>true</booleanValue>
-                    </rightValue>
-                </conditions>
-            </visibilityRule>
-        </fields>
-        <fields>
-            <name>pkAllTiers</name>
-            <choiceReferences>choiceAckIncludeAll</choiceReferences>
-            <choiceReferences>choiceAckExcludeLifetime</choiceReferences>
-            <choiceReferences>choiceAckExcludeAll</choiceReferences>
-            <dataType>String</dataType>
-            <fieldText>Stewardship setting for all donor groupings</fieldText>
-            <fieldType>DropdownBox</fieldType>
-            <helpText>Determines whether a gift in this donor grouping triggers an automatic stewardship email (Include All), a personal-touch task (Exclude All), or a lifetime-escalating hybrid (Exclude Lifetime). Applies to Entry, Mid, and Major donor groupings when the &quot;Apply one setting&quot; box is checked.</helpText>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>false</isRequired>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-            <visibilityRule>
-                <conditionLogic>and</conditionLogic>
-                <conditions>
-                    <leftValueReference>cbSetAllSame</leftValueReference>
-                    <operator>EqualTo</operator>
-                    <rightValue>
-                        <booleanValue>true</booleanValue>
-                    </rightValue>
-                </conditions>
-            </visibilityRule>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
-    <screens>
         <name>Screen_Success</name>
-        <label>Settings queued</label>
+        <label>Thresholds queued</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <allowBack>false</allowBack>
@@ -544,7 +276,7 @@
         <allowPause>false</allowPause>
         <fields>
             <name>DisplayText_Success</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Your changes are being deployed.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Donor Groups updates run in the background and not instantly, so the new values may take up to a minute to appear on the records. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Reminder:&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; the automatic stewardship settings you chose only take effect after the &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Stewardship Response&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; scheduled flow is activated. If you have not yet activated it, do so from Setup → Flows.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Need to add a new donor grouping?&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; Go to Setup → Custom Metadata Types → FQS Donor Grouping → Manage Records.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Your changes are being deployed.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Donor tier updates run in the background, so the new values may take up to a minute to appear on records.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Need a new donor tier?&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; Go to Setup → Custom Metadata Types → FQS Donor Tier → Manage Records.&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -556,22 +288,22 @@
             </styleProperties>
         </fields>
         <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
+        <showHeader>false</showHeader>
     </screens>
     <screens>
         <name>Screen_Thresholds</name>
-        <label>Donor Grouping Thresholds</label>
+        <label>Donor Tier Thresholds</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
-            <targetReference>Screen_Acknowledgement</targetReference>
+            <targetReference>Build_Cmdt_Collection</targetReference>
         </connector>
         <fields>
             <name>DisplayText_ThresholdsHeader</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Adjust the giving thresholds for each donor grouping to your nonprofit organization.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;These thresholds decide which donor grouping a gift falls into based on the donor&apos;s one-time, annual, and lifetime giving. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;These donor groupings will effect the donor acknowledgement process, formula fields for individuals and gift, and reports included in the Fundraising Quick Start. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Changes take up to a minute to appear after you finish this flow.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Adjust the giving thresholds for each donor tier to your nonprofit organization.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;These thresholds decide which donor tier a gift falls into based on the donor&apos;s one-time, annual, and lifetime giving. Each tier also has a &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Credit Type&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; setting that controls whether soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor) count toward that tier alongside the donor&apos;s own gifts. Different tiers can have different Credit Type settings.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;These donor tiers will effect the donor acknowledgement process, formula fields for individuals and gift, and reports included in the Fundraising Quick Start. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Changes take up to a minute to appear after you finish this flow.&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -609,7 +341,7 @@
                     </defaultValue>
                     <fieldText>Branded Name (Major)</fieldText>
                     <fieldType>InputField</fieldType>
-                    <helpText>The branded name of the Grouping Key shown to staff and donors in reports, dashboards, and the Donor Gift Summary record page. Changing this value here automatically updates FQS_Donor_Level_Name__c on all Donor Gift Summary records. Example values: Friend, Partner, Champion or Entry, Rising, Summit.</helpText>
+                    <helpText>The branded name of the Tier Key shown to staff and donors in reports, dashboards, and the Donor Gift Summary record page. Changing this value here automatically updates FQS_Donor_Level_Name__c on all Donor Gift Summary records. Example values: Friend, Partner, Champion or Entry, Rising, Summit.</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <styleProperties>
@@ -629,7 +361,7 @@
                     </defaultValue>
                     <fieldText>One-Time Minimum Amount (Major)</fieldText>
                     <fieldType>InputField</fieldType>
-                    <helpText>The minimum gift amount for a single transaction to qualify for this donor grouping. Your administrator controls this threshold. Updating it automatically recalculates the giving level across all Gift Transactions.</helpText>
+                    <helpText>The minimum gift amount for a single transaction to qualify for this donor tier. Your administrator controls this threshold. Updating it automatically recalculates the giving level across all Gift Transactions.</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <scale>2</scale>
@@ -650,7 +382,7 @@
                     </defaultValue>
                     <fieldText>Annual Minimum Amount (Major)</fieldText>
                     <fieldType>InputField</fieldType>
-                    <helpText>The minimum fiscal-year giving total for a donor to qualify for this donor grouping annually. Your administrator controls this threshold. Updating it automatically recalculates the annual giving level across all Donor Gift Summary records.</helpText>
+                    <helpText>The minimum fiscal-year giving total for a donor to qualify for this donor tier annually. Your administrator controls this threshold. Updating it automatically recalculates the annual giving level across all Donor Gift Summary records.</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <scale>2</scale>
@@ -671,10 +403,32 @@
                     </defaultValue>
                     <fieldText>Lifetime Minimum Amount (Major)</fieldText>
                     <fieldType>InputField</fieldType>
-                    <helpText>The minimum lifetime giving total for a donor to qualify for this donor grouping. Your administrator controls this threshold. Updating it automatically recalculates the lifetime giving level across all Donor Gift Summary, Gift Commitment, and related records.</helpText>
+                    <helpText>The minimum lifetime giving total for a donor to qualify for this donor tier. Your administrator controls this threshold. Updating it automatically recalculates the lifetime giving level across all Donor Gift Summary, Gift Commitment, and related records.</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <scale>2</scale>
+                    <styleProperties>
+                        <verticalAlignment>
+                            <stringValue>top</stringValue>
+                        </verticalAlignment>
+                        <width>
+                            <stringValue>12</stringValue>
+                        </width>
+                    </styleProperties>
+                </fields>
+                <fields>
+                    <name>pkMajorCreditType</name>
+                    <choiceReferences>choiceCreditTypeHardOnly</choiceReferences>
+                    <choiceReferences>choiceCreditTypeHardPlusSoft</choiceReferences>
+                    <dataType>String</dataType>
+                    <defaultValue>
+                        <elementReference>Get_Major_CMDT.Credit_Type__c</elementReference>
+                    </defaultValue>
+                    <fieldText>Credit Type (Major)</fieldText>
+                    <fieldType>RadioButtons</fieldType>
+                    <helpText>Choose which giving totals count toward the Major tier. Hard Credits Only counts the donor&apos;s own gifts (TotalGiftsAmount / GiftsThisYearAmount + FQS legacy hard credits). Hard + Soft Credits also counts soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor). Different tiers can have different settings — e.g., Major counts soft credits while Entry stays hard-only.</helpText>
+                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <isRequired>true</isRequired>
                     <styleProperties>
                         <verticalAlignment>
                             <stringValue>top</stringValue>
@@ -730,7 +484,7 @@
                     </defaultValue>
                     <fieldText>Branded Name (Mid)</fieldText>
                     <fieldType>InputField</fieldType>
-                    <helpText>The branded name of the Grouping Key shown to staff and donors in reports, dashboards, and the Donor Gift Summary record page. Changing this value here automatically updates FQS_Donor_Level_Name__c on all Donor Gift Summary records. Example values: Friend, Partner, Champion or Entry, Rising, Summit.</helpText>
+                    <helpText>The branded name of the Tier Key shown to staff and donors in reports, dashboards, and the Donor Gift Summary record page. Changing this value here automatically updates FQS_Donor_Level_Name__c on all Donor Gift Summary records. Example values: Friend, Partner, Champion or Entry, Rising, Summit.</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <styleProperties>
@@ -750,7 +504,7 @@
                     </defaultValue>
                     <fieldText>One-Time Minimum Amount (Mid)</fieldText>
                     <fieldType>InputField</fieldType>
-                    <helpText>The minimum gift amount for a single transaction to qualify for this donor grouping. Your administrator controls this threshold. Updating it automatically recalculates the giving level across all Gift Transactions.</helpText>
+                    <helpText>The minimum gift amount for a single transaction to qualify for this donor tier. Your administrator controls this threshold. Updating it automatically recalculates the giving level across all Gift Transactions.</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <scale>2</scale>
@@ -771,7 +525,7 @@
                     </defaultValue>
                     <fieldText>Annual Minimum Amount (Mid)</fieldText>
                     <fieldType>InputField</fieldType>
-                    <helpText>The minimum fiscal-year giving total for a donor to qualify for this donor grouping annually. Your administrator controls this threshold. Updating it automatically recalculates the annual giving level across all Donor Gift Summary records.</helpText>
+                    <helpText>The minimum fiscal-year giving total for a donor to qualify for this donor tier annually. Your administrator controls this threshold. Updating it automatically recalculates the annual giving level across all Donor Gift Summary records.</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <scale>2</scale>
@@ -792,10 +546,32 @@
                     </defaultValue>
                     <fieldText>Lifetime Minimum Amount (Mid)</fieldText>
                     <fieldType>InputField</fieldType>
-                    <helpText>The minimum lifetime giving total for a donor to qualify for this donor grouping. Your administrator controls this threshold. Updating it automatically recalculates the lifetime giving level across all Donor Gift Summary, Gift Commitment, and related records.</helpText>
+                    <helpText>The minimum lifetime giving total for a donor to qualify for this donor tier. Your administrator controls this threshold. Updating it automatically recalculates the lifetime giving level across all Donor Gift Summary, Gift Commitment, and related records.</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <scale>2</scale>
+                    <styleProperties>
+                        <verticalAlignment>
+                            <stringValue>top</stringValue>
+                        </verticalAlignment>
+                        <width>
+                            <stringValue>12</stringValue>
+                        </width>
+                    </styleProperties>
+                </fields>
+                <fields>
+                    <name>pkMidCreditType</name>
+                    <choiceReferences>choiceCreditTypeHardOnly</choiceReferences>
+                    <choiceReferences>choiceCreditTypeHardPlusSoft</choiceReferences>
+                    <dataType>String</dataType>
+                    <defaultValue>
+                        <elementReference>Get_Mid_CMDT.Credit_Type__c</elementReference>
+                    </defaultValue>
+                    <fieldText>Credit Type (Mid)</fieldText>
+                    <fieldType>RadioButtons</fieldType>
+                    <helpText>Choose which giving totals count toward the Mid tier. Hard Credits Only counts the donor&apos;s own gifts. Hard + Soft Credits also counts soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor).</helpText>
+                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <isRequired>true</isRequired>
                     <styleProperties>
                         <verticalAlignment>
                             <stringValue>top</stringValue>
@@ -851,7 +627,7 @@
                     </defaultValue>
                     <fieldText>Branded Name (Entry)</fieldText>
                     <fieldType>InputField</fieldType>
-                    <helpText>The branded name of the Grouping Key shown to staff and donors in reports, dashboards, and the Donor Gift Summary record page. Changing this value here automatically updates FQS_Donor_Level_Name__c on all Donor Gift Summary records. Example values: Friend, Partner, Champion or Entry, Rising, Summit.</helpText>
+                    <helpText>The branded name of the Tier Key shown to staff and donors in reports, dashboards, and the Donor Gift Summary record page. Changing this value here automatically updates FQS_Donor_Level_Name__c on all Donor Gift Summary records. Example values: Friend, Partner, Champion or Entry, Rising, Summit.</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <styleProperties>
@@ -871,7 +647,7 @@
                     </defaultValue>
                     <fieldText>One-Time Minimum Amount (Entry)</fieldText>
                     <fieldType>InputField</fieldType>
-                    <helpText>The minimum gift amount for a single transaction to qualify for this donor grouping. Your administrator controls this threshold. Updating it automatically recalculates the giving level across all Gift Transactions.</helpText>
+                    <helpText>The minimum gift amount for a single transaction to qualify for this donor tier. Your administrator controls this threshold. Updating it automatically recalculates the giving level across all Gift Transactions.</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <scale>2</scale>
@@ -892,7 +668,7 @@
                     </defaultValue>
                     <fieldText>Annual Minimum Amount (Entry)</fieldText>
                     <fieldType>InputField</fieldType>
-                    <helpText>The minimum fiscal-year giving total for a donor to qualify for this donor grouping annually. Your administrator controls this threshold. Updating it automatically recalculates the annual giving level across all Donor Gift Summary records.</helpText>
+                    <helpText>The minimum fiscal-year giving total for a donor to qualify for this donor tier annually. Your administrator controls this threshold. Updating it automatically recalculates the annual giving level across all Donor Gift Summary records.</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <scale>2</scale>
@@ -913,10 +689,32 @@
                     </defaultValue>
                     <fieldText>Lifetime Minimum Amount (Entry)</fieldText>
                     <fieldType>InputField</fieldType>
-                    <helpText>The minimum lifetime giving total for a donor to qualify for this donor grouping. Your administrator controls this threshold. Updating it automatically recalculates the lifetime giving level across all Donor Gift Summary, Gift Commitment, and related records.</helpText>
+                    <helpText>The minimum lifetime giving total for a donor to qualify for this donor tier. Your administrator controls this threshold. Updating it automatically recalculates the lifetime giving level across all Donor Gift Summary, Gift Commitment, and related records.</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <scale>2</scale>
+                    <styleProperties>
+                        <verticalAlignment>
+                            <stringValue>top</stringValue>
+                        </verticalAlignment>
+                        <width>
+                            <stringValue>12</stringValue>
+                        </width>
+                    </styleProperties>
+                </fields>
+                <fields>
+                    <name>pkEntryCreditType</name>
+                    <choiceReferences>choiceCreditTypeHardOnly</choiceReferences>
+                    <choiceReferences>choiceCreditTypeHardPlusSoft</choiceReferences>
+                    <dataType>String</dataType>
+                    <defaultValue>
+                        <elementReference>Get_Entry_CMDT.Credit_Type__c</elementReference>
+                    </defaultValue>
+                    <fieldText>Credit Type (Entry)</fieldText>
+                    <fieldType>RadioButtons</fieldType>
+                    <helpText>Choose which giving totals count toward the Entry tier. Hard Credits Only counts the donor&apos;s own gifts. Hard + Soft Credits also counts soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor).</helpText>
+                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <isRequired>true</isRequired>
                     <styleProperties>
                         <verticalAlignment>
                             <stringValue>top</stringValue>
@@ -946,8 +744,8 @@
             </styleProperties>
         </fields>
         <fields>
-            <name>New_GroupIng_DiplayTxt</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Need a new grouping?&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; This flow only edits the three included donor groupings. To add a brand-new donor grouping, go to &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Setup → Custom Metadata Types → FQS Donor Grouping → Manage Records&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Additional donor groupings may require you to review and edit fields on Donor Gift Summary, Gift Commitment, and Gift Transaction as well as flow&lt;/span&gt;&lt;span style=&quot;font-size: 16px; background-color: rgb(255, 255, 255);&quot;&gt; automations &lt;/span&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; dependent on those fields. &lt;/span&gt;&lt;/p&gt;</fieldText>
+            <name>New_Tier_DisplayTxt</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Need a new tier?&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; This flow only edits the three included donor tiers. To add a brand-new donor tier, go to &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Setup → Custom Metadata Types → FQS Donor Tier → Manage Records&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Additional donor tiers may require you to review and edit fields on Donor Gift Summary, Gift Commitment, and Gift Transaction as well as flow&lt;/span&gt;&lt;span style=&quot;font-size: 16px; background-color: rgb(255, 255, 255);&quot;&gt; automations &lt;/span&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; dependent on those fields. &lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -959,7 +757,7 @@
             </styleProperties>
         </fields>
         <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
+        <showHeader>false</showHeader>
     </screens>
     <start>
         <locationX>0</locationX>
@@ -975,27 +773,6 @@
         <isCollection>true</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
-        <objectType>FQS_Donor_Grouping__mdt</objectType>
-    </variables>
-    <variables>
-        <name>varEntryAck</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <name>varMajorAck</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <name>varMidAck</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
+        <objectType>FQS_Donor_Tier__mdt</objectType>
     </variables>
 </Flow>

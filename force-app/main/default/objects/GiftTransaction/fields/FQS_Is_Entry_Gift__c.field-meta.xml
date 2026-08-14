@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Is_Entry_Gift__c</fullName>
-    <description>Boolean formula that returns TRUE when this gift is exactly in the Entry band — either its own CurrentAmount lands in the Entry one-time band, or (installment inheritance) its parent GiftCommitment.ExpectedTotalCmtAmount lands in the Entry lifetime band, and neither dimension puts it into Mid or Major. The three gift checkboxes (Entry / Mid / Major) are mutually exclusive — at most one is TRUE for any gift. Installment inheritance: a payment against a large commitment inherits the commitment's grouping, so a $100 payment against a $100k commitment is a Major gift, not an Entry one. Thresholds are configured via Setup → Custom Metadata Types → FQS Donor Grouping or the FQS Setup screen flow. Changing threshold values recalculates this field across all Gift Transaction records retroactively — no redeployment or batch job required.</description>
+    <description>Boolean formula that returns TRUE when this gift is exactly in the Entry band — either its own CurrentAmount lands in the Entry one-time band, or (installment inheritance) its parent GiftCommitment.ExpectedTotalCmtAmount lands in the Entry lifetime band, and neither dimension puts it into Mid or Major. The three gift checkboxes (Entry / Mid / Major) are mutually exclusive — at most one is TRUE for any gift. Installment inheritance: a payment against a large commitment inherits the commitment's tier, so a $100 payment against a $100k commitment is a Major gift, not an Entry one. Thresholds are configured via Setup → Custom Metadata Types → FQS Donor Tier or the FQS Setup screen flow. Changing threshold values recalculates this field across all Gift Transaction records retroactively — no redeployment or batch job required.</description>
     <externalId>false</externalId>
     <formula>AND(
   OR(
     AND(
-      CurrentAmount &gt;= $CustomMetadata.FQS_Donor_Grouping__mdt.Entry.One_Time_Min_Amount__c,
-      CurrentAmount &lt; $CustomMetadata.FQS_Donor_Grouping__mdt.Mid.One_Time_Min_Amount__c
+      CurrentAmount &gt;= $CustomMetadata.FQS_Donor_Tier__mdt.Entry.One_Time_Min_Amount__c,
+      CurrentAmount &lt; $CustomMetadata.FQS_Donor_Tier__mdt.Mid.One_Time_Min_Amount__c
     ),
     AND(
-      GiftCommitment.ExpectedTotalCmtAmount &gt;= $CustomMetadata.FQS_Donor_Grouping__mdt.Entry.Lifetime_Min_Amount__c,
-      GiftCommitment.ExpectedTotalCmtAmount &lt; $CustomMetadata.FQS_Donor_Grouping__mdt.Mid.Lifetime_Min_Amount__c
+      GiftCommitment.ExpectedTotalCmtAmount &gt;= $CustomMetadata.FQS_Donor_Tier__mdt.Entry.Lifetime_Min_Amount__c,
+      GiftCommitment.ExpectedTotalCmtAmount &lt; $CustomMetadata.FQS_Donor_Tier__mdt.Mid.Lifetime_Min_Amount__c
     )
   ),
-  NOT(CurrentAmount &gt;= $CustomMetadata.FQS_Donor_Grouping__mdt.Mid.One_Time_Min_Amount__c),
-  NOT(GiftCommitment.ExpectedTotalCmtAmount &gt;= $CustomMetadata.FQS_Donor_Grouping__mdt.Mid.Lifetime_Min_Amount__c)
+  NOT(CurrentAmount &gt;= $CustomMetadata.FQS_Donor_Tier__mdt.Mid.One_Time_Min_Amount__c),
+  NOT(GiftCommitment.ExpectedTotalCmtAmount &gt;= $CustomMetadata.FQS_Donor_Tier__mdt.Mid.Lifetime_Min_Amount__c)
 )</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <inlineHelpText>Automatically calculated. The field is checked when this gift's amount qualifies for the Entry donor grouping, or when it is an installment payment against an Entry-grouping commitment. Your administrator controls the threshold amounts.</inlineHelpText>
+    <inlineHelpText>Automatically calculated. The field is checked when this gift's amount qualifies for the Entry donor tier, or when it is an installment payment against an Entry-tier commitment. Your administrator controls the threshold amounts.</inlineHelpText>
     <label>Is Entry Gift</label>
     <required>false</required>
     <type>Checkbox</type>

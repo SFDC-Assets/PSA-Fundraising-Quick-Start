@@ -10,19 +10,19 @@ private class FQS_CustomMetadataSaver_Test {
 
     @IsTest
     static void deploysAllThreeTiersAtomically() {
-        FQS_Donor_Grouping__mdt entry = new FQS_Donor_Grouping__mdt(
+        FQS_Donor_Tier__mdt entry = new FQS_Donor_Tier__mdt(
             DeveloperName = 'Entry', MasterLabel = 'Entry',
             Branded_Name__c = 'Friend',
             One_Time_Min_Amount__c = 25, Annual_Min_Amount__c = 100, Lifetime_Min_Amount__c = 300,
             Sort_Order__c = 10, FQS_Auto_Stewardship__c = 'Include All'
         );
-        FQS_Donor_Grouping__mdt mid = new FQS_Donor_Grouping__mdt(
+        FQS_Donor_Tier__mdt mid = new FQS_Donor_Tier__mdt(
             DeveloperName = 'Mid', MasterLabel = 'Mid',
             Branded_Name__c = 'Partner',
             One_Time_Min_Amount__c = 500, Annual_Min_Amount__c = 1000, Lifetime_Min_Amount__c = 3000,
             Sort_Order__c = 20, FQS_Auto_Stewardship__c = 'Exclude Lifetime'
         );
-        FQS_Donor_Grouping__mdt major = new FQS_Donor_Grouping__mdt(
+        FQS_Donor_Tier__mdt major = new FQS_Donor_Tier__mdt(
             DeveloperName = 'Major', MasterLabel = 'Major',
             Branded_Name__c = 'Champion',
             One_Time_Min_Amount__c = 5000, Annual_Min_Amount__c = 10000, Lifetime_Min_Amount__c = 30000,
@@ -48,14 +48,14 @@ private class FQS_CustomMetadataSaver_Test {
         for (Metadata.Metadata md : deployed) {
             fullNames.add(((Metadata.CustomMetadata) md).fullName);
         }
-        System.assert(fullNames.contains('FQS_Donor_Grouping.Entry'), 'Entry fullName present');
-        System.assert(fullNames.contains('FQS_Donor_Grouping.Mid'), 'Mid fullName present');
-        System.assert(fullNames.contains('FQS_Donor_Grouping.Major'), 'Major fullName present');
+        System.assert(fullNames.contains('FQS_Donor_Tier.Entry'), 'Entry fullName present');
+        System.assert(fullNames.contains('FQS_Donor_Tier.Mid'), 'Mid fullName present');
+        System.assert(fullNames.contains('FQS_Donor_Tier.Major'), 'Major fullName present');
     }
 
     @IsTest
     static void picklistValueIsStringCast() {
-        FQS_Donor_Grouping__mdt entry = new FQS_Donor_Grouping__mdt(
+        FQS_Donor_Tier__mdt entry = new FQS_Donor_Tier__mdt(
             DeveloperName = 'Entry', MasterLabel = 'Entry',
             FQS_Auto_Stewardship__c = 'Include All'
         );
@@ -75,18 +75,18 @@ private class FQS_CustomMetadataSaver_Test {
 
     @IsTest
     static void ignoresSystemFieldsAndOmitsUnpopulatedFields() {
-        FQS_Donor_Grouping__mdt entry = (FQS_Donor_Grouping__mdt) JSON.deserialize(
-            '{"attributes":{"type":"FQS_Donor_Grouping__mdt"},' +
+        FQS_Donor_Tier__mdt entry = (FQS_Donor_Tier__mdt) JSON.deserialize(
+            '{"attributes":{"type":"FQS_Donor_Tier__mdt"},' +
             '"DeveloperName":"Entry","MasterLabel":"Entry Master Label","Sort_Order__c":42,' +
             '"SystemModstamp":"2026-01-01T00:00:00.000Z",' +
             '"CreatedDate":"2026-01-01T00:00:00.000Z",' +
             '"LastModifiedDate":"2026-01-01T00:00:00.000Z"}',
-            FQS_Donor_Grouping__mdt.class
+            FQS_Donor_Tier__mdt.class
         );
         FQS_CustomMetadataSaver.deploy(new List<SObject>{ entry });
 
         Metadata.CustomMetadata built = (Metadata.CustomMetadata) FQS_CustomMetadataSaver.lastBuiltContainer.getMetadata()[0];
-        System.assertEquals('FQS_Donor_Grouping.Entry', built.fullName);
+        System.assertEquals('FQS_Donor_Tier.Entry', built.fullName);
         System.assertEquals('Entry Master Label', built.label, 'MasterLabel maps to Metadata.CustomMetadata.label');
 
         Set<String> emittedFields = new Set<String>();

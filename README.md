@@ -35,7 +35,7 @@ General Improvements
 * A dedicated **Fundraising Quick Start** Lightning app with the right tabs, dynamic pages, and utility bar wired up for gift-entry and development team workflows.
 * A curated `FQS_Fundraising` Campaign record type and Campaign dynamic page tuned for nonprofit fundraising appeals rather than sales campaigns.
 * Data model improvements — help text, descriptions, and picklist cleanups on Gift Transaction, Gift Commitment, Gift Designation, and related standard fields — reducing support burden and improving clarity for admins and end users.
-* A `FQS_Donor_Grouping__mdt` custom metadata type for classifying donors into three named donor groupings (Entry, Mid, Major) without hard-coding thresholds in flows or reports, plus an **FQS Setup** screen flow (launched from the Setup tab or utility bar in the Fundraising Quick Start Lightning app) that lets admins edit thresholds and acknowledgement routing without opening Setup → Custom Metadata Types.
+* A `FQS_Donor_Tier__mdt` custom metadata type for classifying donors into three named donor tiers (Entry, Mid, Major) without hard-coding thresholds in flows or reports, plus an **FQS Setup** screen flow (launched from the Setup tab or utility bar in the Fundraising Quick Start Lightning app) that lets admins edit tier thresholds, per-tier credit-type (hard-only vs hard + soft), and stewardship routing without opening Setup → Custom Metadata Types.
 * A `FQS_Custom_Fields` permission set to assist admins in providing access to the accelerator's custom fields and functionality.
 
 ### Included Assets
@@ -46,7 +46,7 @@ An unmanaged package (link in the installation section of this document; metadat
 * Dynamic Lightning record pages for: Campaign, Gift Transaction, Gift Commitment, Gift Commitment Schedule, Gift Designation, Gift Default Designation, Gift Transaction Designation, Gift Soft Credit, Gift Default Soft Credit, Gift Tribute, Gift Refund, Gift Commitment Change Attribute Log, Donor Gift Summary, Outreach Source Code, Outreach Summary, Payment Instrument, and Opportunity
 * Custom fields, help text, and description updates on standard Fundraising objects (Gift Transaction, Gift Commitment, Gift Designation, and related)
 * A custom Campaign record type (`FQS_Fundraising`) for fundraising campaigns
-* A custom metadata type (`FQS_Donor_Grouping__mdt`) for donor grouping definitions
+* A custom metadata type (`FQS_Donor_Tier__mdt`) for donor tier definitions
 * Custom quick actions and path assistants for gift-entry workflows
 * Two permission sets: **FQS Custom Fields** (grants FLS on FQS custom + patched fields) and **FQS Campaign Fields** (grants read/edit on standard Campaign fields such as StartDate, EndDate, ParentId, ExpectedRevenue, etc.)
 * Duplicate and Matching Rules on Account and Contact — three warn-not-block Duplicate Rules (`FQS_Account_Organization_Dupe`, `FQS_Account_Person_Dupe`, `FQS_Contact_Dupe`) backed by three Matching Rules (`FQS_Account_Organization_Match` on Name + BillingCity, `FQS_Account_External_Id_Match` on `External_Id__c`, `FQS_Contact_Individual_Match` on FirstName + LastName + Email). All ship active and coexist with the standard Salesforce rules; see the Establish Data Integrity Guardrails post-install section for tuning.
@@ -423,7 +423,7 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
 2. **Assign the FQS Campaign Fields Permission Set**
 
-   The **FQS Campaign Fields** permission set grants read/edit access to the standard Campaign fields used by the FQS Campaign Hierarchy Setup flow and by day-to-day Campaign maintenance — StartDate, EndDate, ParentId, Status, Type, IsActive, ExpectedRevenue, BudgetedCost, ActualCost, Description, and the standard Campaign rollup counters. Assign it to any staff who will run FQS Campaign Hierarchy Setup or who will edit Campaign records directly.
+   The **FQS Campaign Fields** permission set grants read/edit access to the standard Campaign fields used by the FQS Campaign Hierarchy Setup flow and by day-to-day Campaign maintenance — StartDate, EndDate, ParentId, Status, IsActive, ExpectedRevenue, BudgetedCost, ActualCost, Description, and the standard Campaign rollup counters. Assign it to any staff who will run FQS Campaign Hierarchy Setup or who will edit Campaign records directly.
 
    1. From Setup, in the Quick Find box, enter **Permission Sets**, and then select **Permission Sets**.
    2. Click the permission set **FQS Campaign Fields** in the list view.
@@ -547,6 +547,17 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
    5. In the **Help Text** field, enter: *When this donor was thanked for the gift. Usually set automatically by the FQS Gift Acknowledgement flow when the thank-you goes out. Not the tax receipt date and not the donor tax date.*
    6. Click **Save**.
 
+7. **Add help text to Gift Transaction: Payment Identifier**
+
+   `GiftTransaction.PaymentIdentifier` is a Nonprofit Cloud–owned standard field. FQS surfaces it on the Gift Entry Gift Details screen, conditionally shown when the payment method is Check or ACH so the user can capture the reference that ties the gift to the bank record. The default label ("Payment Identifier") doesn't tell a data-entry user what to actually type — the help text disambiguates.
+
+   1. From Setup, click the **Object Manager** tab.
+   2. Search for and click **Gift Transaction**, then select **Fields & Relationships**.
+   3. Click the field **Payment Identifier**.
+   4. Click **Edit**.
+   5. In the **Help Text** field, enter: *Check Number of Bank Account Name*
+   6. Click **Save**.
+
 **V. Configure Designation, Soft Credit, and Tribute Objects**
 
 <!-- TODO: still to fill in:
@@ -625,7 +636,45 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
 **VII. Configure Outreach Source Code Auto-Generation**
 
-Salesforce Fundraising can automatically generate a standardized `SourceCode` value on each Outreach Source Code record based on a formula you define. This keeps your source codes consistent and machine-readable without relying on gift officers to type them manually.
+FQS ships with **automatic default Outreach Source Code creation** for every Tactical (Level 3+) campaign. One default OSC is created per tactical campaign so that gifts logged against the campaign can be attributed immediately without waiting for someone to hand-author source codes. Users are expected to **clone the default** to add channel variants (a second OSC for social paid, a third for direct mail, etc.).
+
+The auto-creation runs in two paths:
+
+1. **During FQS Campaign Hierarchy Setup** — after the hierarchy builder inserts the Level 3 tacticals, `FQS_OutreachSourceCodeBuilder.buildDefaultsForCampaigns()` fires and inserts one OSC per tactical, then flips **Create Default Outreach Sources** to true on each Ask as an audit flag. The Final screen shows the count.
+2. **Manually per-campaign** — check the **Create Default Outreach Sources** checkbox on any Tactical campaign; the `FQS_Campaign_Create_Default_OSCs` record-triggered flow calls the same service. Idempotent — safe to re-check if the earlier OSC was deleted. The checkbox stays checked afterward as a persistent audit flag.
+
+The default OSC is populated as follows:
+
+| OSC field | Value |
+|---|---|
+| `Name` | `{Campaign.Name} — {ChannelLabel}` |
+| `SourceCode` | Auto-generated slug: `{ShortSlug}-{YY}-{ChannelCode}` (e.g. `FY26-YEAREND-EMAIL-26-EM`). `ShortSlug` = uppercased `Campaign.FQS_Short_Name__c` when populated; hierarchy builder derives `Short Name` from the template key (e.g. `fy26-yearend-email`). Word-based fallback (first 4 of word 1 + first 2 of word 2) applies only when Short Name is blank. If **Outreach Source Code Auto-Generation** (below) is enabled in Setup, that formula overrides this default at save. |
+| `CampaignId` | Parent tactical campaign |
+| `Status` | `Active` when `Campaign.IsActive = true`, else `Inactive` |
+| `UsageType` | `Fundraising` |
+| `MessageChannel` | Derived from `FQS_Campaign_Category__c` — see mapping below |
+| `FQS_Platform__c` | Derived from `FQS_Campaign_Category__c` — see mapping below |
+| `FQS_Message_Channel_Segment__c` | Auto-derived formula field (Organic / Paid Digital / Owned or Acquired Lists) |
+| `External_Id__c` | `FQS-OSC-{CampaignId15}-DEFAULT` — unique key that guarantees one default per campaign |
+
+**Category → Channel/Platform mapping**
+
+| Campaign Category | MessageChannel | Platform |
+|---|---|---|
+| Annual Giving | Direct Mail | Direct Mail House |
+| Planned Giving | Direct Mail | Direct Mail House |
+| Grants | Direct Mail | Direct Mail House |
+| Events | Email | Other Email Platform |
+| Corporate Match | Email | Other Email Platform |
+| In-Kind | Email | Other Email Platform |
+| Major Gifts | Physical | *(blank)* |
+| *(blank or other)* | Email | Other Email Platform |
+
+These defaults are the low-friction starting point. Users clone the default OSC to model additional channels per campaign; the formula-based auto-generation described below still governs the `SourceCode` value on the cloned records.
+
+---
+
+Beyond the FQS defaults, Salesforce Fundraising can automatically generate a standardized `SourceCode` value on each Outreach Source Code record based on a formula you define. This keeps your source codes consistent and machine-readable without relying on gift officers to type them manually.
 
 The FQS convention maps UTM parameters to the Outreach Source Code data model as follows, using the FQS formula: `{FQS_Platform__c} + {MessageChannel} + {Campaign.FQS_Short_Name__c}`
 
@@ -670,27 +719,28 @@ Supporting documentation:
 
 ---
 
-**VIII. Review and Customize Donor Groupings**
+**VIII. Review and Customize Donor Tiers**
 
-The accelerator ships with a `FQS_Donor_Grouping__mdt` custom metadata type that defines three donor groupings — Entry, Mid, and Major. These records serve two purposes: (1) they set the dollar thresholds used by flows and formula fields to classify each gift, and (2) they control how the Gift Acknowledgement flow routes each donor grouping between automated emails and personal-touch tasks. **Review and adjust these before activating the Gift Acknowledgement flow.**
+The accelerator ships with a `FQS_Donor_Tier__mdt` custom metadata type that defines three donor tiers — Entry, Mid, and Major. These records serve two purposes: (1) they set the dollar thresholds used by flows and formula fields to classify each gift, and (2) they control how the Gift Acknowledgement flow routes each donor tier between automated emails and personal-touch tasks. **Review and adjust these before activating the Gift Acknowledgement flow.**
 
 **Understanding the fields**
 
-Each `FQS_Donor_Grouping__mdt` record has the following fields:
+Each `FQS_Donor_Tier__mdt` record has the following fields:
 
 | Field | What it does |
 |---|---|
 | **Branded Name** (`Branded_Name__c`) | The organization's specific naming structure for public donor recognition, shown in reports, dashboards, and the Donor Gift Summary record page. Example values: Friend, Partner, Champion or Entry, Rising, Summit. Change this freely. |
-| **Grouping Key** (`Grouping_Key__c`) | The generic donor groupings (`Entry`, `Mid`, `Major`) used by formula fields and the acknowledgement flow to classify donors. **Do not change.** |
-| **One-Time Min Amount** (`One_Time_Min_Amount__c`) | Minimum single-transaction gift amount to qualify for this donor grouping. Updating this recalculates the giving level across all Gift Transactions. |
+| **Tier Key** (`Tier_Key__c`) | The generic donor tiers (`Entry`, `Mid`, `Major`) used by formula fields and the acknowledgement flow to classify donors. **Do not change.** |
+| **One-Time Min Amount** (`One_Time_Min_Amount__c`) | Minimum single-transaction gift amount to qualify for this donor tier. Updating this recalculates the giving level across all Gift Transactions. |
 | **Annual Min Amount** (`Annual_Min_Amount__c`) | Minimum fiscal-year giving total to qualify. Updating this recalculates the annual giving level across all Donor Gift Summary records. |
 | **Lifetime Min Amount** (`Lifetime_Min_Amount__c`) | Minimum cumulative lifetime giving to qualify. Used as an escalation threshold by the `Exclude Lifetime` acknowledgement setting. Updating this recalculates lifetime giving level across all Donor Gift Summary, Gift Commitment, and related records. |
-| **Auto Acknowledgement** (`FQS_Auto_Acknowledgement__c`) | Controls how the Gift Acknowledgement flow handles gifts at this donor grouping. See picklist logic below. |
+| **Auto Stewardship** (`FQS_Auto_Stewardship__c`) | Controls how the Stewardship Response flow handles gifts at this donor tier (Include All / Exclude Lifetime / Exclude All). See picklist logic below. Governs the ~14-day stewardship touch — acknowledgement itself is a universal rule and does not consult this field. |
+| **Credit Type** (`Credit_Type__c`) | Determines which giving totals count toward this tier. `Hard Credits Only` (default) counts the donor's own gifts (`TotalGiftsAmount` / `GiftsThisYearAmount` + FQS legacy hard credits). `Hard + Soft Credits` also counts soft-credit totals (`TotalSoftCreditsAmount` / `CurrentYearSoftCreditsAmount` + FQS legacy soft credits) — spouse-attributed gifts, foundation-driven gifts recognized to the donor. Set independently per tier: a Major tier can count soft credits while an Entry tier stays hard-only. |
 | **Sort Order** (`Sort_Order__c`) | Controls display order in Setup and reports. Lower numbers appear first. This field is presentation-only and is edited from Setup → Custom Metadata Types (the FQS Setup flow does not surface it). |
 
 **Packaged default values**
 
-| Grouping | Grouping Key | Branded Name | One-Time Min | Annual Min | Lifetime Min | Auto Acknowledgement |
+| Tier | Tier Key | Branded Name | One-Time Min | Annual Min | Lifetime Min | Auto Stewardship |
 |---|---|---|---|---|---|---|
 | Entry | `Entry` | Friend | $1 | $100 | $500 | Include All |
 | Mid | `Mid` | Partner | $250 | $3,000 | $15,000 | Exclude Lifetime |
@@ -698,21 +748,21 @@ Each `FQS_Donor_Grouping__mdt` record has the following fields:
 
 *These defaults are illustrative starting points. Most organizations have different thresholds. Adjust them to match your development team's definitions before going live.*
 
-**Understanding the Auto Acknowledgement picklist**
+**Understanding the Auto Stewardship picklist**
 
-The `FQS_Auto_Acknowledgement__c` picklist on each donor grouping directly controls how the Gift Acknowledgement flow routes a gift at that donor grouping. There are three values:
+The `FQS_Auto_Stewardship__c` picklist on each donor tier directly controls how the Gift Acknowledgement flow routes a gift at that donor tier. There are three values:
 
-* **Include All** — The flow sends an automated acknowledgement email for every gift in this donor grouping (unless the donor has opted out of email). Typical use: entry-level gifts where personal outreach is not warranted.
-* **Exclude Lifetime** — The flow sends an automated email, *except* when the donor has already reached or exceeded the donor grouping's **Lifetime Min Amount** threshold. In that case, the flow creates a Task instead, prompting a staff member to reach out personally. Typical use: mid-level donors where loyal long-term givers deserve a human touch.
+* **Include All** — The flow sends an automated acknowledgement email for every gift in this donor tier (unless the donor has opted out of email). Typical use: entry-level gifts where personal outreach is not warranted.
+* **Exclude Lifetime** — The flow sends an automated email, *except* when the donor has already reached or exceeded the donor tier's **Lifetime Min Amount** threshold. In that case, the flow creates a Task instead, prompting a staff member to reach out personally. Typical use: mid-level donors where loyal long-term givers deserve a human touch.
 * **Exclude All** — The flow always creates a Task assigned to the FQS Gift Acknowledgements queue rather than sending an automated email. Typical use: major gifts where every acknowledgement should be personal, regardless of lifetime giving.
 
-**How to edit donor groupings**
+**How to edit donor tiers**
 
-You have two ways to edit donor groupings:
+You have two ways to edit donor tiers:
 
 **Option A (recommended): Use the FQS Setup screen flow**
 
-The **FQS Setup** flow ships with the accelerator and provides a guided UI for editing thresholds and acknowledgement routing on all three donor groupings in one pass. It is available from:
+The **FQS Setup** flow ships with the accelerator and provides a guided UI for editing thresholds and acknowledgement routing on all three donor tiers in one pass. It is available from:
 
 * The **Setup** tab inside the **Fundraising Quick Start** Lightning app, or
 * The **Setup** utility-bar item at the bottom of the app.
@@ -721,31 +771,31 @@ Steps:
 
 1. Open the **Fundraising Quick Start** app.
 2. Click the **Setup** tab (or the Setup utility-bar item).
-3. On the **Donor Grouping Thresholds** screen, adjust the Branded Name, One-Time Min, Annual Min, and Lifetime Min for each of the three donor groupings.
-4. Click **Next**.
-5. On the **Automatic Acknowledgement Routing** screen, either check **Apply one setting to all three donor groupings** and pick one value, or set each donor grouping's acknowledgement individually.
-6. Click **Next**, then **Finish**.
-7. Changes are queued as an asynchronous metadata deployment. New values typically take up to a minute to appear on records. You can watch progress in **Setup → Deployment Status** if needed.
+3. Pick one of two setup subflows:
+   * **Donor Tier Thresholds** — edits the Branded Name, One-Time Min, Annual Min, Lifetime Min, and **Credit Type** (Hard Credits Only vs Hard + Soft Credits) for each of the three donor tiers in one screen.
+   * **Stewardship Response Settings** — edits the per-tier Auto Stewardship setting (Include All / Exclude Lifetime / Exclude All) with a "set all three to the same value" shortcut.
+4. Complete the screens, click **Next**, then **Finish**.
+5. Changes are queued as an asynchronous metadata deployment. New values typically take up to a minute to appear on records. You can watch progress in **Setup → Deployment Status** if needed.
 
-The FQS Setup flow only edits the three seeded donor groupings — it does not create new ones. Use Option B below to add donor groupings beyond Entry/Mid/Major.
+The FQS Setup flow only edits the three seeded donor tiers — it does not create new ones. Use Option B below to add donor tiers beyond Entry/Mid/Major.
 
 **Option B: Use Setup → Custom Metadata Types**
 
-Donor Grouping records are custom metadata — they can also be edited (and added) directly through Setup.
+Donor Tier records are custom metadata — they can also be edited (and added) directly through Setup.
 
 1. From **Setup**, in the **Quick Find** box, enter **Custom Metadata Types**, and then select **Custom Metadata Types**.
-2. Click **Manage Records** next to **FQS Donor Grouping** in the list.
-3. Click **Edit** next to the donor grouping you want to modify (Entry, Mid, or Major), or **New** to add a new one.
+2. Click **Manage Records** next to **FQS Donor Tier** in the list.
+3. Click **Edit** next to the donor tier you want to modify (Entry, Mid, or Major), or **New** to add a new one.
 4. Update the fields as needed:
    1. Change **Branded Name** to your organization's terminology (e.g., "Supporter", "Sustainer", "Leadership Circle").
    2. Adjust **One-Time Min Amount**, **Annual Min Amount**, and **Lifetime Min Amount** to match your development team's definitions.
-   3. Set **Auto Acknowledgement** to the routing behavior appropriate for this donor grouping (see picklist logic above).
+   3. Set **Auto Stewardship** to the routing behavior appropriate for this donor tier (see picklist logic above).
    4. Adjust **Sort Order** if needed (lower numbers appear first).
-   5. Leave **Grouping Key** unchanged on the three seeded records.
+   5. Leave **Tier Key** unchanged on the three seeded records.
 5. Click **Save**.
-6. Repeat for each donor grouping.
+6. Repeat for each donor tier.
 
-*Notice: Grouping Key values (`Entry`, `Mid`, `Major`) are hard-coded in the Gift Acknowledgement flow and in formula fields on Donor Gift Summary, Gift Commitment, and Gift Transaction as lookup keys. Changing them on the three seeded records will break formula evaluation. If you add donor groupings beyond Entry/Mid/Major, you will also need to review and update the formula fields and flow logic that reference them.*
+*Notice: Tier Key values (`Entry`, `Mid`, `Major`) are hard-coded in the Gift Acknowledgement flow and in formula fields on Donor Gift Summary, Gift Commitment, and Gift Transaction as lookup keys. Changing them on the three seeded records will break formula evaluation. If you add donor tiers beyond Entry/Mid/Major, you will also need to review and update the formula fields and flow logic that reference them.*
 
 Supporting documentation:
 
@@ -756,25 +806,25 @@ Supporting documentation:
 
 **IX. Review and Activate the Gift Acknowledgement Flow**
 
-The **FQS Gift Acknowledgement** flow is a record-triggered AutoLaunched flow on the Gift Transaction object. It fires when a Gift Transaction's **Status** changes to `Paid`, waits three days via a scheduled path (to allow time for digital-platform ingest and potential refunds to settle), then routes the acknowledgement to either an automated email or a personal-touch Task — depending on the donor's grouping and the **Auto Acknowledgement** setting configured in the previous section.
+The **FQS Gift Acknowledgement** flow is a daily-scheduled AutoLaunched flow on the Gift Transaction object. It picks up gifts with `Status='Paid'` and no acknowledgement stamp yet, then routes each to either an automated email or a personal-touch Task based on a universal rule — every donor with a valid email address receives the acknowledgement email; opt-outs and blank emails route to a Task in the acknowledgement queue. The follow-on **FQS Stewardship Response** flow (scheduled daily, fires ~14 days after acknowledgement) is what consults the `FQS_Auto_Stewardship__c` per-tier setting configured in the previous section.
 
 **The flow is deployed in an inactive state.** Because it sends outbound emails to donors, it must be reviewed and intentionally activated by an admin rather than going live automatically on install.
 
 **What the flow does**
 
 1. **Entry check** — If the Gift Transaction is no longer `Paid` or has already been acknowledged (AcknowledgementStatus = `Acknowledged`) when the scheduled path fires, the flow exits without action.
-2. **Resolve donor grouping** — The flow reads `FQS_Is_Major_Gift__c` and `FQS_Is_Mid_Gift__c` on the Gift Transaction to determine the resolved donor grouping (`Major`, `Mid`, or `Entry`). These checkboxes are set by your gift entry process or a separate classification automation.
-3. **Look up CMDT record** — The flow queries `FQS_Donor_Grouping__mdt` for the matching `Grouping_Key__c` (`Major`, `Mid`, or `Entry`) and reads the donor grouping's `FQS_Auto_Acknowledgement__c` value.
+2. **Resolve donor tier** — The flow reads `FQS_Is_Major_Gift__c` and `FQS_Is_Mid_Gift__c` on the Gift Transaction to determine the resolved donor tier (`Major`, `Mid`, or `Entry`). These checkboxes are set by your gift entry process or a separate classification automation.
+3. **Look up CMDT record** — The flow queries `FQS_Donor_Tier__mdt` for the matching `Tier_Key__c` (`Major`, `Mid`, or `Entry`) and reads the donor tier's `FQS_Auto_Stewardship__c` value.
 4. **Route: Email or Task**
    * **Include All** → Sends an automated acknowledgement email to the donor's email address (skipped if the donor has opted out of email).
-   * **Exclude Lifetime** → Sends the automated email, unless the donor's lifetime giving has reached or exceeded the donor grouping's `Lifetime_Min_Amount__c` — in that case, creates a Task instead.
+   * **Exclude Lifetime** → Sends the automated email, unless the donor's lifetime giving has reached or exceeded the donor tier's `Lifetime_Min_Amount__c` — in that case, creates a Task instead.
    * **Exclude All** → Creates a Task assigned to the **FQS Gift Acknowledgements** queue for staff follow-up.
 5. **Update status** — After a successful email send, the flow updates `AcknowledgementStatus` to `Acknowledged` on the Gift Transaction.
 6. **Fault handling** — If the email action fails, the flow sends a fault notification to the running user rather than failing silently.
 
 **Before you activate**
 
-1. **Complete section VIII** — Confirm that your Donor Grouping thresholds and Auto Acknowledgement settings reflect your organization's donor groupings and outreach philosophy.
+1. **Complete section VIII** — Confirm that your Donor Tier thresholds and Auto Stewardship settings reflect your organization's donor tiers and outreach philosophy.
 
 2. **Review and customize the email content** — The flow sends a plain-text email. The body is built by a formula resource named `frmEmailBody` inside the flow — **not** by a referenced email template. A companion shell template (`FQS_Gift_Acknowledgement`) is included in the package for reference, but the live email text comes from the formula. To customize it:
    1. Open the flow in **Flow Builder** (Setup → Flows → FQS Gift Acknowledgement).
@@ -790,7 +840,7 @@ The **FQS Gift Acknowledgement** flow is a record-triggered AutoLaunched flow on
    2. Confirm **FQS Gift Acknowledgements** is listed.
    3. Click the queue name and verify the **Queue Members** list includes the appropriate gift officers or development staff.
 
-4. **Verify `FQS_Is_Major_Gift__c` and `FQS_Is_Mid_Gift__c` are being populated** — The flow's grouping-resolution logic reads these checkbox fields on the Gift Transaction. If they are not being set by your gift entry process or a classification flow, the flow will default every gift to the `Entry` donor grouping. Confirm how these fields are populated in your org before activating.
+4. **Verify `FQS_Is_Major_Gift__c` and `FQS_Is_Mid_Gift__c` are being populated** — The flow's tier-resolution logic reads these checkbox fields on the Gift Transaction. If they are not being set by your gift entry process or a classification flow, the flow will default every gift to the `Entry` donor tier. Confirm how these fields are populated in your org before activating.
 
 5. **Test in a sandbox** — Create a test Gift Transaction, set its status to `Paid`, and verify the 3-day scheduled path fires correctly and routes to the expected email or Task.
 
@@ -802,7 +852,7 @@ The **FQS Gift Acknowledgement** flow is a record-triggered AutoLaunched flow on
 4. Click **Activate** in the upper right.
 5. Confirm the status changes to **Active**.
 
-*Notice: Activating this flow will cause it to send automated emails to donors whose Gift Transactions are set to Paid after activation. Do not activate until you have reviewed the email content and confirmed your Donor Grouping settings are correct. Test in a sandbox first.*
+*Notice: Activating this flow will cause it to send automated emails to donors whose Gift Transactions are set to Paid after activation. Do not activate until you have reviewed the email content and confirmed your Donor Tier settings are correct. Test in a sandbox first.*
 
 Supporting documentation:
 
@@ -908,7 +958,7 @@ Because the accelerator relies on background automation and admin-configured pic
 
 **Evaluate a Lookup Filter on `Account.ParentId` to Scope the Employer Match Picker Fallback:** The FQS Single Gift Entry launcher's employer-match branch shows a two-stage employer picker: a datatable of employers already related to the donor through Account-Contact Relationships whose linked group is a `PartyRelationshipGroup` of `Type = 'Group'` (Household PRGs are excluded automatically), plus a fallback Account search bound to `Account.ParentId` for cases where the desired organization isn't on the donor's ACR list. The datatable path is pre-filtered by design and needs no admin configuration. The fallback lookup, however, inherits any platform-configured field-level lookup filter on `Account.ParentId`. Person Accounts are automatically excluded by Salesforce, but *Household* Accounts (Business Account record type in Nonprofit Cloud) are not — without a filter, users can search up any Account including households. Evaluate adding a lookup filter on `Account.ParentId` such as `Account.RecordType.DeveloperName NOT IN ('HH_Account', 'Household')` (adjust for your org's household record-type API name) — or, more restrictively, `Account.FQS_Matching_Gift_Program__c = true` if you only want previously-validated matching corporates to appear in the fallback search. The launcher's employer-picker screen surfaces a help bubble telling users that any admin-configured filter applies, so this configuration is transparent to end users. The accelerator does not ship a lookup filter because household record-type API names and match-program data hygiene vary across orgs.
 
-**Reconcile with Your Chart of Accounts:** The `FQS_Restriction_Type__c` field on Gift Designation and the `FQS_Donor_Grouping__mdt` custom metadata type are intentionally admin-editable. Confirm their values match the categories your finance team already uses for external reporting (990, audited financials, board dashboards) rather than inventing new ones.
+**Reconcile with Your Chart of Accounts:** The `FQS_Restriction_Type__c` field on Gift Designation and the `FQS_Donor_Tier__mdt` custom metadata type are intentionally admin-editable. Confirm their values match the categories your finance team already uses for external reporting (990, audited financials, board dashboards) rather than inventing new ones.
 
 **Review the Duplicate and Matching Rules that Ship with This Accelerator:** The package deploys three Duplicate Rules and three Matching Rules on Account and Contact, all active and set to **warn (not block)** on Alert + Report actions for insert and update. They coexist with the standard Salesforce rules (which remain at sort order 1); the FQS rules run after and add friendlier alert text with a direct link to the existing record.
 
@@ -944,11 +994,11 @@ The accelerator ships three Custom Report Types, seven reports, and one dashboar
 
 * **Gift Commitments Deluxe** (`fqs_Gift_Commitments_Deluxe`) — base object `GiftCommitment` with lookups to Donor Account, Campaign, and current schedule.
 * **Gift Transactions Deluxe** (`fqs_Gift_Transactions_Deluxe`) — base object `GiftTransaction` with lookups to Donor Account, Campaign, Gift Commitment, and current schedule.
-* **Donor Gift Summary Deluxe** (`fqs_Donor_Gift_Summary_Deluxe`) — base object `DonorGiftSummary` (a rollup object populated by the Nonprofit Cloud Fundraising engine) with lookup to Donor Account and the `FQS_Annual_Donor_Level_Name__c` / `FQS_Lifetime_Donor_Level_Name__c` classification fields driven by `FQS_Donor_Grouping__mdt`.
+* **Donor Gift Summary Deluxe** (`fqs_Donor_Gift_Summary_Deluxe`) — base object `DonorGiftSummary` (a rollup object populated by the Nonprofit Cloud Fundraising engine) with lookup to Donor Account and the `FQS_Annual_Donor_Level_Name__c` / `FQS_Lifetime_Donor_Level_Name__c` classification fields driven by `FQS_Donor_Tier__mdt`.
 
-**Reports (`force-app/main/default/reports/FQSDonorGroupingReports/`):**
+**Reports (`force-app/main/default/reports/FQSDonorTierReports/`):**
 
-* **FQS Major Lifetime Donors** — donors whose cumulative giving qualifies for the Major tier as defined by the Major record in `FQS_Donor_Grouping__mdt`. All-time scope (no time filter).
+* **FQS Major Lifetime Donors** — donors whose cumulative giving qualifies for the Major tier as defined by the Major record in `FQS_Donor_Tier__mdt`. All-time scope (no time filter).
 * **FQS Major Annual Donors This FY** — donors whose current-fiscal-year giving qualifies for the Major tier. Fiscal-year scope is inherited from the `DonorGiftSummary.GiftsThisYearAmount` rollup, which is fiscal-calendar aware — do not add a report-level `TransactionDate` filter or you will double-count.
 * **FQS Major Gifts This Year** — individual gift transactions above the Major single-gift threshold, filtered to `THIS_FISCAL_YEAR`. Answers the "which specific gifts drove our fiscal-year major-donor performance" question rather than aggregating at the donor level.
 * **FQS Major Commitments Active** — outstanding major-donor pledges grouped by `Status`, filtered to `Status IN ('Active', 'Failing', 'Paused')` — excludes Completed and Lapsed. Chart shows both record count and `SUM(ExpectedTotalCmtAmount)` for at-a-glance pipeline visibility.
@@ -958,11 +1008,11 @@ The accelerator ships three Custom Report Types, seven reports, and one dashboar
 
 **Dashboard (`force-app/main/default/dashboards/FQSDashboards/`):**
 
-* **FQS Donor Groupings** — eight-component dashboard pairing the reports above. Runs as **Dynamic Dashboard** (`dashboardType = LoggedInUser`), so each viewer sees data scoped to their own record access rather than a fixed running user. This costs one Dynamic Dashboard license slot per subscriber org (Enterprise Edition includes five; Unlimited includes ten) but avoids the tenant-specific `runningUser` problem that would otherwise force each installing admin to re-point the dashboard at their own user. If your org has already exhausted its Dynamic Dashboard allocation, edit the dashboard to `SpecifiedUser` and point `runningUser` at a service-style admin user with read access to the full donor set.
+* **FQS Donor Tiers** — eight-component dashboard pairing the reports above. Runs as **Dynamic Dashboard** (`dashboardType = LoggedInUser`), so each viewer sees data scoped to their own record access rather than a fixed running user. This costs one Dynamic Dashboard license slot per subscriber org (Enterprise Edition includes five; Unlimited includes ten) but avoids the tenant-specific `runningUser` problem that would otherwise force each installing admin to re-point the dashboard at their own user. If your org has already exhausted its Dynamic Dashboard allocation, edit the dashboard to `SpecifiedUser` and point `runningUser` at a service-style admin user with read access to the full donor set.
 
 **Adopt or extend:**
 
-* All seven reports live in the shared **FQS Donor Grouping Reports** folder with `Shared` access and `ReadWrite` public-folder access — change this to match your access model.
+* All seven reports live in the shared **FQS Donor Tier Reports** folder with `Shared` access and `ReadWrite` public-folder access — change this to match your access model.
 * The lookup filters on `GiftTransaction.CampaignId` and `GiftCommitment.CampaignId` are shipped as `isOptional = true` (warn only, users can bypass). Consider tightening to `isOptional = false` if you want to hard-enforce ask-level attribution — see Post-Install steps IV.1 and V.3 for the click-path.
 * Deferred future additions the seed already supports but which need policy decisions from your org first: **recurring giving retention** (needs a rolling snapshot policy), **refund and adjustment audit** (needs your refund-reason taxonomy), **outreach source-code attribution** (needs your UTM / channel definitions locked in), and **restriction-type breakdown of committed revenue** (needs your finance team's chart-of-accounts mapping to `FQS_Restriction_Type__c` locked in — see Section 5 above).
 
@@ -1010,6 +1060,10 @@ Rather than creating one large "Major Gifts FY26" campaign and assigning all maj
 ## Known Issues
 
 * **Help text not visible in Related Record Detail components on Campaign flexipages** — The FQS Campaign record page uses Related Record Detail components to surface related record information inline. This is a platform limitation: Salesforce does not render field-level help text (the ⓘ tooltip icon) when a record is displayed through a Related Record Detail component — the icons are only visible on the record's own Lightning page. Admins who rely on help text to guide gift officers working from the Campaign page should consider supplementing with field descriptions visible in Object Manager, or moving guidance into an on-page rich text component.
+
+* **Historical (last-year) campaigns from FQS Campaign Hierarchy Setup ship IsActive = false** — When the FQS Campaign Hierarchy Setup flow builds a Last-Year cohort, every campaign in that cohort (Strategic, Operational, Tactical) is created with `Status = Completed` **and** `IsActive = false`. This keeps default Campaign lookups uncluttered but means gift-entry pickers and Data Loader operations that filter on `IsActive = true` will not surface those campaigns. If you plan to backfill historical gift data against a last-year hierarchy, **temporarily set `IsActive = true` on the specific campaigns you'll be writing against before you import**, then flip them back after. The Seasonal / Strategy models also year-scope the rollup (e.g., "CY25 Fundraising"), so the entire tree — including the top-level rollup — is inactive by default; the GivingPrograms model reuses the same perpetual rollups (e.g., "Major Gifts") across years, so those rollups always stay active regardless of when they were first built.
+
+* **FQS_Campaign_Category__c intentionally blank on rollup (Level 1) campaigns** — The FQS Campaign Hierarchy Setup flow leaves `FQS_Campaign_Category__c` blank on all Level 1 (Strategic) rollup campaigns. The field is only populated at Level 2 (Operational) and Level 3 (Tactical), where the semantic categorization (Major Gifts, Planned Giving, Events, Annual Giving, Grants, Corporate Match, In-Kind) actually applies to the underlying fundraising activity. If your team edits Level 1 campaigns manually, keep this field blank there as well — reserve `FQS_Campaign_Category__c` for Level 2/3 only. Reports and list-view filters that key off Category should exclude rollup rows via a hierarchy-depth filter (`FQS_Hierarchy_Depth__c IN (2, 3)`) or by excluding null Category.
 
 ## Backlog Items
 

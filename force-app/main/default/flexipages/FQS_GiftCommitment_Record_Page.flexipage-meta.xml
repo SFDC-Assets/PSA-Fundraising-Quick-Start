@@ -108,7 +108,25 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value>GiftCommitment.FQS_Manage_Gift_Commitment</value>
+                            <value>GiftCommitment.FQS_Pledge_Payment</value>
+                            <visibilityRule>
+                                <booleanFilter>1 AND (2 OR 3)</booleanFilter>
+                                <criteria>
+                                    <leftValue>{!Record.Status}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Active</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.FQS_Gift_Commitment_Category__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Pledged Gift</rightValue>
+                                </criteria>
+                                <criteria>
+                                    <leftValue>{!Record.FQS_Gift_Commitment_Category__c}</leftValue>
+                                    <operator>EQUAL</operator>
+                                    <rightValue>Grant Payout</rightValue>
+                                </criteria>
+                            </visibilityRule>
                         </valueListItems>
                         <valueListItems>
                             <value>ManageSchedule</value>
@@ -225,6 +243,16 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Name</fieldItem>
                 <identifier>RecordNameField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Skip_Naming__c</fieldItem>
+                <identifier>fqs_gc_d_fi_SkipNaming</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -1229,7 +1257,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Donor Groupings</value>
+                    <value>Donor Tiers</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>fqs_d_fieldSection_s0</identifier>

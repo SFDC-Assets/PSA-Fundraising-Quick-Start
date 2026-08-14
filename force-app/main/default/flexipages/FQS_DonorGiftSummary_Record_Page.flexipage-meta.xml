@@ -241,7 +241,7 @@
     </flexiPageRegions>
 
     <!-- ═══════════════════════════════════════════════════════
-         S1b — Donor Groupings
+         S1b — Donor Tiers
     ═══════════════════════════════════════════════════════ -->
 
     <flexiPageRegions>
@@ -723,6 +723,16 @@
                     <name>uiBehavior</name>
                     <value>readonly</value>
                 </fieldInstanceProperties>
+                <fieldItem>Record.LastTwoYearSoftCreditCount</fieldItem>
+                <identifier>fqs_dgs_fi_LastTwoYearSoftCreditCount</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.LastSoftCreditAmount</fieldItem>
                 <identifier>fqs_dgs_fi_LastSoftCreditAmount</identifier>
             </fieldInstance>
@@ -1028,7 +1038,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Donor Groupings</value>
+                    <value>Donor Tiers</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>fqs_dgs_d_fieldSection_s1b</identifier>

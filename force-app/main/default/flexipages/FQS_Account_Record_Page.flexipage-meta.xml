@@ -7,10 +7,10 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value>CreateDonorBrief</value>
+                            <value>NewGiftEntry</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>NewGiftEntry</value>
+                            <value>Account.FQS_Refund_Donor_Gift</value>
                         </valueListItems>
                         <valueListItems>
                             <value>ChangeRecordType</value>
@@ -122,6 +122,78 @@
             </componentInstance>
         </itemInstances>
         <name>Facet-9081022b-7fc3-4b21-a70c-ba5ab6952abd</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Matching_Gift_Program__c</fieldItem>
+                <identifier>RecordFQS_Matching_Gift_Program_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Match_Ratio__c</fieldItem>
+                <identifier>RecordFQS_Match_Ratio_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-2fba1011-8107-4e05-a635-e59dea028ad4</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Is_Match_Intermediary__c</fieldItem>
+                <identifier>RecordFQS_Is_Match_Intermediary_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Match_Annual_Individual_Maximum__c</fieldItem>
+                <identifier>RecordFQS_Match_Annual_Individual_Maximum_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-5f05f85c-1b80-48ca-8473-6d884e1e91be</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-2fba1011-8107-4e05-a635-e59dea028ad4</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column12</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-5f05f85c-1b80-48ca-8473-6d884e1e91be</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column13</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-93b98bf7-b1fd-4a23-9aed-7b5289752772</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -477,6 +549,31 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
+                    <value>Facet-93b98bf7-b1fd-4a23-9aed-7b5289752772</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Matching Details</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection8</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.IsPersonAccount}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>false</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
                     <value>Facet-9208400d-b1cd-4a84-93f3-a357aaefac6a</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -619,7 +716,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>groups</name>
-                    <value>[{&quot;groupName&quot;:&quot;Total Amounts&quot;,&quot;index&quot;:1,&quot;allFields&quot;:[{&quot;value&quot;:&quot;TotalGiftsAmount&quot;},{&quot;value&quot;:&quot;TotalSoftCreditsAmount&quot;},{&quot;value&quot;:&quot;TotalHardSoftCreditsAmount&quot;},{&quot;value&quot;:&quot;TotalBookableRevenue&quot;},{&quot;value&quot;:&quot;TotalPaidRcrInstlAmt&quot;}]},{&quot;groupName&quot;:&quot;Total Counts&quot;,&quot;index&quot;:2,&quot;allFields&quot;:[{&quot;value&quot;:&quot;GiftCount&quot;},{&quot;value&quot;:&quot;SoftCreditCount&quot;},{&quot;value&quot;:&quot;TotalHardSoftCredits&quot;},{&quot;value&quot;:&quot;BookedPledges&quot;},{&quot;value&quot;:&quot;TotalPaidRcrInstallments&quot;}]},{&quot;groupName&quot;:&quot;Donor Groupings&quot;,&quot;index&quot;:3,&quot;allFields&quot;:[{&quot;value&quot;:&quot;FQS_Annual_Donor_Level__c&quot;},{&quot;value&quot;:&quot;FQS_Annual_Donor_Level_Name__c&quot;},{&quot;value&quot;:&quot;FQS_Lifetime_Donor_Level__c&quot;},{&quot;value&quot;:&quot;FQS_Lifetime_Donor_Level_Name__c&quot;}]},{&quot;groupName&quot;:&quot;RFM Scoring&quot;,&quot;index&quot;:4,&quot;allFields&quot;:[{&quot;value&quot;:&quot;CompositeRfmScore&quot;},{&quot;value&quot;:&quot;RecencyScore&quot;},{&quot;value&quot;:&quot;FrequencyScore&quot;},{&quot;value&quot;:&quot;MonetaryScore&quot;},{&quot;value&quot;:&quot;DaysSinceLastGift&quot;}]},{&quot;groupName&quot;:&quot;Most Recent Gift&quot;,&quot;index&quot;:5,&quot;allFields&quot;:[{&quot;value&quot;:&quot;LastGiftDate&quot;},{&quot;value&quot;:&quot;LastGiftAmount&quot;},{&quot;value&quot;:&quot;LastSoftCreditDate&quot;},{&quot;value&quot;:&quot;LastSoftCreditAmount&quot;},{&quot;value&quot;:&quot;SecondGiftDate&quot;}]},{&quot;groupName&quot;:&quot;Highs and Lows&quot;,&quot;index&quot;:6,&quot;allFields&quot;:[{&quot;value&quot;:&quot;HighestGiftAmount&quot;},{&quot;value&quot;:&quot;LowestGiftAmount&quot;},{&quot;value&quot;:&quot;HighestSoftCreditAmount&quot;},{&quot;value&quot;:&quot;HighestSoftCreditDate&quot;}]},{&quot;groupName&quot;:&quot;Miscellaneous&quot;,&quot;index&quot;:7,&quot;allFields&quot;:[{&quot;value&quot;:&quot;BestGiftYear&quot;},{&quot;value&quot;:&quot;HighestGiftYearAmount&quot;},{&quot;value&quot;:&quot;AverageGiftAmount&quot;},{&quot;value&quot;:&quot;DaysSinceLastGift&quot;}]},{&quot;groupName&quot;:&quot;Current Calendar&quot;,&quot;index&quot;:8,&quot;allFields&quot;:[{&quot;value&quot;:&quot;GiftsThisYearAmount&quot;},{&quot;value&quot;:&quot;CurrentYearGiftCount&quot;},{&quot;value&quot;:&quot;CurrentYearSoftCreditsAmount&quot;},{&quot;value&quot;:&quot;CurrentYearSoftCreditCount&quot;}]},{&quot;groupName&quot;:&quot;Last Calendar&quot;,&quot;index&quot;:9,&quot;allFields&quot;:[{&quot;value&quot;:&quot;GiftsLastYearAmount&quot;},{&quot;value&quot;:&quot;LastYearGiftCount&quot;},{&quot;value&quot;:&quot;LastYearSoftCreditsAmount&quot;},{&quot;value&quot;:&quot;LastYearSoftCreditCount&quot;}]},{&quot;groupName&quot;:&quot;Two Calendar Year&quot;,&quot;index&quot;:10,&quot;allFields&quot;:[{&quot;value&quot;:&quot;GiftsTwoYearsAgoAmount&quot;},{&quot;value&quot;:&quot;LastTwoYearGiftCount&quot;},{&quot;value&quot;:&quot;LastTwoYearSoftCreditCount&quot;}]},{&quot;groupName&quot;:&quot;First Gift&quot;,&quot;index&quot;:11,&quot;allFields&quot;:[{&quot;value&quot;:&quot;FirstGiftDate&quot;},{&quot;value&quot;:&quot;FirstGiftAmount&quot;},{&quot;value&quot;:&quot;FirstGiftCampaignId&quot;},{&quot;value&quot;:&quot;FirstSoftCreditDate&quot;},{&quot;value&quot;:&quot;FirstSoftCreditAmount&quot;}]},{&quot;groupName&quot;:&quot;Recurring Gifts&quot;,&quot;index&quot;:12,&quot;allFields&quot;:[{&quot;value&quot;:&quot;FirstRecurringStartDate&quot;},{&quot;value&quot;:&quot;CurrentRecurringStartDate&quot;},{&quot;value&quot;:&quot;LastRecurringPaymentDate&quot;}]}]</value>
+                    <value>[{&quot;groupName&quot;:&quot;Total Amounts&quot;,&quot;index&quot;:1,&quot;allFields&quot;:[{&quot;value&quot;:&quot;TotalGiftsAmount&quot;},{&quot;value&quot;:&quot;TotalSoftCreditsAmount&quot;},{&quot;value&quot;:&quot;TotalHardSoftCreditsAmount&quot;},{&quot;value&quot;:&quot;TotalBookableRevenue&quot;},{&quot;value&quot;:&quot;TotalPaidRcrInstlAmt&quot;}]},{&quot;groupName&quot;:&quot;Total Counts&quot;,&quot;index&quot;:2,&quot;allFields&quot;:[{&quot;value&quot;:&quot;GiftCount&quot;},{&quot;value&quot;:&quot;SoftCreditCount&quot;},{&quot;value&quot;:&quot;TotalHardSoftCredits&quot;},{&quot;value&quot;:&quot;BookedPledges&quot;},{&quot;value&quot;:&quot;TotalPaidRcrInstallments&quot;}]},{&quot;groupName&quot;:&quot;Donor Tiers&quot;,&quot;index&quot;:3,&quot;allFields&quot;:[{&quot;value&quot;:&quot;FQS_Annual_Donor_Level__c&quot;},{&quot;value&quot;:&quot;FQS_Annual_Donor_Level_Name__c&quot;},{&quot;value&quot;:&quot;FQS_Lifetime_Donor_Level__c&quot;},{&quot;value&quot;:&quot;FQS_Lifetime_Donor_Level_Name__c&quot;}]},{&quot;groupName&quot;:&quot;RFM Scoring&quot;,&quot;index&quot;:4,&quot;allFields&quot;:[{&quot;value&quot;:&quot;CompositeRfmScore&quot;},{&quot;value&quot;:&quot;RecencyScore&quot;},{&quot;value&quot;:&quot;FrequencyScore&quot;},{&quot;value&quot;:&quot;MonetaryScore&quot;},{&quot;value&quot;:&quot;DaysSinceLastGift&quot;}]},{&quot;groupName&quot;:&quot;Most Recent Gift&quot;,&quot;index&quot;:5,&quot;allFields&quot;:[{&quot;value&quot;:&quot;LastGiftDate&quot;},{&quot;value&quot;:&quot;LastGiftAmount&quot;},{&quot;value&quot;:&quot;LastSoftCreditDate&quot;},{&quot;value&quot;:&quot;LastSoftCreditAmount&quot;},{&quot;value&quot;:&quot;SecondGiftDate&quot;}]},{&quot;groupName&quot;:&quot;Highs and Lows&quot;,&quot;index&quot;:6,&quot;allFields&quot;:[{&quot;value&quot;:&quot;HighestGiftAmount&quot;},{&quot;value&quot;:&quot;LowestGiftAmount&quot;},{&quot;value&quot;:&quot;HighestSoftCreditAmount&quot;},{&quot;value&quot;:&quot;HighestSoftCreditDate&quot;}]},{&quot;groupName&quot;:&quot;Miscellaneous&quot;,&quot;index&quot;:7,&quot;allFields&quot;:[{&quot;value&quot;:&quot;BestGiftYear&quot;},{&quot;value&quot;:&quot;HighestGiftYearAmount&quot;},{&quot;value&quot;:&quot;AverageGiftAmount&quot;},{&quot;value&quot;:&quot;DaysSinceLastGift&quot;}]},{&quot;groupName&quot;:&quot;Current Calendar&quot;,&quot;index&quot;:8,&quot;allFields&quot;:[{&quot;value&quot;:&quot;GiftsThisYearAmount&quot;},{&quot;value&quot;:&quot;CurrentYearGiftCount&quot;},{&quot;value&quot;:&quot;CurrentYearSoftCreditsAmount&quot;},{&quot;value&quot;:&quot;CurrentYearSoftCreditCount&quot;}]},{&quot;groupName&quot;:&quot;Last Calendar&quot;,&quot;index&quot;:9,&quot;allFields&quot;:[{&quot;value&quot;:&quot;GiftsLastYearAmount&quot;},{&quot;value&quot;:&quot;LastYearGiftCount&quot;},{&quot;value&quot;:&quot;LastYearSoftCreditsAmount&quot;},{&quot;value&quot;:&quot;LastYearSoftCreditCount&quot;}]},{&quot;groupName&quot;:&quot;Two Calendar Year&quot;,&quot;index&quot;:10,&quot;allFields&quot;:[{&quot;value&quot;:&quot;GiftsTwoYearsAgoAmount&quot;},{&quot;value&quot;:&quot;LastTwoYearGiftCount&quot;},{&quot;value&quot;:&quot;LastTwoYearSoftCreditCount&quot;}]},{&quot;groupName&quot;:&quot;First Gift&quot;,&quot;index&quot;:11,&quot;allFields&quot;:[{&quot;value&quot;:&quot;FirstGiftDate&quot;},{&quot;value&quot;:&quot;FirstGiftAmount&quot;},{&quot;value&quot;:&quot;FirstGiftCampaignId&quot;},{&quot;value&quot;:&quot;FirstSoftCreditDate&quot;},{&quot;value&quot;:&quot;FirstSoftCreditAmount&quot;}]},{&quot;groupName&quot;:&quot;Recurring Gifts&quot;,&quot;index&quot;:12,&quot;allFields&quot;:[{&quot;value&quot;:&quot;FirstRecurringStartDate&quot;},{&quot;value&quot;:&quot;CurrentRecurringStartDate&quot;},{&quot;value&quot;:&quot;LastRecurringPaymentDate&quot;}]}]</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>panelName</name>
@@ -1081,9 +1178,12 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>actionNames</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>adminFilters</name>
                     <valueList>
                         <valueListItems>
-                            <value>New</value>
+                            <value>Status|EQUALS|[&quot;Active&quot;,&quot;Draft&quot;]</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
@@ -1097,7 +1197,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListApiName</name>
-                    <value>AARAccounts</value>
+                    <value>GiftCommitments</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListDisplayType</name>
@@ -1110,28 +1210,22 @@
                             <value>Name</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>Account</value>
+                            <value>FQS_Gift_Commitment_Category__c</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>RelatedAccount</value>
+                            <value>Status</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>PartyRoleRelation</value>
+                            <value>TotalPaidTransactio846</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>StartDate</value>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>EndDate</value>
-                        </valueListItems>
-                        <valueListItems>
-                            <value>IsActive</value>
+                            <value>EffectiveStartDate</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListLabel</name>
-                    <value>Account Account Relationships (Account)</value>
+                    <value>Draft and Active Gift Commitments</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>showActionBar</name>
@@ -1147,6 +1241,144 @@
                 </componentInstanceProperties>
                 <componentName>lst:dynamicRelatedList</componentName>
                 <identifier>lst_dynamicRelatedList7</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>actionNames</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>adminFilters</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>Status|EQUALS|[&quot;Closed&quot;]</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>maxRecordsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Account.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>GiftCommitments</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListDisplayType</name>
+                    <value>ADVGRID</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListFieldAliases</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>Name</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>FQS_Gift_Commitment_Category__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Status</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>TotalPaidTransactio846</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>EffectiveStartDate</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListLabel</name>
+                    <value>Closed Gift Commitments</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>sortFieldAlias</name>
+                    <value>__DEFAULT__</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>sortFieldOrder</name>
+                    <value>Default</value>
+                </componentInstanceProperties>
+                <componentName>lst:dynamicRelatedList</componentName>
+                <identifier>lst_dynamicRelatedList9</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>actionNames</name>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>adminFilters</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>Status|EQUALS|[&quot;Lapsed&quot;,&quot;Failing&quot;,&quot;Paused&quot;]</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>maxRecordsToDisplay</name>
+                    <value>10</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>parentFieldApiName</name>
+                    <value>Account.Id</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListApiName</name>
+                    <value>GiftCommitments</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListDisplayType</name>
+                    <value>ADVGRID</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListFieldAliases</name>
+                    <valueList>
+                        <valueListItems>
+                            <value>Name</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>FQS_Gift_Commitment_Category__c</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Status</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>TotalPaidTransactio846</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>EffectiveStartDate</value>
+                        </valueListItems>
+                    </valueList>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>relatedListLabel</name>
+                    <value>Lapsed, Failing, and Paused Gift Commitments</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>showActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>sortFieldAlias</name>
+                    <value>__DEFAULT__</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>sortFieldOrder</name>
+                    <value>Default</value>
+                </componentInstanceProperties>
+                <componentName>lst:dynamicRelatedList</componentName>
+                <identifier>lst_dynamicRelatedList8</identifier>
             </componentInstance>
         </itemInstances>
         <name>Facet-dmt9aqi7iaw</name>
@@ -1193,7 +1425,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
-                    <value>Payments</value>
+                    <value>Transactions</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
                 <identifier>relatedListsTab</identifier>

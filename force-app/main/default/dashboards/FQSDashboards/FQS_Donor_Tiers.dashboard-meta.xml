@@ -30,7 +30,7 @@
                 <groupingSortProperties/>
                 <header>FQS Major Lifetime Donors</header>
                 <legendPosition>Bottom</legendPosition>
-                <report>FQSDonorGroupingReports/FQS_Major_Lifetime_Donors</report>
+                <report>FQSDonorTierReports/FQS_Major_Lifetime_Donors</report>
                 <showPercentage>false</showPercentage>
                 <showPicturesOnCharts>false</showPicturesOnCharts>
                 <showValues>true</showValues>
@@ -63,7 +63,7 @@
                 <groupingSortProperties/>
                 <header>FQS Major Annual Donors This FY</header>
                 <legendPosition>Bottom</legendPosition>
-                <report>FQSDonorGroupingReports/FQS_Major_Annual_Donors_This_FY</report>
+                <report>FQSDonorTierReports/FQS_Major_Annual_Donors_This_FY</report>
                 <showPercentage>false</showPercentage>
                 <showPicturesOnCharts>false</showPicturesOnCharts>
                 <showValues>true</showValues>
@@ -96,7 +96,7 @@
                 <groupingSortProperties/>
                 <header>FQS Major Gifts This Year</header>
                 <legendPosition>Bottom</legendPosition>
-                <report>FQSDonorGroupingReports/FQS_Major_Gifts_This_Year</report>
+                <report>FQSDonorTierReports/FQS_Major_Gifts_This_Year</report>
                 <showPercentage>false</showPercentage>
                 <showPicturesOnCharts>false</showPicturesOnCharts>
                 <showValues>true</showValues>
@@ -128,7 +128,7 @@
                 <indicatorHighColor>#54C254</indicatorHighColor>
                 <indicatorLowColor>#B22222</indicatorLowColor>
                 <indicatorMiddleColor>#FFCC00</indicatorMiddleColor>
-                <report>FQSDonorGroupingReports/FQS_Major_Commitments_Active</report>
+                <report>FQSDonorTierReports/FQS_Major_Commitments_Active</report>
                 <showPercentage>false</showPercentage>
             </dashboardComponent>
             <rowIndex>8</rowIndex>
@@ -156,7 +156,7 @@
                 <indicatorHighColor>#54C254</indicatorHighColor>
                 <indicatorLowColor>#B22222</indicatorLowColor>
                 <indicatorMiddleColor>#FFCC00</indicatorMiddleColor>
-                <report>FQSDonorGroupingReports/FQS_Major_Commitments_Active</report>
+                <report>FQSDonorTierReports/FQS_Major_Commitments_Active</report>
                 <showPercentage>false</showPercentage>
             </dashboardComponent>
             <rowIndex>8</rowIndex>
@@ -184,7 +184,7 @@
                 <groupingSortProperties/>
                 <header>FQS Mid to Major Upgrade Pipeline</header>
                 <legendPosition>Bottom</legendPosition>
-                <report>FQSDonorGroupingReports/FQS_Mid_to_Major_Upgrade_Pipeline</report>
+                <report>FQSDonorTierReports/FQS_Mid_to_Major_Upgrade_Pipeline</report>
                 <showPercentage>false</showPercentage>
                 <showPicturesOnCharts>false</showPicturesOnCharts>
                 <showValues>true</showValues>
@@ -216,7 +216,7 @@
                 <groupingSortProperties/>
                 <header>Stewardship Pipeline (Last 6 Months)</header>
                 <legendPosition>Bottom</legendPosition>
-                <report>FQSDonorGroupingReports/FQS_Stewardship_Pipeline</report>
+                <report>FQSDonorTierReports/FQS_Stewardship_Pipeline</report>
                 <showPercentage>false</showPercentage>
                 <showValues>true</showValues>
                 <sortBy>RowValueDescending</sortBy>
@@ -248,7 +248,7 @@
                 <groupingSortProperties/>
                 <header>Campaign Performance by Hierarchy Depth</header>
                 <legendPosition>Bottom</legendPosition>
-                <report>FQSDonorGroupingReports/FQS_Campaign_Performance_By_Depth</report>
+                <report>FQSDonorTierReports/FQS_Campaign_Performance_By_Depth</report>
                 <showPercentage>false</showPercentage>
                 <showValues>true</showValues>
                 <sortBy>RowValueAscending</sortBy>
@@ -264,7 +264,7 @@
     <dashboardType>LoggedInUser</dashboardType>
     <isGridLayout>true</isGridLayout>
     <textColor>#000000</textColor>
-    <title>FQS Donor Groupings</title>
+    <title>FQS Donor Tiers</title>
     <titleColor>#000000</titleColor>
     <titleSize>12</titleSize>
 </Dashboard>

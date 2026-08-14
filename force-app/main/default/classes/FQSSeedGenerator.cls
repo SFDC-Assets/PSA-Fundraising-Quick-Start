@@ -5,9 +5,9 @@
  * files stay under the 32K anonymous cap and can layer new features without character
  * budgeting. Also feeds shared PRNG helpers to fqs-seed-matching-gift-scenarios.apex.
  *
- * Amount bands per donor level are derived from FQS_Donor_Grouping__mdt at run time
+ * Amount bands per donor level are derived from FQS_Donor_Tier__mdt at run time
  * (see AmountBands.deriveFromCmt) — the seed always produces donors whose gift totals
- * classify at each Grouping_Key__c per the live app config. Two hard clamps override
+ * classify at each Tier_Key__c per the live app config. Two hard clamps override
  * the CMT: Entry floor stays >= $25 (so we never emit sub-$25 gifts even if the CMT
  * threshold is zero) and Major ceiling is bounded to 2x the Major threshold (large
  * outliers add noise without informing tests).
@@ -34,7 +34,7 @@ public with sharing class FQSSeedGenerator {
     public static Decimal PROB_REFUND                    = 0.03;
     public static Decimal PROB_INKIND                    = 0.0005;
     public static Decimal PROB_EMPLOYER_MATCH_ELIGIBLE   = 0.30;
-    // Populates GiftCommitment.FQS_Match_Eligible__c. Roughly parity with the FQS_Matched__c
+    // Populates GiftCommitment.FQS_Match_Eligible__c. Roughly parity with the FQS_Match_Status__c
     // distribution on transactions — see .planning/fqs-gift-entry-wizard-plan.md §Matching-gift branch.
     // Deterministic PRNG salts: 27 (recurring), 37 (pledged), 47 (grant) — next unused
     // salt integers past the existing 20-26 / 30-35 / 40-44 clusters in each commitment build.
@@ -133,10 +133,10 @@ public with sharing class FQSSeedGenerator {
     }
 
     // ============ Amount bands (CMT-derived) ============
-    // One band per Grouping_Key. Per-gift base amount is drawn from these ranges before
+    // One band per Tier_Key. Per-gift base amount is drawn from these ranges before
     // fee/donor-cover math is applied. Recurring commitments derive their monthly amount
     // from the same CMT annual thresholds (annual / 12) so recurring donors classify
-    // correctly per FQS_Donor_Grouping__mdt.
+    // correctly per FQS_Donor_Tier__mdt.
     public class AmountBands {
         public Decimal entryMin;   public Decimal entryMax;
         public Decimal midMin;     public Decimal midMax;
@@ -150,20 +150,20 @@ public with sharing class FQSSeedGenerator {
     }
 
     public static AmountBands deriveBandsFromCmt() {
-        Map<String, FQS_Donor_Grouping__mdt> byKey = new Map<String, FQS_Donor_Grouping__mdt>();
-        for (FQS_Donor_Grouping__mdt r : [
-            SELECT Grouping_Key__c, Branded_Name__c,
+        Map<String, FQS_Donor_Tier__mdt> byKey = new Map<String, FQS_Donor_Tier__mdt>();
+        for (FQS_Donor_Tier__mdt r : [
+            SELECT Tier_Key__c, Branded_Name__c,
                    One_Time_Min_Amount__c, Annual_Min_Amount__c, Lifetime_Min_Amount__c
-            FROM FQS_Donor_Grouping__mdt
+            FROM FQS_Donor_Tier__mdt
         ]) {
-            if (r.Grouping_Key__c != null) byKey.put(r.Grouping_Key__c, r);
+            if (r.Tier_Key__c != null) byKey.put(r.Tier_Key__c, r);
         }
-        FQS_Donor_Grouping__mdt entry = byKey.get('Entry');
-        FQS_Donor_Grouping__mdt mid   = byKey.get('Mid');
-        FQS_Donor_Grouping__mdt major = byKey.get('Major');
-        System.assert(entry != null, 'FQS_Donor_Grouping__mdt "Entry" record missing');
-        System.assert(mid   != null, 'FQS_Donor_Grouping__mdt "Mid" record missing');
-        System.assert(major != null, 'FQS_Donor_Grouping__mdt "Major" record missing');
+        FQS_Donor_Tier__mdt entry = byKey.get('Entry');
+        FQS_Donor_Tier__mdt mid   = byKey.get('Mid');
+        FQS_Donor_Tier__mdt major = byKey.get('Major');
+        System.assert(entry != null, 'FQS_Donor_Tier__mdt "Entry" record missing');
+        System.assert(mid   != null, 'FQS_Donor_Tier__mdt "Mid" record missing');
+        System.assert(major != null, 'FQS_Donor_Tier__mdt "Major" record missing');
 
         Decimal entryFloor = ENTRY_MIN_FLOOR;
         Decimal midThreshold   = (mid.One_Time_Min_Amount__c   != null) ? mid.One_Time_Min_Amount__c   : 500;
@@ -180,7 +180,7 @@ public with sharing class FQSSeedGenerator {
         b.majorMax = majorThreshold * MAJOR_MAX_RATIO;
 
         // Recurring monthly amounts. Derive from Annual thresholds / 12 so the yearly
-        // total lands squarely within the target grouping.
+        // total lands squarely within the target tier.
         Decimal midAnnual   = (mid.Annual_Min_Amount__c   != null) ? mid.Annual_Min_Amount__c   : 1000;
         Decimal majorAnnual = (major.Annual_Min_Amount__c != null) ? major.Annual_Min_Amount__c : 10000;
         b.recurEntryMin = 10;
@@ -409,7 +409,7 @@ public with sharing class FQSSeedGenerator {
                 Date startDate = Date.today().addMonths(-randInt(globalIdx, 22, 6, 30));
                 Boolean isCond = randBool(globalIdx, 24, PROB_CONDITIONAL_NONGRANT);
                 // §13.1 — recurring commitments distribute across Active/Failing/Lapsed/Paused
-                // so the launcher's Get_Active_Commitments filter has coverage on every branch.
+                // so the launcher's Get_GC_Active filter has coverage on every branch.
                 String recurStatus = pickRecurringStatus(globalIdx, 25);
                 newCommitments.add(new GiftCommitment(
                     External_Id__c = 'FQS-GC-' + RUN_STAMP + '-' + globalIdx + '-recurring',
@@ -1173,9 +1173,7 @@ public with sharing class FQSSeedGenerator {
                 }
                 if (kind == 'recurring') gt.FQS_Recurring__c = true;
                 if (scenario == 1 || scenario == 3) {
-                    gt.FQS_Matched__c = true;
-                } else {
-                    gt.FQS_Matched__c = false;
+                    gt.FQS_Match_Status__c = 'Received';
                 }
                 newGifts.add(gt);
                 giftDonorIdx.add(di);
@@ -1301,9 +1299,9 @@ public with sharing class FQSSeedGenerator {
                 gt.FQS_In_Kind__c = randBool(globalIdx, 308 + g, PROB_INKIND);
                 if (gt.FQS_In_Kind__c == true) gt.PaymentMethod = 'In-Kind';
                 if (scenario == 2 || scenario == 3) {
-                    gt.FQS_Matched__c = true;
-                } else {
-                    gt.FQS_Matched__c = (donorTypes[i] == 0 && !isEligibleForMatch && randBool(globalIdx, 309 + g, 0.08));
+                    gt.FQS_Match_Status__c = 'Received';
+                } else if (donorTypes[i] == 0 && !isEligibleForMatch && randBool(globalIdx, 309 + g, 0.08)) {
+                    gt.FQS_Match_Status__c = 'Received';
                 }
                 newGifts.add(gt);
                 giftDonorIdx.add(i);
@@ -1552,7 +1550,7 @@ public with sharing class FQSSeedGenerator {
                 PaymentMethod = 'Check',
                 FQS_Gift_Transaction_Category__c = 'Outright Gift',
                 CampaignId = corpCampId,
-                FQS_Matched__c = true
+                FQS_Match_Status__c = 'Received'
             ));
         }
         if (!corpMatchGifts.isEmpty()) insert corpMatchGifts;

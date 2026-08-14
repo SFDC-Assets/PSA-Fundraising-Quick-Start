@@ -1337,7 +1337,7 @@
         </fields>
         <fields>
             <name>PickMatchEmployer_FilterHelp</name>
-            <fieldText>&lt;p style=&quot;font-size: 16px;&quot;&gt;&lt;i&gt;The table shows employers linked to this donor through their Account-Contact relationships. Household relationships are excluded automatically. When you mark the checkbox above, the search box falls back to any Account — admins can restrict it further by adding a lookup filter on &lt;b&gt;Account.ParentId&lt;/b&gt; (for example, excluding household groupings). See the FQS README post-install steps.&lt;/i&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p style=&quot;font-size: 16px;&quot;&gt;&lt;i&gt;The table shows employers linked to this donor through their Account-Contact relationships. Household relationships are excluded automatically. When you mark the checkbox above, the search box falls back to any Account — admins can restrict it further by adding a lookup filter on &lt;b&gt;Account.ParentId&lt;/b&gt; (for example, excluding household relationships). See the FQS README post-install steps.&lt;/i&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>

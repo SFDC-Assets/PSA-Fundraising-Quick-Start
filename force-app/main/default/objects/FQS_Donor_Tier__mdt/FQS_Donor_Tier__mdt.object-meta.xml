@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Defines donor giving tiers for the Fundraising Quick Start. Each record represents one tier with one-time, annual, and lifetime minimum gift amount thresholds, an internal key, and a branded display name. Tiers drive the DonorGiftSummary FQS_*_Donor_Level__c formula fields, the FQS_Is_*_Commitment__c band checkboxes on Gift Commitment, and the FQS_Is_*_Gift__c band checkboxes on Gift Transaction. Admins can adjust thresholds, names, and credit-type behavior in Setup without redeployment.</description>
+    <label>FQS Donor Tier</label>
+    <pluralLabel>FQS Donor Tiers</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

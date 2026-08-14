@@ -16,7 +16,7 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Grouping_Key__c</field>
+                <field>Tier_Key__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
