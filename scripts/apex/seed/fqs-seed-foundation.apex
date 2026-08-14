@@ -126,26 +126,27 @@ for (Campaign c : [SELECT Id, External_Id__c FROM Campaign WHERE External_Id__c 
 System.debug('Strategy campaigns upserted: ' + strategyIdByExtId.size());
 
 // --- Tier 3: Asks (level 3 — where OSCs and gifts land) ---
-// {extId, name, strategyExtId, dateToken, fyBucket (26/25/24), category, askKind}
+// {extId, name, strategyExtId, dateToken, fyBucket (26/25/24), category, askKind, shortName}
+// shortName feeds FQS_OutreachSourceCodeBuilder's slug generator: normalized slug in URL/UTM style.
 List<List<Object>> askSpec = new List<List<Object>>{
     // FY26 (9 asks)
-    new List<Object>{'FQS-CMP-ASK-SPRING-EM-FY26',    'FQS Spring Appeal Email FY26',            'FQS-CMP-STRAT-ANNUAL-FY26', 'mar-may',     26, 'Annual Giving', 'email drop'},
-    new List<Object>{'FQS-CMP-ASK-SPRING-DM-FY26',    'FQS Spring Appeal Direct Mail FY26',      'FQS-CMP-STRAT-ANNUAL-FY26', 'mar-may',     26, 'Annual Giving', 'mailing'},
-    new List<Object>{'FQS-CMP-ASK-YEAREND-EM-FY26',   'FQS Year-End Email FY26',                 'FQS-CMP-STRAT-ANNUAL-FY26', 'nov-dec',     26, 'Annual Giving', 'email drop'},
-    new List<Object>{'FQS-CMP-ASK-CELEB-INV-FY26',    'FQS Annual Celebration Invitation FY26',  'FQS-CMP-STRAT-EVENTS-FY26', 'sep-nov',     26, 'Events',        'invitation + RSVP'},
-    new List<Object>{'FQS-CMP-ASK-DONOREVT-FY26',     'FQS Donor Appreciation Reception FY26',   'FQS-CMP-STRAT-EVENTS-FY26', 'may-jun',     26, 'Events',        'sponsorship + invitation packet'},
-    new List<Object>{'FQS-CMP-ASK-PORTFOLIO-FY26',    'FQS Major Gifts Portfolio FY26',          'FQS-CMP-STRAT-MAJOR-FY26',  'full-window', 26, 'Major Gifts',   '1:1 solicitation meetings'},
-    new List<Object>{'FQS-CMP-ASK-LEGACY-FY26',       'FQS Legacy Circle Outreach FY26',         'FQS-CMP-STRAT-MAJOR-FY26',  'full-window', 26, 'Planned Giving','planned-giving letters'},
-    new List<Object>{'FQS-CMP-ASK-FOUND-COMM-FY26',   'FQS Community Foundation Proposal FY26',  'FQS-CMP-STRAT-FOUND-FY26',  'aug-oct',     26, 'Grants',        'grant proposal'},
-    new List<Object>{'FQS-CMP-ASK-FOUND-CORPFDN-FY26','FQS Corporate Foundation Proposal FY26',  'FQS-CMP-STRAT-FOUND-FY26',  'jan-mar',     26, 'Grants',        'grant proposal'},
+    new List<Object>{'FQS-CMP-ASK-SPRING-EM-FY26',    'FQS Spring Appeal Email FY26',            'FQS-CMP-STRAT-ANNUAL-FY26', 'mar-may',     26, 'Annual Giving', 'email drop',              'fy26-spring-email'},
+    new List<Object>{'FQS-CMP-ASK-SPRING-DM-FY26',    'FQS Spring Appeal Direct Mail FY26',      'FQS-CMP-STRAT-ANNUAL-FY26', 'mar-may',     26, 'Annual Giving', 'mailing',                 'fy26-spring-directmail'},
+    new List<Object>{'FQS-CMP-ASK-YEAREND-EM-FY26',   'FQS Year-End Email FY26',                 'FQS-CMP-STRAT-ANNUAL-FY26', 'nov-dec',     26, 'Annual Giving', 'email drop',              'fy26-yearend-email'},
+    new List<Object>{'FQS-CMP-ASK-CELEB-INV-FY26',    'FQS Annual Celebration Invitation FY26',  'FQS-CMP-STRAT-EVENTS-FY26', 'sep-nov',     26, 'Events',        'invitation + RSVP',       'fy26-celebration-invite'},
+    new List<Object>{'FQS-CMP-ASK-DONOREVT-FY26',     'FQS Donor Appreciation Reception FY26',   'FQS-CMP-STRAT-EVENTS-FY26', 'may-jun',     26, 'Events',        'sponsorship + invitation','fy26-donor-reception'},
+    new List<Object>{'FQS-CMP-ASK-PORTFOLIO-FY26',    'FQS Major Gifts Portfolio FY26',          'FQS-CMP-STRAT-MAJOR-FY26',  'full-window', 26, 'Major Gifts',   '1:1 solicitation meetings','fy26-mg-portfolio'},
+    new List<Object>{'FQS-CMP-ASK-LEGACY-FY26',       'FQS Legacy Circle Outreach FY26',         'FQS-CMP-STRAT-MAJOR-FY26',  'full-window', 26, 'Planned Giving','planned-giving letters',  'fy26-legacy-outreach'},
+    new List<Object>{'FQS-CMP-ASK-FOUND-COMM-FY26',   'FQS Community Foundation Proposal FY26',  'FQS-CMP-STRAT-FOUND-FY26',  'aug-oct',     26, 'Grants',        'grant proposal',          'fy26-community-foundation'},
+    new List<Object>{'FQS-CMP-ASK-FOUND-CORPFDN-FY26','FQS Corporate Foundation Proposal FY26',  'FQS-CMP-STRAT-FOUND-FY26',  'jan-mar',     26, 'Grants',        'grant proposal',          'fy26-corporate-foundation'},
     // FY25 (4 asks)
-    new List<Object>{'FQS-CMP-ASK-SPRING-EM-FY25',    'FQS Spring Appeal Email FY25',            'FQS-CMP-STRAT-ANNUAL-FY25', 'mar-may',     25, 'Annual Giving', 'email drop'},
-    new List<Object>{'FQS-CMP-ASK-YEAREND-EM-FY25',   'FQS Year-End Email FY25',                 'FQS-CMP-STRAT-ANNUAL-FY25', 'nov-dec',     25, 'Annual Giving', 'email drop'},
-    new List<Object>{'FQS-CMP-ASK-CELEB-INV-FY25',    'FQS Annual Celebration Invitation FY25',  'FQS-CMP-STRAT-EVENTS-FY25', 'sep-nov',     25, 'Events',        'invitation'},
-    new List<Object>{'FQS-CMP-ASK-FOUND-COMM-FY25',   'FQS Community Foundation Proposal FY25',  'FQS-CMP-STRAT-FOUND-FY25',  'aug-oct',     25, 'Grants',        'grant proposal'},
+    new List<Object>{'FQS-CMP-ASK-SPRING-EM-FY25',    'FQS Spring Appeal Email FY25',            'FQS-CMP-STRAT-ANNUAL-FY25', 'mar-may',     25, 'Annual Giving', 'email drop',              'fy25-spring-email'},
+    new List<Object>{'FQS-CMP-ASK-YEAREND-EM-FY25',   'FQS Year-End Email FY25',                 'FQS-CMP-STRAT-ANNUAL-FY25', 'nov-dec',     25, 'Annual Giving', 'email drop',              'fy25-yearend-email'},
+    new List<Object>{'FQS-CMP-ASK-CELEB-INV-FY25',    'FQS Annual Celebration Invitation FY25',  'FQS-CMP-STRAT-EVENTS-FY25', 'sep-nov',     25, 'Events',        'invitation',              'fy25-celebration-invite'},
+    new List<Object>{'FQS-CMP-ASK-FOUND-COMM-FY25',   'FQS Community Foundation Proposal FY25',  'FQS-CMP-STRAT-FOUND-FY25',  'aug-oct',     25, 'Grants',        'grant proposal',          'fy25-community-foundation'},
     // FY24 (2 asks)
-    new List<Object>{'FQS-CMP-ASK-YEAREND-EM-FY24',   'FQS Year-End Email FY24',                 'FQS-CMP-STRAT-ANNUAL-FY24', 'nov-dec',     24, 'Annual Giving', 'email drop'},
-    new List<Object>{'FQS-CMP-ASK-FOUND-COMM-FY24',   'FQS Community Foundation Proposal FY24',  'FQS-CMP-STRAT-FOUND-FY24',  'aug-oct',     24, 'Grants',        'grant proposal'}
+    new List<Object>{'FQS-CMP-ASK-YEAREND-EM-FY24',   'FQS Year-End Email FY24',                 'FQS-CMP-STRAT-ANNUAL-FY24', 'nov-dec',     24, 'Annual Giving', 'email drop',              'fy24-yearend-email'},
+    new List<Object>{'FQS-CMP-ASK-FOUND-COMM-FY24',   'FQS Community Foundation Proposal FY24',  'FQS-CMP-STRAT-FOUND-FY24',  'aug-oct',     24, 'Grants',        'grant proposal',          'fy24-community-foundation'}
 };
 
 List<Campaign> asks = new List<Campaign>();
@@ -162,7 +163,8 @@ for (List<Object> row : askSpec) {
         Status = 'In Progress',
         StartDate = window[0],
         EndDate = window[1],
-        FQS_Campaign_Category__c = (String)row[5]
+        FQS_Campaign_Category__c = (String)row[5],
+        FQS_Short_Name__c = (String)row[7]
     );
     if (campaignFqsRT != null) c.RecordTypeId = campaignFqsRT;
     asks.add(c);

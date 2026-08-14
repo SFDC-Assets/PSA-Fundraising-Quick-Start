@@ -40,6 +40,8 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
         @InvocableVariable(label='Rollup Count')          public Integer rollupCount;
         @InvocableVariable(label='Strategy Count')        public Integer strategyCount;
         @InvocableVariable(label='Ask Count')             public Integer askCount;
+        @InvocableVariable(label='Outreach Source Code Count' description='Count of default OutreachSourceCode records auto-created for the new tacticals.')
+        public Integer outreachSourceCodeCount;
         @InvocableVariable(label='Error Message')         public String errorMessage;
     }
 
@@ -79,6 +81,7 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
         result.rollupCount   = 0;
         result.strategyCount = 0;
         result.askCount      = 0;
+        result.outreachSourceCodeCount = 0;
 
         Set<String> selectedRollupKeys   = toSet(req.selectedRollupKeys);
         Set<String> selectedStrategyKeys = toSet(req.selectedStrategyKeys);
@@ -86,6 +89,11 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
 
         Integer yearOffset = (req.yearOffset == null) ? 0 : req.yearOffset;
         YearWindow yw = computeYearWindow(yearOffset);
+        // Status by year: last=Completed, this=In Progress, next+=Planned.
+        String yearStatus = (yearOffset < 0) ? 'Completed' : (yearOffset == 0 ? 'In Progress' : 'Planned');
+        // Historical cohorts land IsActive=false so they don't clutter default Campaign lookups.
+        // Backfill/data-import steps can toggle IsActive=true on the specific rows they need to write against.
+        Boolean yearIsActive = (yearOffset < 0) ? false : true;
 
         List<FQS_Campaign_Template__mdt> templates = [
             SELECT Template_Key__c, Suggested_Name__c, Level__c,
@@ -112,9 +120,9 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
                 Campaign c = new Campaign(
                     Name      = expandName(t.Suggested_Name__c, yw.label),
                     StartDate = yw.startDate,
-                    Status    = 'Planned',
-                    IsActive  = true,
-                    FQS_Campaign_Category__c = resolveCategoryForTopLevel(t.Template_Key__c, req.model)
+                    Status    = 'In Progress',
+                    IsActive  = true
+                    // Category intentionally blank on rollups; use only on Level 2 (Operational) + Level 3 (Tactical).
                 );
                 if (rtId != null) c.RecordTypeId = rtId;
                 rollupCampaigns.add(c);
@@ -126,9 +134,9 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
                 Name      = topName,
                 StartDate = yw.startDate,
                 EndDate   = yw.endDate,
-                Status    = 'Planned',
-                IsActive  = true,
-                FQS_Campaign_Category__c = 'Fundraising Top Level Campaign'
+                Status    = yearStatus,
+                IsActive  = yearIsActive
+                // Category intentionally blank on rollups; use only on Level 2 (Operational) + Level 3 (Tactical).
             );
             if (rtId != null) c.RecordTypeId = rtId;
             rollupCampaigns.add(c);
@@ -140,18 +148,33 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
             return new List<BuildResult>{ result };
         }
 
-        // Duplicate check
+        // Duplicate handling.
+        // - GivingPrograms rollups (e.g., "Major Gifts") are perpetual: reuse across years.
+        // - Seasonal/Strategy rollups are year-prefixed (e.g., "CY26 Fundraising"): abort on same-year re-run.
         List<String> rollupNames = new List<String>();
         for (Campaign c : rollupCampaigns) rollupNames.add(c.Name);
-        List<Campaign> existing = [SELECT Id, Name FROM Campaign WHERE Name IN :rollupNames AND RecordType.DeveloperName = 'FQS_Fundraising'];
-        if (!existing.isEmpty()) {
-            result.errorMessage = 'A Campaign named \'' + existing[0].Name + '\' already exists. Please rename or delete it before running setup again.';
+        Map<String, Campaign> existingByName = new Map<String, Campaign>();
+        for (Campaign c : [SELECT Id, Name, StartDate, EndDate, FQS_Campaign_Category__c FROM Campaign WHERE Name IN :rollupNames AND RecordType.DeveloperName = 'FQS_Fundraising']) {
+            existingByName.put(c.Name, c);
+        }
+
+        if (req.model != 'GivingPrograms' && !existingByName.isEmpty()) {
+            result.errorMessage = 'A Campaign named \'' + new List<Campaign>(existingByName.values())[0].Name + '\' already exists. Please rename or delete it before running setup again.';
             return new List<BuildResult>{ result };
         }
 
         Savepoint sp = Database.setSavepoint();
         try {
-        insert rollupCampaigns;
+        List<Campaign> toInsert = new List<Campaign>();
+        for (Campaign c : rollupCampaigns) if (!existingByName.containsKey(c.Name)) toInsert.add(c);
+        if (!toInsert.isEmpty()) insert toInsert;
+
+        // Replace new-instance rows with the reused (existing) rollup where applicable,
+        // so downstream strategy/ask parenting uses the persisted Id.
+        for (Integer i = 0; i < rollupCampaigns.size(); i++) {
+            Campaign existing = existingByName.get(rollupCampaigns[i].Name);
+            if (existing != null) rollupCampaigns[i] = existing;
+        }
 
         Map<String, Campaign> rollupByTemplateKey = new Map<String, Campaign>();
         for (Integer i = 0; i < rollupKeys.size(); i++) {
@@ -170,8 +193,9 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
                     ParentId  = rollup.Id,
                     StartDate = yw.startDate,
                     EndDate   = yw.endDate,
-                    Status    = 'Planned',
-                    IsActive  = true
+                    Status    = yearStatus,
+                    IsActive  = yearIsActive,
+                    FQS_Campaign_Category__c = resolveCategoryForTopLevel(rollupKeys[i], req.model)
                 );
                 if (rtId != null) strat.RecordTypeId = rtId;
                 strategyCampaigns.add(strat);
@@ -189,8 +213,8 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
                     ParentId  = parentRollup.Id,
                     StartDate = win.startDate,
                     EndDate   = win.endDate,
-                    Status    = 'Planned',
-                    IsActive  = true,
+                    Status    = yearStatus,
+                    IsActive  = yearIsActive,
                     FQS_Campaign_Category__c = resolveCategoryForStrategy(stratName, req.model)
                 );
                 if (rtId != null) strat.RecordTypeId = rtId;
@@ -218,19 +242,49 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
 
             DateWindow win = computeWindow(t.Date_Rule__c, parentStrat.StartDate, parentStrat.EndDate);
             String askName = expandName(t.Suggested_Name__c, yw.label);
+            // Category: substring-based resolver first, then inherit from parent strategy so nothing lands null.
+            String askCategory = resolveCategoryForAsk(askName, req.model, parentStrat.Name);
+            if (askCategory == null) askCategory = parentStrat.FQS_Campaign_Category__c;
             Campaign ask = new Campaign(
                 Name      = askName,
                 ParentId  = parentStrat.Id,
                 StartDate = win.startDate,
                 EndDate   = win.endDate,
-                Status    = 'Planned',
-                IsActive  = true,
-                FQS_Campaign_Category__c = resolveCategoryForAsk(askName, req.model, parentStrat.Name)
+                Status    = yearStatus,
+                IsActive  = yearIsActive,
+                FQS_Campaign_Category__c = askCategory,
+                FQS_Short_Name__c = shortNameFromTemplateKey(t.Template_Key__c, yw.label)
             );
             if (rtId != null) ask.RecordTypeId = rtId;
             askCampaigns.add(ask);
         }
         if (!askCampaigns.isEmpty()) insert askCampaigns;
+
+        // 3b. Default OutreachSourceCode per tactical (depth 3+). Service is idempotent
+        //     via External_Id__c so re-runs on the same campaign never duplicate.
+        // After OSC creation, we set FQS_Create_Default_Outreach_Sources__c=true as a
+        // per-campaign audit flag. The record-triggered flow uses this checkbox as its
+        // entry filter, so we DIRECTLY dml the update here to make the audit-flag write —
+        // the flow will still fire for downstream calls but the service upsert is idempotent,
+        // so a second call inserts zero rows.
+        Integer oscCreated = 0;
+        if (!askCampaigns.isEmpty()) {
+            List<Id> askIds = new List<Id>();
+            for (Campaign a : askCampaigns) askIds.add(a.Id);
+            try {
+                oscCreated = FQS_OutreachSourceCodeBuilder.buildDefaultsForCampaigns(askIds);
+                // Mark each Ask as provisioned so the checkbox reflects reality.
+                List<Campaign> flagUpdates = new List<Campaign>();
+                for (Id askId : askIds) {
+                    flagUpdates.add(new Campaign(Id = askId, FQS_Create_Default_Outreach_Sources__c = true));
+                }
+                update flagUpdates;
+            } catch (Exception oscEx) {
+                // OSC failure must not roll back the whole hierarchy; surface a warning instead.
+                result.errorMessage = 'Hierarchy built, but Outreach Source Code creation failed: ' + oscEx.getMessage();
+            }
+        }
+        result.outreachSourceCodeCount = oscCreated;
 
         // 4. Return
         List<String> topIds = new List<String>();
@@ -243,7 +297,8 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
 
         List<Campaign> allCreated = allIds.isEmpty() ? new List<Campaign>() : [
             SELECT Id, Name, StartDate, EndDate, ParentId,
-                   FQS_Hierarchy_Depth__c, FQS_Ultimate_Parent_Campaign__c
+                   FQS_Hierarchy_Depth__c, FQS_Ultimate_Parent_Campaign__c,
+                   FQS_Campaign_Category__c, FQS_Enable_Auto_Members__c
             FROM   Campaign
             WHERE  Id IN :allIds
             ORDER BY FQS_Hierarchy_Depth__c ASC NULLS FIRST, Name ASC
@@ -259,6 +314,7 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
             result.rollupCount   = 0;
             result.strategyCount = 0;
             result.askCount      = 0;
+            result.outreachSourceCodeCount = 0;
             result.createdTopLevelIds = new List<String>();
             result.createdCampaigns   = new List<Campaign>();
             result.errorMessage = 'Campaign build failed and was rolled back: ' + e.getMessage();
@@ -400,5 +456,19 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
     private static String expandName(String template, String yearLabel) {
         if (template == null) return '';
         return template.replace('{yearLabel}', yearLabel).replace('{yearShort}', yearLabel.right(2));
+    }
+
+    // Short Name: lowercase-alphanumeric-and-hyphens slug for URL/UTM/OSC-source-code use.
+    // Format: '{yearLabel}-{templateKeyBody}' → e.g. 'fy26-yearend-email', 'cy26-p2p-drive'.
+    // Template keys are already snake_case (evt_donor_reception, ret_lapsed_winback); we
+    // strip the leading function-group prefix (evt_, acq_, ret_, ...) and convert the rest.
+    private static String shortNameFromTemplateKey(String templateKey, String yearLabel) {
+        if (String.isBlank(templateKey)) return null;
+        String body = templateKey.toLowerCase();
+        Integer underscore = body.indexOf('_');
+        if (underscore > 0 && underscore < 5) body = body.substring(underscore + 1);
+        body = body.replace('_', '-');
+        String prefix = (yearLabel == null) ? '' : yearLabel.toLowerCase();
+        return String.isBlank(prefix) ? body : (prefix + '-' + body);
     }
 }

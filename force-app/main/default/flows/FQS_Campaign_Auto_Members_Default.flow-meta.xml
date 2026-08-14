@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Fundraising Quick Start: on Campaign insert, defaults FQS_Enable_Auto_Members__c to TRUE for Tactical-level campaigns (Hierarchy Depth &gt;= 3). Strategic (depth 1) and Operational (depth 2) rollup campaigns are left with the platform default (FALSE) so a Tactical-only automation gate stays clean. RecordAfterSave chosen over BeforeSave because the FQS_Hierarchy_Depth__c formula walks Parent.ParentId — cross-object formula reads are unreliable in the BeforeSave context.</description>
+    <environments>Default</environments>
+    <interviewLabel>FQS Campaign Auto Members Default {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Campaign Auto Members Default</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Set_Auto_Members_True</name>
+        <label>Set Auto Members TRUE</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Writes FQS_Enable_Auto_Members__c = TRUE on the just-inserted Tactical-level campaign. The entry criteria on this flow ensure it only fires when Hierarchy Depth &gt;= 3, so no depth branching is needed here.</description>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>FQS_Enable_Auto_Members__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <object>Campaign</object>
+    </recordUpdates>
+    <runInMode>DefaultMode</runInMode>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Set_Auto_Members_True</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>FQS_Hierarchy_Depth__c</field>
+            <operator>GreaterThanOrEqualTo</operator>
+            <value>
+                <numberValue>3.0</numberValue>
+            </value>
+        </filters>
+        <filters>
+            <field>FQS_Enable_Auto_Members__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <object>Campaign</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

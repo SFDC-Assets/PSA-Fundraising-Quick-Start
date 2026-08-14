@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Enable_Auto_Members__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Fundraising Quick Start: when TRUE, gifts and commitments on this campaign automatically create or advance a CampaignMember row for the donor. Only meaningful for Tactical-level campaigns (FQS_Hierarchy_Depth__c >= 3) — the record page hides this field on Strategic (depth 1) and Operational (depth 2) campaigns via flexipage visibility rules, and the FQS_Campaign_Auto_Members_Default before-save flow sets it to TRUE on insert only when depth >= 3. Flows gated by this field: FQS_Campaign_Member_Status_On_Gift, FQS_Campaign_Member_Status_On_Commitment, and their delete/downgrade companions.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>When checked, gifts and commitments on this campaign automatically create or advance a Campaign Member row for the donor. Only applies to Tactical-level campaigns (Hierarchy Depth &gt;= 3). Uncheck to opt this campaign out of automatic member tracking.</inlineHelpText>
+    <label>Enable Automatic Campaign Members</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

@@ -2,14 +2,14 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <description>Fundraising Quick Start: keeps CampaignMember.Status in sync with the donor's GiftCommitment lifecycle. Mirrors FQS_Campaign_Member_Status_On_Gift_Transaction on the pledge side. Fires on Create and Update, entry-gated to fire only when this GC actually matters for CampaignMember state (Insert, CampaignId change, or Status change). Branches:
+    <description>Fundraising Quick Start: keeps CampaignMember.Status in sync with the donor's GiftTransaction lifecycle. Fires on Create and Update, entry-gated to fire only when this GT actually matters for CampaignMember state (Insert, CampaignId change, or Status change). Branches:
 1. Reparent — CampaignId changed and a prior CampaignId existed: downgrade the OLD campaign's member (guarded — skip if donor still has a Paid GT or Active GC on the old campaign), then continue to the upgrade branch against the new CampaignId.
-2. Downgrade — new Status = Lapsed: downgrade the current campaign's member (same guard). Closed is intentionally NOT in the downgrade set (often means paid-in-full, positive); Failing is a payment-processor state, not donor intent.
+2. Downgrade — new Status is a refund/cancel state (Canceled, Failed, Fully Refunded, Written-Off): downgrade the current campaign's member (same guard).
 3. Upgrade — everything else: flip the donor's CampaignMember on the current campaign to Pledged/Gave (create if missing).
-Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + Person Account. Event campaigns are NOT skipped anymore: event ladder now carries a Pledged/Gave rung (SortOrder=5) so a pledge on an event campaign upgrades the member above Attended.</description>
+Runtime gate: FQS_Enable_Auto_Members__c must be TRUE, FQS_Hierarchy_Depth__c must be &gt;= 3 (Tactical), and donor must be a Person Account (org donors skipped — CampaignMember requires a Contact). Event campaigns are NOT skipped anymore: the event ladder now carries a Pledged/Gave rung (SortOrder=5) so a gift on an event campaign upgrades the member above Attended.</description>
     <environments>Default</environments>
-    <interviewLabel>FQS Campaign Member Status On Commitment {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>FQS Campaign Member Status On Commitment</label>
+    <interviewLabel>FQS Campaign Member Status On Gift Transaction {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Campaign Member Status On Gift Transaction</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -37,7 +37,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Route by Change Type</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>First branch: was CampaignId reparented? If yes, handle the OLD campaign's downgrade before falling into the current-campaign path.</description>
+        <description>First branch: was CampaignId reparented? If yes, handle the OLD campaign's downgrade before falling into the current-campaign path. Order matters — the reparent branch reconverges to the current-campaign path via the connector on Handle_Old_Campaign_Downgrade so the new campaign still gets upgraded.</description>
         <defaultConnector>
             <targetReference>Get_Current_Campaign</targetReference>
         </defaultConnector>
@@ -71,7 +71,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Old Campaign Gate</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Same gate as the current-campaign branch, applied to the old campaign: automation enabled, Tactical depth, Person Account. Skips if donor still has other Paid GTs or Active GCs on the old campaign.</description>
+        <description>Same gate as the current-campaign branch, applied to the old campaign: automation enabled, Tactical depth, Person Account. Also skips if the donor still has any other Paid GT or Active GC on the old campaign (partial-refund / multi-gift protection).</description>
         <defaultConnector>
             <targetReference>Get_Current_Campaign</targetReference>
         </defaultConnector>
@@ -101,14 +101,14 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>varOldCampaignPaidGTCount</leftValueReference>
+                <leftValueReference>varOldCampaignOtherPaidGTCount</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <numberValue>0.0</numberValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>varOldCampaignOtherActiveGCCount</leftValueReference>
+                <leftValueReference>varOldCampaignActiveGCCount</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <numberValue>0.0</numberValue>
@@ -126,7 +126,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Old Member Exists?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>If no CampaignMember on the old campaign, reconverge to the current-campaign path.</description>
+        <description>If the donor had no CampaignMember on the old campaign, there's nothing to downgrade — reconverge to the current-campaign path. If a member exists, revert it to the starting rung.</description>
         <defaultConnector>
             <targetReference>Get_Current_Campaign</targetReference>
         </defaultConnector>
@@ -153,7 +153,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Choose Old Downgrade Status</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Sets fallback ladder rung by OLD campaign category. Event → Registered; else Solicited.</description>
+        <description>Sets the fallback ladder rung based on the OLD campaign's category. Event campaigns revert to Registered (SortOrder 2); baseline campaigns revert to Solicited (SortOrder 1).</description>
         <defaultConnector>
             <targetReference>Set_Old_Downgrade_To_Solicited</targetReference>
         </defaultConnector>
@@ -180,7 +180,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Current Campaign Gate</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Master gate for current-campaign branch. Checkbox TRUE + depth &gt;=3 + Person Account.</description>
+        <description>Master gate for the current-campaign branch. Checkbox TRUE + depth &gt;= 3 + donor is Person Account. If any fail, the whole current-record flow ends.</description>
         <defaultConnectorLabel>No - End</defaultConnectorLabel>
         <rules>
             <name>Yes_Proceed</name>
@@ -218,25 +218,46 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Is Status Downgrade?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Splits into downgrade branch (GC.Status = Lapsed) or upgrade branch (Active/Draft/Closed/Failing/Paused). Only Lapsed downgrades — Closed often = paid-in-full, Failing = payment-processor state.</description>
+        <description>Splits into downgrade branch (GT.Status in Canceled/Failed/Fully Refunded/Written-Off) or upgrade branch (everything else, incl. Paid/Pending/Unpaid).</description>
         <defaultConnector>
             <targetReference>Get_Current_Member</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>No - Upgrade branch</defaultConnectorLabel>
+        <defaultConnectorLabel>No - Not a downgrade status</defaultConnectorLabel>
         <rules>
             <name>Yes_Status_Downgrade</name>
-            <conditionLogic>and</conditionLogic>
+            <conditionLogic>1 OR 2 OR 3 OR 4</conditionLogic>
             <conditions>
                 <leftValueReference>$Record.Status</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>Lapsed</stringValue>
+                    <stringValue>Canceled</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Failed</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Fully Refunded</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Written-Off</stringValue>
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Get_Current_Campaign_Paid_GTs</targetReference>
+                <targetReference>Get_Other_Paid_GTs_Current</targetReference>
             </connector>
-            <label>Yes - Status is Lapsed</label>
+            <label>Yes - Status is refund/cancel</label>
         </rules>
     </decisions>
 
@@ -245,20 +266,20 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Current Downgrade Guard</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Skips downgrade if donor still has any Paid GT or any OTHER Active GC (Id != this record) on this campaign.</description>
+        <description>Skips downgrade if the donor still has any OTHER Paid GT (excludes the current record via Id != $Record.Id) or any Active GC on this campaign. Prevents a partial refund from downgrading a whole-campaign member.</description>
         <defaultConnectorLabel>No - Guard blocks downgrade</defaultConnectorLabel>
         <rules>
             <name>Yes_Downgrade_Current</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>varCurrentCampaignPaidGTCount</leftValueReference>
+                <leftValueReference>varCurrentCampaignOtherPaidGTCount</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <numberValue>0.0</numberValue>
                 </rightValue>
             </conditions>
             <conditions>
-                <leftValueReference>varCurrentCampaignOtherActiveGCCount</leftValueReference>
+                <leftValueReference>varCurrentCampaignActiveGCCount</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <numberValue>0.0</numberValue>
@@ -267,7 +288,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
             <connector>
                 <targetReference>Get_Current_Member_For_Downgrade</targetReference>
             </connector>
-            <label>Yes - No paid GT or other active GC</label>
+            <label>Yes - No other paid/active</label>
         </rules>
     </decisions>
 
@@ -276,7 +297,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Current Member (Downgrade) Exists?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>If no member exists, end. Otherwise revert to starting rung.</description>
+        <description>If no CampaignMember exists on the current campaign, there's nothing to downgrade — end. Otherwise revert to the starting rung.</description>
         <defaultConnectorLabel>No - End</defaultConnectorLabel>
         <rules>
             <name>Yes_Do_Downgrade</name>
@@ -300,7 +321,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Choose Current Downgrade Status</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Sets fallback ladder rung by CURRENT campaign category. Event → Registered; else Solicited.</description>
+        <description>Sets the fallback ladder rung based on the CURRENT campaign's category (Event → Registered, else → Solicited).</description>
         <defaultConnector>
             <targetReference>Set_Current_Downgrade_To_Solicited</targetReference>
         </defaultConnector>
@@ -327,7 +348,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Has Current Member (Upgrade)?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Upgrade branch dispatch: flip to Pledged/Gave if member exists, else create.</description>
+        <description>Upgrade branch dispatch. If the donor already has a CampaignMember, flip Status to Pledged/Gave; else create a new one.</description>
         <defaultConnector>
             <targetReference>Create_Member_Pledged_Gave</targetReference>
         </defaultConnector>
@@ -356,33 +377,33 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Count Old Campaign Guards</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Populates varOldCampaignPaidGTCount and varOldCampaignOtherActiveGCCount from the fetched collections.</description>
+        <description>Populates varOldCampaignOtherPaidGTCount and varOldCampaignActiveGCCount from the fetched collections. AssignCount pattern (same as FQS_Campaign_Child_Count_Update).</description>
         <assignmentItems>
-            <assignToReference>varOldCampaignPaidGTCount</assignToReference>
+            <assignToReference>varOldCampaignOtherPaidGTCount</assignToReference>
             <operator>Assign</operator>
             <value>
                 <numberValue>0.0</numberValue>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>varOldCampaignPaidGTCount</assignToReference>
+            <assignToReference>varOldCampaignOtherPaidGTCount</assignToReference>
             <operator>AssignCount</operator>
             <value>
-                <elementReference>varOldCampaignPaidGTs</elementReference>
+                <elementReference>varOldCampaignOtherPaidGTs</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>varOldCampaignOtherActiveGCCount</assignToReference>
+            <assignToReference>varOldCampaignActiveGCCount</assignToReference>
             <operator>Assign</operator>
             <value>
                 <numberValue>0.0</numberValue>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>varOldCampaignOtherActiveGCCount</assignToReference>
+            <assignToReference>varOldCampaignActiveGCCount</assignToReference>
             <operator>AssignCount</operator>
             <value>
-                <elementReference>varOldCampaignOtherActiveGCs</elementReference>
+                <elementReference>varOldCampaignActiveGCs</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -395,33 +416,33 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Count Current Campaign Guards</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Populates varCurrentCampaignPaidGTCount (Paid GTs from this donor on this campaign) and varCurrentCampaignOtherActiveGCCount (Active GCs NOT this record).</description>
+        <description>Populates varCurrentCampaignOtherPaidGTCount (Paid GTs on this campaign that are NOT this record) and varCurrentCampaignActiveGCCount (Active GCs on this campaign for this donor).</description>
         <assignmentItems>
-            <assignToReference>varCurrentCampaignPaidGTCount</assignToReference>
+            <assignToReference>varCurrentCampaignOtherPaidGTCount</assignToReference>
             <operator>Assign</operator>
             <value>
                 <numberValue>0.0</numberValue>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>varCurrentCampaignPaidGTCount</assignToReference>
+            <assignToReference>varCurrentCampaignOtherPaidGTCount</assignToReference>
             <operator>AssignCount</operator>
             <value>
-                <elementReference>varCurrentCampaignPaidGTs</elementReference>
+                <elementReference>varCurrentCampaignOtherPaidGTs</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>varCurrentCampaignOtherActiveGCCount</assignToReference>
+            <assignToReference>varCurrentCampaignActiveGCCount</assignToReference>
             <operator>Assign</operator>
             <value>
                 <numberValue>0.0</numberValue>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>varCurrentCampaignOtherActiveGCCount</assignToReference>
+            <assignToReference>varCurrentCampaignActiveGCCount</assignToReference>
             <operator>AssignCount</operator>
             <value>
-                <elementReference>varCurrentCampaignOtherActiveGCs</elementReference>
+                <elementReference>varCurrentCampaignActiveGCs</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -434,7 +455,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Set Old Downgrade to Solicited</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Sets varDowngradeStatus = Solicited (old campaign baseline ladder).</description>
+        <description>Sets varDowngradeStatus for the old campaign's baseline (non-event) ladder.</description>
         <assignmentItems>
             <assignToReference>varDowngradeStatus</assignToReference>
             <operator>Assign</operator>
@@ -452,7 +473,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Set Old Downgrade to Registered</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Sets varDowngradeStatus = Registered (old campaign event ladder).</description>
+        <description>Sets varDowngradeStatus for the old campaign's event ladder.</description>
         <assignmentItems>
             <assignToReference>varDowngradeStatus</assignToReference>
             <operator>Assign</operator>
@@ -470,7 +491,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Set Current Downgrade to Solicited</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Sets varDowngradeStatus = Solicited (current campaign baseline ladder).</description>
+        <description>Sets varDowngradeStatus for the current campaign's baseline (non-event) ladder.</description>
         <assignmentItems>
             <assignToReference>varDowngradeStatus</assignToReference>
             <operator>Assign</operator>
@@ -488,7 +509,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Set Current Downgrade to Registered</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Sets varDowngradeStatus = Registered (current campaign event ladder).</description>
+        <description>Sets varDowngradeStatus for the current campaign's event ladder.</description>
         <assignmentItems>
             <assignToReference>varDowngradeStatus</assignToReference>
             <operator>Assign</operator>
@@ -508,7 +529,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Get Donor Account</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Retrieves the donor Account for PersonContactId + Person Account check.</description>
+        <description>Retrieves the donor Account to determine whether it is a Person Account (has PersonContactId) and to hand the Contact Id to downstream CampaignMember steps.</description>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Route_Change_Type</targetReference>
@@ -531,10 +552,10 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Get Old Campaign</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Fetches the previous parent Campaign for category/depth/checkbox gate.</description>
+        <description>Fetches the previous parent Campaign so its category/depth/checkbox can gate the old-side downgrade.</description>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_Old_Campaign_Paid_GTs</targetReference>
+            <targetReference>Get_Old_Campaign_Other_Paid_GTs</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -550,14 +571,14 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
     </recordLookups>
 
     <recordLookups>
-        <name>Get_Old_Campaign_Paid_GTs</name>
-        <label>Get Old Campaign Paid GTs</label>
+        <name>Get_Old_Campaign_Other_Paid_GTs</name>
+        <label>Get Old Campaign Other Paid GTs</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Guard: any Paid GT from this donor on the OLD campaign? (Not filtering by Id — a GC never counts against a GT lookup, so all Paid GTs are "other" here.)</description>
+        <description>Guard: are there any Paid GTs from this donor on the OLD campaign OTHER than this record? If yes, skip old-side downgrade — donor still has a completed gift there. Ignores this record's own Id so a reparent doesn't self-count.</description>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_Old_Campaign_Other_Active_GCs</targetReference>
+            <targetReference>Get_Old_Campaign_Active_GCs</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -581,17 +602,24 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
                 <stringValue>Paid</stringValue>
             </value>
         </filters>
+        <filters>
+            <field>Id</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
         <object>GiftTransaction</object>
-        <outputReference>varOldCampaignPaidGTs</outputReference>
+        <outputReference>varOldCampaignOtherPaidGTs</outputReference>
         <queriedFields>Id</queriedFields>
     </recordLookups>
 
     <recordLookups>
-        <name>Get_Old_Campaign_Other_Active_GCs</name>
-        <label>Get Old Campaign Other Active GCs</label>
+        <name>Get_Old_Campaign_Active_GCs</name>
+        <label>Get Old Campaign Active GCs</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Guard: any OTHER Active GC (Id != this record) from this donor on the OLD campaign?</description>
+        <description>Guard: any Active GiftCommitment from this donor on the OLD campaign?</description>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Count_Old_Campaign_Guards</targetReference>
@@ -618,15 +646,8 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
                 <stringValue>Active</stringValue>
             </value>
         </filters>
-        <filters>
-            <field>Id</field>
-            <operator>NotEqualTo</operator>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </filters>
         <object>GiftCommitment</object>
-        <outputReference>varOldCampaignOtherActiveGCs</outputReference>
+        <outputReference>varOldCampaignActiveGCs</outputReference>
         <queriedFields>Id</queriedFields>
     </recordLookups>
 
@@ -684,14 +705,14 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
     </recordLookups>
 
     <recordLookups>
-        <name>Get_Current_Campaign_Paid_GTs</name>
-        <label>Get Current Campaign Paid GTs</label>
+        <name>Get_Other_Paid_GTs_Current</name>
+        <label>Get Other Paid GTs (Current)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Guard: any Paid GT from this donor on the current campaign?</description>
+        <description>Guard for current-campaign downgrade: any OTHER Paid GT (Id != this record) from this donor on this campaign?</description>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_Current_Campaign_Other_Active_GCs</targetReference>
+            <targetReference>Get_Current_Campaign_Active_GCs</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -715,17 +736,24 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
                 <stringValue>Paid</stringValue>
             </value>
         </filters>
+        <filters>
+            <field>Id</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
         <object>GiftTransaction</object>
-        <outputReference>varCurrentCampaignPaidGTs</outputReference>
+        <outputReference>varCurrentCampaignOtherPaidGTs</outputReference>
         <queriedFields>Id</queriedFields>
     </recordLookups>
 
     <recordLookups>
-        <name>Get_Current_Campaign_Other_Active_GCs</name>
-        <label>Get Current Campaign Other Active GCs</label>
+        <name>Get_Current_Campaign_Active_GCs</name>
+        <label>Get Current Campaign Active GCs</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Guard: any OTHER Active GC (Id != this record) from this donor on the current campaign?</description>
+        <description>Guard for current-campaign downgrade: any Active GC from this donor on this campaign?</description>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Count_Current_Campaign_Guards</targetReference>
@@ -752,15 +780,8 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
                 <stringValue>Active</stringValue>
             </value>
         </filters>
-        <filters>
-            <field>Id</field>
-            <operator>NotEqualTo</operator>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </filters>
         <object>GiftCommitment</object>
-        <outputReference>varCurrentCampaignOtherActiveGCs</outputReference>
+        <outputReference>varCurrentCampaignActiveGCs</outputReference>
         <queriedFields>Id</queriedFields>
     </recordLookups>
 
@@ -769,7 +790,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Get Current Member (For Downgrade)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Fetches the CampaignMember on the current campaign for the donor's Contact — downgrade branch.</description>
+        <description>Fetches the CampaignMember on the current campaign for the donor's Contact — used in the downgrade branch.</description>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Current_Member_Downgrade_Exists</targetReference>
@@ -799,7 +820,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Get Current Member (For Upgrade)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Fetches the CampaignMember on the current campaign — upgrade branch.</description>
+        <description>Fetches the CampaignMember on the current campaign for the donor's Contact — used in the upgrade branch. Two separate lookups (upgrade vs downgrade) so each branch can null-check independently.</description>
         <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Has_Current_Member_Upgrade</targetReference>
@@ -831,7 +852,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Update Old Member (Downgrade)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Reverts the old-campaign CampaignMember to the starting rung.</description>
+        <description>Reverts the old-campaign CampaignMember to the starting rung (Solicited or Registered depending on campaign category).</description>
         <connector>
             <targetReference>Get_Current_Campaign</targetReference>
         </connector>
@@ -880,7 +901,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Update Member to Pledged/Gave</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Upgrade branch: flips existing CampaignMember to Pledged/Gave.</description>
+        <description>Upgrade branch: flips an existing CampaignMember to Pledged/Gave. Unconditional overwrite is deliberate — a gift is the strongest signal on this ladder.</description>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -903,7 +924,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <label>Create Member (Pledged/Gave)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Upgrade branch: creates a new CampaignMember at Pledged/Gave.</description>
+        <description>Upgrade branch: creates a new CampaignMember at Pledged/Gave for donors who gave without a prior member record.</description>
         <inputAssignments>
             <field>CampaignId</field>
             <value>
@@ -943,14 +964,14 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         ISCHANGED({!$Record.Status})
     )
 )</filterFormula>
-        <object>GiftCommitment</object>
+        <object>GiftTransaction</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
 
     <variables>
-        <name>varOldCampaignPaidGTs</name>
+        <name>varOldCampaignOtherPaidGTs</name>
         <dataType>SObject</dataType>
         <isCollection>true</isCollection>
         <isInput>false</isInput>
@@ -958,7 +979,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <objectType>GiftTransaction</objectType>
     </variables>
     <variables>
-        <name>varOldCampaignPaidGTCount</name>
+        <name>varOldCampaignOtherPaidGTCount</name>
         <dataType>Number</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -969,7 +990,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         </value>
     </variables>
     <variables>
-        <name>varOldCampaignOtherActiveGCs</name>
+        <name>varOldCampaignActiveGCs</name>
         <dataType>SObject</dataType>
         <isCollection>true</isCollection>
         <isInput>false</isInput>
@@ -977,7 +998,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <objectType>GiftCommitment</objectType>
     </variables>
     <variables>
-        <name>varOldCampaignOtherActiveGCCount</name>
+        <name>varOldCampaignActiveGCCount</name>
         <dataType>Number</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -988,7 +1009,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         </value>
     </variables>
     <variables>
-        <name>varCurrentCampaignPaidGTs</name>
+        <name>varCurrentCampaignOtherPaidGTs</name>
         <dataType>SObject</dataType>
         <isCollection>true</isCollection>
         <isInput>false</isInput>
@@ -996,7 +1017,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <objectType>GiftTransaction</objectType>
     </variables>
     <variables>
-        <name>varCurrentCampaignPaidGTCount</name>
+        <name>varCurrentCampaignOtherPaidGTCount</name>
         <dataType>Number</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -1007,7 +1028,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         </value>
     </variables>
     <variables>
-        <name>varCurrentCampaignOtherActiveGCs</name>
+        <name>varCurrentCampaignActiveGCs</name>
         <dataType>SObject</dataType>
         <isCollection>true</isCollection>
         <isInput>false</isInput>
@@ -1015,7 +1036,7 @@ Runtime gate: FQS_Enable_Auto_Members__c=TRUE + FQS_Hierarchy_Depth__c&gt;=3 + P
         <objectType>GiftCommitment</objectType>
     </variables>
     <variables>
-        <name>varCurrentCampaignOtherActiveGCCount</name>
+        <name>varCurrentCampaignActiveGCCount</name>
         <dataType>Number</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>

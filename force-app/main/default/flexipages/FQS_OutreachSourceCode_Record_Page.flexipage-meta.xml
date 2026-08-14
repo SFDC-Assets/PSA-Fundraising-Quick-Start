@@ -1,25 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
     <description>FQS record page for OutreachSourceCode. Detail tab + Gift Transactions, Outreach Summaries, and Schedules related list tabs. Accordion sidebar with Activities, Files, and Field History.</description>
-    <masterLabel>FQS OutreachSourceCode Record Page</masterLabel>
-    <parentFlexiPage>flexipage__default_rec_L</parentFlexiPage>
-    <template>
-        <name>flexipage:recordHomeTemplateDesktop</name>
-    </template>
-    <type>RecordPage</type>
-    <sobjectType>OutreachSourceCode</sobjectType>
-
-    <!-- ═══════════════════════════════════════════════════════
-         HEADER — Dynamic Highlights
-         ═══════════════════════════════════════════════════════ -->
-
-    <!-- Primary field Facet -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Name</fieldItem>
                 <identifier>fqs_osc_primary_Name</identifier>
@@ -28,19 +15,7 @@
         <name>Facet-fqs-osc-primaryFields</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- Secondary fields Facet -->
     <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.SourceCode</fieldItem>
-                <identifier>fqs_osc_sec_SourceCode</identifier>
-            </fieldInstance>
-        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -49,16 +24,6 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.Status</fieldItem>
                 <identifier>fqs_osc_sec_Status</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.MessageChannel</fieldItem>
-                <identifier>fqs_osc_sec_MessageChannel</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -77,6 +42,16 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
+                <fieldItem>Record.SourceCode</fieldItem>
+                <identifier>fqs_osc_sec_SourceCode</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
                 <fieldItem>Record.AudienceCount</fieldItem>
                 <identifier>fqs_osc_sec_AudienceCount</identifier>
             </fieldInstance>
@@ -84,8 +59,6 @@
         <name>Facet-fqs-osc-secondaryFields</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- Header Region -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -93,13 +66,19 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value>Edit</value>
+                            <value>GenerateSourceCode</value>
                         </valueListItems>
                         <valueListItems>
-                            <value>Delete</value>
+                            <value>CreateSourceCodeUrl</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Clone</value>
                         </valueListItems>
                         <valueListItems>
                             <value>ChangeOwnerOne</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Delete</value>
                         </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
@@ -123,18 +102,22 @@
         <name>header</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         DETAIL TAB CONTENT
-         ═══════════════════════════════════════════════════════ -->
-
-    <!-- S1 Left: SourceCode, Status, UsageType -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Name</fieldItem>
+                <identifier>RecordNameField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.SourceCode</fieldItem>
                 <identifier>fqs_osc_d_fi_SourceCode</identifier>
@@ -163,8 +146,6 @@
         <name>Facet-fqs-osc-d-s1-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S1 Right: CampaignId, OwnerId -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -186,11 +167,29 @@
                 <identifier>fqs_osc_d_fi_OwnerId</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.SentDate</fieldItem>
+                <identifier>fqs_osc_d_fi_SentDate</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Message_Channel_Segment__c</fieldItem>
+                <identifier>RecordFQS_Message_Channel_Segment_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-osc-d-s1-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S1 Columns -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -215,8 +214,64 @@
         <name>Facet-fqs-osc-d-s1-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S2 Left: MessageChannel, MessageChannelPlatform, MessageChannelPlatformAccount -->
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Description</fieldItem>
+                <identifier>fqs_osc_d_fi_Description</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-fqs-osc-d-s4-single</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-fqs-osc-d-s4-single</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>fqs_osc_d_col_s4_single</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-fqs-osc-d-s4-cols</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Platform__c</fieldItem>
+                <identifier>RecordFQS_Platform_cField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldItem>Record.Campaign.Name</fieldItem>
+                <identifier>RecordCampaignNameField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.SourceCode</fieldItem>
+                <identifier>RecordSourceCodeField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-f30ca5cf-1866-454b-b5d7-8262e7ff776d</name>
+        <type>Facet</type>
+    </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -230,38 +285,8 @@
         </itemInstances>
         <itemInstances>
             <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.MessageChannelPlatform</fieldItem>
-                <identifier>fqs_osc_d_fi_MessageChannelPlatform</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.MessageChannelPlatformAccount</fieldItem>
-                <identifier>fqs_osc_d_fi_MessageChannelPlatformAccount</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-fqs-osc-d-s2-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-
-    <!-- S2 Right: SentDate, SourceCodeUrl, SourceCodeBaseUrl -->
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.SentDate</fieldItem>
-                <identifier>fqs_osc_d_fi_SentDate</identifier>
+                <fieldItem>Record.Campaign.FQS_Short_Name__c</fieldItem>
+                <identifier>RecordCampaignFQS_Short_Name_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -274,37 +299,33 @@
                 <identifier>fqs_osc_d_fi_SourceCodeUrl</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-osc-d-s2-right</name>
+        <name>Facet-ed96179a-d7d1-49c4-86b9-b64c219fd46c</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S2 Columns -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-fqs-osc-d-s2-left</value>
+                    <value>Facet-f30ca5cf-1866-454b-b5d7-8262e7ff776d</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>fqs_osc_d_col_s2_left</identifier>
+                <identifier>flexipage_column</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-fqs-osc-d-s2-right</value>
+                    <value>Facet-ed96179a-d7d1-49c4-86b9-b64c219fd46c</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
-                <identifier>fqs_osc_d_col_s2_right</identifier>
+                <identifier>flexipage_column2</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-fqs-osc-d-s2-cols</name>
+        <name>Facet-810795cd-9c27-4942-ae54-2a99fd0d2f65</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S3 Left: AudienceCount, AudienceInformation -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -329,8 +350,6 @@
         <name>Facet-fqs-osc-d-s3-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S3 Right: MessageContentTitle, MessageContent -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -355,8 +374,6 @@
         <name>Facet-fqs-osc-d-s3-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S3 Columns -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -381,40 +398,6 @@
         <name>Facet-fqs-osc-d-s3-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S4 Single col: Description -->
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Description</fieldItem>
-                <identifier>fqs_osc_d_fi_Description</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-fqs-osc-d-s4-single</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-
-    <!-- S4 Columns (single column) -->
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-fqs-osc-d-s4-single</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:column</componentName>
-                <identifier>fqs_osc_d_col_s4_single</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-fqs-osc-d-s4-cols</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-
-    <!-- S5 Left: CreatedById, S5 Right: LastModifiedById -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -429,7 +412,6 @@
         <name>Facet-fqs-osc-d-s5-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -444,8 +426,6 @@
         <name>Facet-fqs-osc-d-s5-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S5 Columns -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -470,8 +450,6 @@
         <name>Facet-fqs-osc-d-s5-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- Detail Tab Content Facet — all 5 fieldSection components -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -489,42 +467,6 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>fqs_osc_d_fieldSection_s1</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>columns</name>
-                    <value>Facet-fqs-osc-d-s2-cols</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>horizontalAlignment</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Channel</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:fieldSection</componentName>
-                <identifier>fqs_osc_d_fieldSection_s2</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>columns</name>
-                    <value>Facet-fqs-osc-d-s3-cols</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>horizontalAlignment</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Audience &amp; Content</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:fieldSection</componentName>
-                <identifier>fqs_osc_d_fieldSection_s3</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -549,6 +491,42 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
+                    <value>Facet-810795cd-9c27-4942-ae54-2a99fd0d2f65</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>UTM Code</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
+                    <value>Facet-fqs-osc-d-s3-cols</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Audience &amp; Content</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>fqs_osc_d_fieldSection_s3</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
                     <value>Facet-fqs-osc-d-s5-cols</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -567,11 +545,6 @@
         <name>detailTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         RELATED TAB CONTENT — Tab 2: Gift Transactions
-         (relatedTabContent — satisfies parent constraint)
-         ═══════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -602,12 +575,24 @@
                 <componentInstanceProperties>
                     <name>relatedListFieldAliases</name>
                     <valueList>
-                        <valueListItems><value>Name</value></valueListItems>
-                        <valueListItems><value>Donor</value></valueListItems>
-                        <valueListItems><value>TransactionDate</value></valueListItems>
-                        <valueListItems><value>OriginalAmount</value></valueListItems>
-                        <valueListItems><value>CurrentAmount</value></valueListItems>
-                        <valueListItems><value>Status</value></valueListItems>
+                        <valueListItems>
+                            <value>Name</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Donor</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>TransactionDate</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>OriginalAmount</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>CurrentAmount</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Status</value>
+                        </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -634,10 +619,6 @@
         <name>relatedTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         MAIN TABS
-         ═══════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -675,10 +656,13 @@
         <name>maintabs</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Tabs</value>
+                </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>tabs</name>
                     <value>maintabs</value>
@@ -691,12 +675,6 @@
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         SIDEBAR — Accordion: Activities, Files, Field History
-         ═══════════════════════════════════════════════════════ -->
-
-    <!-- Activity panel content -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -711,8 +689,6 @@
         <name>Facet-fqs-osc-activityPanel</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- Files content -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -743,8 +719,6 @@
         <name>Facet-fqs-osc-filesPanel</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- Field History content -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -775,8 +749,6 @@
         <name>Facet-fqs-osc-fieldHistoryPanel</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- Accordion section definitions -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -835,8 +807,6 @@
         <name>Facet-fqs-osc-accordionSections</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- Sidebar Region -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -856,5 +826,11 @@
         <name>sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
-
+    <masterLabel>FQS OutreachSourceCode Record Page</masterLabel>
+    <parentFlexiPage>flexipage__default_rec_L</parentFlexiPage>
+    <sobjectType>OutreachSourceCode</sobjectType>
+    <template>
+        <name>flexipage:recordHomeTemplateDesktop</name>
+    </template>
+    <type>RecordPage</type>
 </FlexiPage>

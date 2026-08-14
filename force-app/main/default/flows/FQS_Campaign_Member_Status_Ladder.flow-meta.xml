@@ -3,6 +3,29 @@
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <decisions>
+        <name>Is_Tactical_Depth</name>
+        <label>Is Tactical (Depth &gt;= 3)?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Gates ladder seeding to Tactical-level campaigns only. Strategic (depth 1) and Operational (depth 2) rollup campaigns never carry CampaignMembers so seeding a ladder there is noise. Depth is a cross-object formula so it can't be evaluated in the entry filterFormula — checked here inside the flow instead.</description>
+        <defaultConnectorLabel>No - Skip (rollup campaign)</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Tactical</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.FQS_Hierarchy_Depth__c</leftValueReference>
+                <operator>GreaterThanOrEqualTo</operator>
+                <rightValue>
+                    <numberValue>3.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Is_Events_Category</targetReference>
+            </connector>
+            <label>Yes - Tactical depth</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>Is_Events_Category</name>
         <label>Is Events Category?</label>
         <locationX>0</locationX>
@@ -11,7 +34,7 @@
         <defaultConnector>
             <targetReference>Get_Sent_Status_Baseline</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>No (Baseline)</defaultConnectorLabel>
+        <defaultConnectorLabel>No - Baseline ladder</defaultConnectorLabel>
         <rules>
             <name>Yes_Events</name>
             <conditionLogic>and</conditionLogic>
@@ -25,10 +48,10 @@
             <connector>
                 <targetReference>Get_Sent_Status_Event</targetReference>
             </connector>
-            <label>Yes</label>
+            <label>Yes - Event ladder</label>
         </rules>
     </decisions>
-    <description>Fundraising Quick Start: seeds the correct CampaignMemberStatus ladder on a new Campaign based on FQS_Campaign_Category__c. Renames the Salesforce-provided Sent/Responded defaults and inserts the remaining ladder rungs so reporting and data entry use campaign-appropriate labels. Skips Fundraising Top Level Campaign (structural placeholder).</description>
+    <description>Fundraising Quick Start: seeds the correct CampaignMemberStatus ladder on a new Campaign based on FQS_Campaign_Category__c. Renames the Salesforce-provided Sent/Responded defaults and inserts the remaining ladder rungs so reporting and data entry use campaign-appropriate labels. Only fires when Hierarchy Depth &gt;= 3 (Tactical level) — Strategic (1) and Operational (2) rollup campaigns never carry CampaignMembers, so seeding a ladder there is noise. Skips Fundraising Top Level Campaign (structural placeholder). Event ladder = Invited / Registered / Attended / Pledged-Gave (5) / Declined (4); baseline = Solicited / Responded / Pledged-Gave (3) / Declined (4).</description>
     <environments>Default</environments>
     <interviewLabel>FQS Campaign Member Status Ladder {!$Flow.CurrentDateTime}</interviewLabel>
     <label>FQS Campaign Member Status Ladder</label>
@@ -58,7 +81,7 @@
         <locationY>0</locationY>
         <description>Adds the Attended rung (HasResponded=true, SortOrder=3) to the event ladder. Attendance is captured manually — gala check-in, event roster upload — not derived from a gift, so this status is never flipped automatically.</description>
         <connector>
-            <targetReference>Create_Declined_Event</targetReference>
+            <targetReference>Create_Pledged_Gave_Event</targetReference>
         </connector>
         <inputAssignments>
             <field>CampaignId</field>
@@ -209,6 +232,47 @@
         </inputAssignments>
         <object>CampaignMemberStatus</object>
     </recordCreates>
+    <recordCreates>
+        <name>Create_Pledged_Gave_Event</name>
+        <label>Create Pledged/Gave (Event)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Adds the Pledged/Gave rung (HasResponded=true, SortOrder=5) to the event ladder. A gift on an event campaign is a stronger response than Attended and lives above Attended on the ladder. Written by FQS_Campaign_Member_Status_On_Gift_Transaction and FQS_Campaign_Member_Status_On_Commitment; never flipped by attendance data (attendance is manual).</description>
+        <connector>
+            <targetReference>Create_Declined_Event</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>CampaignId</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>HasResponded</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>IsDefault</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Label</field>
+            <value>
+                <stringValue>Pledged/Gave</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>SortOrder</field>
+            <value>
+                <numberValue>5.0</numberValue>
+            </value>
+        </inputAssignments>
+        <object>CampaignMemberStatus</object>
+    </recordCreates>
     <recordLookups>
         <name>Get_Responded_Status</name>
         <label>Get Responded Status</label>
@@ -301,62 +365,86 @@
         <label>Rename Responded to Registered</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Renames the auto-created Responded status to Registered on event ladders. HasResponded stays true so cross-campaign response-rate reporting continues to include registrations.</description>
+        <description>Renames the auto-created Responded status to Registered on event ladders. HasResponded stays true so cross-campaign response-rate reporting continues to include registrations. Filter-by-Id pattern (not inputReference) because the current API rejects inputReference+inputAssignments on the same element.</description>
         <connector>
             <targetReference>Create_Attended</targetReference>
         </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Get_Responded_Status.Id</elementReference>
+            </value>
+        </filters>
         <inputAssignments>
             <field>Label</field>
             <value>
                 <stringValue>Registered</stringValue>
             </value>
         </inputAssignments>
-        <inputReference>Get_Responded_Status</inputReference>
+        <object>CampaignMemberStatus</object>
     </recordUpdates>
     <recordUpdates>
         <name>Update_Sent_To_Invited</name>
         <label>Update Sent to Invited</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Writes Label=Invited onto the fetched Sent record for event campaigns.</description>
+        <description>Writes Label=Invited onto the fetched Sent record for event campaigns. Filter-by-Id pattern (not inputReference) because the current API rejects inputReference+inputAssignments on the same element.</description>
         <connector>
             <targetReference>Get_Responded_Status</targetReference>
         </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Get_Sent_Status_Event.Id</elementReference>
+            </value>
+        </filters>
         <inputAssignments>
             <field>Label</field>
             <value>
                 <stringValue>Invited</stringValue>
             </value>
         </inputAssignments>
-        <inputReference>Get_Sent_Status_Event</inputReference>
+        <object>CampaignMemberStatus</object>
     </recordUpdates>
     <recordUpdates>
         <name>Update_Sent_To_Solicited</name>
         <label>Update Sent to Solicited</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Writes Label=Solicited onto the fetched Sent record for baseline (non-event) campaigns.</description>
+        <description>Writes Label=Solicited onto the fetched Sent record for baseline (non-event) campaigns. Filter-by-Id pattern (not inputReference) because the current API rejects inputReference+inputAssignments on the same element.</description>
         <connector>
             <targetReference>Create_Pledged_Gave</targetReference>
         </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Get_Sent_Status_Baseline.Id</elementReference>
+            </value>
+        </filters>
         <inputAssignments>
             <field>Label</field>
             <value>
                 <stringValue>Solicited</stringValue>
             </value>
         </inputAssignments>
-        <inputReference>Get_Sent_Status_Baseline</inputReference>
+        <object>CampaignMemberStatus</object>
     </recordUpdates>
     <runInMode>DefaultMode</runInMode>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Is_Events_Category</targetReference>
+            <targetReference>Is_Tactical_Depth</targetReference>
         </connector>
         <filterFormula>AND(
-    NOT(ISBLANK({!$Record.FQS_Campaign_Category__c})),
-    {!$Record.FQS_Campaign_Category__c} &lt;&gt; &quot;Fundraising Top Level Campaign&quot;
+    NOT(ISBLANK(TEXT({!$Record.FQS_Campaign_Category__c}))),
+    TEXT({!$Record.FQS_Campaign_Category__c}) &lt;&gt; &quot;Fundraising Top Level Campaign&quot;
 )</filterFormula>
         <object>Campaign</object>
         <recordTriggerType>Create</recordTriggerType>

@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Fundraising Quick Start: on GiftTransaction hard-delete, reverts the donor's CampaignMember on the same campaign to the starting ladder rung (Solicited baseline / Registered event) — but only if the donor has no OTHER Paid GT or Active GC on that campaign. Companion to FQS_Campaign_Member_Status_On_Gift_Transaction's Status-refund downgrade branch; catches destructive deletes that the Status-change branch would miss. RecordBeforeDelete because $Record.Id is still queryable at that time so the guard can exclude it. Gates: FQS_Enable_Auto_Members__c TRUE, FQS_Hierarchy_Depth__c &gt;= 3, donor is Person Account.</description>
+    <environments>Default</environments>
+    <interviewLabel>FQS Campaign Member Status On Gift Transaction Delete {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Campaign Member Status On Gift Transaction Delete</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+
+    <!-- ================= DECISIONS ================= -->
+
+    <decisions>
+        <name>Campaign_Gate</name>
+        <label>Campaign Gate</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Master gate: checkbox TRUE + depth &gt;= 3 + Person Account. If any fail, exit — nothing to downgrade.</description>
+        <defaultConnectorLabel>No - End</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Proceed</name>
+            <conditionLogic>1 AND 2 AND 3</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Campaign.FQS_Enable_Auto_Members__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_Campaign.FQS_Hierarchy_Depth__c</leftValueReference>
+                <operator>GreaterThanOrEqualTo</operator>
+                <rightValue>
+                    <numberValue>3.0</numberValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_Donor_Account.PersonContactId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Other_Paid_GTs</targetReference>
+            </connector>
+            <label>Yes - Campaign eligible</label>
+        </rules>
+    </decisions>
+
+    <decisions>
+        <name>Downgrade_Guard</name>
+        <label>Downgrade Guard</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Skip if donor still has any OTHER Paid GT (Id != this record being deleted) or any Active GC on this campaign. Prevents deleting one GT from downgrading a donor who is still committed via other records.</description>
+        <defaultConnectorLabel>No - Guard blocks downgrade</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Downgrade</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varOtherPaidGTCount</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varActiveGCCount</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Member</targetReference>
+            </connector>
+            <label>Yes - No other paid/active</label>
+        </rules>
+    </decisions>
+
+    <decisions>
+        <name>Member_Exists</name>
+        <label>Member Exists?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>If no CampaignMember exists on this campaign for this donor's Contact, nothing to downgrade — end.</description>
+        <defaultConnectorLabel>No - End</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Do_Downgrade</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Member.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Choose_Downgrade_Status</targetReference>
+            </connector>
+            <label>Yes - Member exists</label>
+        </rules>
+    </decisions>
+
+    <decisions>
+        <name>Choose_Downgrade_Status</name>
+        <label>Choose Downgrade Status</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Event category → Registered rung; else → Solicited rung.</description>
+        <defaultConnector>
+            <targetReference>Set_Downgrade_To_Solicited</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No - Baseline ladder</defaultConnectorLabel>
+        <rules>
+            <name>Event_Ladder</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Campaign.FQS_Campaign_Category__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Events</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Downgrade_To_Registered</targetReference>
+            </connector>
+            <label>Yes - Event ladder</label>
+        </rules>
+    </decisions>
+
+    <!-- ================= ASSIGNMENTS ================= -->
+
+    <assignments>
+        <name>Count_Guards</name>
+        <label>Count Guards</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Populates varOtherPaidGTCount and varActiveGCCount from the fetched collections. AssignCount references the variable collection, not the recordLookup element (per flow-recordupdates gotcha).</description>
+        <assignmentItems>
+            <assignToReference>varOtherPaidGTCount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>0.0</numberValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varOtherPaidGTCount</assignToReference>
+            <operator>AssignCount</operator>
+            <value>
+                <elementReference>varOtherPaidGTs</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varActiveGCCount</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>0.0</numberValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varActiveGCCount</assignToReference>
+            <operator>AssignCount</operator>
+            <value>
+                <elementReference>varActiveGCs</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Downgrade_Guard</targetReference>
+        </connector>
+    </assignments>
+
+    <assignments>
+        <name>Set_Downgrade_To_Solicited</name>
+        <label>Set Downgrade to Solicited</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Sets varDowngradeStatus = Solicited (baseline ladder).</description>
+        <assignmentItems>
+            <assignToReference>varDowngradeStatus</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Solicited</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Member_Downgrade</targetReference>
+        </connector>
+    </assignments>
+
+    <assignments>
+        <name>Set_Downgrade_To_Registered</name>
+        <label>Set Downgrade to Registered</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Sets varDowngradeStatus = Registered (event ladder).</description>
+        <assignmentItems>
+            <assignToReference>varDowngradeStatus</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Registered</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Member_Downgrade</targetReference>
+        </connector>
+    </assignments>
+
+    <!-- ================= RECORD LOOKUPS ================= -->
+
+    <recordLookups>
+        <name>Get_Donor_Account</name>
+        <label>Get Donor Account</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Retrieves the donor Account for PersonContactId + Person Account check.</description>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Campaign</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.DonorId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+
+    <recordLookups>
+        <name>Get_Campaign</name>
+        <label>Get Campaign</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Fetches the parent Campaign for its category, depth, and auto-members checkbox.</description>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Campaign_Gate</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.CampaignId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Campaign</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+
+    <recordLookups>
+        <name>Get_Other_Paid_GTs</name>
+        <label>Get Other Paid GTs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Guard: any OTHER Paid GT (Id != this record being deleted) from this donor on this campaign?</description>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Active_GCs</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>CampaignId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.CampaignId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>DonorId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.DonorId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Status</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Paid</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Id</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <object>GiftTransaction</object>
+        <outputReference>varOtherPaidGTs</outputReference>
+        <queriedFields>Id</queriedFields>
+    </recordLookups>
+
+    <recordLookups>
+        <name>Get_Active_GCs</name>
+        <label>Get Active GCs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Guard: any Active GiftCommitment from this donor on this campaign?</description>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Count_Guards</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>CampaignId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.CampaignId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>DonorId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.DonorId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Status</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Active</stringValue>
+            </value>
+        </filters>
+        <object>GiftCommitment</object>
+        <outputReference>varActiveGCs</outputReference>
+        <queriedFields>Id</queriedFields>
+    </recordLookups>
+
+    <recordLookups>
+        <name>Get_Member</name>
+        <label>Get Member</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Fetches the CampaignMember on this campaign for the donor's Contact.</description>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Member_Exists</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>CampaignId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.CampaignId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>ContactId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Get_Donor_Account.PersonContactId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>CampaignMember</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+
+    <!-- ================= RECORD UPDATES ================= -->
+
+    <recordUpdates>
+        <name>Update_Member_Downgrade</name>
+        <label>Update Member (Downgrade)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Reverts the CampaignMember to the starting rung (Solicited baseline / Registered event).</description>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Get_Member.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <elementReference>varDowngradeStatus</elementReference>
+            </value>
+        </inputAssignments>
+        <object>CampaignMember</object>
+    </recordUpdates>
+
+    <!-- ================= START + VARIABLES ================= -->
+
+    <runInMode>DefaultMode</runInMode>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Donor_Account</targetReference>
+        </connector>
+        <object>GiftTransaction</object>
+        <recordTriggerType>Delete</recordTriggerType>
+        <triggerType>RecordBeforeDelete</triggerType>
+    </start>
+    <status>Active</status>
+
+    <variables>
+        <name>varOtherPaidGTs</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftTransaction</objectType>
+    </variables>
+    <variables>
+        <name>varOtherPaidGTCount</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+    <variables>
+        <name>varActiveGCs</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftCommitment</objectType>
+    </variables>
+    <variables>
+        <name>varActiveGCCount</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+    <variables>
+        <name>varDowngradeStatus</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>
