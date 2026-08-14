@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Lifetime_Min_Amount__c</fullName>
+    <description>Minimum lifetime giving total (inclusive) required to qualify for this donor grouping. Referenced by the DonorGiftSummary formula fields FQS_Lifetime_Donor_Level__c, FQS_Lifetime_Donor_Level_Name__c, FQS_Is_Entry_Lifetime_Donor__c, FQS_Is_Mid_Lifetime_Donor__c, FQS_Is_Major_Lifetime_Donor__c, and the GiftCommitment boolean fields FQS_Is_Entry_Commitment__c, FQS_Is_Mid_Commitment__c, FQS_Is_Major_Commitment__c. Also used in GiftTransaction installment-inheritance formulas. Changing this value in Setup → Custom Metadata Types → FQS Donor Grouping (or via the FQS Setup flow) recalculates all of the above fields retroactively — no redeployment or batch job required. Reports and dashboards will reflect the new values immediately.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>The minimum lifetime giving total for a donor to qualify for this donor grouping. Your administrator controls this threshold. Updating it automatically recalculates the lifetime giving level across all Donor Gift Summary, Gift Commitment, and related records.</inlineHelpText>
+    <label>Lifetime Minimum Amount</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

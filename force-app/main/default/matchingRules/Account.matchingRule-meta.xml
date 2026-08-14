@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MatchingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <matchingRules>
+        <fullName>FQS_Account_Organization_Match</fullName>
+        <label>FQS Account Organization Match</label>
+        <description>Organization-donor duplicate signal: same Account Name plus same BillingCity. Both must be populated on both records. Used by FQS_Account_Organization_Dupe on Account.Organization record type only.</description>
+        <ruleStatus>Active</ruleStatus>
+        <booleanFilter>1 AND 2</booleanFilter>
+        <matchingRuleItems>
+            <blankValueBehavior>NullNotAllowed</blankValueBehavior>
+            <fieldName>Name</fieldName>
+            <matchingMethod>Exact</matchingMethod>
+        </matchingRuleItems>
+        <matchingRuleItems>
+            <blankValueBehavior>NullNotAllowed</blankValueBehavior>
+            <fieldName>BillingCity</fieldName>
+            <matchingMethod>Exact</matchingMethod>
+        </matchingRuleItems>
+    </matchingRules>
+    <matchingRules>
+        <fullName>FQS_Account_External_Id_Match</fullName>
+        <label>FQS Account External Id Match</label>
+        <description>Deterministic External_Id match for Account. UI-warn path fires before the platform-level unique=true DUPLICATE_VALUE, giving staff a clearer message with a link to the existing record.</description>
+        <ruleStatus>Active</ruleStatus>
+        <matchingRuleItems>
+            <blankValueBehavior>NullNotAllowed</blankValueBehavior>
+            <fieldName>External_Id__c</fieldName>
+            <matchingMethod>Exact</matchingMethod>
+        </matchingRuleItems>
+    </matchingRules>
+</MatchingRules>

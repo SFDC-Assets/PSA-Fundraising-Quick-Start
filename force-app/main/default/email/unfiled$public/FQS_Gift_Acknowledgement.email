@@ -1,0 +1,15 @@
+Dear {!Contact.Salutation} {!Contact.FirstName},
+
+Thank you for your generous gift of ${!GiftTransaction.CurrentAmount} to {!Organization.Name}, received on {!GiftTransaction.TransactionDate}.
+
+Your support enables us to continue our mission and make a meaningful difference in the communities we serve. We are truly grateful for your generosity.
+
+For your tax records: {!Organization.Name} is a 501(c)(3) nonprofit organization. No goods or services were provided in exchange for this contribution. Please retain this letter as your official acknowledgement of your charitable gift of ${!GiftTransaction.CurrentAmount} made on {!GiftTransaction.TransactionDate}.
+
+With deep gratitude,
+
+{!Organization.Name}
+
+---
+Questions about your gift? Please contact us and reference your gift record.
+This is an automated acknowledgement sent on behalf of {!Organization.Name}.

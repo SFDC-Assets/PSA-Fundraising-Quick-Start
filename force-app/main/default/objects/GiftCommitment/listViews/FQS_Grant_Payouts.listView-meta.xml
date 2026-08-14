@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Grant_Payouts</fullName>
+    <columns>Name</columns>
+    <columns>Status</columns>
+    <columns>ExpectedTotalCmtAmount</columns>
+    <columns>FulfillmentType</columns>
+
+    <columns>WrittenOffAmount</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>FQS_Gift_Commitment_Category__c</field>
+        <operation>equals</operation>
+        <value>Grant Payout</value>
+    </filters>
+    <label>Grant Payouts</label>
+</ListView>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Is_Entry_Commitment__c</fullName>
+    <description>Boolean formula that returns TRUE when this commitment's ExpectedTotalCmtAmount falls in the Entry band — at or above Entry.Lifetime_Min_Amount__c but below Mid.Lifetime_Min_Amount__c. The three commitment checkboxes (Entry / Mid / Major) are mutually exclusive — at most one is TRUE for any commitment. GiftCommitment has no CurrentAmount field, so ExpectedTotalCmtAmount (total pledged value) is used as the amount basis. Lifetime thresholds are used because a commitment represents a total pledge, not a single transaction. Thresholds are configured via Setup → Custom Metadata Types → FQS Donor Grouping or the FQS Setup screen flow. Changing threshold values recalculates this field across all Gift Commitment records retroactively — no redeployment or batch job required.</description>
+    <externalId>false</externalId>
+    <formula>AND(
+  ExpectedTotalCmtAmount &gt;= $CustomMetadata.FQS_Donor_Grouping__mdt.Entry.Lifetime_Min_Amount__c,
+  ExpectedTotalCmtAmount &lt; $CustomMetadata.FQS_Donor_Grouping__mdt.Mid.Lifetime_Min_Amount__c
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Automatically calculated. The field is checked when this commitment's total expected amount qualifies for the Entry donor grouping. Your administrator controls the threshold amount.</inlineHelpText>
+    <label>Is Entry Commitment</label>
+    <required>false</required>
+    <type>Checkbox</type>
+</CustomField>

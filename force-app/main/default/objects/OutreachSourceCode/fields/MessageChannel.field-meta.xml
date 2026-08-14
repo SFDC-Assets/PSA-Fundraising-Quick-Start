@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MessageChannel</fullName>
+    <description>The outreach channel used for this source code. Restricted to NPC-supported channels. Select the channel that best matches the medium used to reach donors. Drives the Channel Segment field used for list view filtering and reporting.
+
+Organic Web, Physical, Social Organic, Share Partner, Digital Paid, Social Paid, Email, Direct Mail, SMS, Telemarketing.</description>
+    <inlineHelpText>Equivalent to utm_medium in web analytics — the type of channel used to reach donors. Drives the Message Channel Segment grouping (Organic, Paid Digital, or Owned or Acquired Lists) used in list views and reporting. Select the channel first, then choose the specific platform in the Platform field (utm_source).</inlineHelpText>
+    <trackHistory>false</trackHistory>
+</CustomField>

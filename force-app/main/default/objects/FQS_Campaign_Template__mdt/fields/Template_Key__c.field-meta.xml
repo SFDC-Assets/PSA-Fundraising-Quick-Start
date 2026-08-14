@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Template_Key__c</fullName>
+    <description>Stable kebab-case or underscore slug for this template. Used by FQS_CampaignHierarchyBuilder to look up templates, resolve parent-child links, and persist to the audit CMDT. Must be unique across all FQS_Campaign_Template__mdt records and must not be changed after deployment (it is the programmatic identifier, not the DeveloperName).</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>A stable unique identifier for this template used by the Apex builder. Do not change this value after deployment — doing so will break parent-child links in the builder.</inlineHelpText>
+    <label>Template Key</label>
+    <length>80</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

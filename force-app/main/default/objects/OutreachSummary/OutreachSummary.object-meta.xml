@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <searchLayouts>
+        <customTabListAdditionalFields>Campaign</customTabListAdditionalFields>
+        <customTabListAdditionalFields>OutreachSourceCode</customTabListAdditionalFields>
+        <customTabListAdditionalFields>TotalGiftTransactionAmount</customTabListAdditionalFields>
+        <customTabListAdditionalFields>GiftCount</customTabListAdditionalFields>
+        <customTabListAdditionalFields>DonorCount</customTabListAdditionalFields>
+        <searchResultsAdditionalFields>Campaign</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>OutreachSourceCode</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>TotalGiftTransactionAmount</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>GiftCount</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>DonorCount</searchResultsAdditionalFields>
+    </searchLayouts>
+</CustomObject>

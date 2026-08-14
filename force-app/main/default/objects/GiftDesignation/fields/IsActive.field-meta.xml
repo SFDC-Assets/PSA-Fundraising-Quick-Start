@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsActive</fullName>
+    <description>Controls whether the designation is available on new gifts. An active GiftDesignation cannot be deleted — attempting to delete raises &quot;You can't delete an active designation.&quot; Correct teardown pattern: set IsActive = false, update, then delete. Deactivation does not affect existing GiftTransactionDesignation rows that reference the designation; historical allocations remain intact. See docs/npc-automation-notes.md.</description>
+    <inlineHelpText>Uncheck to retire this designation. Retired designations stay on historical gifts but won't appear when adding new gifts.</inlineHelpText>
+    <trackHistory>false</trackHistory>
+</CustomField>

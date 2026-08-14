@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CampaignId</fullName>
+    <lookupFilter>
+        <active>true</active>
+        <errorMessage>Pick a leaf-level Campaign (the actual ask). Rollups and strategies are for reporting only — attributing a gift there hides it from ask-level performance reports.</errorMessage>
+        <filterItems>
+            <field>Campaign.FQS_Hierarchy_Depth__c</field>
+            <operation>greaterOrEqual</operation>
+            <value>3</value>
+        </filterItems>
+        <infoMessage>FQS reporting expects gifts to be attributed to a level-3 (ask) campaign or deeper. Higher levels are rollups.</infoMessage>
+        <isOptional>true</isOptional>
+    </lookupFilter>
+    <trackHistory>false</trackHistory>
+    <type>Lookup</type>
+</CustomField>

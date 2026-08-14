@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Event_Campaigns</fullName>
+    <columns>CAMPAIGN.NAME</columns>
+    <columns>CAMPAIGN.STATUS</columns>
+    <columns>CAMPAIGN.START_DATE</columns>
+    <columns>CAMPAIGN.END_DATE</columns>
+    <columns>CAMPAIGN.ACTIVE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>FQS_Campaign_Category__c</field>
+        <operation>equals</operation>
+        <value>Events</value>
+    </filters>
+    <label>Event Campaigns</label>
+</ListView>

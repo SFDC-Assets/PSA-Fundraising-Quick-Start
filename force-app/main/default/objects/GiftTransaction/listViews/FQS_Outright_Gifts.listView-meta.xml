@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Outright_Gifts</fullName>
+    <columns>Name</columns>
+    <columns>Donor</columns>
+    <columns>TransactionDate</columns>
+    <columns>CurrentAmount</columns>
+    <columns>Status</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>FQS_Gift_Transaction_Category__c</field>
+        <operation>equals</operation>
+        <value>Outright Gift</value>
+    </filters>
+    <label>Outright Gifts</label>
+</ListView>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Stewardship_Date__c</fullName>
+    <description>Date the stewardship touch was delivered. Written by the FQS_Stewardship_Response flow when Stewardship Status flips to Sent. Manual override is allowed for stewardship performed outside the automated flow (personal note, phone call, in-person). See .planning/fqs-gift-followup-redesign.md.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Date the follow-up stewardship email or task was delivered. Set automatically by the flow, or manually if stewardship occurred outside Salesforce.</inlineHelpText>
+    <label>Stewardship Date</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

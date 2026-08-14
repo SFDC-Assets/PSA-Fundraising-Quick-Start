@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PaymentMethod</fullName>
+    <description>Method by which installment payments are collected. Allowed values: Credit Card, ACH, Check, Cash, PayPal, Venmo, Cryptocurrency, Stock, Asset, In-Kind, Unknown.</description>
+</CustomField>

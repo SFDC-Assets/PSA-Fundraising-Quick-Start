@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Display_Label__c</fullName>
+    <description>Display label used by the FQS Campaign Hierarchy Setup flow's tactical picker. Shows "Suggested Name (under Parent Name)" so overlapping tactic names disambiguate at pick-time. Not used for the actual Campaign.Name — see Suggested_Name__c for that.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>The label shown in the campaign-setup flow's Tactical picker. Leave blank on Rollup/Strategy templates and templates that don't need parent disambiguation.</inlineHelpText>
+    <label>Display Label</label>
+    <length>200</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

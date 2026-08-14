@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Platform__c</fullName>
+    <description>Fundraising Quick Start: the specific platform or sender for this outreach tactic. Equivalent to utm_source. Used alongside Message Channel (utm_medium) and Campaign Short Name (utm_campaign) to build fully attributed source codes and UTM links.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>The specific platform or sender for this source code — equivalent to utm_source in web analytics. Use with Message Channel (utm_medium) to fully describe the tactic: e.g. Message Channel = Social Paid + Platform = Facebook.</inlineHelpText>
+    <label>Platform</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>false</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>facebook</fullName>
+                <default>false</default>
+                <label>Facebook</label>
+            </value>
+            <value>
+                <fullName>instagram</fullName>
+                <default>false</default>
+                <label>Instagram</label>
+            </value>
+            <value>
+                <fullName>linkedin</fullName>
+                <default>false</default>
+                <label>LinkedIn</label>
+            </value>
+            <value>
+                <fullName>x_twitter</fullName>
+                <default>false</default>
+                <label>X (Twitter)</label>
+            </value>
+            <value>
+                <fullName>youtube</fullName>
+                <default>false</default>
+                <label>YouTube</label>
+            </value>
+            <value>
+                <fullName>google_ads</fullName>
+                <default>false</default>
+                <label>Google Ads</label>
+            </value>
+            <value>
+                <fullName>microsoft_ads</fullName>
+                <default>false</default>
+                <label>Microsoft Ads</label>
+            </value>
+            <value>
+                <fullName>mailchimp</fullName>
+                <default>false</default>
+                <label>Mailchimp</label>
+            </value>
+            <value>
+                <fullName>marketing_cloud</fullName>
+                <default>false</default>
+                <label>Marketing Cloud</label>
+            </value>
+            <value>
+                <fullName>constant_contact</fullName>
+                <default>false</default>
+                <label>Constant Contact</label>
+            </value>
+            <value>
+                <fullName>other_email</fullName>
+                <default>false</default>
+                <label>Other Email Platform</label>
+            </value>
+            <value>
+                <fullName>direct_mail_house</fullName>
+                <default>false</default>
+                <label>Direct Mail House</label>
+            </value>
+            <value>
+                <fullName>sms_platform</fullName>
+                <default>false</default>
+                <label>SMS Platform</label>
+            </value>
+            <value>
+                <fullName>phone_call_center</fullName>
+                <default>false</default>
+                <label>Phone / Call Center</label>
+            </value>
+            <value>
+                <fullName>event_table</fullName>
+                <default>false</default>
+                <label>Event / Table</label>
+            </value>
+            <value>
+                <fullName>website</fullName>
+                <default>false</default>
+                <label>Website</label>
+            </value>
+            <value>
+                <fullName>blog</fullName>
+                <default>false</default>
+                <label>Blog</label>
+            </value>
+            <value>
+                <fullName>coalition_partner</fullName>
+                <default>false</default>
+                <label>Coalition Partner</label>
+            </value>
+            <value>
+                <fullName>other</fullName>
+                <default>false</default>
+                <label>Other</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

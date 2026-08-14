@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="urn:metadata.tooling.soap.sforce.com">
+    <searchLayouts>
+        <customTabListAdditionalFields>GiftDesignation</customTabListAdditionalFields>
+        <customTabListAdditionalFields>ParentRecord</customTabListAdditionalFields>
+        <customTabListAdditionalFields>AllocatedPercentage</customTabListAdditionalFields>
+        <customTabListAdditionalFields>FQS_Parent_Type__c</customTabListAdditionalFields>
+        <searchResultsAdditionalFields>GiftDesignation</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>ParentRecord</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>AllocatedPercentage</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>FQS_Parent_Type__c</searchResultsAdditionalFields>
+    </searchLayouts>
+</CustomObject>

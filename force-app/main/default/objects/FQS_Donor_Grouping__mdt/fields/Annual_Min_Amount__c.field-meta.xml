@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Annual_Min_Amount__c</fullName>
+    <description>Minimum fiscal-year giving total (inclusive) required to qualify for this donor grouping on an annual basis. Referenced by the DonorGiftSummary boolean formula fields FQS_Is_Entry_Annual_Donor__c, FQS_Is_Mid_Annual_Donor__c, and FQS_Is_Major_Annual_Donor__c. Changing this value in Setup → Custom Metadata Types → FQS Donor Grouping (or via the FQS Setup flow) recalculates those boolean fields across all Donor Gift Summary records retroactively — no redeployment or batch job required. Reports and dashboards using these fields will reflect the new values immediately.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>The minimum fiscal-year giving total for a donor to qualify for this donor grouping annually. Your administrator controls this threshold. Updating it automatically recalculates the annual giving level across all Donor Gift Summary records.</inlineHelpText>
+    <label>Annual Minimum Amount</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

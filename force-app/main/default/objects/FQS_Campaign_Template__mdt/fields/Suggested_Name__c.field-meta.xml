@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Suggested_Name__c</fullName>
+    <description>The default Campaign.Name for this template. Supports two placeholder tokens that the setup flow expands at load time: {yearLabel} (e.g. FY26 or CY26) and {yearShort} (e.g. 26). Expansion is done in Apex before campaign insert.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Template placeholders {yearLabel} and {yearShort} are replaced with the detected fiscal or calendar year before the Campaign is created. Example: Spring Appeal {yearLabel} becomes Spring Appeal FY26.</inlineHelpText>
+    <label>Suggested Name</label>
+    <length>120</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

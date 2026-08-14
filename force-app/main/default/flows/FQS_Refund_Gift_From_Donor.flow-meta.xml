@@ -1,0 +1,822 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <description>Copies the datatable&apos;s first-selected-row Id into the pickedGtId variable so downstream Get_GT can filter on it. flowruntime:datatable in SINGLE_SELECT mode exposes firstSelectedRow as the picked SObject.</description>
+        <name>Assign_Picked_Gt</name>
+        <label>Assign picked GT</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>pickedGtId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>GiftTransactionDataTable.firstSelectedRow.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_GT</targetReference>
+        </connector>
+    </assignments>
+    <choices>
+        <name>Choice_Reason_BouncedCheck</name>
+        <choiceText>Bounced Check</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Bounced Check</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_Chargeback</name>
+        <choiceText>Chargeback</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Chargeback</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_DonorRequest</name>
+        <choiceText>Donor Request</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Donor Request</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_DuplicateGift</name>
+        <choiceText>Duplicate Gift</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Duplicate Gift</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_Fraudulent</name>
+        <choiceText>Fraudulent</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Fraudulent</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_IncorrectAmount</name>
+        <choiceText>Incorrect Amount</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Incorrect Amount</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_MatchCorrection</name>
+        <choiceText>Match Correction</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Match Correction</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_TestTransaction</name>
+        <choiceText>Test Transaction</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Test Transaction</stringValue>
+        </value>
+    </choices>
+    <decisions>
+        <description>Second-line guard after the picker. Catches Fully Refunded (Screen_Already_Refunded) and non-Paid (Screen_Not_Paid) gifts if the lookup surfaces them anyway. Fundraising Cloud rejects GiftRefund inserts against non-Paid GTs at the platform layer.</description>
+        <name>Decision_Already_Refunded</name>
+        <label>Refundable?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Refund_Details</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Refundable</defaultConnectorLabel>
+        <rules>
+            <name>YesAlreadyRefunded</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>frmIsAlreadyRefunded</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Already_Refunded</targetReference>
+            </connector>
+            <label>Yes — already refunded</label>
+        </rules>
+        <rules>
+            <name>NotPaid</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>frmNotPaid</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Not_Paid</targetReference>
+            </connector>
+            <label>Not yet paid</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Short-circuits when the donor has no refundable gifts so staff see a clean explanation rather than an empty data table. Checks Get_Donor_Refundable_GTs.Id for null (works on both single-record and empty-collection queries).</description>
+        <name>Decision_Any_Refundable</name>
+        <label>Any refundable gifts?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Pick_Gift</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Has refundable gifts</defaultConnectorLabel>
+        <rules>
+            <name>NoneRefundable</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Donor_Refundable_GTs</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_No_Refundable</targetReference>
+            </connector>
+            <label>None refundable</label>
+        </rules>
+    </decisions>
+    <description>Screen flow to refund a GiftTransaction, launched from the donor Account tab. First screen presents the donor&apos;s refundable Gift Transactions (Status=Paid, CurrentAmount &gt; 0) in a native flowruntime:datatable (SINGLE_SELECT) so staff see current amount, transaction date, due date, category, and status inline instead of type-searching a lookup. The datatable field shape must be added in Flow Builder — v65+ requires complexValue inputs that source-authoring can&apos;t emit — but round-trips cleanly once emitted (see FQS_Find_Matching_Gift for the same limitation). The rest of the flow mirrors FQS_Refund_Gift exactly. Launched from the Account record page via the FQS_Refund_Donor_Gift quick action.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>frmExternalId</name>
+        <dataType>String</dataType>
+        <expression>&quot;FQS-GR-&quot; &amp; {!pickedGtId} &amp; &quot;-&quot; &amp; TEXT({!$Flow.CurrentDateTime})</expression>
+    </formulas>
+    <formulas>
+        <name>frmHasFees</name>
+        <dataType>Boolean</dataType>
+        <expression>OR(
+  BLANKVALUE({!Get_GT.ProcessorTransactionFee}, 0) &gt; 0,
+  BLANKVALUE({!Get_GT.GatewayTransactionFee}, 0) &gt; 0
+)</expression>
+    </formulas>
+    <formulas>
+        <name>frmIsAlreadyRefunded</name>
+        <dataType>Boolean</dataType>
+        <expression>OR(
+  {!Get_GT.CurrentAmount} &lt;= 0,
+  ISPICKVAL({!Get_GT.Status}, &quot;Fully Refunded&quot;)
+)</expression>
+    </formulas>
+    <formulas>
+        <name>frmNotPaid</name>
+        <dataType>Boolean</dataType>
+        <expression>AND(
+  NOT(ISPICKVAL({!Get_GT.Status}, &quot;Paid&quot;)),
+  BLANKVALUE({!Get_GT.RefundedAmount}, 0) &lt;= 0,
+  {!Get_GT.CurrentAmount} &gt; 0
+)</expression>
+    </formulas>
+    <formulas>
+        <name>frmRefundAmount</name>
+        <dataType>Currency</dataType>
+        <expression>{!refundAmount}</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>frmReverseGatewayFee</name>
+        <dataType>Currency</dataType>
+        <expression>IF({!frmHasFees}, {!reverseGatewayFee}, 0)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>frmReverseProcessorFee</name>
+        <dataType>Currency</dataType>
+        <expression>IF({!frmHasFees}, {!reverseProcessorFee}, 0)</expression>
+        <scale>2</scale>
+    </formulas>
+    <interviewLabel>FQS Refund Gift From Donor {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Refund Gift From Donor</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <recordCreates>
+        <description>Creates the GiftRefund with Status=Completed against the picked GT. Fundraising Cloud&apos;s platform flows handle downstream cascade (see FQS_Refund_Gift for the platform-behavior notes).</description>
+        <name>Create_GiftRefund</name>
+        <label>Create Gift Refund</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_GT_After</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Screen_Refund_Error</targetReference>
+        </faultConnector>
+        <inputAssignments>
+            <field>Amount</field>
+            <value>
+                <elementReference>frmRefundAmount</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Date</field>
+            <value>
+                <elementReference>refundDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>External_Id__c</field>
+            <value>
+                <elementReference>frmExternalId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GatewayTransactionFee</field>
+            <value>
+                <elementReference>frmReverseGatewayFee</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GiftTransactionId</field>
+            <value>
+                <elementReference>pickedGtId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>LastGatewayErrorMessage</field>
+            <value>
+                <elementReference>refundNote</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ProcessorTransactionFee</field>
+            <value>
+                <elementReference>frmReverseProcessorFee</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Reason</field>
+            <value>
+                <elementReference>refundReason</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </inputAssignments>
+        <object>GiftRefund</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordLookups>
+        <description>Pre-queries the donor&apos;s refundable Gift Transactions: Status=Paid with positive CurrentAmount. Fundraising Cloud only permits GiftRefund inserts against Paid GTs (Pending/Failed/Cancelled are rejected at the platform layer with FIELD_INTEGRITY_EXCEPTION). Returned as a collection so the pick screen can render a native flowruntime:datatable. Ordered by TransactionDate DESC so the most recent gift is at the top.</description>
+        <name>Get_Donor_Refundable_GTs</name>
+        <label>Get Donor Refundable GTs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decision_Any_Refundable</targetReference>
+        </connector>
+        <filterLogic>1 AND 2 AND 3</filterLogic>
+        <filters>
+            <field>DonorId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>CurrentAmount</field>
+            <operator>GreaterThan</operator>
+            <value>
+                <numberValue>0.0</numberValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Status</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Paid</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>GiftTransaction</object>
+        <sortField>TransactionDate</sortField>
+        <sortOrder>Desc</sortOrder>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Loads the picked GT so its balances and fee fields drive the input screen.</description>
+        <name>Get_GT</name>
+        <label>Get Gift Transaction</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decision_Already_Refunded</targetReference>
+        </connector>
+        <faultConnector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Screen_Refund_Error</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>pickedGtId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>GiftTransaction</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Re-reads the GT after the refund insert for the confirmation screen.</description>
+        <name>Get_GT_After</name>
+        <label>Get GT After Refund</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Screen_Refund_Processed</targetReference>
+        </connector>
+        <faultConnector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Screen_Refund_Processed</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>pickedGtId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>GiftTransaction</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <runInMode>DefaultMode</runInMode>
+    <screens>
+        <description>Second-line dead-end if the picker somehow lands on a fully-refunded GT.</description>
+        <name>Screen_Already_Refunded</name>
+        <label>Nothing to refund</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>AlreadyRefundedMsg</name>
+            <fieldText>&lt;h2&gt;This gift is already fully refunded&lt;/h2&gt;&lt;p&gt;&lt;b&gt;{!Get_GT.Name}&lt;/b&gt; has an outstanding balance of &lt;b&gt;{!Get_GT.CurrentAmount}&lt;/b&gt; and status &lt;b&gt;{!Get_GT.Status}&lt;/b&gt;. There is nothing left to refund.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Shown when the donor has zero Gift Transactions with a positive CurrentAmount. Prevents launching into an empty picker.</description>
+        <name>Screen_No_Refundable</name>
+        <label>No refundable gifts</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>NoRefundableMsg</name>
+            <fieldText>&lt;h2&gt;No refundable gifts&lt;/h2&gt;&lt;p&gt;This donor has no Gift Transactions with an outstanding balance. Every gift on file is either fully refunded, written off, or otherwise unrefundable.&lt;/p&gt;&lt;p&gt;If you need to reverse a completed refund, edit the refund record on the original Gift Transaction&apos;s Refunds related list.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Dead-end screen shown when the picked GT has a status other than Paid. Fundraising Cloud rejects GiftRefund inserts against non-Paid GTs with &quot;Select a gift transaction that&apos;s already paid.&quot;</description>
+        <name>Screen_Not_Paid</name>
+        <label>Gift is not paid yet</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>NotPaidMsg</name>
+            <fieldText>&lt;h2&gt;This gift has not been paid&lt;/h2&gt;&lt;p&gt;&lt;b&gt;{!Get_GT.Name}&lt;/b&gt; is currently in status &lt;b&gt;{!Get_GT.Status}&lt;/b&gt;. Only gifts with status &lt;b&gt;Paid&lt;/b&gt; can be refunded — Fundraising Cloud enforces this at the platform layer.&lt;/p&gt;&lt;p&gt;If the gift was never received, cancel it or delete it instead of refunding. If it was received but not marked Paid, update the status first, then relaunch this action.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Renders the donor&apos;s Paid, positive-balance Gift Transactions in a native flowruntime:datatable (SINGLE_SELECT) bound to Get_Donor_Refundable_GTs. Columns: Current Amount, Transaction Due Date, Transaction Completion Date, Gift Transaction Category, Status. The picked row&apos;s .Id flows to Assign_Picked_Gt then Get_GT.</description>
+        <name>Screen_Pick_Gift</name>
+        <label>Pick a Gift to Refund</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Assign_Picked_Gt</targetReference>
+        </connector>
+        <fields>
+            <name>PickGiftHeader</name>
+            <fieldText>&lt;h2&gt;Refund a gift for this donor&lt;/h2&gt;&lt;p&gt;Select the Gift Transaction to refund from the list below. Only gifts with status &lt;b&gt;Paid&lt;/b&gt; and a positive outstanding balance appear.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>GiftTransactionDataTable</name>
+            <dataTypeMappings>
+                <typeName>T</typeName>
+                <typeValue>GiftTransaction</typeValue>
+            </dataTypeMappings>
+            <extensionName>flowruntime:datatable</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>label</name>
+                <value>
+                    <stringValue>Data Table</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>selectionMode</name>
+                <value>
+                    <stringValue>SINGLE_SELECT</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>minRowSelection</name>
+                <value>
+                    <numberValue>0.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>tableData</name>
+                <value>
+                    <elementReference>Get_Donor_Refundable_GTs</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>keyField</name>
+                <value>
+                    <complexValue>{&quot;dataType&quot;:&quot;SObject&quot;,&quot;objectType&quot;:&quot;GiftTransaction&quot;,&quot;fieldReferences&quot;:[&quot;Id&quot;],&quot;elementReference&quot;:&quot;Get_Donor_Refundable_GTs&quot;}</complexValue>
+                    <complexValueType>ComplexObjectFieldDetails</complexValueType>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>maxRowSelection</name>
+                <value>
+                    <numberValue>1.0</numberValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>columns</name>
+                <value>
+                    <stringValue>[{&quot;apiName&quot;:&quot;CurrentAmount&quot;,&quot;guid&quot;:&quot;column-2b2a&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:0,&quot;sortable&quot;:false,&quot;label&quot;:&quot;Current Amount&quot;,&quot;type&quot;:&quot;currency&quot;},{&quot;apiName&quot;:&quot;TransactionDueDate&quot;,&quot;guid&quot;:&quot;column-2222&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:1,&quot;sortable&quot;:false,&quot;label&quot;:&quot;Transaction Due Date&quot;,&quot;type&quot;:&quot;date-local&quot;},{&quot;apiName&quot;:&quot;TransactionDate&quot;,&quot;guid&quot;:&quot;column-8c19&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:2,&quot;sortable&quot;:false,&quot;label&quot;:&quot;Transaction Completion Date&quot;,&quot;type&quot;:&quot;date-local&quot;},{&quot;apiName&quot;:&quot;FQS_Gift_Transaction_Category__c&quot;,&quot;guid&quot;:&quot;column-0ab3&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:3,&quot;sortable&quot;:false,&quot;label&quot;:&quot;Gift Transaction Category&quot;,&quot;type&quot;:&quot;text&quot;},{&quot;apiName&quot;:&quot;Status&quot;,&quot;guid&quot;:&quot;column-8a1e&quot;,&quot;editable&quot;:false,&quot;hasCustomHeaderLabel&quot;:false,&quot;customHeaderLabel&quot;:&quot;&quot;,&quot;wrapText&quot;:true,&quot;order&quot;:4,&quot;sortable&quot;:false,&quot;label&quot;:&quot;Status&quot;,&quot;type&quot;:&quot;text&quot;}]</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>columnReferences</name>
+                <value>
+                    <complexValue>{&quot;dataType&quot;:&quot;SObject&quot;,&quot;objectType&quot;:&quot;GiftTransaction&quot;,&quot;fieldReferences&quot;:[&quot;CurrentAmount&quot;,&quot;TransactionDueDate&quot;,&quot;TransactionDate&quot;,&quot;FQS_Gift_Transaction_Category__c&quot;,&quot;Status&quot;],&quot;elementReference&quot;:&quot;Get_Donor_Refundable_GTs&quot;}</complexValue>
+                    <complexValueType>ComplexObjectFieldDetails</complexValueType>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Same as FQS_Refund_Gift&apos;s input screen but with pickedGtId as the anchor.</description>
+        <name>Screen_Refund_Details</name>
+        <label>Refund Gift</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Create_GiftRefund</targetReference>
+        </connector>
+        <fields>
+            <name>RefundHeader</name>
+            <fieldText>&lt;h2&gt;Refund &lt;b&gt;{!Get_GT.Name}&lt;/b&gt;&lt;/h2&gt;&lt;p&gt;Donor: {!Get_GT.Donor.Name} · Original: {!Get_GT.OriginalAmount} · Currently outstanding: &lt;b&gt;{!Get_GT.CurrentAmount}&lt;/b&gt; · Already refunded: {!Get_GT.RefundedAmount}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>refundAmount</name>
+            <dataType>Currency</dataType>
+            <defaultValue>
+                <elementReference>Get_GT.CurrentAmount</elementReference>
+            </defaultValue>
+            <fieldText>Refund Amount</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>&lt;p&gt;Defaults to the full outstanding amount. Enter a smaller number for a partial refund.&lt;/p&gt;</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <scale>2</scale>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <validationRule>
+                <errorMessage>Refund amount must be greater than zero and no more than {!Get_GT.CurrentAmount}.</errorMessage>
+                <formulaExpression>AND({!refundAmount} &gt; 0, {!refundAmount} &lt;= {!Get_GT.CurrentAmount})</formulaExpression>
+            </validationRule>
+        </fields>
+        <fields>
+            <name>refundDate</name>
+            <dataType>Date</dataType>
+            <defaultValue>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </defaultValue>
+            <fieldText>Refund Date</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>&lt;p&gt;The date the refund settled or was recorded. Defaults to today.&lt;/p&gt;</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>refundReason</name>
+            <choiceReferences>Choice_Reason_DonorRequest</choiceReferences>
+            <choiceReferences>Choice_Reason_IncorrectAmount</choiceReferences>
+            <choiceReferences>Choice_Reason_DuplicateGift</choiceReferences>
+            <choiceReferences>Choice_Reason_MatchCorrection</choiceReferences>
+            <choiceReferences>Choice_Reason_BouncedCheck</choiceReferences>
+            <choiceReferences>Choice_Reason_TestTransaction</choiceReferences>
+            <choiceReferences>Choice_Reason_Fraudulent</choiceReferences>
+            <choiceReferences>Choice_Reason_Chargeback</choiceReferences>
+            <dataType>String</dataType>
+            <fieldText>Reason</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <helpText>&lt;p&gt;Why this refund is happening.&lt;/p&gt;</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>refundNote</name>
+            <fieldText>Note (optional)</fieldText>
+            <fieldType>LargeTextArea</fieldType>
+            <helpText>&lt;p&gt;Free-text audit note stored on the refund record&apos;s LastGatewayErrorMessage field.&lt;/p&gt;</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>false</isRequired>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>FeeHeader</name>
+            <fieldText>&lt;h3&gt;Fee reversal&lt;/h3&gt;&lt;p&gt;This gift carries gateway or processor fees. Confirm the fee amounts being reversed alongside the principal.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>frmHasFees</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>reverseProcessorFee</name>
+            <dataType>Currency</dataType>
+            <defaultValue>
+                <elementReference>Get_GT.ProcessorTransactionFee</elementReference>
+            </defaultValue>
+            <fieldText>Reverse Processor Fee</fieldText>
+            <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>false</isRequired>
+            <scale>2</scale>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>frmHasFees</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>reverseGatewayFee</name>
+            <dataType>Currency</dataType>
+            <defaultValue>
+                <elementReference>Get_GT.GatewayTransactionFee</elementReference>
+            </defaultValue>
+            <fieldText>Reverse Gateway Fee</fieldText>
+            <fieldType>InputField</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>false</isRequired>
+            <scale>2</scale>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>frmHasFees</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Fault path.</description>
+        <name>Screen_Refund_Error</name>
+        <label>Refund Failed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>ErrorMsg</name>
+            <fieldText>&lt;h2&gt;Refund could not be created&lt;/h2&gt;&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;&lt;p&gt;Close this window and try again, or contact your administrator if the error persists.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Confirmation with post-refund balances.</description>
+        <name>Screen_Refund_Processed</name>
+        <label>Refund Processed</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>ProcessedMsg</name>
+            <fieldText>&lt;h2&gt;Refund processed&lt;/h2&gt;&lt;p&gt;&lt;b&gt;{!frmRefundAmount}&lt;/b&gt; refunded from &lt;b&gt;{!Get_GT.Name}&lt;/b&gt; on {!refundDate}.&lt;/p&gt;&lt;h3&gt;New balances&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;Outstanding: &lt;b&gt;{!Get_GT_After.CurrentAmount}&lt;/b&gt;&lt;/li&gt;&lt;li&gt;Total refunded: &lt;b&gt;{!Get_GT_After.RefundedAmount}&lt;/b&gt;&lt;/li&gt;&lt;li&gt;Gift status: &lt;b&gt;{!Get_GT_After.Status}&lt;/b&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;/{!Create_GiftRefund}&quot;&gt;View the refund record&lt;/a&gt;.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Donor_Refundable_GTs</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <description>Id of the GiftTransaction the user picked in Screen_Pick_Gift. Populated by Assign_Picked_Gt from GiftTransactionDataTable.firstSelectedRow.Id.</description>
+        <name>pickedGtId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Input: Id of the source Account (donor). Passed automatically by the Lightning quick action on the Account record page.</description>
+        <name>recordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

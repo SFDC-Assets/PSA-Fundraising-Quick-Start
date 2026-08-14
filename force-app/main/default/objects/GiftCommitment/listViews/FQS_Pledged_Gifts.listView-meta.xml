@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Pledged_Gifts</fullName>
+    <columns>Name</columns>
+    <columns>Status</columns>
+    <columns>ExpectedTotalCmtAmount</columns>
+    <columns>FulfillmentType</columns>
+    <columns>FormalCommitmentType</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>FQS_Gift_Commitment_Category__c</field>
+        <operation>equals</operation>
+        <value>Pledged Gift</value>
+    </filters>
+    <label>Pledged Gifts</label>
+</ListView>

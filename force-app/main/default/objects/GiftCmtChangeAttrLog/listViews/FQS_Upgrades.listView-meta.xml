@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Upgrades</fullName>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>ChangeStatus</field>
+        <operation>equals</operation>
+        <value>Upgrade</value>
+    </filters>
+    <label>FQS Upgrades</label>
+    <columns>Name</columns>
+    <columns>GiftCommitment</columns>
+    <columns>ChangeType</columns>
+    <columns>ChangeStatus</columns>
+    <columns>EffectiveDate</columns>
+    <columns>ChangePerDayAmount</columns>
+</ListView>

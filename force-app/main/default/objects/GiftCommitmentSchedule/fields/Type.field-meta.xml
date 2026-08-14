@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Type</fullName>
+    <description>Indicates whether this schedule is actively creating gift transactions or is paused. Allowed values: CreateTransactions (schedule is generating installments on each transaction date), PauseTransactions (schedule exists but installment generation is suspended).</description>
+</CustomField>

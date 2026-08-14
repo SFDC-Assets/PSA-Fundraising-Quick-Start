@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Match_Eligible__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>When TRUE, a corporate matching gift is expected against this commitment. The FQS Gift Entry launcher reads this flag on the Pledge Payment leaf to default the match question to Yes. See .planning/fqs-gift-entry-wizard-plan.md.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Set to true if a corporate matching gift is expected against this commitment. The Gift Entry launcher reads this to default the match question on payments recorded against this commitment.</inlineHelpText>
+    <label>Match Eligible</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

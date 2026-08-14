@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Honoree_Credits</fullName>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Role</field>
+        <operation>equals</operation>
+        <value>Honoree</value>
+    </filters>
+    <label>FQS Honoree Credits</label>
+    <columns>Name</columns>
+    <columns>Recipient</columns>
+    <columns>GiftTransaction</columns>
+    <columns>SoftCreditAmount</columns>
+    <columns>CreatedDate</columns>
+</ListView>

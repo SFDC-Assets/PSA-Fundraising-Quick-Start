@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>FQS: bypass auto-naming flows on GiftCommitment, GiftTransaction, and Opportunity. Grants FQS_Skip_Record_Naming custom permission plus edit FLS on FQS_Skip_Naming__c. Assign to migration/integration users whose upstream system owns the record Name.</description>
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>FQS_Skip_Record_Naming</name>
+    </customPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>GiftCommitment.FQS_Skip_Naming__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>GiftTransaction.FQS_Skip_Naming__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Opportunity.FQS_Skip_Naming__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>FQS Naming Opt Out</label>
+</PermissionSet>

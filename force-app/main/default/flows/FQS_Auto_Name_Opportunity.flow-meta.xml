@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Set_Record_Name</name>
+        <label>Set Record Name</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Assigns the computed Name back onto the in-flight record. Before-save flows edit $Record in place with no DML — safe and free.</description>
+        <assignmentItems>
+            <assignToReference>$Record.Name</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Computed_Name</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <description>Fundraising Quick Start: on insert or update of an Opportunity, sets Name to a human-readable summary in the form &quot;&lt;Account&gt; - $&lt;amt&gt; close &lt;CloseDate&gt;&quot;. Two opt-outs: the FQS_Skip_Record_Naming custom permission (assign to integration users) and the FQS_Skip_Naming__c checkbox on the record.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>Amt_Text</name>
+        <dataType>String</dataType>
+        <expression>IF({!$Record.Amount} = FLOOR({!$Record.Amount}), TEXT(FLOOR({!$Record.Amount})), TEXT(ROUND({!$Record.Amount}, 2)))</expression>
+    </formulas>
+    <formulas>
+        <name>Computed_Name</name>
+        <dataType>String</dataType>
+        <expression>{!Get_Account.Name} + &quot; - $&quot; + {!Amt_Text} + &quot; close &quot; + TEXT({!$Record.CloseDate})</expression>
+    </formulas>
+    <interviewLabel>FQS Auto Name Opportunity {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Auto Name Opportunity</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Account</name>
+        <label>Get Account</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Fetches the Opportunity Account so its Name (First + Last for Person Accounts, Organization Name for Orgs) can be composed into the record Name.</description>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Set_Record_Name</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.AccountId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Account</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <runInMode>DefaultMode</runInMode>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Account</targetReference>
+        </connector>
+        <filterFormula>NOT( {!$Permission.FQS_Skip_Record_Naming} ) &amp;&amp; NOT( {!$Record.FQS_Skip_Naming__c} ) &amp;&amp; NOT( ISBLANK({!$Record.AccountId}) ) &amp;&amp; NOT( ISBLANK({!$Record.Amount}) ) &amp;&amp; NOT( ISBLANK({!$Record.CloseDate}) ) &amp;&amp; ( ISNEW() || ISCHANGED({!$Record.AccountId}) || ISCHANGED({!$Record.Amount}) || ISCHANGED({!$Record.CloseDate}) )</filterFormula>
+        <object>Opportunity</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

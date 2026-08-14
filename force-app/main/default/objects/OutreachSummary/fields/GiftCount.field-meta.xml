@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GiftCount</fullName>
+    <inlineHelpText>Total number of paid gift transactions attributed to this campaign or outreach source code. One donor may contribute multiple gifts, each counted separately.</inlineHelpText>
+</CustomField>

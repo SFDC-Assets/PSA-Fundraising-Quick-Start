@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <flexiPage>FQS_Setup_Configuration</flexiPage>
+    <label>Setup</label>
+    <motif>Custom62: Wrench</motif>
+</CustomTab>

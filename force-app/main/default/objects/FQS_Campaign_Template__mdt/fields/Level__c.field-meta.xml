@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Level__c</fullName>
+    <description>Which campaign tier this template creates. Rollup = top-level organizing anchor (year or program). Strategy = mid-tier coordinated set of asks. Ask = individual solicitation. The setup flow and Apex builder use this field to place the created Campaign at the right position in the three-level hierarchy.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Rollup creates a top-level Campaign (year rollup or evergreen program top). Strategy creates a mid-tier Campaign. Ask creates a leaf-level Campaign linked to a strategy.</inlineHelpText>
+    <label>Level</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Rollup</fullName>
+                <default>false</default>
+                <label>Rollup</label>
+            </value>
+            <value>
+                <fullName>Strategy</fullName>
+                <default>false</default>
+                <label>Strategy</label>
+            </value>
+            <value>
+                <fullName>Ask</fullName>
+                <default>false</default>
+                <label>Ask</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

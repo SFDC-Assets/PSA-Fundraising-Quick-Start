@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Tax_Receipt_Date__c</fullName>
+    <description>Date the year-end tax receipt was issued to the donor for this gift. Manual field — year-end tax receipting is out of scope for FQS automation. Standard NPC batch tax-receipt capabilities own the delivery mechanism; this field records the outcome for reporting and audit. Complements the standard Tax Receipt Status picklist. See .planning/fqs-gift-followup-redesign.md.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Date this gift's tax receipt was issued to the donor. Enter manually or via a bulk update after your annual tax-receipt run.</inlineHelpText>
+    <label>Tax Receipt Date</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>

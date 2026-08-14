@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>UsageType</fullName>
+    <description>The purpose for which this source code is used. When set to Fundraising, CampaignId is required — insert or update fails with &quot;Choose a campaign when the Usage Type is Fundraising.&quot; For non-Fundraising usages CampaignId is optional. Do not flip an existing OSC from Fundraising to another usage without first clearing dependent GiftTransaction references. Restricted to supported NPC usage types; currently only Fundraising is available. See docs/npc-automation-notes.md.</description>
+    <trackHistory>false</trackHistory>
+</CustomField>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Honor_Tributes</fullName>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>TributeType</field>
+        <operation>equals</operation>
+        <value>Honor</value>
+    </filters>
+    <label>FQS Honor Tributes</label>
+    <columns>Name</columns>
+    <columns>HonoreeName</columns>
+    <columns>GiftTransaction</columns>
+    <columns>GiftCommitment</columns>
+    <columns>NotificationStatus</columns>
+    <columns>CreatedDate</columns>
+</ListView>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Is_Mid_Annual_Donor__c</fullName>
+    <description>Boolean formula that returns TRUE when this donor's annual grouping is exactly Mid (not Entry, not Major). The three annual checkboxes (Entry / Mid / Major) are mutually exclusive — at most one is TRUE for any donor, matching FQS_Annual_Donor_Level__c. Uses the same annual-giving composition as FQS_Annual_Donor_Level__c (GiftsThisYearAmount, plus CurrentYearSoftCreditsAmount when the Mid tier's Credit_Type__c = "Hard + Soft Credits"). Thresholds and Credit_Type are configured via Setup → Custom Metadata Types → FQS Donor Grouping or the FQS Setup screen flow. Changing threshold or Credit_Type values recalculates this field across all Donor Gift Summary records retroactively — no redeployment or batch job required. Reports and dashboards using this field will reflect the new values immediately.</description>
+    <externalId>false</externalId>
+    <formula>FQS_Annual_Donor_Level__c = "Mid"</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Automatically calculated. The field is checked when this donor's current-year giving qualifies for the Mid donor grouping. Your administrator controls the threshold amount.</inlineHelpText>
+    <label>Is Mid Annual Donor</label>
+    <required>false</required>
+    <type>Checkbox</type>
+</CustomField>

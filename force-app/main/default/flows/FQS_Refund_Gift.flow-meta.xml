@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <description>Screen flow to refund a GiftTransaction. Creates a GiftRefund child with Status=Completed; Fundraising Cloud handles the downstream side effects (GT.CurrentAmount, GT.RefundedAmount, GT.Status='Fully Refunded' on full refunds, GTD.Amount proration). Verified 2026-07-23 via anonymous Apex probe on FundFirst — no backfill needed. Launched from the GiftTransaction record page via the FQS_Refund_Gift quick action. Fee-reversal fields appear only when the source GT carries non-zero gateway or processor fees. Guards against launching on an already-fully-refunded GT with a dead-end explanation screen.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>frmIsAlreadyRefunded</name>
+        <dataType>Boolean</dataType>
+        <expression>OR(
+  {!Get_GT.CurrentAmount} &lt;= 0,
+  ISPICKVAL({!Get_GT.Status}, "Fully Refunded")
+)</expression>
+    </formulas>
+    <formulas>
+        <name>frmNotPaid</name>
+        <dataType>Boolean</dataType>
+        <expression>AND(
+  NOT(ISPICKVAL({!Get_GT.Status}, "Paid")),
+  BLANKVALUE({!Get_GT.RefundedAmount}, 0) &lt;= 0,
+  {!Get_GT.CurrentAmount} &gt; 0
+)</expression>
+    </formulas>
+    <formulas>
+        <name>frmHasFees</name>
+        <dataType>Boolean</dataType>
+        <expression>OR(
+  BLANKVALUE({!Get_GT.ProcessorTransactionFee}, 0) &gt; 0,
+  BLANKVALUE({!Get_GT.GatewayTransactionFee}, 0) &gt; 0
+)</expression>
+    </formulas>
+    <formulas>
+        <name>frmExternalId</name>
+        <dataType>String</dataType>
+        <expression>"FQS-GR-" &amp; {!recordId} &amp; "-" &amp; TEXT({!$Flow.CurrentDateTime})</expression>
+    </formulas>
+    <formulas>
+        <name>frmRefundAmount</name>
+        <dataType>Currency</dataType>
+        <expression>{!refundAmount}</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>frmReverseProcessorFee</name>
+        <dataType>Currency</dataType>
+        <expression>IF({!frmHasFees}, {!reverseProcessorFee}, 0)</expression>
+        <scale>2</scale>
+    </formulas>
+    <formulas>
+        <name>frmReverseGatewayFee</name>
+        <dataType>Currency</dataType>
+        <expression>IF({!frmHasFees}, {!reverseGatewayFee}, 0)</expression>
+        <scale>2</scale>
+    </formulas>
+
+    <decisions>
+        <name>Decision_Already_Refunded</name>
+        <label>Refundable?</label>
+        <locationX>176</locationX>
+        <locationY>240</locationY>
+        <description>Gate that stops the flow if there is nothing to refund. Fully-refunded GTs land in Screen_Already_Refunded; non-Paid GTs (Pending, Failed, Cancelled) land in Screen_Not_Paid, both with a clean explanation instead of a raw FIELD_INTEGRITY_EXCEPTION from the platform.</description>
+        <defaultConnector>
+            <targetReference>Screen_Refund_Details</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Refundable</defaultConnectorLabel>
+        <rules>
+            <name>YesAlreadyRefunded</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>frmIsAlreadyRefunded</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Already_Refunded</targetReference>
+            </connector>
+            <label>Yes — already refunded</label>
+        </rules>
+        <rules>
+            <name>NotPaid</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>frmNotPaid</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Not_Paid</targetReference>
+            </connector>
+            <label>Not yet paid</label>
+        </rules>
+    </decisions>
+
+    <recordCreates>
+        <name>Create_GiftRefund</name>
+        <label>Create Gift Refund</label>
+        <locationX>176</locationX>
+        <locationY>480</locationY>
+        <description>Creates the GiftRefund with Status=Completed. Fundraising Cloud's platform flows fire on this insert to reduce GT.CurrentAmount, add to GT.RefundedAmount, prorate GTD.Amount, and (on full refund) flip GT.Status to Fully Refunded. No further FQS write is needed.</description>
+        <connector>
+            <targetReference>Get_GT_After</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Screen_Refund_Error</targetReference>
+        </faultConnector>
+        <inputAssignments>
+            <field>GiftTransactionId</field>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Amount</field>
+            <value>
+                <elementReference>frmRefundAmount</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Date</field>
+            <value>
+                <elementReference>refundDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Reason</field>
+            <value>
+                <elementReference>refundReason</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Completed</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>ProcessorTransactionFee</field>
+            <value>
+                <elementReference>frmReverseProcessorFee</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>GatewayTransactionFee</field>
+            <value>
+                <elementReference>frmReverseGatewayFee</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>LastGatewayErrorMessage</field>
+            <value>
+                <elementReference>refundNote</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>External_Id__c</field>
+            <value>
+                <elementReference>frmExternalId</elementReference>
+            </value>
+        </inputAssignments>
+        <object>GiftRefund</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+
+    <recordLookups>
+        <name>Get_GT</name>
+        <label>Get Gift Transaction</label>
+        <locationX>176</locationX>
+        <locationY>120</locationY>
+        <description>Loads the source GiftTransaction so its OriginalAmount, CurrentAmount, RefundedAmount, Status, and fee fields can be displayed on the input screen and drive fee-section visibility.</description>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decision_Already_Refunded</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Screen_Refund_Error</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>GiftTransaction</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+
+    <recordLookups>
+        <name>Get_GT_After</name>
+        <label>Get GT After Refund</label>
+        <locationX>176</locationX>
+        <locationY>600</locationY>
+        <description>Re-reads the GiftTransaction after the refund insert so the confirmation screen can display the fresh CurrentAmount, RefundedAmount, and Status the platform just recomputed.</description>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Screen_Refund_Processed</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Screen_Refund_Processed</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>GiftTransaction</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+
+    <screens>
+        <name>Screen_Refund_Details</name>
+        <label>Refund Gift</label>
+        <locationX>176</locationX>
+        <locationY>360</locationY>
+        <description>Collects refund inputs. Amount defaults to the GT's remaining CurrentAmount so full refunds are one click. Date defaults to today. Reason is the extended GiftRefundReason StandardValueSet (OOTB + 6 FQS values). Fee-reversal fields appear only when the source GT carries non-zero fees.</description>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Create_GiftRefund</targetReference>
+        </connector>
+        <fields>
+            <name>RefundHeader</name>
+            <fieldText>&lt;h2&gt;Refund &lt;b&gt;{!Get_GT.Name}&lt;/b&gt;&lt;/h2&gt;&lt;p&gt;Donor: {!Get_GT.Donor.Name} · Original: {!Get_GT.OriginalAmount} · Currently outstanding: &lt;b&gt;{!Get_GT.CurrentAmount}&lt;/b&gt; · Already refunded: {!Get_GT.RefundedAmount}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>refundAmount</name>
+            <dataType>Currency</dataType>
+            <defaultValue>
+                <elementReference>Get_GT.CurrentAmount</elementReference>
+            </defaultValue>
+            <fieldText>Refund Amount</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>&lt;p&gt;Defaults to the full outstanding amount. Enter a smaller number for a partial refund. Must be greater than zero and no more than the currently outstanding amount.&lt;/p&gt;</helpText>
+            <isRequired>true</isRequired>
+            <scale>2</scale>
+            <validationRule>
+                <errorMessage>Refund amount must be greater than zero and no more than {!Get_GT.CurrentAmount}.</errorMessage>
+                <formulaExpression>AND({!refundAmount} &gt; 0, {!refundAmount} &lt;= {!Get_GT.CurrentAmount})</formulaExpression>
+            </validationRule>
+        </fields>
+        <fields>
+            <name>refundDate</name>
+            <dataType>Date</dataType>
+            <defaultValue>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </defaultValue>
+            <fieldText>Refund Date</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>&lt;p&gt;The date the refund settled or was recorded. Defaults to today.&lt;/p&gt;</helpText>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>refundReason</name>
+            <dataType>String</dataType>
+            <fieldText>Reason</fieldText>
+            <fieldType>DropdownBox</fieldType>
+            <helpText>&lt;p&gt;Why this refund is happening. Fraudulent and Chargeback are typically financial-controls scenarios; Donor Request, Duplicate Gift, and Incorrect Amount are the everyday cases.&lt;/p&gt;</helpText>
+            <isRequired>true</isRequired>
+            <choiceReferences>Choice_Reason_DonorRequest</choiceReferences>
+            <choiceReferences>Choice_Reason_IncorrectAmount</choiceReferences>
+            <choiceReferences>Choice_Reason_DuplicateGift</choiceReferences>
+            <choiceReferences>Choice_Reason_MatchCorrection</choiceReferences>
+            <choiceReferences>Choice_Reason_BouncedCheck</choiceReferences>
+            <choiceReferences>Choice_Reason_TestTransaction</choiceReferences>
+            <choiceReferences>Choice_Reason_Fraudulent</choiceReferences>
+            <choiceReferences>Choice_Reason_Chargeback</choiceReferences>
+        </fields>
+        <fields>
+            <name>refundNote</name>
+            <dataType>String</dataType>
+            <fieldText>Note (optional)</fieldText>
+            <fieldType>LargeTextArea</fieldType>
+            <helpText>&lt;p&gt;Free-text audit note stored on the refund record's LastGatewayErrorMessage field. Use for context that will not fit in the Reason picklist.&lt;/p&gt;</helpText>
+            <isRequired>false</isRequired>
+        </fields>
+        <fields>
+            <name>FeeHeader</name>
+            <fieldText>&lt;h3&gt;Fee reversal&lt;/h3&gt;&lt;p&gt;This gift carries gateway or processor fees. Confirm the fee amounts being reversed alongside the principal.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>frmHasFees</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>reverseProcessorFee</name>
+            <dataType>Currency</dataType>
+            <defaultValue>
+                <elementReference>Get_GT.ProcessorTransactionFee</elementReference>
+            </defaultValue>
+            <fieldText>Reverse Processor Fee</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>&lt;p&gt;Defaults to the source gift's Processor Transaction Fee. Leave zero if the gateway does not refund this fee.&lt;/p&gt;</helpText>
+            <isRequired>false</isRequired>
+            <scale>2</scale>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>frmHasFees</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+        <fields>
+            <name>reverseGatewayFee</name>
+            <dataType>Currency</dataType>
+            <defaultValue>
+                <elementReference>Get_GT.GatewayTransactionFee</elementReference>
+            </defaultValue>
+            <fieldText>Reverse Gateway Fee</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>&lt;p&gt;Defaults to the source gift's Gateway Transaction Fee. Leave zero if the gateway does not refund this fee.&lt;/p&gt;</helpText>
+            <isRequired>false</isRequired>
+            <scale>2</scale>
+            <visibilityRule>
+                <conditionLogic>and</conditionLogic>
+                <conditions>
+                    <leftValueReference>frmHasFees</leftValueReference>
+                    <operator>EqualTo</operator>
+                    <rightValue>
+                        <booleanValue>true</booleanValue>
+                    </rightValue>
+                </conditions>
+            </visibilityRule>
+        </fields>
+    </screens>
+
+    <screens>
+        <name>Screen_Already_Refunded</name>
+        <label>Nothing to refund</label>
+        <locationX>50</locationX>
+        <locationY>360</locationY>
+        <description>Dead-end screen shown when the source GT is already Fully Refunded or has zero CurrentAmount. Prevents a fault path and gives staff a clear explanation instead of a cryptic error.</description>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>AlreadyRefundedMsg</name>
+            <fieldText>&lt;h2&gt;This gift is already fully refunded&lt;/h2&gt;&lt;p&gt;&lt;b&gt;{!Get_GT.Name}&lt;/b&gt; has an outstanding balance of &lt;b&gt;{!Get_GT.CurrentAmount}&lt;/b&gt; and status &lt;b&gt;{!Get_GT.Status}&lt;/b&gt;. There is nothing left to refund.&lt;/p&gt;&lt;p&gt;If you need to reverse a completed refund, edit the refund record on the Gift Transaction's Refunds related list.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+
+    <screens>
+        <name>Screen_Not_Paid</name>
+        <label>Gift is not paid yet</label>
+        <locationX>302</locationX>
+        <locationY>360</locationY>
+        <description>Dead-end screen shown when the source GT has a status other than Paid (e.g. Pending, Failed, Cancelled). Fundraising Cloud rejects GiftRefund inserts against non-Paid GTs with "Select a gift transaction that's already paid." — this screen catches that case pre-flight.</description>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>NotPaidMsg</name>
+            <fieldText>&lt;h2&gt;This gift has not been paid&lt;/h2&gt;&lt;p&gt;&lt;b&gt;{!Get_GT.Name}&lt;/b&gt; is currently in status &lt;b&gt;{!Get_GT.Status}&lt;/b&gt;. Only gifts with status &lt;b&gt;Paid&lt;/b&gt; can be refunded — Fundraising Cloud enforces this at the platform layer.&lt;/p&gt;&lt;p&gt;If the gift was never received, cancel it or delete it instead of refunding. If it was received but not marked Paid, update the status first, then relaunch this action.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+
+    <screens>
+        <name>Screen_Refund_Processed</name>
+        <label>Refund Processed</label>
+        <locationX>176</locationX>
+        <locationY>720</locationY>
+        <description>Confirmation screen. Displays the post-refund balances (CurrentAmount, RefundedAmount, Status) that Fundraising Cloud's platform flows just recomputed, plus a link to the new refund record.</description>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>ProcessedMsg</name>
+            <fieldText>&lt;h2&gt;Refund processed&lt;/h2&gt;&lt;p&gt;&lt;b&gt;{!frmRefundAmount}&lt;/b&gt; refunded from &lt;b&gt;{!Get_GT.Name}&lt;/b&gt; on {!refundDate}.&lt;/p&gt;&lt;h3&gt;New balances&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;Outstanding: &lt;b&gt;{!Get_GT_After.CurrentAmount}&lt;/b&gt;&lt;/li&gt;&lt;li&gt;Total refunded: &lt;b&gt;{!Get_GT_After.RefundedAmount}&lt;/b&gt;&lt;/li&gt;&lt;li&gt;Gift status: &lt;b&gt;{!Get_GT_After.Status}&lt;/b&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;a href=&quot;/{!Create_GiftRefund}&quot;&gt;View the refund record&lt;/a&gt;.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+
+    <screens>
+        <name>Screen_Refund_Error</name>
+        <label>Refund Failed</label>
+        <locationX>352</locationX>
+        <locationY>480</locationY>
+        <description>Fault path. Renders the platform error and offers to retry the input screen or exit.</description>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>ErrorMsg</name>
+            <fieldText>&lt;h2&gt;Refund could not be created&lt;/h2&gt;&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;&lt;p&gt;Close this window and try again, or contact your administrator if the error persists.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+    </screens>
+
+    <choices>
+        <name>Choice_Reason_DonorRequest</name>
+        <choiceText>Donor Request</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Donor Request</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_IncorrectAmount</name>
+        <choiceText>Incorrect Amount</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Incorrect Amount</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_DuplicateGift</name>
+        <choiceText>Duplicate Gift</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Duplicate Gift</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_MatchCorrection</name>
+        <choiceText>Match Correction</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Match Correction</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_BouncedCheck</name>
+        <choiceText>Bounced Check</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Bounced Check</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_TestTransaction</name>
+        <choiceText>Test Transaction</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Test Transaction</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_Fraudulent</name>
+        <choiceText>Fraudulent</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Fraudulent</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Choice_Reason_Chargeback</name>
+        <choiceText>Chargeback</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Chargeback</stringValue>
+        </value>
+    </choices>
+
+    <interviewLabel>FQS Refund Gift {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Refund Gift</label>
+    <processType>Flow</processType>
+    <runInMode>DefaultMode</runInMode>
+    <start>
+        <locationX>176</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_GT</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>recordId</name>
+        <description>Input: Id of the source GiftTransaction. Passed automatically by the Lightning quick action on the GT record page.</description>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Legacy_Soft_Credit_Total__c</fullName>
+    <description>Sum of soft-credit giving from legacy or external systems (archived CRM, spreadsheet migration, prior fundraising platform). Populated once during import and preserved thereafter — NPC rollups do not touch this field. FQS donor-grouping formulas add this to the standard TotalSoftCreditsAmount rollup when the tier's Credit_Type__c CMDT setting is "Hard + Soft Credits". Leave blank for donors with no pre-system soft-credit history.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Total soft-credit giving from a legacy or external system. Adds to the standard TotalSoftCreditsAmount rollup when the donor grouping tier is configured to count soft credits.</inlineHelpText>
+    <label>Legacy Soft Credit Total</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Currency</type>
+</CustomField>

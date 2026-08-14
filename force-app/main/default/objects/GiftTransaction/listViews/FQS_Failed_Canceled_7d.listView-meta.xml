@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Failed_Canceled_7d</fullName>
+    <columns>Name</columns>
+    <columns>Donor</columns>
+    <columns>TransactionDate</columns>
+    <columns>CurrentAmount</columns>
+    <columns>Status</columns>
+    <columns>PaymentMethod</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Status</field>
+        <operation>equals</operation>
+        <value>Failed,Canceled</value>
+    </filters>
+    <filters>
+        <field>TransactionDate</field>
+        <operation>equals</operation>
+        <value>LAST_N_DAYS:7</value>
+    </filters>
+    <label>Failed / Canceled — Last 7 Days</label>
+</ListView>

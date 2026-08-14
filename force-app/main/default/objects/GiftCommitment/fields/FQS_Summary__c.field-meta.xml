@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Summary__c</fullName>
+    <description>Plain-English schedule preview built from platform-managed schedule fields. Reads CurrentGiftCmtSchedule.TransactionPeriod plus GC-level fields (Category, ScheduleType, RecurrenceType, NextTransactionAmount, ExpectedTotalCmtAmount, EffectiveStartDate, ExpectedEndDate). Renders one sentence per shape: Recurring, Scheduled pledge/grant, Custom pledge, Simple pledge, Grant Payout. Failsafe: when ScheduleType is set but CurrentGiftCmtSchedule is null (future-dated schedule not yet activated), returns a &quot;Schedule starts in the future&quot; message instead of falsely reporting a single payment. See docs/npc-automation-notes.md for the CurrentGiftCmtScheduleId activation semantics.</description>
+    <externalId>false</externalId>
+    <formula>IF(AND(NOT(ISBLANK(TEXT(ScheduleType))), ISBLANK(TEXT(CurrentGiftCmtSchedule.TransactionPeriod))),
+   &quot;Schedule starts in the future — this commitment&apos;s schedule has not activated yet. A full preview will render once the first scheduled payment date arrives and the platform sets the current schedule on this commitment.&quot;,
+&quot;Schedule preview: &quot; &amp;
+CASE(TEXT(FQS_Gift_Commitment_Category__c),
+  &quot;Recurring Gift&quot;, &quot;The donor will give &quot;,
+  &quot;Pledged Gift&quot;,   &quot;The donor pledges &quot;,
+  &quot;Grant Payout&quot;,   &quot;The funder will pay &quot;,
+  &quot;The donor commits to &quot;
+) &amp;
+IF(TEXT(ScheduleType) = &quot;Custom&quot;,
+   &quot;$&quot; &amp; TEXT(ExpectedTotalCmtAmount) &amp; &quot; total on a custom payment schedule starting &quot; &amp;
+   CASE(MONTH(EffectiveStartDate),1,&quot;Jan&quot;,2,&quot;Feb&quot;,3,&quot;Mar&quot;,4,&quot;Apr&quot;,5,&quot;May&quot;,6,&quot;Jun&quot;,7,&quot;Jul&quot;,8,&quot;Aug&quot;,9,&quot;Sep&quot;,10,&quot;Oct&quot;,11,&quot;Nov&quot;,12,&quot;Dec&quot;,&quot;&quot;) &amp;
+   &quot; &quot; &amp; TEXT(DAY(EffectiveStartDate)) &amp; &quot;, &quot; &amp; TEXT(YEAR(EffectiveStartDate)) &amp; &quot;.&quot;,
+IF(AND(TEXT(RecurrenceType)=&quot;OpenEnded&quot;, NOT(ISBLANK(TEXT(CurrentGiftCmtSchedule.TransactionPeriod)))),
+   &quot;$&quot; &amp; TEXT(NextTransactionAmount) &amp; &quot; every &quot; &amp;
+   CASE(TEXT(CurrentGiftCmtSchedule.TransactionPeriod), &quot;Monthly&quot;,&quot;month&quot;, &quot;Yearly&quot;,&quot;year&quot;, &quot;Weekly&quot;,&quot;week&quot;, &quot;Daily&quot;,&quot;day&quot;, &quot;Quarterly&quot;,&quot;quarter&quot;, &quot;Semi-Annual&quot;,&quot;half year&quot;, LOWER(TEXT(CurrentGiftCmtSchedule.TransactionPeriod))) &amp;
+   &quot; starting &quot; &amp;
+   CASE(MONTH(EffectiveStartDate),1,&quot;Jan&quot;,2,&quot;Feb&quot;,3,&quot;Mar&quot;,4,&quot;Apr&quot;,5,&quot;May&quot;,6,&quot;Jun&quot;,7,&quot;Jul&quot;,8,&quot;Aug&quot;,9,&quot;Sep&quot;,10,&quot;Oct&quot;,11,&quot;Nov&quot;,12,&quot;Dec&quot;,&quot;&quot;) &amp;
+   &quot; &quot; &amp; TEXT(DAY(EffectiveStartDate)) &amp; &quot;, &quot; &amp; TEXT(YEAR(EffectiveStartDate)) &amp;
+   &quot;, continuing indefinitely until the donor cancels.&quot;,
+IF(AND(TEXT(RecurrenceType)=&quot;FixedLength&quot;, NOT(ISBLANK(TEXT(CurrentGiftCmtSchedule.TransactionPeriod)))),
+   &quot;$&quot; &amp; TEXT(ExpectedTotalCmtAmount) &amp; &quot; total, giving $&quot; &amp; TEXT(NextTransactionAmount) &amp; &quot; every &quot; &amp;
+   CASE(TEXT(CurrentGiftCmtSchedule.TransactionPeriod), &quot;Monthly&quot;,&quot;month&quot;, &quot;Yearly&quot;,&quot;year&quot;, &quot;Weekly&quot;,&quot;week&quot;, &quot;Daily&quot;,&quot;day&quot;, &quot;Quarterly&quot;,&quot;quarter&quot;, &quot;Semi-Annual&quot;,&quot;half year&quot;, LOWER(TEXT(CurrentGiftCmtSchedule.TransactionPeriod))) &amp;
+   &quot; starting &quot; &amp;
+   CASE(MONTH(EffectiveStartDate),1,&quot;Jan&quot;,2,&quot;Feb&quot;,3,&quot;Mar&quot;,4,&quot;Apr&quot;,5,&quot;May&quot;,6,&quot;Jun&quot;,7,&quot;Jul&quot;,8,&quot;Aug&quot;,9,&quot;Sep&quot;,10,&quot;Oct&quot;,11,&quot;Nov&quot;,12,&quot;Dec&quot;,&quot;&quot;) &amp;
+   &quot; &quot; &amp; TEXT(DAY(EffectiveStartDate)) &amp; &quot;, &quot; &amp; TEXT(YEAR(EffectiveStartDate)) &amp;
+   IF(NOT(ISBLANK(ExpectedEndDate)),
+     &quot; through &quot; &amp;
+     CASE(MONTH(ExpectedEndDate),1,&quot;Jan&quot;,2,&quot;Feb&quot;,3,&quot;Mar&quot;,4,&quot;Apr&quot;,5,&quot;May&quot;,6,&quot;Jun&quot;,7,&quot;Jul&quot;,8,&quot;Aug&quot;,9,&quot;Sep&quot;,10,&quot;Oct&quot;,11,&quot;Nov&quot;,12,&quot;Dec&quot;,&quot;&quot;) &amp;
+     &quot; &quot; &amp; TEXT(DAY(ExpectedEndDate)) &amp; &quot;, &quot; &amp; TEXT(YEAR(ExpectedEndDate)),
+     &quot;&quot;) &amp;
+   &quot;.&quot;,
+   &quot;$&quot; &amp; TEXT(ExpectedTotalCmtAmount) &amp; &quot; on &quot; &amp;
+   CASE(MONTH(EffectiveStartDate),1,&quot;Jan&quot;,2,&quot;Feb&quot;,3,&quot;Mar&quot;,4,&quot;Apr&quot;,5,&quot;May&quot;,6,&quot;Jun&quot;,7,&quot;Jul&quot;,8,&quot;Aug&quot;,9,&quot;Sep&quot;,10,&quot;Oct&quot;,11,&quot;Nov&quot;,12,&quot;Dec&quot;,&quot;&quot;) &amp;
+   &quot; &quot; &amp; TEXT(DAY(EffectiveStartDate)) &amp; &quot;, &quot; &amp; TEXT(YEAR(EffectiveStartDate)) &amp;
+   &quot; as a single payment.&quot;
+))))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Automatically calculated. One-sentence description of the schedule, adjusted for Recurring Gift, Pledged Gift (scheduled, custom, or single payment), and Grant Payout. For commitments whose schedule has not activated yet (future StartDate), shows &quot;Schedule starts in the future&quot; until the first payment date arrives.</inlineHelpText>
+    <label>Summary</label>
+    <required>false</required>
+    <type>Text</type>
+</CustomField>

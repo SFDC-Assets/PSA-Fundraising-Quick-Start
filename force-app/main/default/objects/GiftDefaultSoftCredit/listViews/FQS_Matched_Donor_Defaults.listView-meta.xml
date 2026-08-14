@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Matched_Donor_Defaults</fullName>
+    <columns>Name</columns>
+    <columns>Recipient</columns>
+    <columns>ParentRecord</columns>
+    <columns>PartialPercent</columns>
+    <columns>PartialAmount</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Role</field>
+        <operation>equals</operation>
+        <value>Matched Donor</value>
+    </filters>
+    <label>Matched Donor Defaults</label>
+</ListView>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Restriction_Type__c</fullName>
+    <description>Categorizes designations for filtering and reporting. Restriction dimensions: Without Donor Restriction (unrestricted, incl. internal board designations); With Donor Restriction - Purpose (donor restricted to a specific use); With Donor Restriction - Permanent (endowment principal, held indefinitely); Earned Revenue (exchange-transaction revenue, not a contribution). Time restrictions are NOT represented here — record time boundaries on the gift&apos;s FQS_Restriction_Release_Date field on GiftCommitment or GiftTransaction.</description>
+    <inlineHelpText>How the donor restricted the funds. Without Donor Restriction: usable for any program (incl. board-designated). Purpose: must be spent on a specific use. Permanent: endowment principal — only earnings spendable. Earned Revenue: exchange-transaction revenue (fees, ticket sales), not a contribution. Time restrictions live on the gift (see Restriction Release Date on GC / GT).</inlineHelpText>
+    <label>Restriction Type</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Without Donor Restriction</fullName>
+                <default>false</default>
+                <label>Without Donor Restriction</label>
+            </value>
+            <value>
+                <fullName>With Donor Restriction - Purpose</fullName>
+                <default>false</default>
+                <label>With Donor Restriction - Purpose</label>
+            </value>
+            <value>
+                <fullName>With Donor Restriction - Permanent</fullName>
+                <default>false</default>
+                <label>With Donor Restriction - Permanent</label>
+            </value>
+            <value>
+                <fullName>Earned Revenue</fullName>
+                <default>false</default>
+                <label>Earned Revenue</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Default_In_Model__c</fullName>
+    <description>Subset of Applicable_Models__c. Models listed here will pre-seed this template as a default row when the setup flow creates campaigns for that model. Stored as a semicolon-separated string. Leave blank for library-only templates. MultiselectPicklist is not supported on CMDT, so this is a Text field with a known value set enforced by convention.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Semicolon-separated list of models where this template is a pre-seeded default. Leave blank to make this template available only via the library picker. Valid values: Seasonal, GivingPrograms, Strategy.</inlineHelpText>
+    <label>Default In Model</label>
+    <length>255</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>CurrentGiftCmtScheduleId</fullName>
+    <description>Platform-managed lookup identifying which Gift Commitment Schedule is currently active for this commitment. Populated by the Fundraising engine when a schedule&apos;s StartDate arrives (past-or-today), not at insert time. Future-dated schedules leave this field null until the first scheduled payment date is reached — this is the positive-logic behavior: &quot;which schedule is running today,&quot; not &quot;which schedule is most recently attached.&quot; Do not back-fill in flows or Apex; that overrides the platform&apos;s active-vs-pending semantics and breaks reports that filter on CurrentGiftCmtScheduleId != null to identify actively giving commitments. Nightly platform job (also fans out Expected GTs and rolls NextTransactionDate) flips this on the activation date. See docs/npc-automation-notes.md and FQS_Summary__c for the &quot;Schedule starts in the future&quot; failsafe.</description>
+    <inlineHelpText>The gift commitment schedule currently in force. Platform sets this automatically when a schedule&apos;s Start Date is today or earlier. Records with a future Start Date leave this field blank until activation.</inlineHelpText>
+</CustomField>

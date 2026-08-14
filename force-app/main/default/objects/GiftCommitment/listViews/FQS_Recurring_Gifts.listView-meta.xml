@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="urn:metadata.tooling.soap.sforce.com">
+    <fullName>FQS_Recurring_Gifts</fullName>
+    <columns>Name</columns>
+    <columns>Status</columns>
+    <columns>ExpectedTotalCmtAmount</columns>
+    <columns>RecurrenceType</columns>
+
+    <columns>NextTransactionDate</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>FQS_Gift_Commitment_Category__c</field>
+        <operation>equals</operation>
+        <value>Recurring Gift</value>
+    </filters>
+    <label>Recurring Gifts</label>
+</ListView>

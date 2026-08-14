@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Partner</label>
+    <protected>false</protected>
+    <values>
+        <field>Branded_Name__c</field>
+        <value xsi:type="xsd:string">Partner</value>
+    </values>
+    <values>
+        <field>Grouping_Key__c</field>
+        <value xsi:type="xsd:string">Mid</value>
+    </values>
+
+    <values>
+        <field>One_Time_Min_Amount__c</field>
+        <value xsi:type="xsd:double">250</value>
+    </values>
+    <values>
+        <field>Annual_Min_Amount__c</field>
+        <value xsi:type="xsd:double">3000</value>
+    </values>
+    <values>
+        <field>Lifetime_Min_Amount__c</field>
+        <value xsi:type="xsd:double">15000</value>
+    </values>
+    <values>
+        <field>Sort_Order__c</field>
+        <value xsi:type="xsd:double">20</value>
+    </values>
+    <values>
+        <field>FQS_Auto_Stewardship__c</field>
+        <value xsi:type="xsd:string">Exclude Lifetime</value>
+    </values>
+    <values>
+        <field>Credit_Type__c</field>
+        <value xsi:type="xsd:string">Hard Credits Only</value>
+    </values>
+</CustomMetadata>

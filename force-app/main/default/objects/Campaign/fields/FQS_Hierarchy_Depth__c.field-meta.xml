@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Hierarchy_Depth__c</fullName>
+    <description>Fundraising Quick Start: numeric depth in the campaign hierarchy. 1 = top-level (no parent), 2 = direct child, up to 5 levels deep.</description>
+    <formula>IF(ISBLANK(ParentId), 1,
+IF(ISBLANK(Parent.ParentId), 2,
+IF(ISBLANK(Parent.Parent.ParentId), 3,
+IF(ISBLANK(Parent.Parent.Parent.ParentId), 4, 5))))</formula>
+    <formulaTreatBlanksAs>BlankAsBlank</formulaTreatBlanksAs>
+    <label>Hierarchy Depth</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <type>Number</type>
+</CustomField>

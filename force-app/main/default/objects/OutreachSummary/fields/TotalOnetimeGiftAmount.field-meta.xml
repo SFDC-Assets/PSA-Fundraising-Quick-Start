@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TotalOnetimeGiftAmount</fullName>
+    <inlineHelpText>Sum of paid one-time gift amounts (not connected to a recurring commitment) attributed to this campaign or outreach source code.</inlineHelpText>
+</CustomField>
