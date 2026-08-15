@@ -16,7 +16,11 @@
             </value>
         </assignmentItems>
     </assignments>
-    <description>Fundraising Quick Start: on insert or update of an Opportunity, sets Name to a human-readable summary in the form &quot;&lt;Account&gt; - $&lt;amt&gt; close &lt;CloseDate&gt;&quot;. Two opt-outs: the FQS_Skip_Record_Naming custom permission (assign to integration users) and the FQS_Skip_Naming__c checkbox on the record.</description>
+    <description>Fundraising Quick Start: on insert or update of an Opportunity, sets Name to a human-readable summary in the form &quot;&lt;Account&gt; - $&lt;amt&gt; close &lt;CloseDate&gt;&quot;.
+
+Starting criteria (plain English): fires on insert OR on update when any of Account, Amount, or Close Date changes. Skipped when the running user holds the FQS_Skip_Record_Naming custom permission, when the record&apos;s FQS_Skip_Naming__c checkbox is checked, or when Account / Amount / Close Date are blank.
+
+Two opt-outs: the FQS_Skip_Record_Naming custom permission (grant via the FQS Naming Opt Out permission set — see force-app/main/default/permissionsets/FQS_Naming_Opt_Out.permissionset-meta.xml; typically assigned to integration or migration users whose upstream system owns the Opportunity Name) and the FQS_Skip_Naming__c checkbox on the record (per-record override).</description>
     <environments>Default</environments>
     <formulas>
         <name>Amt_Text</name>

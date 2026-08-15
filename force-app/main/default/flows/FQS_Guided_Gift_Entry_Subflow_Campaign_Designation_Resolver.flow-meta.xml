@@ -178,6 +178,38 @@
         </connector>
     </assignments>
     <assignments>
+        <description>Earned Revenue auto-select terminal. Fires when Get_EarnedRevenue_Designations returned exactly one row on the Earned Income or Event Registration branch. Loop_EarnedRevenue_First iterates the collection once to expose the row via loop.CurrentItem, then this assignment stamps rsv_GD_Selected.Id + var_GD_ResolvedId + var_GD_ResolvedSource=&apos;Earned_Revenue_AutoSelect&apos; and routes to Assign_Set_ResolvedPath_Accepted. Skips Confirm_Designation entirely — the earned-revenue category has a single deterministic match, so there is nothing for the user to confirm.</description>
+        <name>Assign_Resolve_Designation_EarnedRevenue_AutoSelect</name>
+        <label>Resolved: Earned Revenue (auto-selected single match)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_GD_Selected.Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_EarnedRevenue_First.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>var_GD_ResolvedId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Loop_EarnedRevenue_First.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>var_GD_ResolvedSource</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Earned_Revenue_AutoSelect</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Assign_Set_ResolvedPath_Accepted</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <description>Sets var_ResolverHasGCDefault=true after Decide_GC_Has_Default_Designation confirms the parent GC has a GDD.</description>
         <name>Assign_ResolverHasGCDefault_True</name>
         <label>Set: resolver has GC default</label>
@@ -193,6 +225,23 @@
         <connector>
             <isGoTo>true</isGoTo>
             <targetReference>Get_Campaign_Default_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Earned Revenue routing seed. Fires when Decide_Route_Earned_Revenue matched in_leafSpecial=EarnedIncome or EventRegistration. Sets var_RestrictionType=&apos;Earned Revenue&apos; so Get_EarnedRevenue_Designations (and downstream Get_Filtered_Designations on the multi-match branch) return only exchange-transaction designations. Connects to Get_EarnedRevenue_Designations for the count-based routing decision.</description>
+        <name>Assign_Restriction_EarnedRevenue</name>
+        <label>Restriction: Earned Revenue (auto-route)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_RestrictionType</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Earned Revenue</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_EarnedRevenue_Designations</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -306,6 +355,23 @@
         </connector>
     </assignments>
     <assignments>
+        <description>Counts Get_EarnedRevenue_Designations rows into var_EarnedRevenue_GD_Count. Feeds Decide_EarnedRevenue_Count for the auto-select / picker / fallback fork.</description>
+        <name>Count_EarnedRevenue_GDs</name>
+        <label>Count Earned Revenue GDs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_EarnedRevenue_GD_Count</assignToReference>
+            <operator>AssignCount</operator>
+            <value>
+                <elementReference>Get_EarnedRevenue_Designations</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_EarnedRevenue_Count</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <description>Multi-GDD support — counts Get_GC_GDDs_Multi into var_GC_GDDCount AND copies the collection into out_gcGDDs (caller-side Loop_GDD_ResolverGC_FanoutGTD iterates). Only reachable on PP branch. Routes to Decide_Set_PlatformSplit_From_GC.</description>
         <name>Count_GC_GDDs</name>
         <label>Count GC GDDs</label>
@@ -353,6 +419,48 @@
             <stringValue>Without Donor Restriction</stringValue>
         </value>
     </choices>
+    <decisions>
+        <description>Earned Revenue count fork. Runs after Count_EarnedRevenue_GDs on the Earned Income / Event Registration branch. If exactly one Earned Revenue designation exists org-wide, iterate it once via Loop_EarnedRevenue_First and auto-select — the user does not see Confirm or Pick. If &gt;1 exist, jump to Pick_Designation via Get_Filtered_Designations (which re-queries with var_RestrictionType=&apos;Earned Revenue&apos; already set) so the user chooses from the filtered set. If 0 exist (org has not seeded an Earned Revenue GD yet), fall through to Get_Campaign_Default_Designations so the standard tier hierarchy still resolves a designation and the launcher does not dead-end.</description>
+        <name>Decide_EarnedRevenue_Count</name>
+        <label>Earned Revenue — count fork</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Get_Campaign_Default_Designations</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>0 — fall back to standard tier hierarchy</defaultConnectorLabel>
+        <rules>
+            <name>Decide_EarnedRevenue_Count_IsOne</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_EarnedRevenue_GD_Count</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <numberValue>1.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Loop_EarnedRevenue_First</targetReference>
+            </connector>
+            <label>1 — auto-select the single Earned Revenue GD</label>
+        </rules>
+        <rules>
+            <name>Decide_EarnedRevenue_Count_IsMulti</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_EarnedRevenue_GD_Count</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>1.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <isGoTo>true</isGoTo>
+                <targetReference>Get_Filtered_Designations</targetReference>
+            </connector>
+            <label>&gt;1 — show filtered Pick_Designation</label>
+        </rules>
+    </decisions>
     <decisions>
         <description>Reads Get_GC_Default_Designation_For_Resolver.Id (safe here because the lookup DID run on this branch). Routes to Assign_ResolverHasGCDefault_True if the parent GC has a GDD, or straight to Get_Campaign_Default_Designations if not.</description>
         <name>Decide_GC_Has_Default_Designation</name>
@@ -521,6 +629,39 @@
         </rules>
     </decisions>
     <decisions>
+        <description>Post-Campaign-pick router for Earned Income + Event Registration. Both leaves stamp exchange-transaction revenue rather than a donor contribution, so they should filter to designations tagged FQS_Restriction_Type__c=&apos;Earned Revenue&apos; rather than fall into the standard GC / Campaign / org-default hierarchy (which lands on Without Donor Restriction). Placed on all four post-Campaign-pick paths: Decide_Use_Campaign_Lookup default, Decide_Use_Campaign_Lookup_Optional default, Get_Looked_Up_Campaign connector, Get_Looked_Up_Campaign_Optional connector. Default (non-earned-revenue leaves) falls through to Get_Campaign_Default_Designations unchanged.</description>
+        <name>Decide_Route_Earned_Revenue</name>
+        <label>Route: Earned Revenue leaves?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Get_Campaign_Default_Designations</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Non-earned-revenue leaf — normal tier hierarchy</defaultConnectorLabel>
+        <rules>
+            <name>Decide_Route_Earned_Revenue_IsEarnedRevenue</name>
+            <conditionLogic>1 OR 2</conditionLogic>
+            <conditions>
+                <leftValueReference>in_leafSpecial</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>EarnedIncome</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>in_leafSpecial</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>EventRegistration</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Restriction_EarnedRevenue</targetReference>
+            </connector>
+            <label>Earned Income or Event Registration — auto-route</label>
+        </rules>
+    </decisions>
+    <decisions>
         <description>Multi-GDD support — after Count_Campaign_GDDs assigns var_Camp_GDDCount, if &gt;1 set Platform_Split flag; otherwise pass through to the resolver decision.</description>
         <name>Decide_Set_PlatformSplit_From_Campaign</name>
         <label>Campaign has &gt;1 GDDs?</label>
@@ -600,13 +741,13 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Route based on the checkbox: unchecked → table path, checked → lookup.</description>
+        <description>Route based on the checkbox: unchecked → table path (→ Decide_Route_Earned_Revenue so Earned Income / Event Registration leaves auto-route to Earned Revenue designations before the standard tier hierarchy), checked → lookup.</description>
         <name>Decide_Use_Campaign_Lookup</name>
         <label>Use Campaign lookup?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Get_Campaign_Default_Designations</targetReference>
+            <targetReference>Decide_Route_Earned_Revenue</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Use datatable</defaultConnectorLabel>
         <rules>
@@ -626,13 +767,13 @@
         </rules>
     </decisions>
     <decisions>
-        <description>Optional Campaign screen's lookup gate. Mirrors Decide_Use_Campaign_Lookup on the required path; distinct because the optional screen has its own checkbox variable so the two screens don't collide.</description>
+        <description>Optional Campaign screen&apos;s lookup gate. Mirrors Decide_Use_Campaign_Lookup on the required path (default target rewired to Decide_Route_Earned_Revenue so In-Kind is left on the standard hierarchy while Earned Income routes to Earned Revenue designations); distinct because the optional screen has its own checkbox variable so the two screens don&apos;t collide.</description>
         <name>Decide_Use_Campaign_Lookup_Optional</name>
         <label>Use Campaign lookup? (Optional)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Get_Campaign_Default_Designations</targetReference>
+            <targetReference>Decide_Route_Earned_Revenue</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Use datatable (or skip)</defaultConnectorLabel>
         <rules>
@@ -754,6 +895,22 @@
     </formulas>
     <interviewLabel>FQS Guided Gift Entry Subflow — Campaign + Designation Resolver {!$Flow.CurrentDateTime}</interviewLabel>
     <label>FQS Guided Gift Entry Subflow — Campaign + Designation Resolver</label>
+    <loops>
+        <description>Iterates Get_EarnedRevenue_Designations exactly once — reached only from Decide_EarnedRevenue_Count when the count is 1, so the collection has one row. The loop cursor exposes .Id (and every other field) on the current item for Assign_Resolve_Designation_EarnedRevenue_AutoSelect. Both connectors point at the same terminal because there is only ever one iteration; noMoreValuesConnector is defensive and cannot fire in practice.</description>
+        <name>Loop_EarnedRevenue_First</name>
+        <label>Loop Earned Revenue GDs (first only)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <collectionReference>Get_EarnedRevenue_Designations</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Assign_Resolve_Designation_EarnedRevenue_AutoSelect</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Assign_Set_ResolvedPath_Accepted</targetReference>
+        </noMoreValuesConnector>
+    </loops>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -837,6 +994,39 @@
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>
         <object>GiftDefaultDesignation</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Loads all active GiftDesignation rows tagged FQS_Restriction_Type__c=&apos;Earned Revenue&apos; for the Earned Income / Event Registration auto-route. Count is read by Count_EarnedRevenue_GDs so Decide_EarnedRevenue_Count can pick between auto-select (1 row), filtered picker (&gt;1 rows), or fall-through to the standard tier hierarchy (0 rows — org has not seeded an Earned Revenue GD). Not filtered on Campaign — earned-revenue designations are org-wide.</description>
+        <name>Get_EarnedRevenue_Designations</name>
+        <label>Get Earned Revenue Designations</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Count_EarnedRevenue_GDs</targetReference>
+        </connector>
+        <faultConnector>
+            <isGoTo>true</isGoTo>
+            <targetReference>Assign_DidError_True</targetReference>
+        </faultConnector>
+        <filterLogic>1 AND 2</filterLogic>
+        <filters>
+            <field>IsActive</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>FQS_Restriction_Type__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Earned Revenue</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>GiftDesignation</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -939,14 +1129,14 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Escape-hatch Campaign lookup (required screen). Writes via outputReference to rsv_Camp so downstream reads see .Id populated without needing a follow-on Assign — avoids [[flow-sobject-assign-drops-fields]].</description>
+        <description>Escape-hatch Campaign lookup (required screen). Writes via outputReference to rsv_Camp so downstream reads see .Id populated without needing a follow-on Assign — avoids [[flow-sobject-assign-drops-fields]]. Connector targets Decide_Route_Earned_Revenue so Earned Income / Event Registration land on Earned Revenue designations even when the user picked their Campaign via lookup rather than the datatable.</description>
         <name>Get_Looked_Up_Campaign</name>
         <label>Get Looked-Up Campaign</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_Campaign_Default_Designations</targetReference>
+            <targetReference>Decide_Route_Earned_Revenue</targetReference>
         </connector>
         <faultConnector>
             <isGoTo>true</isGoTo>
@@ -967,14 +1157,14 @@
         <queriedFields>Name</queriedFields>
     </recordLookups>
     <recordLookups>
-        <description>Escape-hatch Campaign lookup (optional screen). Same outputReference pattern as Get_Looked_Up_Campaign.</description>
+        <description>Escape-hatch Campaign lookup (optional screen). Same outputReference pattern as Get_Looked_Up_Campaign. Connector targets Decide_Route_Earned_Revenue so the earned-revenue auto-route fires on the Earned Income optional-Campaign branch (In-Kind uses the optional screen too but never hits the auto-route because its in_leafSpecial value is &apos;InKind&apos;).</description>
         <name>Get_Looked_Up_Campaign_Optional</name>
         <label>Get Looked-Up Campaign (Optional)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_Campaign_Default_Designations</targetReference>
+            <targetReference>Decide_Route_Earned_Revenue</targetReference>
         </connector>
         <faultConnector>
             <isGoTo>true</isGoTo>
@@ -1977,6 +2167,18 @@
     <variables>
         <description>Count of active GDDs on the picked Campaign (multi-GDD support). Populated by Count_Campaign_GDDs.</description>
         <name>var_Camp_GDDCount</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+    <variables>
+        <description>Count of active Earned Revenue designations org-wide (FQS_Restriction_Type__c=&apos;Earned Revenue&apos;). Populated by Count_EarnedRevenue_GDs on the Earned Income / Event Registration branch. Read by Decide_EarnedRevenue_Count for the auto-select vs picker vs tier-fallback fork.</description>
+        <name>var_EarnedRevenue_GD_Count</name>
         <dataType>Number</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>

@@ -16,7 +16,18 @@
             </value>
         </assignmentItems>
     </assignments>
-    <description>Fundraising Quick Start: on insert or update of a GiftTransaction, sets Name to a human-readable summary derived from the donor, amount, and category. Corporate matching gifts (MatchingEmployerTransactionId is set) render as &quot;&lt;Employer&gt; match - $&lt;amt&gt; on &lt;TransactionDate&gt;&quot;. Pledge payments anchor on TransactionDueDate (what is owed); one-time gifts anchor on TransactionDate. Two opt-outs: the FQS_Skip_Record_Naming custom permission (assign to integration users) and the FQS_Skip_Naming__c checkbox on the record.</description>
+    <description>Fundraising Quick Start: on insert or update of a GiftTransaction, sets Name to a human-readable summary derived from the donor, amount, category, and payment status.
+
+Rendering rules (evaluated in order — first match wins):
+• In-Kind gifts (FQS_In_Kind__c = TRUE) → &quot;&lt;Donor&gt; - In-Kind Gift on &lt;TransactionDate&gt;&quot;. Original Amount is intentionally $0 on in-kind gifts (the Fair Market Value carries the value on its own field), so the Name label omits the dollar figure to avoid rendering &quot;$0&quot;.
+• Corporate matching gifts (MatchingEmployerTransactionId is set) → &quot;&lt;Employer&gt; match - $&lt;amt&gt; on &lt;TransactionDate&gt;&quot;.
+• Pledge payments while unpaid (Status &lt;&gt; Paid) anchor on TransactionDueDate: &quot;&lt;Donor&gt; - $&lt;amt&gt; due &lt;TransactionDueDate&gt;&quot;.
+• Pledge payments once paid (Status = Paid) flip to the completed date: &quot;&lt;Donor&gt; - $&lt;amt&gt; paid &lt;TransactionDate&gt;&quot;.
+• All other gifts (one-time cash, earned income, event registration) → &quot;&lt;Donor&gt; - $&lt;amt&gt; on &lt;TransactionDate&gt;&quot;.
+
+Starting criteria (plain English): fires on insert OR on update when any of Donor, Original Amount, Transaction Date, Transaction Due Date, Matching Employer Transaction, Gift Transaction Category, or In-Kind flag changes. Additionally fires on Status change ONLY for Pledge Payment gifts, and only when the transition is into or out of Paid (Unpaid ↔ Paid, Pending ↔ Paid) — every other status transition (Failed, Canceled, Refunded, Written-Off) is ignored because those don&apos;t affect the rendered Name. Skipped when the running user holds the FQS_Skip_Record_Naming custom permission, when the record&apos;s FQS_Skip_Naming__c checkbox is checked, when Donor or Original Amount is blank, or when both Transaction Date and Transaction Due Date are blank (Expected/scheduled pledge installments qualify on Due Date alone).
+
+Two opt-outs: the FQS_Skip_Record_Naming custom permission (grant via the FQS Naming Opt Out permission set, typically to integration or migration users) and the FQS_Skip_Naming__c checkbox on the record.</description>
     <environments>Default</environments>
     <formulas>
         <name>Amt_Text</name>
@@ -34,16 +45,32 @@
         <expression>ISPICKVAL({!$Record.FQS_Gift_Transaction_Category__c}, &quot;Pledge Payment&quot;)</expression>
     </formulas>
     <formulas>
+        <name>Is_Paid</name>
+        <dataType>Boolean</dataType>
+        <expression>ISPICKVAL({!$Record.Status}, &quot;Paid&quot;)</expression>
+    </formulas>
+    <formulas>
+        <name>Is_In_Kind</name>
+        <dataType>Boolean</dataType>
+        <expression>{!$Record.FQS_In_Kind__c}</expression>
+    </formulas>
+    <formulas>
         <name>Computed_Name</name>
         <dataType>String</dataType>
         <expression>IF(
+    {!Is_In_Kind},
+    {!Get_Donor.Name} + &quot; - In-Kind Gift on &quot; + TEXT({!$Record.TransactionDate}),
+IF(
     {!Is_Corp_Match},
     {!Get_Donor.Name} + &quot; match - $&quot; + {!Amt_Text} + &quot; on &quot; + TEXT({!$Record.TransactionDate}),
+IF(
+    {!Is_Pledge_Payment} &amp;&amp; {!Is_Paid},
+    {!Get_Donor.Name} + &quot; - $&quot; + {!Amt_Text} + &quot; paid &quot; + TEXT({!$Record.TransactionDate}),
 IF(
     {!Is_Pledge_Payment},
     {!Get_Donor.Name} + &quot; - $&quot; + {!Amt_Text} + &quot; due &quot; + TEXT( IF( ISBLANK({!$Record.TransactionDueDate}), {!$Record.TransactionDate}, {!$Record.TransactionDueDate} ) ),
     {!Get_Donor.Name} + &quot; - $&quot; + {!Amt_Text} + &quot; on &quot; + TEXT({!$Record.TransactionDate})
-))</expression>
+))))</expression>
     </formulas>
     <interviewLabel>FQS Auto Name Gift Transaction {!$Flow.CurrentDateTime}</interviewLabel>
     <label>FQS Auto Name Gift Transaction</label>
@@ -95,7 +122,7 @@ IF(
         <connector>
             <targetReference>Get_Donor</targetReference>
         </connector>
-        <filterFormula>NOT( {!$Permission.FQS_Skip_Record_Naming} ) &amp;&amp; NOT( {!$Record.FQS_Skip_Naming__c} ) &amp;&amp; NOT( ISBLANK({!$Record.DonorId}) ) &amp;&amp; NOT( ISBLANK({!$Record.OriginalAmount}) ) &amp;&amp; NOT( ISBLANK({!$Record.TransactionDate}) ) &amp;&amp; ( ISNEW() || ISCHANGED({!$Record.DonorId}) || ISCHANGED({!$Record.OriginalAmount}) || ISCHANGED({!$Record.TransactionDate}) || ISCHANGED({!$Record.TransactionDueDate}) || ISCHANGED({!$Record.MatchingEmployerTransactionId}) || ISCHANGED({!$Record.FQS_Gift_Transaction_Category__c}) )</filterFormula>
+        <filterFormula>NOT( {!$Permission.FQS_Skip_Record_Naming} ) &amp;&amp; NOT( {!$Record.FQS_Skip_Naming__c} ) &amp;&amp; NOT( ISBLANK({!$Record.DonorId}) ) &amp;&amp; NOT( ISBLANK({!$Record.OriginalAmount}) ) &amp;&amp; ( NOT( ISBLANK({!$Record.TransactionDate}) ) || NOT( ISBLANK({!$Record.TransactionDueDate}) ) ) &amp;&amp; ( ISNEW() || ISCHANGED({!$Record.DonorId}) || ISCHANGED({!$Record.OriginalAmount}) || ISCHANGED({!$Record.TransactionDate}) || ISCHANGED({!$Record.TransactionDueDate}) || ISCHANGED({!$Record.MatchingEmployerTransactionId}) || ISCHANGED({!$Record.FQS_Gift_Transaction_Category__c}) || ISCHANGED({!$Record.FQS_In_Kind__c}) || ( ISCHANGED({!$Record.Status}) &amp;&amp; ISPICKVAL({!$Record.FQS_Gift_Transaction_Category__c}, &quot;Pledge Payment&quot;) &amp;&amp; ( ISPICKVAL({!$Record.Status}, &quot;Paid&quot;) || ISPICKVAL(PRIORVALUE({!$Record.Status}), &quot;Paid&quot;) ) ) )</filterFormula>
         <object>GiftTransaction</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordBeforeSave</triggerType>

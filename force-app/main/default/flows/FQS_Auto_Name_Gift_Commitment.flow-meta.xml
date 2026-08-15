@@ -16,7 +16,11 @@
             </value>
         </assignmentItems>
     </assignments>
-    <description>Fundraising Quick Start: on insert or update of a GiftCommitment, sets Name to a human-readable summary derived from the donor, amount, and commitment category. Recurring gifts render as &quot;&lt;Donor&gt; - $&lt;amt&gt; Monthly&quot;. Pledged Gifts and Grant Payouts render as &quot;&lt;Donor&gt; - $&lt;total&gt; over N year(s)&quot;. Two opt-outs: the FQS_Skip_Record_Naming custom permission (assign to integration users) and the FQS_Skip_Naming__c checkbox on the record (per-record override).</description>
+    <description>Fundraising Quick Start: on insert or update of a GiftCommitment, sets Name to a human-readable summary derived from the donor, amount, and commitment category. Recurring gifts render as &quot;&lt;Donor&gt; - $&lt;amt&gt; Monthly&quot;. Pledged Gifts and Grant Payouts render as &quot;&lt;Donor&gt; - $&lt;total&gt; over N year(s)&quot;. Everything else renders as &quot;&lt;Donor&gt; - $&lt;amt&gt;&quot;.
+
+Starting criteria (plain English): fires on insert OR on update when any of Donor, Expected Total Commitment Amount, Gift Commitment Category, Effective Start Date, or Expected End Date changes. Skipped when the running user holds the FQS_Skip_Record_Naming custom permission, when the record&apos;s FQS_Skip_Naming__c checkbox is checked, or when Donor / Expected Total Commitment Amount / Gift Commitment Category are blank.
+
+Two opt-outs: the FQS_Skip_Record_Naming custom permission (assign via the FQS Naming Opt Out permission set, typically to integration or migration users) and the FQS_Skip_Naming__c checkbox on the record (per-record override).</description>
     <environments>Default</environments>
     <formulas>
         <name>Amt_Text</name>
