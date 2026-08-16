@@ -4,6 +4,12 @@
 
 package.xml
 
+# TEMPORARY — FieldMappingConfig.fieldMappingConfig fails schema validation
+# ("Missing processType on FieldMappingConfigItem"). Ignore during deploys until
+# the schema-vs-processType placement bug is resolved (v67 DX artifact). Retrieval
+# via mdapi format still works; see memory [[fieldmappingconfig-metadata-type]].
+**/fieldMappingConfigs/**
+
 # LWC configuration files
 **/jsconfig.json
 **/.eslintrc.json
