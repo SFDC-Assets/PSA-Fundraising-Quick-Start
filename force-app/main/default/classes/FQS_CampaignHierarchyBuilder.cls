@@ -260,25 +260,21 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
         }
         if (!askCampaigns.isEmpty()) insert askCampaigns;
 
-        // 3b. Default OutreachSourceCode per tactical (depth 3+). Service is idempotent
-        //     via External_Id__c so re-runs on the same campaign never duplicate.
-        // After OSC creation, we set FQS_Create_Default_Outreach_Sources__c=true as a
-        // per-campaign audit flag. The record-triggered flow uses this checkbox as its
-        // entry filter, so we DIRECTLY dml the update here to make the audit-flag write —
-        // the flow will still fire for downstream calls but the service upsert is idempotent,
-        // so a second call inserts zero rows.
+        // 3b. Placeholder OutreachSourceCode per tactical (depth 3+). We set
+        //     FQS_Create_First_Outreach_Source_Code__c=true on each Ask; the record-triggered
+        //     flow FQS_Campaign_Create_First_OSC fires on the update and creates the placeholder
+        //     natively. Flow is idempotent via External_Id__c so re-runs never duplicate.
         Integer oscCreated = 0;
         if (!askCampaigns.isEmpty()) {
             List<Id> askIds = new List<Id>();
             for (Campaign a : askCampaigns) askIds.add(a.Id);
             try {
-                oscCreated = FQS_OutreachSourceCodeBuilder.buildDefaultsForCampaigns(askIds);
-                // Mark each Ask as provisioned so the checkbox reflects reality.
                 List<Campaign> flagUpdates = new List<Campaign>();
                 for (Id askId : askIds) {
-                    flagUpdates.add(new Campaign(Id = askId, FQS_Create_Default_Outreach_Sources__c = true));
+                    flagUpdates.add(new Campaign(Id = askId, FQS_Create_First_Outreach_Source_Code__c = true));
                 }
                 update flagUpdates;
+                oscCreated = [SELECT COUNT() FROM OutreachSourceCode WHERE CampaignId IN :askIds];
             } catch (Exception oscEx) {
                 // OSC failure must not roll back the whole hierarchy; surface a warning instead.
                 result.errorMessage = 'Hierarchy built, but Outreach Source Code creation failed: ' + oscEx.getMessage();

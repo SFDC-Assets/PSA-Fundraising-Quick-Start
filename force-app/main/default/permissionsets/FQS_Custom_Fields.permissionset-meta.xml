@@ -59,7 +59,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Campaign.FQS_Create_Default_Outreach_Sources__c</field>
+        <field>Campaign.FQS_Create_First_Outreach_Source_Code__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -308,6 +308,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftTransaction.FQS_Amount_Formatted__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>GiftTransaction.FQS_Donor_Tax_Date__c</field>
         <readable>true</readable>
@@ -378,8 +383,18 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftTransaction.FQS_TaxDeduction_Amount_Formatted__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>GiftTransaction.FQS_Tax_Receipt_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>GiftTransaction.FQS_Transaction_Date_LongForm__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -453,14 +468,6 @@
     <flowAccesses>
         <enabled>true</enabled>
         <flow>FQS_Campaign_Hierarchy_Setup</flow>
-    </flowAccesses>
-    <flowAccesses>
-        <enabled>true</enabled>
-        <flow>FQS_Find_Matching_Gift</flow>
-    </flowAccesses>
-    <flowAccesses>
-        <enabled>true</enabled>
-        <flow>FQS_Setup_Flow</flow>
     </flowAccesses>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Fundraising Quick Start Custom Fields</label>

@@ -636,26 +636,26 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
 **VII. Configure Outreach Source Code Auto-Generation**
 
-FQS ships with **automatic default Outreach Source Code creation** for every Tactical (Level 3+) campaign. One default OSC is created per tactical campaign so that gifts logged against the campaign can be attributed immediately without waiting for someone to hand-author source codes. Users are expected to **clone the default** to add channel variants (a second OSC for social paid, a third for direct mail, etc.).
+FQS ships with **automatic placeholder Outreach Source Code creation** for every Tactical (Level 3+) campaign. One placeholder OSC named **Create First OSC** is auto-created per tactical so the record is ready and waiting for the user — they fill in **Source Code** via the Generate Source Code quick action on the OSC record page, then rename. Users are expected to add additional OSCs for each channel variant (a second OSC for social paid, a third for direct mail, etc.).
 
-The auto-creation runs in two paths:
+The auto-creation runs in two paths, both routed through the same native record-triggered flow (`FQS_Campaign_Create_First_OSC`) — no Apex involved in the OSC create step:
 
-1. **During FQS Campaign Hierarchy Setup** — after the hierarchy builder inserts the Level 3 tacticals, `FQS_OutreachSourceCodeBuilder.buildDefaultsForCampaigns()` fires and inserts one OSC per tactical, then flips **Create Default Outreach Sources** to true on each Ask as an audit flag. The Final screen shows the count.
-2. **Manually per-campaign** — check the **Create Default Outreach Sources** checkbox on any Tactical campaign; the `FQS_Campaign_Create_Default_OSCs` record-triggered flow calls the same service. Idempotent — safe to re-check if the earlier OSC was deleted. The checkbox stays checked afterward as a persistent audit flag.
+1. **During FQS Campaign Hierarchy Setup** — after the hierarchy builder inserts the Level 3 tacticals, it flips **Create First Outreach Source Code** to true on each Ask. The record-triggered flow fires on the update and creates the placeholder OSC. The Final screen shows the count.
+2. **Manually per-campaign** — check the **Create First Outreach Source Code** checkbox on any Tactical campaign; the record-triggered flow creates the placeholder. Idempotent (flow Gets the placeholder by External_Id__c first and short-circuits if it already exists) — safe to re-check if the earlier OSC was deleted. The checkbox stays checked afterward as a persistent audit flag.
 
-The default OSC is populated as follows:
+The placeholder OSC is populated as follows:
 
 | OSC field | Value |
 |---|---|
-| `Name` | `{Campaign.Name} — {ChannelLabel}` |
-| `SourceCode` | Auto-generated slug: `{ShortSlug}-{YY}-{ChannelCode}` (e.g. `FY26-YEAREND-EMAIL-26-EM`). `ShortSlug` = uppercased `Campaign.FQS_Short_Name__c` when populated; hierarchy builder derives `Short Name` from the template key (e.g. `fy26-yearend-email`). Word-based fallback (first 4 of word 1 + first 2 of word 2) applies only when Short Name is blank. If **Outreach Source Code Auto-Generation** (below) is enabled in Setup, that formula overrides this default at save. |
+| `Name` | `Create First OSC` — CTA placeholder; rename after populating Source Code |
+| `SourceCode` | *(blank)* — populated by the **Generate Source Code** quick action on the OSC record page using the Setup-configured Code Formula (see the Outreach Source Code Auto-Generation section below) |
 | `CampaignId` | Parent tactical campaign |
 | `Status` | `Active` when `Campaign.IsActive = true`, else `Inactive` |
 | `UsageType` | `Fundraising` |
-| `MessageChannel` | Derived from `FQS_Campaign_Category__c` — see mapping below |
-| `FQS_Platform__c` | Derived from `FQS_Campaign_Category__c` — see mapping below |
+| `MessageChannel` | Pre-seeded from `FQS_Campaign_Category__c` as a starting point — see mapping below; user can change before generating the Source Code |
+| `FQS_Platform__c` | Pre-seeded from `FQS_Campaign_Category__c` as a starting point — see mapping below; user can change before generating the Source Code |
 | `FQS_Message_Channel_Segment__c` | Auto-derived formula field (Organic / Paid Digital / Owned or Acquired Lists) |
-| `External_Id__c` | `FQS-OSC-{CampaignId15}-DEFAULT` — unique key that guarantees one default per campaign |
+| `External_Id__c` | `FQS-OSC-{CampaignId15}-DEFAULT` — unique key that guarantees one placeholder per campaign |
 
 **Category → Channel/Platform mapping**
 
@@ -670,17 +670,21 @@ The default OSC is populated as follows:
 | Major Gifts | Physical | *(blank)* |
 | *(blank or other)* | Email | Other Email Platform |
 
-These defaults are the low-friction starting point. Users clone the default OSC to model additional channels per campaign; the formula-based auto-generation described below still governs the `SourceCode` value on the cloned records.
+These pre-seeds are a low-friction starting point. Users edit Channel/Platform on the placeholder as needed, then click **Generate Source Code** so the Setup-configured Code Formula populates `SourceCode`, and rename off "Create First OSC" to the intended tactic label. Add additional OSCs for each channel variant on the campaign the same way.
+
+> **Order-of-operations note.** Complete the **Outreach Source Code Auto-Generation** Setup step (below) before running Campaign Hierarchy Setup. Placeholder-OSC creation depends on the platform back-filling `SourceCode` at save; without the Setup step configured, the auto-provisioned placeholder may fail to insert on orgs where `SourceCode` is enforced not-null.
 
 ---
 
 Beyond the FQS defaults, Salesforce Fundraising can automatically generate a standardized `SourceCode` value on each Outreach Source Code record based on a formula you define. This keeps your source codes consistent and machine-readable without relying on gift officers to type them manually.
 
-The FQS convention maps UTM parameters to the Outreach Source Code data model as follows, using the FQS formula: `{FQS_Platform__c} + {MessageChannel} + {Campaign.FQS_Short_Name__c}`
+**Why FQS ships a custom `Platform` picklist.** The Outreach Source Code standard schema exposes `MessageChannelPlatform` as a **free-text** field, which produces the classic attribution problem: `Instagram`, `instagram`, `IG`, and `insta` all become distinct values, and rollups fragment. FQS introduces a custom picklist field, **Platform** (`FQS_Platform__c`), that constrains input to a governed set of options (Facebook, Instagram, Google Ads, Mailchimp, Direct Mail House, etc.). Users pick from the picklist, which keeps channel-level attribution clean and rollup-friendly on the OSC record even though it is not used in the SourceCode string itself.
+
+The FQS convention maps UTM parameters to the Outreach Source Code data model as follows, using a **campaign-anchored** Code Formula: `{Campaign.FQS_Short_Name__c}`
 
 | UTM Parameter | Maps to object | Maps to field | Why |
 |---|---|---|---|
-| UTM Source | Outreach Source Code | `FQS_Platform__c` (Platform) | The specific platform or source within a channel (e.g., `Instagram`, `mailchimp`, `google`) |
+| UTM Source | Outreach Source Code | `FQS_Platform__c` (Platform) | The specific platform or source within a channel (e.g., `Instagram`, `Mailchimp`, `Google Ads`), governed as a picklist for rollup consistency |
 | UTM Medium | Outreach Source Code | `MessageChannel` (Message Channel) | The delivery channel type (Email, Direct Mail, Social Paid, etc.) |
 | UTM Campaign | Campaign | `FQS_Short_Name__c` (Short Name) | A short, URL-safe campaign identifier (e.g., `fy26-yearend`) rather than the full campaign name |
 
@@ -700,18 +704,26 @@ The FQS convention maps UTM parameters to the Outreach Source Code data model as
 4. **Build the code generation formula**
    1. Using the reference fields, functions, and operators in the formula builder, construct the following formula:
       ```
-      {FQS_Platform__c} + {MessageChannel} + {Campaign.FQS_Short_Name__c}
+      {Campaign.FQS_Short_Name__c}
       ```
-   2. Add each token by selecting it from the reference fields panel rather than typing it manually — this ensures the syntax is valid.
-   3. The `+` operator concatenates the three values with no separator. If you want a delimiter between segments (e.g., a hyphen), add a string literal between them: `{FQS_Platform__c} + "-" + {MessageChannel} + "-" + {Campaign.FQS_Short_Name__c}`.
+   2. Add the token by selecting it from the reference fields panel rather than typing it manually — this ensures the syntax is valid.
+   3. Salesforce will **append random characters to the SourceCode automatically to guarantee uniqueness** whenever the Code Formula alone doesn't resolve to a distinct value (per the platform's own note: *"Random numbers are appended to the source code to ensure uniqueness if a code structure is not set or the Reference field is not referable."*). Because every Outreach Source Code under a single campaign shares the same Short Name, this uniqueness suffix is what makes the code distinct across the campaign's OSCs — the FQS convention leans on that behavior instead of hand-composing a multi-segment formula.
 
 5. **Validate and save**
    1. Click **Validate Syntax** to confirm the formula is valid. Fix any errors before proceeding.
    2. Click **Save**.
 
-Once saved, Salesforce will auto-populate the `SourceCode` field on new Outreach Source Code records according to this formula. For example, an Email Outreach Source Code with Platform `mailchimp` linked to a Campaign with Short Name `fy26-yearend` would generate `mailchimpEmailfy26-yearend` — adjust delimiter literals in the formula to produce the format your team needs.
+Once saved, Salesforce will auto-populate the `SourceCode` field on new Outreach Source Code records with `{Campaign.FQS_Short_Name__c}` plus the platform-appended uniqueness suffix. For example, three OSCs on a campaign with Short Name `fy26-yearend` might generate `fy26-yearend`, `fy26-yearend-a7f2`, and `fy26-yearend-9x31` — the campaign anchor is human-legible while Salesforce guarantees each row's SourceCode is unique.
 
-*Notice: The formula acts on the values in `FQS_Platform__c`, `MessageChannel`, and `FQS_Short_Name__c` at the time the Outreach Source Code record is saved. If any of those values are blank, that segment of the generated code will be blank. Ensure the Campaign Short Name is populated before creating Outreach Source Codes against a campaign, and that Platform is filled in on each Outreach Source Code record.*
+*Notice: The formula acts on the value of `FQS_Short_Name__c` at the time the Outreach Source Code record is saved. If Campaign Short Name is blank, only the auto-appended random suffix will populate the SourceCode. Ensure the Campaign Short Name is populated before creating Outreach Source Codes against a campaign.*
+
+**Graduating to a richer SourceCode.** If your team decides to encode more attribution directly in the SourceCode string rather than relying on the platform's uniqueness suffix, consider **replacing the campaign-anchored formula above with a multi-segment Code Formula** that composes several fields. You have three field families to choose between as building blocks:
+
+- The FQS custom **Platform** picklist (`FQS_Platform__c`) — governed values, best for rollup consistency
+- The standard **Message Channel Platform** (`MessageChannelPlatform`) free-text field — flexible catch-all
+- The standard **Message Channel Account** field — when attribution needs to tie to a specific account/handle (e.g., a specific Instagram business account or ad account) rather than the platform in the abstract
+
+Mix and match those inputs in your Code Formula Structure to match how your organization actually reports on channel performance (for example: `{FQS_Platform__c} + "-" + {MessageChannel} + "-" + {Campaign.FQS_Short_Name__c}`).
 
 Supporting documentation:
 

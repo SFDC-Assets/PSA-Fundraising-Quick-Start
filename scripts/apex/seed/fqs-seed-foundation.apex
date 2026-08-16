@@ -127,7 +127,7 @@ System.debug('Strategy campaigns upserted: ' + strategyIdByExtId.size());
 
 // --- Tier 3: Asks (level 3 — where OSCs and gifts land) ---
 // {extId, name, strategyExtId, dateToken, fyBucket (26/25/24), category, askKind, shortName}
-// shortName feeds FQS_OutreachSourceCodeBuilder's slug generator: normalized slug in URL/UTM style.
+// shortName is stored on Campaign.FQS_Short_Name__c for Setup > OSC Auto-Generation to consume: normalized slug in URL/UTM style.
 List<List<Object>> askSpec = new List<List<Object>>{
     // FY26 (9 asks)
     new List<Object>{'FQS-CMP-ASK-SPRING-EM-FY26',    'FQS Spring Appeal Email FY26',            'FQS-CMP-STRAT-ANNUAL-FY26', 'mar-may',     26, 'Annual Giving', 'email drop',              'fy26-spring-email'},
@@ -234,6 +234,10 @@ if (!defaultFlagWrites.isEmpty()) {
 
 // -------- OUTREACH SOURCE CODES --------
 // One OSC per ask campaign. SourceCode = ask ext-id minus 'FQS-CMP-ASK-' prefix.
+// (Seed provides SourceCode as a bootstrap value; customer-facing auto-creation via
+// FQS_Campaign_Create_First_OSC flow leaves it blank so the Setup-configured Generate
+// Source Code action populates it. Seed can't wait for that Setup step since it runs
+// in scratch/fresh orgs before post-install configuration.)
 // MessageChannel inferred from ext-id body ('-EM-' → Email, '-DM-' → Direct Mail).
 if (SKIP_OSCS) {
     System.debug('SKIP_OSCS=true — skipping OutreachSourceCode block.');
