@@ -2,7 +2,7 @@
 
 **Audience:** Salesforce admins, developers, and implementation partners who need to record fundraising activity against a single donor Account — whether by hand, in Data Loader, via Apex, or from a custom flow / LWC. Describes the records and fields to create for each gift type, and the platform-managed fields to leave alone.
 
-**Scope:** One donor at a time. For batch entry, refunds, adjustments, or Grant-Payment category transactions, see the platform's Gift Entry Manager and the underlying [`GiftRefund`](../force-app/main/default/objects/GiftRefund/) object.
+**Scope:** One donor at a time. For batch entry, refunds, adjustments, or Grant-Payment category transactions, see the platform's Gift Entry Manager and the underlying [`GiftRefund`](../../force-app/main/default/objects/GiftRefund/) object.
 
 ## Overview
 
@@ -10,11 +10,11 @@ The FQS data model supports five single-donor gift-entry scenarios:
 
 | Type | Primary record | Also creates | Category value |
 |---|---|---|---|
-| Outright Gift | `GiftTransaction` | Optional `GiftTransactionDesignation`, `GiftSoftCredit` | [`FQS_Gift_Transaction_Category__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) = `Outright Gift` |
-| In-Kind Gift | `GiftTransaction` | Optional `GiftTransactionDesignation`, `GiftSoftCredit` | `FQS_Gift_Transaction_Category__c` = `Outright Gift` (with [`FQS_In_Kind__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_In_Kind__c.field-meta.xml) = `true`) |
+| Outright Gift | `GiftTransaction` | Optional `GiftTransactionDesignation`, `GiftSoftCredit` | [`FQS_Gift_Transaction_Category__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) = `Outright Gift` |
+| In-Kind Gift | `GiftTransaction` | Optional `GiftTransactionDesignation`, `GiftSoftCredit` | `FQS_Gift_Transaction_Category__c` = `Outright Gift` (with [`FQS_In_Kind__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_In_Kind__c.field-meta.xml) = `true`) |
 | Earned Income / Event Registration | `GiftTransaction` | Optional `GiftTransactionDesignation`, `GiftSoftCredit` | `FQS_Gift_Transaction_Category__c` = `Other` |
 | Pledge Payment | `GiftTransaction` (against existing `GiftCommitment`) | Optional `GiftTransactionDesignation`, `GiftSoftCredit` | `FQS_Gift_Transaction_Category__c` = `Pledge Payment` |
-| New Pledge | `GiftCommitment` | Optional `GiftDefaultDesignation` (and a `GiftCommitmentSchedule` — see notes) | [`FQS_Gift_Commitment_Category__c`](../force-app/main/default/objects/GiftCommitment/fields/FQS_Gift_Commitment_Category__c.field-meta.xml) = `Pledged Gift` |
+| New Pledge | `GiftCommitment` | Optional `GiftDefaultDesignation` (and a `GiftCommitmentSchedule` — see notes) | [`FQS_Gift_Commitment_Category__c`](../../force-app/main/default/objects/GiftCommitment/fields/FQS_Gift_Commitment_Category__c.field-meta.xml) = `Pledged Gift` |
 
 **How to read the field tables below:**
 - **Required** — must be populated on insert.
@@ -28,12 +28,12 @@ These four fields drive rollups, tax receipts, and payment-cycle timing. They be
 
 | Field | Write on insert? | What it holds | Source of truth |
 |---|---|---|---|
-| [`OriginalAmount`](../force-app/main/default/objects/GiftTransaction/fields/OriginalAmount.field-meta.xml) | **Yes — required.** | The full gift amount as originally committed. Never mutate later — record a `GiftRefund` for adjustments. | You. |
-| [`CurrentAmount`](../force-app/main/default/objects/GiftTransaction/fields/CurrentAmount.field-meta.xml) | **No — platform-managed.** Writing returns `INVALID_FIELD_FOR_INSERT_UPDATE`. | `OriginalAmount` minus posted `GiftRefund` and adjustment amounts. Equals `OriginalAmount` at insert time. | Platform, derived from `OriginalAmount` and `GiftRefund` children. |
+| [`OriginalAmount`](../../force-app/main/default/objects/GiftTransaction/fields/OriginalAmount.field-meta.xml) | **Yes — required.** | The full gift amount as originally committed. Never mutate later — record a `GiftRefund` for adjustments. | You. |
+| [`CurrentAmount`](../../force-app/main/default/objects/GiftTransaction/fields/CurrentAmount.field-meta.xml) | **No — platform-managed.** Writing returns `INVALID_FIELD_FOR_INSERT_UPDATE`. | `OriginalAmount` minus posted `GiftRefund` and adjustment amounts. Equals `OriginalAmount` at insert time. | Platform, derived from `OriginalAmount` and `GiftRefund` children. |
 | `TaxDeductionAmount` | Optional — set explicitly when the receiptable portion differs from `OriginalAmount` (In-Kind FMV, Fee-for-Service with a partial charitable portion, event tickets with a benefit value). | The tax-deductible / receiptable portion of the gift. | You (or leave null to accept platform default). |
 | `NonTaxDeductibleAmount` | **No — platform-managed.** Writes are silently discarded. | Auto-calculated from `TaxDeductionAmount` and `CurrentAmount` (roughly: `CurrentAmount − TaxDeductionAmount`). | Platform. |
 | `TransactionDate` | **Yes — required.** | The date the donor made the gift. | You. |
-| [`TransactionDueDate`](../force-app/main/default/objects/GiftTransaction/fields/TransactionDueDate.field-meta.xml) | **Yes — required** on every insert, even for `Status = Paid`. Omitting returns `REQUIRED_FIELD_MISSING`. | The date the gift is expected to be received. | You. For `Status = Paid`, set equal to `TransactionDate`. For `Status ≠ Paid`, use the expected receipt date (e.g. `TransactionDate + 30`). |
+| [`TransactionDueDate`](../../force-app/main/default/objects/GiftTransaction/fields/TransactionDueDate.field-meta.xml) | **Yes — required** on every insert, even for `Status = Paid`. Omitting returns `REQUIRED_FIELD_MISSING`. | The date the gift is expected to be received. | You. For `Status = Paid`, set equal to `TransactionDate`. For `Status ≠ Paid`, use the expected receipt date (e.g. `TransactionDate + 30`). |
 | `CheckDate` | Optional. | Date printed on the check, when `PaymentMethod = Check`. | You. |
 | `AcknowledgementDate` | Optional. | Date the thank-you / acknowledgement was sent. Populated by the acknowledgement flow, not by gift entry. | Downstream automation. |
 
@@ -47,7 +47,7 @@ These four fields drive rollups, tax receipts, and payment-cycle timing. They be
 Applies to every gift type below.
 
 - The donor `Account` must exist. `Account.IsPersonAccount` determines `GiftTransaction.GiftType` (Individual vs Organizational).
-- If you plan to attach a `GiftDesignation`, at least one active row must exist in the org with the appropriate [`FQS_Restriction_Type__c`](../force-app/main/default/objects/GiftDesignation/fields/FQS_Restriction_Type__c.field-meta.xml). An `IsActive = true AND IsDefault = true` designation should exist to support unrestricted gifts.
+- If you plan to attach a `GiftDesignation`, at least one active row must exist in the org with the appropriate [`FQS_Restriction_Type__c`](../../force-app/main/default/objects/GiftDesignation/fields/FQS_Restriction_Type__c.field-meta.xml). An `IsActive = true AND IsDefault = true` designation should exist to support unrestricted gifts.
 - If you plan to attach a `Campaign` and want the Account's household Contacts to see it later in campaign pickers, a `CampaignMember` must link a household Contact to that Campaign.
 
 ## Outright Gift
@@ -65,22 +65,22 @@ Applies to every gift type below.
 | Field | Required? | Value / Guidance |
 |---|---|---|
 | `DonorId` | Required | Donor `Account.Id`. |
-| [`FQS_Gift_Transaction_Category__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) | Required | `Outright Gift` |
-| [`FQS_In_Kind__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_In_Kind__c.field-meta.xml) | Recommended | `false` |
-| `Status` | Required | For real gifts entered manually, use `Pending` and let payment reconciliation transition to `Paid`. Direct-writing `Paid` bypasses payment posting — acceptable for seed/test data only. See [`Status`](../force-app/main/default/objects/GiftTransaction/fields/Status.field-meta.xml). |
+| [`FQS_Gift_Transaction_Category__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) | Required | `Outright Gift` |
+| [`FQS_In_Kind__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_In_Kind__c.field-meta.xml) | Recommended | `false` |
+| `Status` | Required | For real gifts entered manually, use `Pending` and let payment reconciliation transition to `Paid`. Direct-writing `Paid` bypasses payment posting — acceptable for seed/test data only. See [`Status`](../../force-app/main/default/objects/GiftTransaction/fields/Status.field-meta.xml). |
 | **`OriginalAmount`** | Required | Full gift amount, e.g. `100.00` for a $100 check. See [Amounts & dates cheat sheet](#amounts--dates-cheat-sheet--gifttransaction). |
 | **`CurrentAmount`** | Do NOT set | Platform sets `CurrentAmount = OriginalAmount` on insert. Writing returns `INVALID_FIELD_FOR_INSERT_UPDATE`. |
 | **`TaxDeductionAmount`** | Recommended | For a cash-equivalent gift, equals `OriginalAmount` (or leave null and accept the platform default). Set to a smaller value only if part of the gift was a benefit to the donor (e.g. event ticket portion). |
 | **`NonTaxDeductibleAmount`** | Do NOT set | Auto-calculated from `TaxDeductionAmount` and `CurrentAmount`. |
 | **`TransactionDate`** | Required | Date the donor made the gift, e.g. today's date for a walk-in check. |
-| **`TransactionDueDate`** | Required | For a one-time gift with `Status = Paid`, set equal to `TransactionDate`. For `Status = Pending`, use the expected receipt date (e.g. `TransactionDate + 30`). See [`TransactionDueDate`](../force-app/main/default/objects/GiftTransaction/fields/TransactionDueDate.field-meta.xml). |
+| **`TransactionDueDate`** | Required | For a one-time gift with `Status = Paid`, set equal to `TransactionDate`. For `Status = Pending`, use the expected receipt date (e.g. `TransactionDate + 30`). See [`TransactionDueDate`](../../force-app/main/default/objects/GiftTransaction/fields/TransactionDueDate.field-meta.xml). |
 | **`CheckDate`** | Optional | Date printed on the check (populate only when `PaymentMethod = Check`). |
 | `GiftType` | Required | `Individual` if `Account.IsPersonAccount = true`, else `Organizational`. |
 | `PaymentMethod` | Required | e.g. `Credit Card`, `ACH`, `Check`, `PayPal`. |
 | `PaymentIdentifier` | Recommended for `Check` / `ACH` | Check number or ACH reference. |
 | `CampaignId` | Recommended | For attribution and rollups. |
 | `TaxReceiptStatus` | Recommended | `To Be Sent` |
-| `OutreachSourceCodeId` | Optional | If set, `OutreachSourceCode.CampaignId` must equal this record's `CampaignId`. See [`OutreachSourceCodeId`](../force-app/main/default/objects/GiftTransaction/fields/OutreachSourceCodeId.field-meta.xml). |
+| `OutreachSourceCodeId` | Optional | If set, `OutreachSourceCode.CampaignId` must equal this record's `CampaignId`. See [`OutreachSourceCodeId`](../../force-app/main/default/objects/GiftTransaction/fields/OutreachSourceCodeId.field-meta.xml). |
 
 ### `GiftTransactionDesignation` fields (optional but recommended)
 
@@ -90,7 +90,7 @@ Applies to every gift type below.
 | `GiftDesignationId` | Id of an `IsActive = true` `GiftDesignation`. Default to the org's `IsDefault = true` designation for unrestricted gifts. |
 | `Percent` | `100` (single-designation allocation). |
 | `Amount` | `GiftTransaction.OriginalAmount`. |
-| [`FQS_Restriction_Type__c`](../force-app/main/default/objects/GiftTransactionDesignation/fields/FQS_Restriction_Type__c.field-meta.xml) | Do NOT set — read-only formula mirroring `GiftDesignation.FQS_Restriction_Type__c`. |
+| [`FQS_Restriction_Type__c`](../../force-app/main/default/objects/GiftTransactionDesignation/fields/FQS_Restriction_Type__c.field-meta.xml) | Do NOT set — read-only formula mirroring `GiftDesignation.FQS_Restriction_Type__c`. |
 
 ## In-Kind Gift
 
@@ -104,7 +104,7 @@ Applies to every gift type below.
 
 ### Design rationale
 
-Hard-credit totals ([`GiftTransaction.OriginalAmount`](../force-app/main/default/objects/GiftTransaction/fields/OriginalAmount.field-meta.xml), rolled up as `DonorGiftSummary.TotalGiftsAmount`) should reflect the actual cash the donor gave the organization. In-kind gifts:
+Hard-credit totals ([`GiftTransaction.OriginalAmount`](../../force-app/main/default/objects/GiftTransaction/fields/OriginalAmount.field-meta.xml), rolled up as `DonorGiftSummary.TotalGiftsAmount`) should reflect the actual cash the donor gave the organization. In-kind gifts:
 
 - Are not cash flow and should not inflate cash-flow reporting or the donor's hard-credit total.
 - Have a fair market value that the **donor** ultimately determines for their own tax deduction — the charity records what was received and its estimated FMV, but the IRS-reportable deduction is the donor's responsibility. Storing this value in the same field as cash gifts commingles two different accounting concepts.
@@ -115,10 +115,10 @@ The convention below keeps hard credits cash-only, surfaces FMV in a dedicated f
 
 | Field | Value |
 |---|---|
-| [`FQS_In_Kind__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_In_Kind__c.field-meta.xml) | `true` |
+| [`FQS_In_Kind__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_In_Kind__c.field-meta.xml) | `true` |
 | `PaymentMethod` | `In-Kind` |
 | `Description` | Recommended — describe the donated item / service (e.g. "Auction items: silent auction baskets", "Legal services: pro bono review — 12 hrs"). |
-| [`FQS_Gift_Transaction_Category__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) | Still `Outright Gift` — In-Kind is a flag on the outright category, not a separate category. |
+| [`FQS_Gift_Transaction_Category__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) | Still `Outright Gift` — In-Kind is a flag on the outright category, not a separate category. |
 | `TaxReceiptStatus` | `To Be Sent` |
 | **`OriginalAmount`** | `0.00` — in-kind is not cash. |
 | **`CurrentAmount`** | Do NOT set — platform sets to `0.00`. |
@@ -141,14 +141,14 @@ The convention below keeps hard credits cash-only, surfaces FMV in a dedicated f
 1. Add `FQS_InKind_Fair_Market_Value__c` (Currency 18,2) to `GiftTransaction`. Inline help: *"Estimated fair market value of the donated goods or services. Used for tax receipts and reporting. The donor is responsible for determining the actual tax-deductible value on their own return."*
 2. Add `In-Kind Recognition` as an allowed value on `GiftSoftCredit.Role` (or document the string convention if `Role` is free-text).
 3. Update tax-receipt / acknowledgement logic to render `FQS_InKind_Fair_Market_Value__c` as an **estimated FMV** line when `FQS_In_Kind__c = true`, not as a deductible amount.
-4. Retrofit existing in-kind data in the org (including seed data — [FQSSeedGenerator.cls:595-664](../force-app/main/default/classes/FQSSeedGenerator.cls#L595-L664) currently records FMV in `OriginalAmount`). Migration steps: for each existing `GiftTransaction` with `FQS_In_Kind__c = true`, copy `OriginalAmount` → `FQS_InKind_Fair_Market_Value__c`, insert a matching self `GiftSoftCredit`, then set `OriginalAmount = 0` (this will cascade `CurrentAmount = 0` via the platform rollup).
+4. Retrofit existing in-kind data in the org (including seed data — [FQSSeedGenerator.cls:595-664](../../force-app/main/default/classes/FQSSeedGenerator.cls#L595-L664) currently records FMV in `OriginalAmount`). Migration steps: for each existing `GiftTransaction` with `FQS_In_Kind__c = true`, copy `OriginalAmount` → `FQS_InKind_Fair_Market_Value__c`, insert a matching self `GiftSoftCredit`, then set `OriginalAmount = 0` (this will cascade `CurrentAmount = 0` via the platform rollup).
 
 **No changes needed to existing donor-tier or DonorGiftSummary formulas.** In-kind gifts drop out of `TotalGiftsAmount` (hard credit — cash only) and appear in `TotalSoftCreditsAmount` / `TotalHardSoftCreditsAmount` (recognition — cash + in-kind). Reports that want the full donor value use `TotalHardSoftCreditsAmount`; reports that want cash flow use `TotalGiftsAmount`.
 
 ### Reporting implications
 
 - **Third-party soft-credit reports** (household, matching gift, solicitor) — filter out `GiftSoftCredit.Role = 'In-Kind Recognition'` to exclude self-credits.
-- **`GiftTransaction`-level tier formulas** ([`FQS_Is_Entry_Gift__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_Is_Entry_Gift__c.field-meta.xml), [`FQS_Is_Mid_Gift__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_Is_Mid_Gift__c.field-meta.xml), [`FQS_Is_Major_Gift__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_Is_Major_Gift__c.field-meta.xml)) — in-kind rows return `false` for all tiers because they compare against `CurrentAmount = 0`. If per-transaction tier tagging is needed for in-kind (e.g. a related list highlighting a major in-kind gift), extend the formulas to fall back to `FQS_InKind_Fair_Market_Value__c` when `FQS_In_Kind__c = true`. Donor-level tiers on `DonorGiftSummary` are unaffected — they roll up via `TotalHardSoftCreditsAmount`.
+- **`GiftTransaction`-level tier formulas** ([`FQS_Is_Entry_Gift__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_Is_Entry_Gift__c.field-meta.xml), [`FQS_Is_Mid_Gift__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_Is_Mid_Gift__c.field-meta.xml), [`FQS_Is_Major_Gift__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_Is_Major_Gift__c.field-meta.xml)) — in-kind rows return `false` for all tiers because they compare against `CurrentAmount = 0`. If per-transaction tier tagging is needed for in-kind (e.g. a related list highlighting a major in-kind gift), extend the formulas to fall back to `FQS_InKind_Fair_Market_Value__c` when `FQS_In_Kind__c = true`. Donor-level tiers on `DonorGiftSummary` are unaffected — they roll up via `TotalHardSoftCreditsAmount`.
 
 All other fields follow the Outright pattern (dates, receipt status, campaign, etc.).
 
@@ -162,8 +162,8 @@ All other fields follow the Outright pattern (dates, receipt status, campaign, e
 
 | Field | Value |
 |---|---|
-| [`FQS_Gift_Transaction_Category__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) | `Other` |
-| [`FQS_In_Kind__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_In_Kind__c.field-meta.xml) | `false` |
+| [`FQS_Gift_Transaction_Category__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) | `Other` |
+| [`FQS_In_Kind__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_In_Kind__c.field-meta.xml) | `false` |
 | `TaxReceiptStatus` | `Don't Send` (there is no charitable portion to receipt). |
 | **`OriginalAmount`** | Full payment amount, e.g. `250.00` for a $250 event ticket. |
 | **`CurrentAmount`** | Do NOT set — platform sets equal to `OriginalAmount`. |
@@ -178,7 +178,7 @@ All other fields follow the Outright pattern.
 
 **When to use:** Payment against a `GiftCommitment` the donor already has.
 
-**Prerequisite:** an active `GiftCommitment` exists on the donor with `Status IN (Active, Failing, Lapsed, Paused)` and [`FQS_Gift_Commitment_Category__c`](../force-app/main/default/objects/GiftCommitment/fields/FQS_Gift_Commitment_Category__c.field-meta.xml) `IN (Pledged Gift, Recurring Gift)`.
+**Prerequisite:** an active `GiftCommitment` exists on the donor with `Status IN (Active, Failing, Lapsed, Paused)` and [`FQS_Gift_Commitment_Category__c`](../../force-app/main/default/objects/GiftCommitment/fields/FQS_Gift_Commitment_Category__c.field-meta.xml) `IN (Pledged Gift, Recurring Gift)`.
 
 **Records to create (in order):**
 
@@ -192,8 +192,8 @@ All other fields follow the Outright pattern.
 |---|---|---|
 | `DonorId` | Required | Donor `Account.Id`. |
 | `GiftCommitmentId` | Required | Id of the parent `GiftCommitment`. |
-| [`FQS_Gift_Transaction_Category__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) | Required | `Pledge Payment` |
-| [`FQS_Recurring__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_Recurring__c.field-meta.xml) | Auto-derive | `true` when the parent commitment's `FQS_Gift_Commitment_Category__c = Recurring Gift`, else `false`. |
+| [`FQS_Gift_Transaction_Category__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) | Required | `Pledge Payment` |
+| [`FQS_Recurring__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_Recurring__c.field-meta.xml) | Auto-derive | `true` when the parent commitment's `FQS_Gift_Commitment_Category__c = Recurring Gift`, else `false`. |
 | `Status` | Required | Same rules as Outright — prefer `Pending` for entry, let reconciliation transition to `Paid`. |
 | **`OriginalAmount`** | Required | Per-installment amount for this payment. Prefill from the parent `GiftCommitmentSchedule.TransactionAmount` when a schedule exists — that's the amount the schedule expects. E.g. `500.00` for a $2,000 pledge paid quarterly. |
 | **`CurrentAmount`** | Do NOT set | Platform sets equal to `OriginalAmount`. |
@@ -211,7 +211,7 @@ All other fields follow the Outright pattern.
 The parent commitment's `FulfillmentType` drives whether/what designation to record on the payment:
 
 - **Unconditional commitment** — no designation needs to be recorded on the payment; the commitment's `GiftDefaultDesignation` (if any) is the source of truth.
-- **Conditional commitment** — record a `GiftTransactionDesignation` pointing at an `IsActive = true` `GiftDesignation` whose [`FQS_Restriction_Type__c`](../force-app/main/default/objects/GiftDesignation/fields/FQS_Restriction_Type__c.field-meta.xml) matches the commitment's existing `GiftDefaultDesignation.FQS_Restriction_Type__c`. Mismatched restrictions violate the pledge's intent.
+- **Conditional commitment** — record a `GiftTransactionDesignation` pointing at an `IsActive = true` `GiftDesignation` whose [`FQS_Restriction_Type__c`](../../force-app/main/default/objects/GiftDesignation/fields/FQS_Restriction_Type__c.field-meta.xml) matches the commitment's existing `GiftDefaultDesignation.FQS_Restriction_Type__c`. Mismatched restrictions violate the pledge's intent.
 
 Field values are the same as the Outright case: `Percent = 100`, `Amount = OriginalAmount`.
 
@@ -231,9 +231,9 @@ Field values are the same as the Outright case: `Percent = 100`, `Amount = Origi
 |---|---|---|
 | `DonorId` | Required | Donor `Account.Id`. |
 | `Name` | Required | Donor-facing pledge name. Object has a formula default: *Donor + " - " + TransactionAmount + " " + TransactionPeriod*. |
-| [`FQS_Gift_Commitment_Category__c`](../force-app/main/default/objects/GiftCommitment/fields/FQS_Gift_Commitment_Category__c.field-meta.xml) | Required | `Pledged Gift` (or `Recurring Gift` for a monthly/quarterly recurring). |
+| [`FQS_Gift_Commitment_Category__c`](../../force-app/main/default/objects/GiftCommitment/fields/FQS_Gift_Commitment_Category__c.field-meta.xml) | Required | `Pledged Gift` (or `Recurring Gift` for a monthly/quarterly recurring). |
 | `Status` | Required | `Active` for a new pledge. |
-| **`ExpectedTotalCmtAmount`** | Required | Total amount the donor has committed to give over the life of the pledge, e.g. `12000.00` for a $12,000 five-year pledge. Drives donor-tier commitment formulas ([`FQS_Is_Entry_Commitment__c`](../force-app/main/default/objects/GiftCommitment/fields/FQS_Is_Entry_Commitment__c.field-meta.xml) etc.). |
+| **`ExpectedTotalCmtAmount`** | Required | Total amount the donor has committed to give over the life of the pledge, e.g. `12000.00` for a $12,000 five-year pledge. Drives donor-tier commitment formulas ([`FQS_Is_Entry_Commitment__c`](../../force-app/main/default/objects/GiftCommitment/fields/FQS_Is_Entry_Commitment__c.field-meta.xml) etc.). |
 | **`CurrentCommitmentAmount`** | Do NOT set | System-calculated rollup — sum of paid installment `GiftTransaction.CurrentAmount` values. |
 | **`OutstandingCommitmentAmount`** | Do NOT set | System-calculated rollup — `ExpectedTotalCmtAmount − CurrentCommitmentAmount`. |
 | **`EffectiveStartDate`** | Required | Date the pledge started / was made. |
@@ -276,8 +276,8 @@ Reference guidance for the four common pledge shapes:
 | `ParentRecordId` | Id of the `GiftCommitment`. |
 | `GiftDesignationId` | Id of the target `GiftDesignation`. For Unconditional commitments, use the org's `IsActive = true AND IsDefault = true` designation. For Conditional, use a designation whose `FQS_Restriction_Type__c` matches the donor's restriction. |
 | `AllocatedPercentage` | `100` for a single-designation allocation. Split across multiple rows for split allocations (must sum to 100). |
-| [`FQS_Restriction_Type__c`](../force-app/main/default/objects/GiftDefaultDesignation/fields/FQS_Restriction_Type__c.field-meta.xml) | Do NOT set — read-only formula mirroring the parent `GiftDesignation`. |
-| [`FQS_Parent_Type__c`](../force-app/main/default/objects/GiftDefaultDesignation/fields/FQS_Parent_Type__c.field-meta.xml) | Do NOT set — formula returning `GiftCommitment`, `Opportunity`, or `Campaign` from `ParentRecordId`. |
+| [`FQS_Restriction_Type__c`](../../force-app/main/default/objects/GiftDefaultDesignation/fields/FQS_Restriction_Type__c.field-meta.xml) | Do NOT set — read-only formula mirroring the parent `GiftDesignation`. |
+| [`FQS_Parent_Type__c`](../../force-app/main/default/objects/GiftDefaultDesignation/fields/FQS_Parent_Type__c.field-meta.xml) | Do NOT set — formula returning `GiftCommitment`, `Opportunity`, or `Campaign` from `ParentRecordId`. |
 
 **Note:** if `FulfillmentType = Unconditional` and no explicit designation allocation is needed, skip the `GiftDefaultDesignation` entirely — Unconditional means "no restriction; use org default."
 
@@ -302,7 +302,7 @@ Recognize a related Account for a gift they didn't legally give (household membe
 
 ### Designations — `GiftTransactionDesignation` (transactions) / `GiftDefaultDesignation` (commitments)
 
-**Restriction Type ([`GiftDesignation.FQS_Restriction_Type__c`](../force-app/main/default/objects/GiftDesignation/fields/FQS_Restriction_Type__c.field-meta.xml))** — FASB ASU 2016-14 net-asset classes:
+**Restriction Type ([`GiftDesignation.FQS_Restriction_Type__c`](../../force-app/main/default/objects/GiftDesignation/fields/FQS_Restriction_Type__c.field-meta.xml))** — FASB ASU 2016-14 net-asset classes:
 
 - **Without Donor Restriction** — usable for any program at any time.
 - **With Donor Restriction — Purpose** — must be spent on a specific program or use.
@@ -320,7 +320,7 @@ Recognize a related Account for a gift they didn't legally give (household membe
 Attach a `Campaign` for attribution by setting `CampaignId` on the `GiftTransaction` or `GiftCommitment`.
 
 - To keep the household on the campaign for future filtering, also ensure a `CampaignMember` exists linking one of the donor's Contacts to the Campaign. `CampaignMember` requires a `ContactId`, so Org donors without associated Contacts cannot be tracked as members directly.
-- If both `CampaignId` and `OutreachSourceCodeId` are populated on a `GiftTransaction`, `OutreachSourceCode.CampaignId` must equal `GiftTransaction.CampaignId`. Recommended pattern: pick the OSC first, then set `CampaignId` from the OSC's parent Campaign. See [`OutreachSourceCodeId`](../force-app/main/default/objects/GiftTransaction/fields/OutreachSourceCodeId.field-meta.xml).
+- If both `CampaignId` and `OutreachSourceCodeId` are populated on a `GiftTransaction`, `OutreachSourceCode.CampaignId` must equal `GiftTransaction.CampaignId`. Recommended pattern: pick the OSC first, then set `CampaignId` from the OSC's parent Campaign. See [`OutreachSourceCodeId`](../../force-app/main/default/objects/GiftTransaction/fields/OutreachSourceCodeId.field-meta.xml).
 
 ### Tributes — `GiftTribute`
 
@@ -346,7 +346,7 @@ Hard rules that produce misleading errors or silent data loss when violated. Ful
 ## What's out of scope for single-donor entry
 
 - **Batch entry / multi-gift ingest** — use the platform's Gift Entry Manager, Data Loader, or a bulk Apex path.
-- **Refunds / adjustments** — insert a [`GiftRefund`](../force-app/main/default/objects/GiftRefund/) child, do not mutate `CurrentAmount` on the original `GiftTransaction`.
-- **Grant Payment category** — [`FQS_Gift_Transaction_Category__c`](../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) supports `Grant Payment`, but that flow uses `Opportunity` (Grant record type) + `GiftCommitment` (`CommitmentType = 'Grant'`) as the source of truth. See [docs/npc-automation-notes.md § Opportunity](./npc-automation-notes.md).
+- **Refunds / adjustments** — insert a [`GiftRefund`](../../force-app/main/default/objects/GiftRefund/) child, do not mutate `CurrentAmount` on the original `GiftTransaction`.
+- **Grant Payment category** — [`FQS_Gift_Transaction_Category__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) supports `Grant Payment`, but that flow uses `Opportunity` (Grant record type) + `GiftCommitment` (`CommitmentType = 'Grant'`) as the source of truth. See [docs/npc-automation-notes.md § Opportunity](./npc-automation-notes.md).
 - **Fee decomposition** — `GatewayTransactionFee`, `ProcessorTransactionFee`, `DonorCoverAmount` are populated by payment-processor integrations, not by manual entry paths.
 - **Standalone `GiftTribute` entry** — tributes always attach to a `GiftTransaction`. There is no standalone tribute entry point in FQS.

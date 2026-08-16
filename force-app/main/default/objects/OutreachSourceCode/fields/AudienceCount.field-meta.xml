@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AudienceCount</fullName>
+    <description>Integer. Read by OutreachSummary.ResponseRate — CEIL(DonorCount / AudienceCount × 100). Null AudienceCount yields null Response Rate.</description>
+    <inlineHelpText>How many people this outreach was sent to — email list size, print quantity, ad-reach estimate. Required for Response Rate on the child Outreach Summary to compute.</inlineHelpText>
+</CustomField>

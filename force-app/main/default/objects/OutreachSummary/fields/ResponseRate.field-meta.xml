@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>ResponseRate</fullName>
-    <inlineHelpText>Percentage of the outreach audience who made at least one paid gift. Calculated as CEIL(DonorCount / AudienceCount × 100). Only populated if your org uses Outreach Source Codes and Audience Count is populated on them. For campaign-level records, audience size is the sum across all related outreach source codes. Null otherwise.</inlineHelpText>
+    <description>Set automatically. Reads AudienceCount from the related OutreachSourceCode(s). Null AudienceCount yields null Response Rate.</description>
+    <inlineHelpText>Percentage of the outreach audience who made at least one paid gift. Calculated as CEIL(DonorCount / AudienceCount × 100).</inlineHelpText>
 </CustomField>

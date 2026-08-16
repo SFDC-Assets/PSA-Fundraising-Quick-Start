@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Name</fullName>
+    <description>Written by the `FQS_Auto_Name_Gift_Transaction` flow on insert and on relevant updates. Skipped when `FQS_Skip_Naming__c = TRUE`.</description>
+    <inlineHelpText>Set automatically by the FQS naming flow. Format: donor + amount + date + gift kind. To keep a specific Name from being overwritten — e.g., a name imported from another system — check *Skip Naming*.</inlineHelpText>
     <trackHistory>false</trackHistory>
 </CustomField>

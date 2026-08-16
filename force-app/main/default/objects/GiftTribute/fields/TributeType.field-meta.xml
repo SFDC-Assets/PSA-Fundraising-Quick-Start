@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>TributeType</fullName>
-    <inlineHelpText>Honor for a gift celebrating a living recipient (birthday, milestone, achievement). Memorial for a gift given in memory of someone who has passed.</inlineHelpText>
+    <description>Unrestricted picklist. Standard values: Honor, Memorial.</description>
+    <inlineHelpText>Pick whether this tribute is In Honor Of (living recipient) or In Memory Of (deceased).</inlineHelpText>
 </CustomField>

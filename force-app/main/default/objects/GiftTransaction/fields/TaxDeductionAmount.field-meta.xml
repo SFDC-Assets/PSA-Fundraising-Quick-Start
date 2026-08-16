@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>TaxDeductionAmount</fullName>
+    <description>Manual field. Blank means &quot;assume full deduction&quot; for receipting purposes. For in-kind gifts, work with `FQS_Fair_Market_Value_Amount__c` — legal deduction determination is the donor&apos;s responsibility.</description>
+    <inlineHelpText>Automatically calculated as Current Amount minus Non-Tax Deductible Amount. For In-Kind gifts, the deductible portion is instead tracked on Fair Market Value Amount, since the donor determines the FMV and the auto-calculation does not apply.</inlineHelpText>
 </CustomField>

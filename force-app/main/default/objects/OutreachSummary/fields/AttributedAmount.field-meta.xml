@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>AttributedAmount</fullName>
-    <inlineHelpText>Total revenue credited to this campaign or outreach source code. Combines one-time cash gifts with the earned-to-date value of recurring pledges originated by this outreach (daily rate × days active). Increases over time while recurring pledges remain active — it represents cumulative revenue earned, not just what was raised during the campaign window.</inlineHelpText>
+    <description>Set automatically. Distinct from TotalGiftTransactionAmount — attribution here credits recurring pledges by earned-to-date value, not paid installments.</description>
+    <inlineHelpText>Total revenue credited to this campaign or outreach source code. Combines one-time cash gifts with the earned-to-date value of recurring pledges originated by this outreach.</inlineHelpText>
 </CustomField>

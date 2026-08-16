@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Ultimate_Parent_Campaign__c</fullName>
-    <description>Fundraising Quick Start: walks up to 5 levels of campaign hierarchy to return the name of the topmost ancestor. Returns the campaign&apos;s own name when it has no parent.</description>
+    <description>Formula walks `Parent.Parent.Parent.Parent.Parent.Name` down to `Name`. Text (name), not an Id. Depth limit is 5; deeper trees return the level-5 ancestor, not the true root.</description>
     <formula>IF(NOT(ISBLANK(Parent.Parent.Parent.Parent.Parent.Name)), Parent.Parent.Parent.Parent.Parent.Name,
 IF(NOT(ISBLANK(Parent.Parent.Parent.Parent.Name)), Parent.Parent.Parent.Parent.Name,
 IF(NOT(ISBLANK(Parent.Parent.Parent.Name)), Parent.Parent.Parent.Name,
 IF(NOT(ISBLANK(Parent.Parent.Name)), Parent.Parent.Name,
 IF(NOT(ISBLANK(Parent.Name)), Parent.Name, Name)))))</formula>
     <formulaTreatBlanksAs>BlankAsBlank</formulaTreatBlanksAs>
+    <inlineHelpText>Set automatically. The name of the topmost campaign in this hierarchy branch (walks up to 5 levels of parents). Returns this campaign&apos;s own name when it has no parent.</inlineHelpText>
     <label>Ultimate Parent Campaign</label>
     <required>false</required>
     <trackHistory>false</trackHistory>

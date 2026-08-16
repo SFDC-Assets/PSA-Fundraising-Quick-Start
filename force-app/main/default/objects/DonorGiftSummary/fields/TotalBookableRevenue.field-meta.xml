@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TotalBookableRevenue</fullName>
+    <description>Written by the NPC engine. Combines TotalGiftsAmount plus the unpaid portion of open pledges.</description>
+    <inlineHelpText>Set automatically. Sum of paid gifts plus outstanding pledge balances — the total revenue &quot;booked&quot; from this donor.</inlineHelpText>
+</CustomField>

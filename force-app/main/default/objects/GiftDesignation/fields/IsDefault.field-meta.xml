@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>IsDefault</fullName>
-    <inlineHelpText>Indicates whether the unrestricted gift amount is to be allocated to this designation as default (true) or not (false).</inlineHelpText>
+    <description>Load-bearing. The managed frops_flow__ProcessGiftCommitment aborts with &quot;org wide default designation is not yet configured&quot; if no active GD has IsDefault=true. FQS seed flags FQS-GD-GENERAL-OPERATING on install. Only one GD may be IsDefault=true at a time; the platform enforces uniqueness across active records. To retire the current default, promote a successor first.</description>
+    <inlineHelpText>Check exactly ONE active designation as the org-wide default — usually the general operating fund. Gifts that arrive without an explicit designation split fall through to this bucket.</inlineHelpText>
     <trackHistory>false</trackHistory>
 </CustomField>

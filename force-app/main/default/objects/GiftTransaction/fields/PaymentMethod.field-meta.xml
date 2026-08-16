@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>PaymentMethod</fullName>
+    <description>Required. Drives visibility of downstream fields (`CheckDate` for check gifts; `FQS_Fair_Market_Value_Amount__c` for `In-Kind`). On pledge / recurring payments, inherits from the parent schedule.</description>
     <trackHistory>false</trackHistory>
     <type>Picklist</type>
 </CustomField>

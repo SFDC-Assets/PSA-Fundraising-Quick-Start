@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GiftsThisYearAmount</fullName>
+    <description>Written by the NPC engine. Calendar-year windowed. Feeds the FQS_Annual_Donor_Level* formula fields.</description>
+    <inlineHelpText>Set automatically. Dollar total of this donor&apos;s Paid gifts in the current calendar year.</inlineHelpText>
+</CustomField>

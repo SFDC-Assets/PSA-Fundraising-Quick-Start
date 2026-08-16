@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MessageChannelPlatform</fullName>
+    <description>Free text (255). Distinct from the FQS-authored FQS_Platform__c picklist.</description>
+</CustomField>

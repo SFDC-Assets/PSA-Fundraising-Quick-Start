@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>PaymentIdentifier</fullName>
+    <description>Free-text. Common patterns: check number for checks, transaction ID for card / ACH, wire confirmation for wire transfers, order number for gateway transactions.</description>
+    <inlineHelpText>The reference number for the payment channel — check number, wire confirmation number, or merchant order number. Useful for reconciliation.</inlineHelpText>
     <trackHistory>false</trackHistory>
 </CustomField>

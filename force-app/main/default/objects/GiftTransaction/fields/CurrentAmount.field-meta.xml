@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>CurrentAmount</fullName>
-    <description>System-managed. Equals OriginalAmount minus posted GiftRefund and adjustment amounts. Not writable via API or Apex — attempting to set returns INVALID_FIELD_FOR_INSERT_UPDATE. To reduce an amount, insert a GiftRefund child instead of mutating CurrentAmount. See docs/npc-automation-notes.md.</description>
-    <inlineHelpText>The remaining amount after any refunds or adjustments. Updates automatically.</inlineHelpText>
+    <description>Not writable via API or Apex — attempting to set returns `INVALID_FIELD_FOR_INSERT_UPDATE`. To reduce, insert a GiftRefund child instead of mutating this field.</description>
+    <inlineHelpText>Set automatically. The gift amount remaining after any refunds or adjustments. Equals the Original Amount unless a Gift Refund has been posted.</inlineHelpText>
 </CustomField>

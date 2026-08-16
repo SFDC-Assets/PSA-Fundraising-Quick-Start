@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Short_Name__c</fullName>
-    <description>Fundraising Quick Start: short, URL-safe identifier for use in UTM campaign codes and Outreach Summary source tracking. Lowercase alphanumeric and hyphens recommended (e.g. fy26-yearend-email).</description>
+    <description>Fundraising Quick Start: short, URL-safe identifier for use in UTM campaign codes and Outreach Summary source tracking. Lowercase alphanumeric and hyphens recommended (e.g. `fy26-yearend-email`). Read by Outreach Source Code naming conventions; not enforced as unique.</description>
+    <inlineHelpText>Equivalent to `utm_campaign` in web analytics. Used as the campaign segment when naming Outreach Source Codes. Also use this value directly as `utm_campaign` on any URLs promoted by this campaign. Lowercase, alphanumeric and hyphens only.</inlineHelpText>
     <label>Short Name</label>
     <length>64</length>
     <required>false</required>
-    <inlineHelpText>Equivalent to utm_campaign in web analytics. Used as the campaign segment when naming Outreach Source Codes (e.g. Short Name "fy26-yearend" → source code "EM-FY26-YEAREND-01"). Also use this value directly as utm_campaign on any URLs promoted by this campaign. Lowercase, alphanumeric and hyphens only — no spaces.</inlineHelpText>
     <trackHistory>false</trackHistory>
     <type>Text</type>
     <unique>false</unique>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CurrentYearSoftCreditsAmount</fullName>
+    <description>Written by the NPC engine. Feeds the FQS_Annual_Donor_Level* formula fields when a tier&apos;s Credit_Type__c = &apos;Hard + Soft Credits&apos;.</description>
+    <inlineHelpText>Set automatically. Dollar total of soft credits attributed to this donor in the current calendar year.</inlineHelpText>
+</CustomField>

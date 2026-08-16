@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
     <fullName>FulfillmentType</fullName>
-    <description>Allowed values: Unconditional, Conditional.</description>
-    <inlineHelpText>Indicates whether the committed funds can be used immediately (Unconditional) or only after specific conditions are met (Conditional).</inlineHelpText>
+    <description>Restricted picklist. Legal values: **Unconditional**, **Conditional**. Reporting-only in FQS. Default: `Unconditional`.</description>
+    <inlineHelpText>Choose *Unconditional* when the committed funds are usable as soon as they arrive. Choose *Conditional* when the gift is contingent on specific milestones being met — typical for grants with reporting or programmatic conditions.</inlineHelpText>
 </CustomField>

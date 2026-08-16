@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>BestGiftYear</fullName>
+    <description>Written by the NPC engine as a 4-digit year string (&quot;2024&quot;). Not fiscal-year-aware.</description>
+    <inlineHelpText>Set automatically. The calendar year during which this donor gave the most.</inlineHelpText>
+</CustomField>

@@ -558,6 +558,12 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
    5. In the **Help Text** field, enter: *Check Number of Bank Account Name*
    6. Click **Save**.
 
+8. **Apply the remaining standard-field help text and descriptions**
+
+   Beyond the six standard fields covered in steps 1–7, FQS recommends Help Text and Description on ~32 additional Nonprofit Cloud–owned standard fields across Campaign, Gift Commitment, Gift Commitment Schedule, Gift Transaction Designation, Gift Default Designation, Gift Soft Credit, Gift Default Soft Credit, Gift Tribute, Gift Refund, Campaign Member, and Gift Batch. Salesforce does not include help-text or description edits to standard fields in unmanaged packages, so this bulk pass must be applied manually in every install.
+
+   The paste-ready checklist lives at `docs/manual-help-text-setup.md` in this repository. Open it in your working copy or on the FQS GitHub page, then walk each object → Fields & Relationships → field edit and paste the Help Text and Description into the corresponding fields. Estimated time: 45–60 minutes for the full pass. Fields already applied in steps 3–7 above are called out with a **✔ already in README** marker so you don't do them twice.
+
 **V. Configure Designation, Soft Credit, and Tribute Objects**
 
 <!-- TODO: still to fill in:
@@ -989,7 +995,7 @@ Standard `Standard_Account_Duplicate_Rule` and `Standard_Contact_Duplicate_Rule`
 
 **Review your own additional Duplicate Rules:** If your org already has custom Duplicate Rules on Account, Contact, or Lead, review them alongside these to make sure sort orders, blank-value behavior, and alert text don't conflict. Consider whether you also want dedicated rules for Campaigns of type `FQS_Fundraising` or for the Fundraising objects (Gift Commitment, Gift Transaction, Gift Designation) — the accelerator does not ship dupe rules for those because their duplicate-detection semantics are org-specific.
 
-**Build an Automation Bypass:** <!-- TODO: describe the recommended bypass pattern once flows are finalized. Candidate: add a Bypass_Automation__c checkbox to flow entry criteria to short-circuit sync flows during bulk data loads. -->
+**Automation Bypass During Bulk Loads:** The accelerator ships an **FQS Bypass Automation** custom permission and matching permission set (`FQS_Bypass_Automation`). Every FQS record-triggered flow that maintains derived state — currently the three flows that recalculate `GiftCommitment.FulfillmentType` (`FQS_GC_Fulfillment_On_Change`, `FQS_GC_Fulfillment_From_GDD`, `FQS_GC_Fulfillment_From_GDD_Delete`) — checks `$Permission.FQS_Bypass_Automation` in its entry criteria and short-circuits when it is TRUE. Assign this permission set to any user or integration whose transactions should skip the per-record recalc (migration runners, Data Loader operators, mass-update jobs). After the bulk load completes, run `scripts/apex/fqs-recalc-gc-fulfillmenttype.apex` (via `sf apex run -f scripts/apex/fqs-recalc-gc-fulfillmenttype.apex`) to reconcile `FulfillmentType` on every Gift Commitment; the script is idempotent (writes only when the target value differs) and safe to re-run. As additional derived-state flows are added to FQS, they should gate on the same permission so operators have one bypass switch rather than a per-flow toggle.
 
 **Salesforce Documentation:**
 
@@ -1068,6 +1074,35 @@ Rather than creating one large "Major Gifts FY26" campaign and assigning all maj
 **Salesforce Documentation:**
 
 * [Campaign Influence](https://help.salesforce.com/s/articleView?id=sales.campaign_influence_parent.htm&type=5)
+
+### 9. How FQS Thinks About Gift Dates
+
+FQS separates two ideas that many orgs blur together:
+
+* **Transaction Date** — when the gift is fully in your hands and reconciled. Check cleared, card settled, wire received, stock sold, in-kind item taken in. This is your canonical "when did this gift happen" date and drives cash-flow reporting, aging, and rollups on the parent commitment.
+* **Donor Tax Date** — when the gift left the donor's control for tax-receipt purposes. Postmark date for a mailed check, charge date for a card, delivery date for stock. This is the date on the donor's receipt for tax purposes.
+
+Many orgs don't have a meaningful gap between the two — low volume, mostly card gifts, jurisdictions that treat receipt as the acknowledgement date. In those cases, leave **Donor Tax Date** blank and let **Transaction Date** speak for both. FQS's acknowledgement, stewardship, and tax-receipting flows use Transaction Date as the anchor.
+
+**Other date fields on a gift**
+
+* **Acknowledgement Date** — when the donor was thanked. Written automatically by the FQS Gift Acknowledgement flow.
+* **Tax Receipt Date** — when the year-end tax receipt was issued. Manual field; managed by whatever year-end receipting process your org runs.
+* **Stewardship Date** — when the follow-up stewardship touch was delivered. Written automatically by the FQS Stewardship Response flow.
+
+### 10. Email Templates for Acknowledgement and Stewardship
+
+FQS ships three plain-text email templates in a dedicated **FQS Templates** Lightning email folder. They are sent by the FQS_Gift_Acknowledgement and FQS_Stewardship_Response scheduled flows.
+
+* **FQS Gift Acknowledgement** — universal thank-you sent to every donor with a valid email. Uses standard 501(c)(3) tax-receipt language ("No goods or services were provided in exchange for this contribution").
+* **FQS Gift Acknowledgement (Partial Deduction)** — sent when the deductible portion is less than the gift total (event tickets, benefit dinners, auction wins, in-kind gifts with variable cash-equivalence). The FQS_Gift_Acknowledgement flow routes to this template automatically when `TaxDeductionAmount < CurrentAmount`.
+* **FQS Stewardship Response (Standard)** — sent T+14 days after acknowledgement to deepen the donor's connection to the mission. Not a fundraising ask — a bridge to the next gift.
+
+**Treat these templates as a starting point.** Every organization has its own voice, mission, and audience. Personalize the templates from the record's activity pane — the Activity related list surfaces the sent email so you can see exactly what the donor received, then use that as the basis for a personal follow-up when the situation warrants it. The default copy is intentionally generic; edit it in **Setup → Email → Classic Email Templates → FQS Templates** before go-live.
+
+Each template contains a `[PROVIDE SOME INFO ABOUT YOUR HISTORY, A SPECIFIC PROGRAM, PERSON, OR YOUR TOTAL IMPACT]` placeholder that must be replaced with mission-specific copy before the flows are activated.
+
+**Important tax consideration.** The universal acknowledgement uses IRS-preferred "No goods or services" language, which is only correct when the donor received nothing of value in return. For event tickets, benefit dinners, auction wins, and membership gifts with tangible benefits, staff must set `TaxDeductionAmount` on the GiftTransaction to something less than `CurrentAmount` — that routes the flow to the Partial Deduction template. If staff enter these gifts with `TaxDeductionAmount` blank or equal to `CurrentAmount`, the donor will receive the wrong tax language. Train staff to enter FMV and non-deductible portions on non-standard gifts, and consider a periodic audit of high-benefit campaigns before year-end receipting.
 
 ## Known Issues
 

@@ -207,7 +207,7 @@ The error text points at the record type, but the fix is at the profile level, n
 
 ### `Grant` and `Major_Gift` record types require explicit profile access
 
-FQS ships both record types (see [Grant.recordType-meta.xml](../force-app/main/default/objects/Opportunity/recordTypes/Grant.recordType-meta.xml) and [Major_Gift.recordType-meta.xml](../force-app/main/default/objects/Opportunity/recordTypes/Major_Gift.recordType-meta.xml)), but neither is assigned to standard profiles by default. Assign via **Setup → Profiles → [profile] → Record Type Settings → Opportunity** before writing automation that instantiates them.
+FQS ships both record types (see [Grant.recordType-meta.xml](../../force-app/main/default/objects/Opportunity/recordTypes/Grant.recordType-meta.xml) and [Major_Gift.recordType-meta.xml](../../force-app/main/default/objects/Opportunity/recordTypes/Major_Gift.recordType-meta.xml)), but neither is assigned to standard profiles by default. Assign via **Setup → Profiles → [profile] → Record Type Settings → Opportunity** before writing automation that instantiates them.
 
 Failure mode is identical to the Person Account case above.
 
@@ -252,7 +252,7 @@ If you're wiping FQS-seeded data, deletion order matters — leaf children first
 13. `GiftDesignation` (deactivate first — see above)
 14. `Campaign`
 
-The working implementation is [scripts/apex/seed/fqs-seed-teardown.apex](../scripts/apex/seed/fqs-seed-teardown.apex) and is idempotent.
+The working implementation is [scripts/apex/seed/fqs-seed-teardown.apex](../../scripts/apex/seed/fqs-seed-teardown.apex) and is idempotent.
 
 ---
 
@@ -279,6 +279,6 @@ Not all Description fields are indexed/filterable in SOQL:
 
 ## See also
 
-- [scripts/apex/seed/README.md](../scripts/apex/seed/README.md) — FQS seed-data scripts (the harness that surfaced most of these).
+- [scripts/apex/seed/README.md](../../scripts/apex/seed/README.md) — FQS seed-data scripts (the harness that surfaced most of these).
 - [docs/npc-help-text-recommendations.md](./npc-help-text-recommendations.md) — the end-user-facing tooltip counterpart to this doc.
 - [.claude/fqs-session-context.md](../.claude/fqs-session-context.md) — session context for AI-assisted work.

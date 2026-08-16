@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Is_Mid_Lifetime_Donor__c</fullName>
-    <description>Boolean formula that returns TRUE when this donor's lifetime grouping is exactly Mid (not Entry, not Major). The three lifetime checkboxes (Entry / Mid / Major) are mutually exclusive — at most one is TRUE for any donor, matching FQS_Lifetime_Donor_Level__c. Uses the same lifetime-giving composition as FQS_Lifetime_Donor_Level__c (TotalGiftsAmount + FQS_Legacy_Total_Gifts_Amount__c, plus TotalSoftCreditsAmount + FQS_Legacy_Soft_Credit_Total__c when the Mid tier's Credit_Type__c = "Hard + Soft Credits"). Thresholds and Credit_Type are configured via Setup → Custom Metadata Types → FQS Donor Tier or the FQS Setup screen flow. Changing threshold or Credit_Type values recalculates this field across all Donor Gift Summary records retroactively — no redeployment or batch job required. Reports and dashboards using this field will reflect the new values immediately.</description>
+    <description>Boolean formula against the Mid row of FQS_Donor_Grouping__mdt lifetime thresholds.</description>
     <externalId>false</externalId>
     <formula>FQS_Lifetime_Donor_Level__c = "Mid"</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <inlineHelpText>Automatically calculated. The field is checked when this donor's total lifetime giving qualifies for the Mid donor tier. Your administrator controls the threshold amount.</inlineHelpText>
+    <inlineHelpText>Set automatically. Checked when this donor&apos;s lifetime giving qualifies at the Mid lifetime tier.</inlineHelpText>
     <label>Is Mid Lifetime Donor</label>
     <required>false</required>
     <type>Checkbox</type>

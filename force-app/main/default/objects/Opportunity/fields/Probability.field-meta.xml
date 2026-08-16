@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Probability</fullName>
+    <description>Stage → Probability mapping is managed at the platform level. Manual override is per-record and does not update the stage default.</description>
+    <inlineHelpText>Likelihood this Opportunity closes-won, as a percentage. Defaults from the selected Stage — override only when you have Opportunity-specific intelligence.</inlineHelpText>
     <trackFeedHistory>false</trackFeedHistory>
     <trackTrending>true</trackTrending>
 </CustomField>

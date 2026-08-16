@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>BookedPledges</fullName>
+    <description>Written by the NPC engine as SUM(GiftCommitment.ExpectedTotalCmtAmount) across pledge-category GCs in Active / Failing / Paused status.</description>
+    <inlineHelpText>Set automatically. The Expected Total Commitment Amount across all of this donor&apos;s open pledges (not yet fully paid).</inlineHelpText>
+</CustomField>

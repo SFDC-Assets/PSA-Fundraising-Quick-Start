@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Solicitation_Date__c</fullName>
-    <description>Date the major gift ask was formally made to the donor.</description>
+    <description>Populated manually by the gift officer on the Solicitation stage. Time-to-close reports use `CloseDate − FQS_Solicitation_Date__c`.</description>
     <externalId>false</externalId>
     <inlineHelpText>The date on which the formal ask was presented to the donor. Used for pipeline tracking and time-to-close analysis.</inlineHelpText>
     <label>Solicitation Date</label>

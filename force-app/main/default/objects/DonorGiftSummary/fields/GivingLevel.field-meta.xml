@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GivingLevel</fullName>
+    <description>Unrestricted picklist written by the NPC engine. Ships with 15 levels. Distinct from the FQS Donor Grouping fields, which are org-branded (Entry / Mid / Major) and configured via FQS_Donor_Grouping__mdt.</description>
+    <inlineHelpText>Set automatically. The dollar band that classifies this donor&apos;s giving — one of the platform-defined levels from Under $100 through $25,000,000+.</inlineHelpText>
+</CustomField>

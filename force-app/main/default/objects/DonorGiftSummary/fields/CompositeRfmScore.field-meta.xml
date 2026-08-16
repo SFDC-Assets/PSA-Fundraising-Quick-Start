@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>CompositeRfmScore</fullName>
+    <description>Written by the NPC engine. Segmentation banding conventions are platform-defined.</description>
+    <inlineHelpText>Set automatically. Composite RFM score combining recency, frequency, and monetary components — used for donor segmentation.</inlineHelpText>
+</CustomField>

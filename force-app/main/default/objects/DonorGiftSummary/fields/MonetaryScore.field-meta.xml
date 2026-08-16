@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MonetaryScore</fullName>
+    <description>Written by the NPC engine as the M in RFM.</description>
+    <inlineHelpText>Set automatically. RFM monetary component (1–5). Higher = larger lifetime giving.</inlineHelpText>
+</CustomField>

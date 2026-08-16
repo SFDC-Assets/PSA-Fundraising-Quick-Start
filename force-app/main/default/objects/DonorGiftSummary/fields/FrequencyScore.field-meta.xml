@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FrequencyScore</fullName>
+    <description>Written by the NPC engine as the F in RFM.</description>
+    <inlineHelpText>Set automatically. RFM frequency component (1–5). Higher = more frequent giving.</inlineHelpText>
+</CustomField>

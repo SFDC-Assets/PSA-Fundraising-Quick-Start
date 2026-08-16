@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Role</fullName>
-    <inlineHelpText>Why this person or organization gets credit for a gift they didn't legally give — e.g., Solicitor (moved the donor), Household Member (partner or family), Matched Donor (matching employer), Honoree (tribute gift recipient).</inlineHelpText>
+    <description>FundFirst ships an 8-value default set; FQS relies on the In-Kind Recognition value to auto-generate self-recognition soft credits on In-Kind gifts. If any FQS-added value is missing post-install, restore via Setup.</description>
+    <inlineHelpText>Why this party gets credit for a gift they didn't legally give — e.g., Solicitor moved the donor, Household Member is the donor's partner or family, Matched Donor is the matching employer, Honoree is the tribute recipient.</inlineHelpText>
 </CustomField>

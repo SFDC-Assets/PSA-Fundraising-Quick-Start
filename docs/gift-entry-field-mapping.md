@@ -110,7 +110,7 @@ The table below lists every standard `GiftEntry` field and where it flows on com
 **Reading notes:**
 
 - **One-to-many rows.** `CampaignId`, `DonorId`, `GiftCommitmentId`, `GiftDesignationNId`, and `SoftCreditInformation` each fan out to 3+ downstream fields — one Gift Entry column, many target inserts.
-- **`Gift Received Date` → `TransactionDate`.** The Gift Entry field label is "Gift Received Date" but the value lands on `GiftTransaction.TransactionDate` (the "when did this gift happen" canonical anchor per [[fqs-two-date-model]] — see `docs/gift-acknowledgement-flow.md` and Phase A of `.planning/fqs-process-date-refactor-plan.md`).
+- **`Gift Received Date` → `TransactionDate`.** The Gift Entry field label is "Gift Received Date" but the value lands on `GiftTransaction.TransactionDate` (the "when did this gift happen" canonical anchor per [[fqs-two-date-model]] — see `docs/dev/gift-acknowledgement-flow.md` and Phase A of `.planning/fqs-process-date-refactor-plan.md`).
 - **`GiftDesignationInformation` mapping is odd.** Long-text-area value maps to *both* the lookup (`GiftDesignationId`) *and* the amount/percent columns — Salesforce parses the freetext internally. Don't try to mirror this in custom code; use `GiftDesignation1..3` if amounts/percents matter.
 - **`TotalTransactionFeeAmount` → `DonorCoverAmount` (not a fee field).** The label reads "fee" but the mapping is to `DonorCoverAmount` — this is a Salesforce doc quirk, not a typo. If FQS ever needs a real fee-mirror path we'd need a custom field with its own explicit flow write.
 - **Fields with no target** (`GiftProcessingResult`, `GiftProcessingStatus`, `GiftBatchId`, `IsNewRecurringGift`, `IsSetAsDefault`, `Name`, `LastProcessedDateTime`, audit fields) stay on the staging row — the platform reads them for orchestration, doesn't propagate.
@@ -170,4 +170,4 @@ Related:
 - Standard field surface enumeration: `sf sobject describe --sobject GiftEntry`
 - Downstream target definitions: `force-app/main/default/objects/GiftCommitment/fields/`, `force-app/main/default/objects/GiftTransaction/fields/`
 - Two-date refactor context: `.planning/fqs-process-date-refactor-plan.md`
-- Flow authoring context: `docs/fqs-account-launcher-flow-by-gift-type.md`, `docs/gift-commitment-flows.md`
+- Flow authoring context: `docs/dev/fqs-account-launcher-flow-by-gift-type.md`, `docs/dev/gift-commitment-flows.md`

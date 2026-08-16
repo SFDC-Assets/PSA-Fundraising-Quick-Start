@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_Amount_Formatted__c</fullName>
+    <description>Formatted text representation of CurrentAmount with a leading dollar sign, thousands separators, and two decimal places (e.g. $1,250.00). Used by the FQS email templates to render currency cleanly in plain-text email — Salesforce classic email templates render Currency-typed merge fields as raw numbers, so this formula field is the merge target instead.</description>
+    <externalId>false</externalId>
+    <formula>&quot;$&quot; &amp;
+IF(CurrentAmount &gt;= 1000,
+    TEXT(FLOOR(CurrentAmount / 1000)) &amp; &quot;,&quot; &amp;
+    RIGHT(&quot;00&quot; &amp; TEXT(FLOOR(MOD(CurrentAmount, 1000))), 3),
+    TEXT(FLOOR(CurrentAmount))
+) &amp; &quot;.&quot; &amp;
+RIGHT(&quot;0&quot; &amp; TEXT(ROUND(MOD(CurrentAmount, 1) * 100, 0)), 2)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Formatted currency string used by the FQS email templates. Derived from Current Amount.</inlineHelpText>
+    <label>Amount (Formatted)</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

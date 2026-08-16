@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
     <fullName>FQS_Gift_Commitment_Category__c</fullName>
-    <description>Categorizes the gift commitment by its fundraising type. Allowed values: Pledged Gift, Recurring Gift, Grant Payout.</description>
+    <description>Set by the FQS Gift Entry launcher on the parent Gift Commitment based on the branch chosen. Child Gift Transactions inherit the mapped category via the before-save `FQS_Auto_Category_Gift_Transaction` flow when their own `FQS_Gift_Transaction_Category__c` is blank and `GiftCommitmentId` is populated.</description>
     <externalId>false</externalId>
+    <inlineHelpText>Classifies the type of commitment this record represents. Choose *Pledged Gift* for a one-time promise paid over time, *Recurring Gift* for an ongoing donation cadence, *Grant Payout* for foundation or institutional grant disbursements.</inlineHelpText>
     <label>Gift Commitment Category</label>
     <required>false</required>
     <trackTrending>false</trackTrending>

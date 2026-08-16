@@ -5039,7 +5039,7 @@
         <inputReference>rsv_GSC_InKindSelf</inputReference>
     </recordCreates>
     <recordCreates>
-        <description>Inserts the parent GiftCommitment via inputReference on rsv_GC. IMPORTANT: do NOT set rsv_GC.ScheduleType before this insert — the field is platform-managed and back-fills from the first GiftCommitmentSchedule child inserted afterwards. Setting it explicitly is silently overridden to &apos;Recurring&apos; and produces a misleading error if a Custom schedule is later attached. See docs/npc-automation-notes.md § GiftCommitment.ScheduleType. Connector routes to Decide_GCS_Insert; fault shares Error_RecordNotSaved.</description>
+        <description>Inserts the parent GiftCommitment via inputReference on rsv_GC. IMPORTANT: do NOT set rsv_GC.ScheduleType before this insert — the field is platform-managed and back-fills from the first GiftCommitmentSchedule child inserted afterwards. Setting it explicitly is silently overridden to &apos;Recurring&apos; and produces a misleading error if a Custom schedule is later attached. See docs/dev/npc-automation-notes.md § GiftCommitment.ScheduleType. Connector routes to Decide_GCS_Insert; fault shares Error_RecordNotSaved.</description>
         <name>Create_GC_Pledge</name>
         <label>Create GC — Pledged Commitment</label>
         <locationX>0</locationX>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Status</fullName>
-    <description>Not all statuses are reachable by direct write. Paid on a real gift typically requires an associated payment or NPC reconciliation flow. Direct-writing Status = 'Paid' on insert works for seed and test data but bypasses normal payment posting — do not use for production ingest. See docs/npc-automation-notes.md.</description>
+    <description>Platform fan-out from schedule sets `Status=&apos;Expected&apos;` — see [[gt-expected-status-default]]. FQS Gift Entry launcher defaults to `Paid` for retroactive data entry — see [[gt-status-default-paid]]. Direct-writing `Paid` on insert bypasses normal payment posting; use for seed/test only.</description>
     <inlineHelpText>Where this gift is in the payment cycle. Choose Pending for gifts you've recorded financially but not yet received, Paid once the payment is in hand.</inlineHelpText>
     <trackHistory>false</trackHistory>
     <type>Picklist</type>

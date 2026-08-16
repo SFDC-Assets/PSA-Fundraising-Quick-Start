@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Parent_Type__c</fullName>
-    <description>Formula: returns the type of the polymorphic ParentRecordId (GiftCommitment or Opportunity). Enables list views scoped by parent object type.</description>
+    <description>Formula, text. Reads the 3-character key prefix of ParentRecordId (6gc → Gift Commitment, 006 → Opportunity, else blank). Recommend adding to Facet-fqs-gdsc-d-s1-left in the Soft Credit Details section.</description>
     <externalId>false</externalId>
     <formula>IF(LEFT(ParentRecordId, 3) = &quot;6gc&quot;, &quot;Gift Commitment&quot;,
 IF(LEFT(ParentRecordId, 3) = &quot;006&quot;, &quot;Opportunity&quot;,

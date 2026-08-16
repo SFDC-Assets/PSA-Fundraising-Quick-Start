@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>TaxReceiptStatus</fullName>
+    <description>`Sent` stamps `FQS_Tax_Receipt_Date__c`. Available from API 62.0+. Year-end receipting is out of scope for FQS automation — status is manually set today.</description>
     <trackHistory>false</trackHistory>
     <type>Picklist</type>
 </CustomField>

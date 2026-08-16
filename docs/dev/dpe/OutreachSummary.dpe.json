@@ -1,0 +1,152 @@
+{
+	"FullName": "OutreachSummary",
+	"Metadata": {
+		"processType": "Fundraising",
+		"status": "Active",
+		"label": "OutreachSummary",
+		"description": "Outreach Summary Rollup",
+		"isTemplate": true,
+		"executionPlatformType": "CRMA",
+		"executionPlatformObjectType": "None",
+		"dataSpaceApiName": "default",
+		"definitionRunMode": "Batch",
+		"datasources": [
+			{
+				"name": "Gift_Commitment",
+				"label": "Gift Commitment",
+				"sourceName": "GiftCommitment",
+				"type": "StandardObject",
+				"fields": [
+					{"name": "Id", "dataType": "Text", "alias": "Id", "displaySequence": 1},
+					{"name": "ScheduleType", "dataType": "Text", "alias": "ScheduleType", "displaySequence": 1}
+				]
+			},
+			{
+				"name": "Gift_Transaction",
+				"label": "Gift Transaction",
+				"sourceName": "GiftTransaction",
+				"type": "StandardObject",
+				"fields": [
+					{"name": "IsPaid", "dataType": "Boolean", "alias": "IsPaid", "displaySequence": 1},
+					{"name": "OutreachSourceCodeId", "dataType": "Text", "alias": "OutreachSourceCodeId", "displaySequence": 1},
+					{"name": "CurrentAmount", "dataType": "Numeric", "alias": "CurrentAmount", "displaySequence": 1},
+					{"name": "CampaignId", "dataType": "Text", "alias": "CampaignId", "displaySequence": 1},
+					{"name": "GiftCommitmentId", "dataType": "Text", "alias": "GiftCommitmentId", "displaySequence": 1},
+					{"name": "DonorId", "dataType": "Text", "alias": "DonorId", "displaySequence": 1},
+					{"name": "GiftCommitmentScheduleId", "dataType": "Text", "alias": "GiftCommitmentScheduleId", "displaySequence": 1}
+				]
+			},
+			{
+				"name": "OutreachSummary",
+				"label": "OutreachSummary",
+				"sourceName": "OutreachSummary",
+				"type": "StandardObject",
+				"fields": [
+					{"name": "CampaignId", "dataType": "Text", "alias": "CampaignId", "displaySequence": 1},
+					{"name": "OutreachSourceCodeId", "dataType": "Text", "alias": "OutreachSourceCodeId", "displaySequence": 1},
+					{"name": "Id", "dataType": "Text", "alias": "Id", "displaySequence": 1}
+				]
+			},
+			{
+				"name": "Outreach_Source_Code",
+				"label": "Outreach Source Code",
+				"sourceName": "OutreachSourceCode",
+				"type": "StandardObject",
+				"fields": [
+					{"name": "AudienceCount", "dataType": "Numeric", "alias": "AudienceCount", "displaySequence": 1},
+					{"name": "CampaignId", "dataType": "Text", "alias": "CampaignId", "displaySequence": 1},
+					{"name": "Id", "dataType": "Text", "alias": "Id", "displaySequence": 1}
+				]
+			},
+			{
+				"name": "Gift_Commitment_Change_Attribution_Log",
+				"label": "Gift Commitment Change Attribution Log",
+				"sourceName": "GiftCmtChangeAttrLog",
+				"type": "StandardObject",
+				"fields": [
+					{"name": "ChangePerDayAmount", "dataType": "Numeric", "alias": "ChangePerDayAmount", "displaySequence": 1},
+					{"name": "CampaignId", "dataType": "Text", "alias": "CampaignId", "displaySequence": 1},
+					{"name": "OutreachSourceCodeId", "dataType": "Text", "alias": "OutreachSourceCodeId", "displaySequence": 1},
+					{"name": "GiftCommitmentScheduleId", "dataType": "Text", "alias": "GiftCommitmentScheduleId", "displaySequence": 1},
+					{"name": "GiftCommitmentId", "dataType": "Text", "alias": "GiftCommitmentId", "displaySequence": 1},
+					{"name": "EffectiveDate", "dataType": "Date", "alias": "EffectiveDate", "displaySequence": 1},
+					{"name": "GiftCommitmentSchedule.EndDate", "dataType": "Date", "alias": "EndDate", "displaySequence": 2},
+					{"name": "GiftCommitment.CurrentGiftCmtScheduleId", "dataType": "Text", "alias": "CurrentGiftCmtScheduleId", "displaySequence": 3}
+				]
+			}
+		],
+		"_archive_note": "Full DPE payload retrieved from a Fundraising Cloud org. Joins, filters, transforms, aggregates, and writebacks are extensive (~40 nodes total); this repo captures the datasources and the schedule-split-relevant excerpts. Complete JSON pasted into conversation 2026-08-15. Re-retrieve fresh with: sf project retrieve start --metadata 'DataProcessingEngineDefinition:OutreachSummary'",
+		"key_filters_for_schedule_split": {
+			"Filter_isPaid_Transactions": {
+				"sourceName": "Gift_Transaction",
+				"criteria": "IsPaid Equals true"
+			},
+			"Filter_on_Campaign_All": {
+				"sourceName": "Join_Gift_Transaction_and_Gift_Commitment",
+				"criteria": "CampaignId IsNotNull — NO ScheduleType gate, so Custom-schedule payments DO enter this stream"
+			},
+			"Filter_on_Source_Code_All": {
+				"sourceName": "Join_Gift_Transaction_and_Gift_Commitment",
+				"criteria": "OutreachSourceCodeId IsNotNull — NO ScheduleType gate"
+			},
+			"Filter_on_Campaign_Onetime_Paid": {
+				"sourceName": "Filter_on_Campaign_All",
+				"criteria": "GiftCommitmentId IsNull — Custom-GC payments EXCLUDED (they have a non-null GiftCommitmentId)"
+			},
+			"Filter_on_Source_Code_Onetime_Paid": {
+				"sourceName": "Filter_on_Source_Code_All",
+				"criteria": "GiftCommitmentId IsNull"
+			},
+			"Filter_on_Campaign_Recurring_Paid": {
+				"sourceName": "Filter_on_Campaign_All",
+				"criteria": "ScheduleType Equals 'Recurring' (STRICT — Custom-schedule payments EXCLUDED)"
+			},
+			"Filter_on_Source_Code_Recurring_Paid": {
+				"sourceName": "Filter_on_Source_Code_All",
+				"criteria": "ScheduleType Equals 'Recurring' (STRICT)"
+			},
+			"Filter_Change_Attri_Log_on_has_Schedule": {
+				"sourceName": "Gift_Commitment_Change_Attribution_Log",
+				"criteria": "GiftCommitmentScheduleId IsNotNull — NO ScheduleType gate, so Custom-schedule pledges DO feed AttributedAmount via day-rate math"
+			}
+		},
+		"key_aggregates_for_schedule_split": {
+			"Sum_on_Campaign_All_Paid": {
+				"sourceName": "Filter_on_Campaign_All",
+				"groupBy": ["CampaignId"],
+				"outputs": {
+					"Unique(DonorId)":     "Count_Donor_On_Campaign_All → DonorCount",
+					"Count(CampaignId)":   "Count_On_Campaign_All → GiftCount",
+					"Sum(CurrentAmount)":  "Sum_On_Campaign_All → TotalGiftTransactionAmount"
+				}
+			},
+			"Sum_on_Campaign_Onetime_Paid": {
+				"sourceName": "Filter_on_Campaign_Onetime_Paid",
+				"groupBy": ["CampaignId"],
+				"outputs": {
+					"Unique(DonorId)":    "Count_Donor_on_Campaign_Onetime → OnetimeDonorCount",
+					"Sum(CurrentAmount)": "Sum_on_Campaign_Onetime → TotalOnetimeGiftAmount"
+				}
+			},
+			"Sum_on_Campaign_Recurring_Paid": {
+				"sourceName": "Filter_on_Campaign_Recurring_Paid",
+				"groupBy": ["CampaignId"],
+				"outputs": {
+					"Unique(DonorId)":    "Count_Donor_on_Campaign_Recurring → RecurringDonorCount",
+					"Sum(CurrentAmount)": "Sum_on_Campaign_Recurring → TotalRecurringGiftAmount"
+				}
+			},
+			"Sum_on_Campaign_Attributed_Amount": {
+				"sourceName": "Get_Attribute_Amount_Per_Change_Attr_Log",
+				"groupBy": ["CampaignId"],
+				"outputs": {
+					"Sum(AttributedAmount)": "CampaignAttributedAmount — CustomGCs contribute via day-rate math regardless of ScheduleType"
+				}
+			}
+		},
+		"dead_zone_for_custom_schedule_payments": {
+			"summary": "A paid GiftTransaction whose parent GC.ScheduleType='Custom' enters TotalGiftTransactionAmount and GiftCount (via *_All aggregates) but is EXCLUDED from BOTH the Onetime split (has GiftCommitmentId) AND the Recurring split (ScheduleType ≠ 'Recurring'). Therefore: TotalOnetimeGiftAmount + TotalRecurringGiftAmount < TotalGiftTransactionAmount whenever Custom-schedule payments exist.",
+			"attribution_note": "The AttributedAmount pipeline is separate and does credit Custom-schedule pledges via GiftCmtChangeAttrLog.ChangePerDayAmount × days-active."
+		}
+	}
+}

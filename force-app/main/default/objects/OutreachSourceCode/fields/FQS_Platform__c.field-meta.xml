@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Platform__c</fullName>
-    <description>Fundraising Quick Start: the specific platform or sender for this outreach tactic. Equivalent to utm_source. Used alongside Message Channel (utm_medium) and Campaign Short Name (utm_campaign) to build fully attributed source codes and UTM links.</description>
+    <description>Provides a standardized picklist of source values instead of relying on the free-text MessageChannelPlatform field. See the OSC record page notes for how Platform contributes to channel-level attribution even though it is not part of the SourceCode string.</description>
     <externalId>false</externalId>
-    <inlineHelpText>The specific platform or sender for this source code — equivalent to utm_source in web analytics. Use with Message Channel (utm_medium) to fully describe the tactic: e.g. Message Channel = Social Paid + Platform = Facebook.</inlineHelpText>
+    <inlineHelpText>The specific platform or sender for this source code — equivalent to utm_source in web analytics.</inlineHelpText>
     <label>Platform</label>
     <required>false</required>
     <trackHistory>false</trackHistory>

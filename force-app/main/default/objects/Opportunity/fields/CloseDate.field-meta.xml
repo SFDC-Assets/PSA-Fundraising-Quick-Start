@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>CloseDate</fullName>
+    <description>Required by the platform. On close-won, the FQS launcher writes this into `GiftCommitment.EffectiveStartDate` or `GiftTransaction.TransactionDate`.</description>
+    <inlineHelpText>The date this Opportunity is expected to close — award decision date for grants, expected commitment date for major gifts.</inlineHelpText>
     <trackFeedHistory>true</trackFeedHistory>
     <trackTrending>true</trackTrending>
 </CustomField>

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>HonoreeContactId</fullName>
+    <description>Lookup to Account with an FQS-added lookup filter restricting selection to IsPersonAccount = True. When set, HonoreeName should mirror the Person Account's full name; FQS does not auto-sync.</description>
+    <inlineHelpText>The Person Account the tribute is for. Use this when the honoree already exists in FundFirst as a Person Account; fall back to Honoree Name for one-off honorees who don't need their own record.</inlineHelpText>
     <lookupFilter>
         <active>true</active>
         <errorMessage>Select an individual (person account) for the honoree contact.</errorMessage>

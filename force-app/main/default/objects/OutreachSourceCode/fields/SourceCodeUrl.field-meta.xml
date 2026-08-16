@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SourceCodeUrl</fullName>
+    <description>URL scaffold assembled by FQS from SourceCodeBaseUrl + the parent Campaign&apos;s FQS_Short_Name__c + MessageChannel + FQS_Platform__c + SourceCode. Recomputes when any input changes.</description>
+    <inlineHelpText>The full attributed landing URL for this outreach tactic — combines the campaign&apos;s short name (utm_campaign), Message Channel (utm_medium), Platform (utm_source), and Source Code (utm_content). Copy this into the outreach email, ad, or post so gifts route back to the right tactic.</inlineHelpText>
+</CustomField>

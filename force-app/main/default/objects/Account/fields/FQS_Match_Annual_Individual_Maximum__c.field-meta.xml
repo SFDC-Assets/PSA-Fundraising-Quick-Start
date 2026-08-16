@@ -3,7 +3,7 @@
     <fullName>FQS_Match_Annual_Individual_Maximum__c</fullName>
     <description>Per-individual annual cap on match dollars from this employer. The FQS Find Matching Gift flow sums matched amounts already recorded this calendar year for the individual and excludes candidates that would push the individual over this cap. Leave blank to disable the cap for this employer.</description>
     <externalId>false</externalId>
-    <inlineHelpText>Maximum dollar amount this employer will match per individual per calendar year. Leave blank if the employer has no per-donor cap. The Find Match flow excludes candidates that would exceed this amount.</inlineHelpText>
+    <inlineHelpText>Maximum dollar amount this employer will match per individual per calendar year. Leave blank if the employer has no per-donor cap.</inlineHelpText>
     <label>Match Annual Individual Maximum</label>
     <precision>16</precision>
     <required>false</required>

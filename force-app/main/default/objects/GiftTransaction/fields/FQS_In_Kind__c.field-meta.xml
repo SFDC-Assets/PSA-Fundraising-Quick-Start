@@ -2,7 +2,8 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_In_Kind__c</fullName>
     <defaultValue>false</defaultValue>
-    <description>Indicates this transaction is an in-kind (non-cash) gift such as goods, services, or property.</description>
+    <description>Deterministic gate — TRUE marks this transaction as non-cash. Load-bearing routing key across the Gift Entry launcher and Apex: drives the `OriginalAmount=0` / FMV-on-`FQS_Fair_Market_Value_Amount__c` convention, the auto-generated `GiftSoftCredit` with `Role=&apos;In-Kind Recognition&apos;` pointing at the donor, record-page conditional visibility, and seed-data classification. Retained as a boolean instead of collapsed onto `PaymentMethod=&apos;In-Kind&apos;` because PaymentMethod is a shared picklist (Stock, Asset, In-Kind, etc.) that carries no single deterministic &quot;treat this as non-cash&quot; signal — Stock and Asset gifts can be cash-equivalent or non-cash depending on liquidation, and users have latitude to key values inconsistently. This boolean is the org&apos;s authoritative in-kind flag.</description>
+    <inlineHelpText>Check when this gift is a non-cash contribution — goods, services, or property. In-kind gifts set OriginalAmount = 0 and record the estimated value on Fair Market Value Amount. Distinct from PaymentMethod (which may be In-Kind, Stock, or Asset for various non-cash channels) — this flag is the authoritative &quot;treat as non-cash&quot; signal used by soft-credit fanout, receipting, and reporting.</inlineHelpText>
     <label>In-Kind</label>
     <trackHistory>false</trackHistory>
     <type>Checkbox</type>

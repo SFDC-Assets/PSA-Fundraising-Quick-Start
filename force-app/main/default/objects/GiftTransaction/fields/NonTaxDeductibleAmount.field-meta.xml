@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>NonTaxDeductibleAmount</fullName>
+    <description>Quid-pro-quo tracking. When populated, `TaxDeductionAmount` should equal `CurrentAmount − NonTaxDeductibleAmount`. Not auto-computed.</description>
+    <inlineHelpText>The portion of this gift the donor cannot deduct — e.g., the fair-market value of event tickets, dinners, or benefits received in exchange for the gift.</inlineHelpText>
     <trackHistory>false</trackHistory>
 </CustomField>

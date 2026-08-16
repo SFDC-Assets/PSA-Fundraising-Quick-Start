@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FQS_TaxDeduction_Amount_Formatted__c</fullName>
+    <description>Formatted text representation of the deductible portion of the gift (CurrentAmount − NonTaxDeductibleAmount, mirroring the platform TaxDeductionAmount rollup) with a leading dollar sign, thousands separators, and two decimal places (e.g. $150.00). Used by the FQS Gift Acknowledgement (Partial Deduction) email template so the deductible amount renders cleanly in plain-text email. Computed from source fields because platform-calculated TaxDeductionAmount is not accessible in formula scope.</description>
+    <externalId>false</externalId>
+    <formula>&quot;$&quot; &amp;
+IF((CurrentAmount - NonTaxDeductibleAmount) &gt;= 1000,
+    TEXT(FLOOR((CurrentAmount - NonTaxDeductibleAmount) / 1000)) &amp; &quot;,&quot; &amp;
+    RIGHT(&quot;00&quot; &amp; TEXT(FLOOR(MOD(CurrentAmount - NonTaxDeductibleAmount, 1000))), 3),
+    TEXT(FLOOR(CurrentAmount - NonTaxDeductibleAmount))
+) &amp; &quot;.&quot; &amp;
+RIGHT(&quot;0&quot; &amp; TEXT(ROUND(MOD(CurrentAmount - NonTaxDeductibleAmount, 1) * 100, 0)), 2)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Formatted currency string used by the FQS Partial Deduction email template. Derived from Tax Deduction Amount.</inlineHelpText>
+    <label>Tax Deduction Amount (Formatted)</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

@@ -1,0 +1,299 @@
+{
+	"FullName": "DonorGiftSummary",
+	"Metadata": {
+		"processType": "Fundraising",
+		"status": "Active",
+		"label": "DonorGiftSummary",
+		"description": "Donor Gift Summary Rollup",
+		"isTemplate": true,
+		"executionPlatformType": "CRMA",
+		"executionPlatformObjectType": "None",
+		"dataSpaceApiName": "default",
+		"definitionRunMode": "Batch",
+		"datasources": [
+			{
+				"name": "AccountContactRelation",
+				"label": "AccountContactRelation",
+				"sourceName": "AccountContactRelation",
+				"type": "StandardObject",
+				"fields": [
+					{
+						"name": "AccountId",
+						"dataType": "Text",
+						"alias": "HouseholdId",
+						"displaySequence": 1
+					},
+					{
+						"name": "ContactId",
+						"dataType": "Text",
+						"alias": "PersonId",
+						"displaySequence": 1
+					}
+				]
+			},
+			{
+				"name": "Donor_Gift_Summary",
+				"label": "Donor Gift Summary",
+				"sourceName": "DonorGiftSummary",
+				"type": "StandardObject",
+				"fields": [
+					{
+						"name": "DonorId",
+						"dataType": "Text",
+						"alias": "DonorId",
+						"displaySequence": 1
+					},
+					{
+						"name": "Id",
+						"dataType": "Text",
+						"alias": "Id",
+						"displaySequence": 1
+					}
+				]
+			},
+			{
+				"name": "Gift_Commitment",
+				"label": "Gift Commitment",
+				"sourceName": "GiftCommitment",
+				"type": "StandardObject",
+				"fields": [
+					{
+						"name": "ScheduleType",
+						"dataType": "Text",
+						"alias": "ScheduleType",
+						"displaySequence": 1
+					},
+					{
+						"name": "Id",
+						"dataType": "Text",
+						"alias": "Id",
+						"displaySequence": 1
+					},
+					{
+						"name": "Status",
+						"dataType": "Text",
+						"alias": "Status",
+						"displaySequence": 1
+					},
+					{
+						"name": "Donor.PersonContactId",
+						"dataType": "Text",
+						"alias": "PersonContactId",
+						"displaySequence": 2
+					},
+					{
+						"name": "FormalCommitmentType",
+						"dataType": "Text",
+						"alias": "FormalCommitmentType",
+						"displaySequence": 1
+					},
+					{
+						"name": "ExpectedTotalCmtAmount",
+						"dataType": "Numeric",
+						"alias": "ExpectedTotalCmtAmount",
+						"displaySequence": 1
+					}
+				]
+			},
+			{
+				"name": "Gift_Soft_Credit",
+				"label": "Gift Soft Credit",
+				"sourceName": "GiftSoftCredit",
+				"type": "StandardObject",
+				"fields": [
+					{
+						"name": "RecipientId",
+						"dataType": "Text",
+						"alias": "RecipientId",
+						"displaySequence": 1
+					},
+					{
+						"name": "Id",
+						"dataType": "Text",
+						"alias": "Id",
+						"displaySequence": 1
+					},
+					{
+						"name": "GiftTransaction.IsPaid",
+						"dataType": "Text",
+						"alias": "IsPaid",
+						"displaySequence": 2
+					},
+					{
+						"name": "SoftCreditAmount",
+						"dataType": "Numeric",
+						"alias": "SoftCreditAmount",
+						"displaySequence": 1
+					},
+					{
+						"name": "GiftTransaction.TransactionDate",
+						"dataType": "Date",
+						"alias": "TransactionDate",
+						"displaySequence": 2
+					},
+					{
+						"name": "CreatedDate",
+						"dataType": "DateTime",
+						"alias": "CreatedDate",
+						"displaySequence": 1
+					},
+					{
+						"name": "GiftTransactionId",
+						"dataType": "Text",
+						"alias": "GiftTransactionId",
+						"displaySequence": 1
+					},
+					{
+						"name": "Recipient.PersonContactId",
+						"dataType": "Text",
+						"alias": "PersonContactId",
+						"displaySequence": 3
+					},
+					{
+						"name": "Recipient.IsPersonAccount",
+						"dataType": "Text",
+						"alias": "IsPersonAccount",
+						"displaySequence": 3
+					}
+				]
+			},
+			{
+				"name": "Gift_Transaction",
+				"label": "Gift Transaction",
+				"sourceName": "GiftTransaction",
+				"type": "StandardObject",
+				"fields": [
+					{
+						"name": "GiftCommitmentId",
+						"dataType": "Text",
+						"alias": "GiftCommitmentId",
+						"displaySequence": 1
+					},
+					{
+						"name": "TransactionDate",
+						"dataType": "Date",
+						"alias": "TransactionDate",
+						"displaySequence": 1
+					},
+					{
+						"name": "DonorId",
+						"dataType": "Text",
+						"alias": "DonorId",
+						"displaySequence": 1
+					},
+					{
+						"name": "IsPaid",
+						"dataType": "Text",
+						"alias": "IsPaid",
+						"displaySequence": 1
+					},
+					{
+						"name": "Id",
+						"dataType": "Text",
+						"alias": "Id",
+						"displaySequence": 1
+					},
+					{
+						"name": "CurrentAmount",
+						"dataType": "Numeric",
+						"alias": "CurrentAmount",
+						"displaySequence": 1
+					},
+					{
+						"name": "Donor.PersonContactId",
+						"dataType": "Text",
+						"alias": "PersonContactId",
+						"displaySequence": 2
+					},
+					{
+						"name": "CampaignId",
+						"dataType": "Text",
+						"alias": "CampaignId",
+						"displaySequence": 1
+					}
+				]
+			},
+			{
+				"name": "PartyRelationshipGroup",
+				"label": "PartyRelationshipGroup",
+				"sourceName": "PartyRelationshipGroup",
+				"type": "StandardObject",
+				"fields": [
+					{
+						"name": "AccountId",
+						"dataType": "Text",
+						"alias": "AccountId",
+						"displaySequence": 1
+					},
+					{
+						"name": "Type",
+						"dataType": "Text",
+						"alias": "Type",
+						"displaySequence": 1
+					}
+				]
+			}
+		],
+		"_archive_note": "Full DPE payload retrieved from a Fundraising Cloud org. Joins, filters, appends, transforms, aggregates, and writebacks are extensive (~90 nodes total); this repo captures the datasources and the recurring-relevant excerpts in the sibling .md walkthrough. The complete JSON — including every Join_*, Filter_*, Calculate_*, Merge_*, and Insert/Update/Delete writeback node — was pasted into the conversation on 2026-08-15 and is the authoritative reference. Re-retrieve fresh from any org with: sf project retrieve start --metadata 'DataProcessingEngineDefinition:DonorGiftSummary'",
+		"key_filters_for_recurring_metrics": {
+			"Filter_on_isPaid_Gift_Transaction": {
+				"sourceName": "Gift_Transaction",
+				"criteria": "IsPaid Equals true"
+			},
+			"Filter_on_isRecurring": {
+				"sourceName": "Join_isPaid_Gift_Transaction_and_Gift_Commitment",
+				"criteria": "ScheduleType Equals 'Recurring' (STRICT equality — no IN, no wildcard)"
+			},
+			"Filter_on_isNotClosed": {
+				"sourceName": "Filter_on_isRecurring",
+				"criteria": "Status NotEquals 'Closed'"
+			},
+			"Written_Formal_Commitments": {
+				"sourceName": "Gift_Commitments (appended stream, individual + household-swapped)",
+				"criteria": "FormalCommitmentType Equals 'Written' — NO ScheduleType gate; Custom-schedule Written pledges DO enter BookedPledges"
+			},
+			"Filter_Written_Formal_Transactions": {
+				"sourceName": "Join_isPaid_Gift_Transaction_and_Gift_Commitment",
+				"criteria": "FormalCommitmentType Equals 'Written' AND GiftCommitmentId IsNotNull"
+			}
+		},
+		"key_aggregates_for_recurring_metrics": {
+			"Calculate_Recurring_Installments": {
+				"sourceName": "Filter_on_isRecurring",
+				"groupBy": ["DonorId"],
+				"outputs": {
+					"Sum(CurrentAmount)": "Total_Paid_RcrInstl_Amt → TotalPaidRcrInstlAmt",
+					"Count(Id)":           "Total_Paid_Rcr_Installments → TotalPaidRcrInstallments",
+					"Min(TransactionDate)":"First_Recurring_Start_Date → FirstRecurringStartDate",
+					"Max(TransactionDate)":"Last_Recurring_Payment_Date → LastRecurringPaymentDate"
+				}
+			},
+			"Calculate_Current_Recurring": {
+				"sourceName": "Filter_on_isNotClosed",
+				"groupBy": ["DonorId"],
+				"outputs": {
+					"Min(TransactionDate)": "Current_Recurring_Start_Date → CurrentRecurringStartDate (EARLIEST PAID TRANSACTION DATE on active Recurring pledges — NOT commitment StartDate)"
+				}
+			},
+			"Group_Written_Commitments_by_Donor": {
+				"sourceName": "Written_Formal_Commitments",
+				"groupBy": ["DonorId"],
+				"outputs": {
+					"Sum(ExpectedTotalCmtAmount)": "Booked_Pledges → BookedPledges (schedule-type-agnostic)"
+				}
+			},
+			"Calculate_Total_Written_Formal_Transaction_Amount": {
+				"sourceName": "Filter_Written_Formal_Transactions",
+				"groupBy": ["DonorId"],
+				"outputs": {
+					"Sum(CurrentAmount)": "Total_Written_Formal_Transaction_Amount (subtracted from Booked_Pledges + Total_Gift_Amount to form Total_Bookable_Revenue)"
+				}
+			}
+		},
+		"parameters": [
+			{"name": "CURRENT_CALENDAR_YEAR", "label": "CURRENT_CALENDAR_YEAR", "dataType": "Date"},
+			{"name": "LAST_CALENDAR_YEAR", "label": "LAST_CALENDAR_YEAR", "dataType": "Date"},
+			{"name": "LAST_TWO_CALENDAR_YEAR", "label": "LAST_TWO_CALENDAR_YEAR", "dataType": "Date"}
+		]
+	}
+}

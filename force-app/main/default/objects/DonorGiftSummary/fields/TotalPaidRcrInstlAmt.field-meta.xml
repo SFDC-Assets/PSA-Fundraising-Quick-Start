@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TotalPaidRcrInstlAmt</fullName>
+    <description>Subset of TotalGiftsAmount filtered to recurring commitments (per docs/dpe/DonorGiftSummary.dpe.json: Calculate_Recurring_Installments groups on Filter_on_isRecurring where ScheduleType Equals &apos;Recurring&apos; strictly — Custom-schedule payments excluded).</description>
+    <inlineHelpText>Set automatically. Lifetime dollar total of paid transactions against gift commitments whose Schedule Type is &quot;Recurring&quot;.</inlineHelpText>
+</CustomField>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>OriginalAmount</fullName>
-    <inlineHelpText>The full gift amount as originally committed. For refunds or adjustments, don't change this — record a Gift Refund instead.</inlineHelpText>
+    <description>Includes donor cover, excludes gateway/processor fees. Required. Once posted, treat as immutable — reductions flow through GiftRefund children so `CurrentAmount` recalculates.</description>
+    <inlineHelpText>The full gift amount as originally recorded. For refunds or adjustments, don't change this — record a Gift Refund instead.</inlineHelpText>
     <trackHistory>false</trackHistory>
 </CustomField>

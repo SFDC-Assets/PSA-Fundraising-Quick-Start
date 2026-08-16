@@ -4,7 +4,7 @@
     <defaultValue>false</defaultValue>
     <description>When TRUE, the FQS Auto Name Opportunity flow skips this record and leaves Name as-is. Use for imports or integration writes that carry an authoritative external Name.</description>
     <externalId>false</externalId>
-    <inlineHelpText>Check to prevent the FQS auto-naming flow from overwriting the Name on this Opportunity.</inlineHelpText>
+    <inlineHelpText>Check to prevent the FQS auto-naming flow from overwriting the Name on this Opportunity. Use for imports or integrations where the record already carries an authoritative external Name.</inlineHelpText>
     <label>Skip FQS Auto Naming</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

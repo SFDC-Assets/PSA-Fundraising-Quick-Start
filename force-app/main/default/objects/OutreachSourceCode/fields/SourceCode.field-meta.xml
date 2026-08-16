@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>SourceCode</fullName>
-    <inlineHelpText>Unique identifier for this outreach tactic. Convention: {CHANNEL-PREFIX}-{CAMPAIGN-SHORT-NAME}-{SEQUENCE} — for example, EM-FY26-YEAREND-01 for the first email tactic of a campaign with Short Name "fy26-yearend". Equivalent to utm_content in web analytics. Must be unique across all Outreach Source Codes. Stored on Gift Transactions and used by the Outreach Summary rollup to attribute revenue to this source code.</inlineHelpText>
+    <description>Managed by Outreach Source Code Generation in Setup.</description>
+    <inlineHelpText>Managed by Outreach Source Code Generation in Setup. The Code Formula populates this field with the parent Campaign&apos;s Short Name followed by a random uniqueness suffix.</inlineHelpText>
 </CustomField>

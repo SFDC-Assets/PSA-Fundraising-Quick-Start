@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>ExpectedRevenue</fullName>
+    <description>Platform-computed; not writable. FQS reports on unweighted `Amount` for pipeline totals.</description>
+    <inlineHelpText>Set automatically. `Amount × Probability`. Used by pipeline forecasts to weight open Opportunities.</inlineHelpText>
     <securityClassification>Confidential</securityClassification>
 </CustomField>

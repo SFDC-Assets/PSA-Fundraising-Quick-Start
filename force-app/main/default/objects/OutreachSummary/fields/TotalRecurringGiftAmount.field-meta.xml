@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>TotalRecurringGiftAmount</fullName>
-    <inlineHelpText>Sum of paid recurring installment amounts attributed to this campaign or outreach source code.</inlineHelpText>
+    <inlineHelpText>Sum of paid gift transactions associated with a gift commitment whose Schedule Type is &quot;Recurring&quot;.</inlineHelpText>
 </CustomField>

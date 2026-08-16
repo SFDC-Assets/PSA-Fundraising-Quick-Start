@@ -1,5 +1,7 @@
 # DonorGiftSummary — Data Processing Engine Definition
 
+> **Source of truth:** The DPE JSON archives live at [dpe/DonorGiftSummary.dpe.json](dpe/DonorGiftSummary.dpe.json), [dpe/OutreachSummary.dpe.json](dpe/OutreachSummary.dpe.json), and [dpe/GiftDesignation.dpe.json](dpe/GiftDesignation.dpe.json). Node names in this walkthrough match the JSON verbatim. Re-retrieve with `sf project retrieve start --metadata 'DataProcessingEngineDefinition:<Name>'`.
+
 This is a **Fundraising DPE** that maintains the standard **`DonorGiftSummary`** rollup object — the per-donor "everything you'd ever want to know about their giving history" record that powers donor pages, dashboards, moves-management screens, and segmentation. It runs in **batch on CRM Analytics** and refreshes ~40 aggregate fields per donor from raw `GiftTransaction`, `GiftSoftCredit`, and `GiftCommitment` records.
 
 ## What it actually produces
@@ -47,8 +49,8 @@ Two large parallel branches, one for gifts and one for soft credits, each comput
 - **Year windows** — filter to `CURRENT_CALENDAR_YEAR` / `LAST_CALENDAR_YEAR` / `LAST_TWO_CALENDAR_YEAR` (Date parameters passed in at runtime), then aggregate.
 - **Ordinal facts** — use `ROWNUMBER()` partitioned by donor ordered by date/amount, then filter `RowNumber = 1` to get "first gift", "last gift", "highest soft credit", "first soft credit" etc.
 - **Best year** — sub-aggregate by `(DonorId, Year)` using `SUBSTR(TransactionDate, 0, 4)`, take the max, join back to find which year hit the max.
-- **Recurring** — filter gifts where `ScheduleType = 'Recurring'`, aggregate min/max/sum/count; separately compute `Current_Recurring_Start_Date` from commitments where `Status != 'Closed'`.
-- **Written pledges** — `Booked_Pledges` = sum of `ExpectedTotalCmtAmount` on commitments with `FormalCommitmentType = 'Written'`.
+- **Recurring** — `Filter_on_isRecurring` gates strictly on `ScheduleType = 'Recurring'` (Equals, not IN). `Calculate_Recurring_Installments` then emits `Sum(CurrentAmount)` → `TotalPaidRcrInstlAmt`, `Count` → `TotalPaidRcrInstallments`, `Min/Max(TransactionDate)` → `FirstRecurringStartDate` / `LastRecurringPaymentDate`. `Current_Recurring_Start_Date` = `Min(TransactionDate)` on `Filter_on_isNotClosed` (Recurring rows whose parent GC `Status != 'Closed'`) — so it's the earliest paid transaction date on active recurring pledges, **not** the commitment `StartDate`. **Custom-schedule commitments are excluded** from all of the above.
+- **Written pledges** — `Booked_Pledges` = sum of `ExpectedTotalCmtAmount` on commitments with `FormalCommitmentType = 'Written'`. `Written_Formal_Commitments` has **no ScheduleType filter**, so Custom-schedule Written pledges *do* enter `BookedPledges` and `TotalBookableRevenue` — the one place Custom pledges land on the donor summary.
 
 ### Phase 3 — Merge, upsert, delete
 - Merge the transaction and soft-credit branches on `DonorId = RecipientId` (a full **Outer** join, so a donor with only soft credits still gets a row).
@@ -104,9 +106,11 @@ The pipeline literally runs each aggregation path twice — once grouping by `Ca
 
 Every paid `GiftTransaction` is left-joined to its `GiftCommitment` so `ScheduleType` (Recurring / Installment / One-time / null) is available downstream. From `Filter_on_Campaign_All` (or `Filter_on_Source_Code_All`), the pipeline forks three ways:
 
-- **All Paid** — everything.
-- **Onetime Paid** — `GiftCommitmentId IS NULL` (no commitment behind it → true one-off gift).
-- **Recurring Paid** — `ScheduleType = 'Recurring'` (paid installments of an active recurring pledge).
+- **All Paid** — `Filter_on_Campaign_All` / `Filter_on_Source_Code_All` (`CampaignId` / `OutreachSourceCodeId IsNotNull`). No ScheduleType gate, so Custom-schedule payments enter here.
+- **Onetime Paid** — `GiftCommitmentId IS NULL` (no commitment behind it → true one-off gift). Custom-schedule payments are **excluded** (they carry a non-null `GiftCommitmentId`).
+- **Recurring Paid** — `ScheduleType = 'Recurring'` (paid installments of an active recurring pledge). Strict equality — Custom-schedule payments are **excluded** here too.
+
+> **Custom-schedule dead zone:** A paid GT whose parent GC has `ScheduleType='Custom'` shows up in `TotalGiftTransactionAmount` / `GiftCount` / `DonorCount` but neither `TotalOnetimeGiftAmount` nor `TotalRecurringGiftAmount`. Whenever Custom payments exist, `TotalOnetimeGiftAmount + TotalRecurringGiftAmount < TotalGiftTransactionAmount` — the delta is the missing Custom bucket.
 
 Each fork aggregates independently (sum of `CurrentAmount`, unique count of `DonorId`, count of gifts), then the three are stitched back together with cascading left joins: `Join_Campaign_All_Onetime_Paid` → `Join_Campaign_All_Onetime_Recurring_Paid`. Same shape on the source-code side.
 
@@ -173,3 +177,13 @@ Three writebacks fire in sequence: upsert campaign summaries, upsert source-code
 - **Insert + Update + Delete triad** — same idempotency guarantee as the donor rollup. Rerunning always converges: campaigns that no longer have any activity get their summary rows cleaned up.
 
 Alongside `DonorGiftSummary` and `CreatePartyCategories`, this DPE closes the loop of the **standard Fundraising Cloud nightly rollup set**: donors get their lifecycle categories and giving-history rollups; campaigns and source codes get their performance rollups. Together they populate almost every out-of-the-box Fundraising dashboard and report.
+
+---
+
+# GiftDesignation — Data Processing Engine Definition
+
+The third DPE in the nightly Fundraising rollup set. It maintains giving-history aggregates on the standard `GiftDesignation` object — per-designation totals, first/last dates, best-year, current/last/last-two-year windows — so designation-level dashboards can query pre-materialized rows instead of aggregating `GiftTransactionDesignation` on every read. Full archive: [dpe/GiftDesignation.dpe.json](dpe/GiftDesignation.dpe.json).
+
+Structurally simpler than the other two: one `IsPaid = true` filter on `GiftTransaction` (via a `LeftOuter` join to `GiftTransactionDesignation`), one grouping stack (group-by-designation → Avg/Min/Max/Sum/Count), plus the same year-window forks driven by the shared `CURRENT_CALENDAR_YEAR` / `LAST_CALENDAR_YEAR` / `LAST_TWO_CALENDAR_YEAR` parameters. Writeback is **Update-only** (no insert, no delete) — designations are created elsewhere and this DPE just refreshes 14 aggregate fields on existing rows.
+
+**No ScheduleType gate anywhere.** Designations receive credit from any paid `GiftTransactionDesignation` regardless of the parent GC's ScheduleType — so Custom-schedule paid gifts *do* land in per-designation totals.

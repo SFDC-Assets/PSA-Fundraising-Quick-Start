@@ -1,0 +1,50 @@
+{
+	"FullName": "GiftDesignation",
+	"Metadata": {
+		"processType": "Fundraising",
+		"status": "Active",
+		"label": "GiftDesignation",
+		"description": "Gift Designation Rollup",
+		"isTemplate": true,
+		"executionPlatformType": "CRMA",
+		"executionPlatformObjectType": "None",
+		"dataSpaceApiName": "default",
+		"definitionRunMode": "Batch",
+		"datasources": [
+			{
+				"name": "Gift_Transaction",
+				"label": "Gift Transaction",
+				"sourceName": "GiftTransaction",
+				"type": "StandardObject",
+				"fields": [
+					{"name": "IsPaid", "dataType": "Boolean", "alias": "IsPaid", "displaySequence": 1},
+					{"name": "TransactionDate", "dataType": "Date", "alias": "TransactionDate", "displaySequence": 1},
+					{"name": "Id", "dataType": "Text", "alias": "Id", "displaySequence": 1}
+				]
+			},
+			{
+				"name": "Gift_Transaction_Designation",
+				"label": "Gift Transaction Designation",
+				"sourceName": "GiftTransactionDesignation",
+				"type": "StandardObject",
+				"fields": [
+					{"name": "Amount", "dataType": "Numeric", "alias": "Amount", "displaySequence": 1},
+					{"name": "GiftDesignationId", "dataType": "Text", "alias": "GiftDesignationId", "displaySequence": 1},
+					{"name": "GiftTransactionId", "dataType": "Text", "alias": "GiftTransactionId", "displaySequence": 1},
+					{"name": "Id", "dataType": "Text", "alias": "Id", "displaySequence": 1}
+				]
+			}
+		],
+		"_archive_note": "Full DPE payload retrieved from a Fundraising Cloud org. Complete JSON pasted into conversation 2026-08-15. Re-retrieve fresh with: sf project retrieve start --metadata 'DataProcessingEngineDefinition:GiftDesignation'",
+		"pipeline_summary": {
+			"gate": "Only paid transactions (Filter_on_isPaid: IsPaid Equals true) contribute — same rule as DonorGiftSummary. No ScheduleType filter anywhere, so Custom-schedule payments DO count in designation rollups as long as they're paid.",
+			"aggregation": "Group by GiftDesignationId: Avg/Min/Max/Sum(Amount), Min/Max(TransactionDate), Count(GiftTransactionId). Plus current-year, last-year, and last-two-year (prior-year-only) windows using the same CURRENT_CALENDAR_YEAR / LAST_CALENDAR_YEAR / LAST_TWO_CALENDAR_YEAR date parameters as the other DPEs.",
+			"writeback": "Update-only (no insert/delete) into standard GiftDesignation fields: AverageTransactionAmount, FirstPaidTransactionDate, LastPaidTransactionDate, TotalTransactionCount, LowestTransactionAmount, HighestTransactionAmount, TotalTransactionAmount, CurrentYearTrxnAmount, CurrentYearTransactionCount, LastYearTrxnAmount, LastYearTransactionCount, LastTwoYearTrxnAmount, LastTwoYearTrxnCount."
+		},
+		"parameters": [
+			{"name": "CURRENT_CALENDAR_YEAR", "label": "CURRENT_CALENDAR_YEAR", "dataType": "Date"},
+			{"name": "LAST_CALENDAR_YEAR", "label": "LAST_CALENDAR_YEAR", "dataType": "Date"},
+			{"name": "LAST_TWO_CALENDAR_YEAR", "label": "LAST_TWO_CALENDAR_YEAR", "dataType": "Date"}
+		]
+	}
+}

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>OutreachSourceCodeId</fullName>
-    <description>The Outreach Source Code (appeal, channel, or event) that generated this gift. When populated, the OSC's parent Campaign must equal this transaction's CampaignId — mismatched values fail with &quot;Select an Outreach Source Code that's part of this Campaign.&quot; Recommended pattern in automation: pick the OSC first, then set CampaignId from OutreachSourceCode.CampaignId. See docs/npc-automation-notes.md.</description>
+    <description>The Outreach Source Code (appeal, channel, or event) that generated this gift. When populated, the OSC's parent Campaign must equal this transaction's CampaignId — mismatched values fail with &quot;Select an Outreach Source Code that's part of this Campaign.&quot; Recommended pattern in automation: pick the OSC first, then set CampaignId from OutreachSourceCode.CampaignId. See docs/dev/npc-automation-notes.md.</description>
     <inlineHelpText>The appeal, event, or channel that generated this gift. Must belong to the Campaign selected on this record.</inlineHelpText>
     <trackHistory>false</trackHistory>
     <type>Lookup</type>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Parent_Type__c</fullName>
-    <description>Formula: returns the type of the polymorphic ParentRecordId (GiftCommitment, Opportunity, Campaign, or blank if unset).</description>
+    <description>Formula on ParentRecordId&apos;s key prefix. Returns &quot;Gift Commitment&quot; (6gc), &quot;Opportunity&quot; (006), &quot;Campaign&quot; (701), or blank if unset.</description>
     <externalId>false</externalId>
     <formula>IF(LEFT(ParentRecordId, 3) = &quot;6gc&quot;, &quot;Gift Commitment&quot;,
 IF(LEFT(ParentRecordId, 3) = &quot;006&quot;, &quot;Opportunity&quot;,

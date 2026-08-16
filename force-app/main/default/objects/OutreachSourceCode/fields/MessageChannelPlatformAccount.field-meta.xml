@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MessageChannelPlatformAccount</fullName>
+    <description>Free text (255). No automation reads this; reporting-only.</description>
+    <inlineHelpText>The specific sender account on the platform — e.g., the email-sending domain, the ad account ID, or the social handle used for this tactic. Useful for reconciling gift attribution against platform-side reports.</inlineHelpText>
+</CustomField>

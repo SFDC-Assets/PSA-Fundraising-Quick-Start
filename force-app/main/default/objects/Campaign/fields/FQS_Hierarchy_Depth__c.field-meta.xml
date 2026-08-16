@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Hierarchy_Depth__c</fullName>
-    <description>Fundraising Quick Start: numeric depth in the campaign hierarchy. 1 = top-level (no parent), 2 = direct child, up to 5 levels deep.</description>
+    <description>Boolean depth formula using `ISBLANK(Parent[.Parent...].ParentId)`. Depth ≥ 5 is clamped at 5. Use in list-view filters and reports to isolate leaf-level campaigns versus category branches.</description>
     <formula>IF(ISBLANK(ParentId), 1,
 IF(ISBLANK(Parent.ParentId), 2,
 IF(ISBLANK(Parent.Parent.ParentId), 3,
 IF(ISBLANK(Parent.Parent.Parent.ParentId), 4, 5))))</formula>
     <formulaTreatBlanksAs>BlankAsBlank</formulaTreatBlanksAs>
+    <inlineHelpText>Set automatically. Depth of this campaign in the hierarchy — 1 for top-level campaigns with no parent, 2 for direct children, up to 5 for the deepest supported nesting.</inlineHelpText>
     <label>Hierarchy Depth</label>
     <precision>18</precision>
     <required>false</required>

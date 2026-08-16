@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Summary__c</fullName>
-    <description>Plain-English schedule preview built from platform-managed schedule fields. Reads CurrentGiftCmtSchedule.TransactionPeriod plus GC-level fields (Category, ScheduleType, RecurrenceType, NextTransactionAmount, ExpectedTotalCmtAmount, EffectiveStartDate, ExpectedEndDate). Renders one sentence per shape: Recurring, Scheduled pledge/grant, Custom pledge, Simple pledge, Grant Payout. Failsafe: when ScheduleType is set but CurrentGiftCmtSchedule is null (future-dated schedule not yet activated), returns a &quot;Schedule starts in the future&quot; message instead of falsely reporting a single payment. See docs/npc-automation-notes.md for the CurrentGiftCmtScheduleId activation semantics.</description>
+    <description>Assembled from platform-managed schedule fields with a failsafe for pre-activation commitments — when `ScheduleType` is set but `CurrentGiftCmtScheduleId` is null, returns &quot;Schedule starts in the future.&quot;</description>
     <externalId>false</externalId>
     <formula>IF(AND(NOT(ISBLANK(TEXT(ScheduleType))), ISBLANK(TEXT(CurrentGiftCmtSchedule.TransactionPeriod))),
    &quot;Schedule starts in the future — this commitment&apos;s schedule has not activated yet. A full preview will render once the first scheduled payment date arrives and the platform sets the current schedule on this commitment.&quot;,
@@ -41,7 +41,7 @@ IF(AND(TEXT(RecurrenceType)=&quot;FixedLength&quot;, NOT(ISBLANK(TEXT(CurrentGif
    &quot; as a single payment.&quot;
 ))))</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-    <inlineHelpText>Automatically calculated. One-sentence description of the schedule, adjusted for Recurring Gift, Pledged Gift (scheduled, custom, or single payment), and Grant Payout. For commitments whose schedule has not activated yet (future StartDate), shows &quot;Schedule starts in the future&quot; until the first payment date arrives.</inlineHelpText>
+    <inlineHelpText>Set automatically. A one-sentence plain-English summary of this commitment's schedule — cadence, amount, and start. Updates as the underlying schedule changes.</inlineHelpText>
     <label>Summary</label>
     <required>false</required>
     <type>Text</type>

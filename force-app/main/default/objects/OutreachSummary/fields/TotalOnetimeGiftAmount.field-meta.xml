@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>TotalOnetimeGiftAmount</fullName>
-    <inlineHelpText>Sum of paid one-time gift amounts (not connected to a recurring commitment) attributed to this campaign or outreach source code.</inlineHelpText>
+    <description>Set automatically. Filters to GiftTransaction.GiftCommitmentId = null (strict — the DPE does NOT include Custom-schedule payments here; see the schedule dead-zone note in the object follow-ups).</description>
+    <inlineHelpText>Sum of paid gift transactions that do not have any gift commitment associated with them.</inlineHelpText>
 </CustomField>

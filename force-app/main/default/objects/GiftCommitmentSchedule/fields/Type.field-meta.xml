@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Type</fullName>
-    <description>Indicates whether this schedule is actively creating gift transactions or is paused. Allowed values: CreateTransactions (schedule is generating installments on each transaction date), PauseTransactions (schedule exists but installment generation is suspended).</description>
+    <description>Restricted picklist. Legal values: **CreateTransactions** (normal), **PauseTransactions** (suspended without deleting the schedule). Used by the managed `frops_flow__PauseResumeSchedule` action to pause / resume without deleting schedule history. Default: `CreateTransactions`.</description>
+    <inlineHelpText>Choose *Create Transactions* for a schedule that generates gift transactions as installments come due. Choose *Pause Transactions* to suspend installment generation temporarily — the schedule stays attached but stops producing new gifts.</inlineHelpText>
 </CustomField>
