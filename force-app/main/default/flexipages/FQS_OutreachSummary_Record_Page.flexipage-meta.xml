@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
-    <!-- ═══════════════════════════════════════════════════════════
-         HEADER — dynamicHighlights
-         Primary: Name (ro — system-set)
-         Secondary: CampaignId, OutreachSourceCodeId, TotalGiftTransactionAmount, GiftCount, DonorCount
-         Actions: Edit, Delete, ChangeOwnerOne
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -111,28 +105,6 @@
         <name>header</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         DETAIL TAB CONTENT — 4 field sections
-
-         S1: Outreach Links
-           Left:  CampaignId, OutreachSourceCodeId
-           Right: OwnerId
-
-         S2: Gift Totals
-           Left:  TotalGiftTransactionAmount (ro), TotalOnetimeGiftAmount (ro), TotalRecurringGiftAmount (ro)
-           Right: GiftCount (ro), DonorCount (ro), OnetimeDonorCount (ro), RecurringDonorCount (ro)
-
-         S3: Averages & Response
-           Left:  AverageGiftAmount (ro), AverageOnetimeGiftAmount (ro), AverageRecurringGiftAmount (ro)
-           Right: ResponseRate (ro), AttributedAmount (ro)
-
-         S4: System Information
-           Left:  CreatedById (ro)
-           Right: LastModifiedById (ro)
-    ═══════════════════════════════════════════════════════════ -->
-
-    <!-- S1 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -144,6 +116,10 @@
                 <identifier>fqs_os_d_s1_CampaignId</identifier>
             </fieldInstance>
         </itemInstances>
+        <name>Facet-fqs-os-d-s1-left</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -154,25 +130,9 @@
                 <identifier>fqs_os_d_s1_OutreachSourceCodeId</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-os-d-s1-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <!-- S1 right -->
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.OwnerId</fieldItem>
-                <identifier>fqs_os_d_s1_OwnerId</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-os-d-s1-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S1 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -197,8 +157,6 @@
         <name>Facet-fqs-os-d-s1-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S2 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -230,10 +188,19 @@
                 <identifier>fqs_os_d_s2_TotalRecurringGiftAmount</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.RecurringDonorCount</fieldItem>
+                <identifier>fqs_os_d_s2_RecurringDonorCount</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-os-d-s2-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S2 right -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -265,20 +232,9 @@
                 <identifier>fqs_os_d_s2_OnetimeDonorCount</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.RecurringDonorCount</fieldItem>
-                <identifier>fqs_os_d_s2_RecurringDonorCount</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-os-d-s2-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S2 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -303,8 +259,6 @@
         <name>Facet-fqs-os-d-s2-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S3 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -339,7 +293,6 @@
         <name>Facet-fqs-os-d-s3-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S3 right -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -364,7 +317,6 @@
         <name>Facet-fqs-os-d-s3-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S3 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -389,9 +341,17 @@
         <name>Facet-fqs-os-d-s3-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S4 left -->
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.OwnerId</fieldItem>
+                <identifier>fqs_os_d_s1_OwnerId</identifier>
+            </fieldInstance>
+        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -405,7 +365,6 @@
         <name>Facet-fqs-os-d-s4-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S4 right -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -420,7 +379,6 @@
         <name>Facet-fqs-os-d-s4-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S4 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -445,8 +403,6 @@
         <name>Facet-fqs-os-d-s4-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- detailTabContent: 4 fieldSection components -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -524,32 +480,6 @@
         <name>detailTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         ACTIVITY TAB — activityPanel
-         relatedTabContent wired here (required by parent flexipage__default_rec_L)
-    ═══════════════════════════════════════════════════════════ -->
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>showLegacyActivityComposer</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentName>runtime_sales_activities:activityPanel</componentName>
-                <identifier>fqs_os_relatedTab_activityPanel</identifier>
-            </componentInstance>
-        </itemInstances>
-        <mode>Replace</mode>
-        <name>relatedTabContent</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         MAIN TABS
-         Tab 1 (active): Detail
-         Tab 2: Activity
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -569,20 +499,6 @@
                 <identifier>fqs_os_tab_detail</identifier>
             </componentInstance>
         </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>relatedTabContent</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Activity</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>fqs_os_tab_activity</identifier>
-            </componentInstance>
-        </itemInstances>
         <mode>Replace</mode>
         <name>maintabs</name>
         <type>Facet</type>
@@ -590,6 +506,10 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Tabs</value>
+                </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>tabs</name>
                     <value>maintabs</value>
@@ -602,13 +522,6 @@
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         SIDEBAR — accordion
-         Section 1: Tasks, Emails, and Events
-         Section 2: Files (AttachedContentDocuments)
-         Section 3: Field History (Histories)
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -760,7 +673,6 @@
         <name>sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
-
     <masterLabel>FQS_OutreachSummary_Record_Page</masterLabel>
     <parentFlexiPage>flexipage__default_rec_L</parentFlexiPage>
     <sobjectType>OutreachSummary</sobjectType>

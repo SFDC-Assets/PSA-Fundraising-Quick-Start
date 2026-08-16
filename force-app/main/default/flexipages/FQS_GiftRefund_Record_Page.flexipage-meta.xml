@@ -201,6 +201,16 @@
                 <identifier>fqs_gr_d_s2_ProcessorTransactionFee</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.LastGatewayErrorMessage</fieldItem>
+                <identifier>fqs_gr_d_s2_LastGatewayErrorMessage</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-gr-d-s2-left</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -223,16 +233,6 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.LastGatewayResponseCode</fieldItem>
                 <identifier>fqs_gr_d_s2_LastGatewayResponseCode</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.LastGatewayErrorMessage</fieldItem>
-                <identifier>fqs_gr_d_s2_LastGatewayErrorMessage</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-fqs-gr-d-s2-right</name>

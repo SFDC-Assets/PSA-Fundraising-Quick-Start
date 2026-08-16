@@ -123,20 +123,24 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.FQS_Parent_Type__c</fieldItem>
-                <identifier>fqs_gdsc_d_s1_FQS_Parent_Type__c</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.RecipientId</fieldItem>
                 <identifier>fqs_gdsc_d_s1_RecipientId</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-fqs-gdsc-d-s1-left</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Parent_Type__c</fieldItem>
+                <identifier>fqs_gdsc_d_s1_FQS_Parent_Type__c</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -149,7 +153,7 @@
                 <identifier>fqs_gdsc_d_s1_Role</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-gdsc-d-s1-left</name>
+        <name>Facet-19dbe472-81da-43a7-b297-5f0d8676252c</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -161,6 +165,16 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:column</componentName>
                 <identifier>fqs_gdsc_d_col_s1_left</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-19dbe472-81da-43a7-b297-5f0d8676252c</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column</identifier>
             </componentInstance>
         </itemInstances>
         <name>Facet-fqs-gdsc-d-s1-cols</name>

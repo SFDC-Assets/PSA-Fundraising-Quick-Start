@@ -239,26 +239,6 @@
                 <identifier>fqs_gt_d_fi_Category</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.FQS_In_Kind__c</fieldItem>
-                <identifier>fqs_gt_d_fi_InKind</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.FQS_Recurring__c</fieldItem>
-                <identifier>fqs_gt_d_fi_Recurring</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-f3252c33-3914-432e-8d7f-85f50fab34f5</name>
         <type>Facet</type>
     </flexiPageRegions>
@@ -398,8 +378,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.CampaignId</fieldItem>
-                <identifier>RecordCampaignIdField</identifier>
+                <fieldItem>Record.OutreachSourceCodeId</fieldItem>
+                <identifier>RecordOutreachSourceCodeIdField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -432,8 +412,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.PaymentInstrumentId</fieldItem>
-                <identifier>RecordPaymentInstrumentIdField</identifier>
+                <fieldItem>Record.CampaignId</fieldItem>
+                <identifier>RecordCampaignIdField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -442,8 +422,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.OutreachSourceCodeId</fieldItem>
-                <identifier>RecordOutreachSourceCodeIdField</identifier>
+                <fieldItem>Record.PaymentInstrumentId</fieldItem>
+                <identifier>RecordPaymentInstrumentIdField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
@@ -601,10 +581,16 @@
                 <fieldItem>Record.FQS_Fair_Market_Value_Amount__c</fieldItem>
                 <identifier>RecordFQS_Fair_Market_Value_Amount_cField</identifier>
                 <visibilityRule>
+                    <booleanFilter>1 AND 2</booleanFilter>
                     <criteria>
                         <leftValue>{!Record.PaymentMethod}</leftValue>
                         <operator>EQUAL</operator>
                         <rightValue>In-Kind</rightValue>
+                    </criteria>
+                    <criteria>
+                        <leftValue>{!Record.FQS_Gift_Transaction_Category__c}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Other</rightValue>
                     </criteria>
                 </visibilityRule>
             </fieldInstance>
@@ -1122,6 +1108,16 @@
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_In_Kind__c</fieldItem>
+                <identifier>fqs_gt_d_fi_InKind</identifier>
+            </fieldInstance>
+        </itemInstances>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>

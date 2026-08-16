@@ -37,7 +37,11 @@
         </itemInstances>
         <itemInstances>
             <fieldInstance>
-                <fieldItem>Record.GiftCommitment.Status</fieldItem>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.GiftCommitmentStatus</fieldItem>
                 <identifier>RecordGiftCommitmentStatusField2</identifier>
             </fieldInstance>
         </itemInstances>
@@ -80,9 +84,6 @@
                 <componentInstanceProperties>
                     <name>actionNames</name>
                     <valueList>
-                        <valueListItems>
-                            <value>Clone</value>
-                        </valueListItems>
                         <valueListItems>
                             <value>ChangeOwnerOne</value>
                         </valueListItems>
@@ -136,30 +137,10 @@
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Type</fieldItem>
-                <identifier>fqs_gcs_d_s1_Type</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>required</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.TransactionPeriod</fieldItem>
-                <identifier>fqs_gcs_d_s1_TransactionPeriod</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.TransactionDay</fieldItem>
-                <identifier>fqs_gcs_d_s1_TransactionDay</identifier>
+                <fieldItem>Record.TotalScheduleAmount</fieldItem>
+                <identifier>fqs_gcs_d_s1_TotalScheduleAmount</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-fqs-gcs-d-s1-left</name>
@@ -192,28 +173,8 @@
                     <name>uiBehavior</name>
                     <value>required</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.TransactionAmount</fieldItem>
-                <identifier>fqs_gcs_d_s1_TransactionAmount</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.TransactionInterval</fieldItem>
-                <identifier>fqs_gcs_d_s1_TransactionInterval</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.TotalScheduleAmount</fieldItem>
-                <identifier>fqs_gcs_d_s1_TotalScheduleAmount</identifier>
+                <fieldItem>Record.Type</fieldItem>
+                <identifier>fqs_gcs_d_s1_Type</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-fqs-gcs-d-s1-right</name>
@@ -241,6 +202,78 @@
             </componentInstance>
         </itemInstances>
         <name>Facet-fqs-gcs-d-s1-cols</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>required</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.TransactionAmount</fieldItem>
+                <identifier>fqs_gcs_d_s1_TransactionAmount</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>required</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.TransactionPeriod</fieldItem>
+                <identifier>fqs_gcs_d_s1_TransactionPeriod</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-2c75465b-35f8-4ef4-98fe-fd2538636679</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.TransactionInterval</fieldItem>
+                <identifier>fqs_gcs_d_s1_TransactionInterval</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.TransactionDay</fieldItem>
+                <identifier>fqs_gcs_d_s1_TransactionDay</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-297c0c61-8d3d-419a-a2e5-19c1c9c49caa</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-2c75465b-35f8-4ef4-98fe-fd2538636679</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-297c0c61-8d3d-419a-a2e5-19c1c9c49caa</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column2</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-ab883662-0d0f-40f0-b979-5bbe04307aad</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -476,6 +509,31 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>fqs_gcs_d_fieldSection_s1</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
+                    <value>Facet-ab883662-0d0f-40f0-b979-5bbe04307aad</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Recurring Schedule Type</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.GiftCommitment.ScheduleType}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Recurring</rightValue>
+                    </criteria>
+                </visibilityRule>
             </componentInstance>
         </itemInstances>
         <itemInstances>

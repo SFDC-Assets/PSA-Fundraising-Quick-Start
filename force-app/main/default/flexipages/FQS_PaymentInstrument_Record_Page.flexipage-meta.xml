@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
-    <!-- ═══════════════════════════════════════════════════════════
-         HEADER — dynamicHighlights
-         Primary: Name
-         Secondary: Type, AccountId, Last4, CardBrand, GatewayName
-         Actions: Edit, Delete, ChangeOwnerOne
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>required</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.Name</fieldItem>
                 <identifier>fqs_pi_highlights_primary</identifier>
@@ -111,36 +105,6 @@
         <name>header</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         DETAIL TAB CONTENT — 6 field sections
-
-         S1: Instrument Type
-           Left:  Type, CardBrand, Last4
-           Right: ExpiryMonth, ExpiryYear
-
-         S2: Bank Details
-           Left:  BankName, BankAccountType, BankAccountHolderType, BankAccountNumber
-           Right: BankCode
-
-         S3: Digital Wallet
-           Left:  DigitalWalletProvider, AccountHolderName
-           (single column)
-
-         S4: Gateway & Processor
-           Left:  GatewayName, GatewayReference, PaymentProcessorName
-           Right: ProcessorReference
-
-         S5: Account
-           Left:  AccountId, OwnerId
-           (single column)
-
-         S6: System Information
-           Left:  CreatedById (ro)
-           Right: LastModifiedById (ro)
-    ═══════════════════════════════════════════════════════════ -->
-
-    <!-- S1 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -152,30 +116,9 @@
                 <identifier>fqs_pi_d_s1_Type</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.CardBrand</fieldItem>
-                <identifier>fqs_pi_d_s1_CardBrand</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Last4</fieldItem>
-                <identifier>fqs_pi_d_s1_Last4</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-pi-d-s1-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S1 right -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -183,24 +126,13 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.ExpiryMonth</fieldItem>
-                <identifier>fqs_pi_d_s1_ExpiryMonth</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.ExpiryYear</fieldItem>
-                <identifier>fqs_pi_d_s1_ExpiryYear</identifier>
+                <fieldItem>Record.AccountId</fieldItem>
+                <identifier>fqs_pi_d_s5_AccountId</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-fqs-pi-d-s1-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S1 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -225,8 +157,78 @@
         <name>Facet-fqs-pi-d-s1-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S2 left -->
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.CardBrand</fieldItem>
+                <identifier>fqs_pi_d_s1_CardBrand</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.ExpiryMonth</fieldItem>
+                <identifier>fqs_pi_d_s1_ExpiryMonth</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-2b0941cd-68f3-4803-899d-30efe997c9dc</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.Last4</fieldItem>
+                <identifier>fqs_pi_d_s1_Last4</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.ExpiryYear</fieldItem>
+                <identifier>fqs_pi_d_s1_ExpiryYear</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-bf8d6158-0140-482b-8394-3280221b72f5</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-2b0941cd-68f3-4803-899d-30efe997c9dc</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-bf8d6158-0140-482b-8394-3280221b72f5</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:column</componentName>
+                <identifier>flexipage_column2</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-85973ce7-bca3-41c2-aa7b-a6702b48e3ca</name>
+        <type>Facet</type>
+    </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -238,6 +240,30 @@
                 <identifier>fqs_pi_d_s2_BankName</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.BankAccountNumber</fieldItem>
+                <identifier>fqs_pi_d_s2_BankAccountNumber</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.BankCode</fieldItem>
+                <identifier>fqs_pi_d_s2_BankCode</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <name>Facet-fqs-pi-d-s2-left</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -258,35 +284,9 @@
                 <identifier>fqs_pi_d_s2_BankAccountHolderType</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.BankAccountNumber</fieldItem>
-                <identifier>fqs_pi_d_s2_BankAccountNumber</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-fqs-pi-d-s2-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <!-- S2 right -->
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.BankCode</fieldItem>
-                <identifier>fqs_pi_d_s2_BankCode</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-pi-d-s2-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S2 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -311,8 +311,6 @@
         <name>Facet-fqs-pi-d-s2-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S3 left (single column) -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -337,7 +335,6 @@
         <name>Facet-fqs-pi-d-s3-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S3 columns wrapper (single column) -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -352,8 +349,6 @@
         <name>Facet-fqs-pi-d-s3-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S4 left -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -375,20 +370,9 @@
                 <identifier>fqs_pi_d_s4_GatewayReference</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.PaymentProcessorName</fieldItem>
-                <identifier>fqs_pi_d_s4_PaymentProcessorName</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-pi-d-s4-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S4 right -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -400,10 +384,19 @@
                 <identifier>fqs_pi_d_s4_ProcessorReference</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.PaymentProcessorName</fieldItem>
+                <identifier>fqs_pi_d_s4_PaymentProcessorName</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-pi-d-s4-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S4 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -428,50 +421,17 @@
         <name>Facet-fqs-pi-d-s4-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S5 left (single column) -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
                     <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.AccountId</fieldItem>
-                <identifier>fqs_pi_d_s5_AccountId</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
+                    <value>readonly</value>
                 </fieldInstanceProperties>
                 <fieldItem>Record.OwnerId</fieldItem>
                 <identifier>fqs_pi_d_s5_OwnerId</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-pi-d-s5-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <!-- S5 columns wrapper (single column) -->
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-fqs-pi-d-s5-left</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:column</componentName>
-                <identifier>fqs_pi_d_col_s5_left</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-fqs-pi-d-s5-cols</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-
-    <!-- S6 left -->
-    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -485,7 +445,6 @@
         <name>Facet-fqs-pi-d-s6-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S6 right -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -500,7 +459,6 @@
         <name>Facet-fqs-pi-d-s6-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-    <!-- S6 columns wrapper -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -525,8 +483,6 @@
         <name>Facet-fqs-pi-d-s6-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- detailTabContent: 6 fieldSection components -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -550,6 +506,31 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
+                    <value>Facet-85973ce7-bca3-41c2-aa7b-a6702b48e3ca</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>horizontalAlignment</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Credit Card Info</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:fieldSection</componentName>
+                <identifier>flexipage_fieldSection</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Type}</leftValue>
+                        <operator>EQUAL</operator>
+                        <rightValue>Credit Card</rightValue>
+                    </criteria>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>columns</name>
                     <value>Facet-fqs-pi-d-s2-cols</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -562,6 +543,13 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:fieldSection</componentName>
                 <identifier>fqs_pi_d_fieldSection_s2</identifier>
+                <visibilityRule>
+                    <criteria>
+                        <leftValue>{!Record.Type}</leftValue>
+                        <operator>NE</operator>
+                        <rightValue>Credit Card</rightValue>
+                    </criteria>
+                </visibilityRule>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -604,24 +592,6 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>columns</name>
-                    <value>Facet-fqs-pi-d-s5-cols</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>horizontalAlignment</name>
-                    <value>false</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Account</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:fieldSection</componentName>
-                <identifier>fqs_pi_d_fieldSection_s5</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>columns</name>
                     <value>Facet-fqs-pi-d-s6-cols</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -640,13 +610,6 @@
         <name>detailTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         GIFT TRANSACTIONS TAB — TransactionPaymentInstruments
-         relatedListApiName: TransactionPaymentInstruments
-         Fields: Name, TransactionDate, OriginalAmount, CurrentAmount, Status, DonorId
-         (relatedTabContent wired here per parent page requirement)
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -677,12 +640,24 @@
                 <componentInstanceProperties>
                     <name>relatedListFieldAliases</name>
                     <valueList>
-                        <valueListItems><value>Name</value></valueListItems>
-                        <valueListItems><value>TransactionDate</value></valueListItems>
-                        <valueListItems><value>OriginalAmount</value></valueListItems>
-                        <valueListItems><value>CurrentAmount</value></valueListItems>
-                        <valueListItems><value>Status</value></valueListItems>
-                        <valueListItems><value>Donor</value></valueListItems>
+                        <valueListItems>
+                            <value>Name</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>TransactionDate</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>OriginalAmount</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>CurrentAmount</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Status</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Donor</value>
+                        </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -709,12 +684,6 @@
         <name>relatedTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         SCHEDULES TAB — SchedulePaymentInstruments
-         relatedListApiName: SchedulePaymentInstruments
-         Fields: Name, GiftCommitmentId, Type, TransactionAmount, StartDate, EndDate
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -745,12 +714,24 @@
                 <componentInstanceProperties>
                     <name>relatedListFieldAliases</name>
                     <valueList>
-                        <valueListItems><value>Name</value></valueListItems>
-                        <valueListItems><value>GiftCommitment</value></valueListItems>
-                        <valueListItems><value>Type</value></valueListItems>
-                        <valueListItems><value>TransactionAmount</value></valueListItems>
-                        <valueListItems><value>StartDate</value></valueListItems>
-                        <valueListItems><value>EndDate</value></valueListItems>
+                        <valueListItems>
+                            <value>Name</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>GiftCommitment</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>Type</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>TransactionAmount</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>StartDate</value>
+                        </valueListItems>
+                        <valueListItems>
+                            <value>EndDate</value>
+                        </valueListItems>
                     </valueList>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -776,13 +757,6 @@
         <name>Facet-fqs-pi-schedules</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         MAIN TABS
-         Tab 1 (active): Detail
-         Tab 2: Gift Transactions
-         Tab 3: Commitment Schedules
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -838,6 +812,10 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Tabs</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>tabs</name>
                     <value>maintabs</value>
                 </componentInstanceProperties>
@@ -849,13 +827,6 @@
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         SIDEBAR — accordion
-         Section 1: Tasks, Emails, and Events (activityPanel)
-         Section 2: Files (AttachedContentDocuments)
-         Section 3: Field History (Histories)
-    ═══════════════════════════════════════════════════════════ -->
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -1007,7 +978,6 @@
         <name>sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
-
     <masterLabel>FQS_PaymentInstrument_Record_Page</masterLabel>
     <parentFlexiPage>flexipage__default_rec_L</parentFlexiPage>
     <sobjectType>PaymentInstrument</sobjectType>

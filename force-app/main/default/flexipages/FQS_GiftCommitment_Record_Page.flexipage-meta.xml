@@ -251,16 +251,6 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.FQS_Skip_Naming__c</fieldItem>
-                <identifier>fqs_gc_d_fi_SkipNaming</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>none</value>
-                </fieldInstanceProperties>
                 <fieldItem>Record.ExpectedTotalCmtAmount</fieldItem>
                 <identifier>RecordExpectedTotalCmtAmountField</identifier>
             </fieldInstance>
@@ -1019,6 +1009,16 @@
                 </fieldInstanceProperties>
                 <fieldItem>Record.CreatedDate</fieldItem>
                 <identifier>RecordCreatedDateField</identifier>
+            </fieldInstance>
+        </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Skip_Naming__c</fieldItem>
+                <identifier>fqs_gc_d_fi_SkipNaming</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-fqs-d-s7-left</name>

@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
-
-    <!-- ═══════════════════════════════════════════════════════
-         HEADER
-    ═══════════════════════════════════════════════════════ -->
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -19,7 +14,6 @@
         <name>Facet-fqs-dgs-primaryFields</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -74,16 +68,12 @@
         <name>Facet-fqs-dgs-secondaryFields</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
                     <name>actionNames</name>
                     <valueList>
-                        <valueListItems>
-                            <value>Clone</value>
-                        </valueListItems>
                         <valueListItems>
                             <value>Delete</value>
                         </valueListItems>
@@ -109,11 +99,6 @@
         <name>header</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         S1 — Giving Overview (left)
-    ═══════════════════════════════════════════════════════ -->
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -155,11 +140,19 @@
                 <identifier>fqs_dgs_fi_BookedPledges</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Lifetime_Donor_Level_Name__c</fieldItem>
+                <identifier>fqs_dgs_fi_FQS_Lifetime_Donor_Level_Name__c</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-dgs-d-s1-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- S1 right -->
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -201,20 +194,9 @@
                 <identifier>fqs_dgs_fi_TotalBookableRevenue</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.FQS_Lifetime_Donor_Level_Name__c</fieldItem>
-                <identifier>fqs_dgs_fi_FQS_Lifetime_Donor_Level_Name__c</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-dgs-d-s1-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -239,11 +221,6 @@
         <name>Facet-fqs-dgs-d-s1-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         S1b — Donor Tiers
-    ═══════════════════════════════════════════════════════ -->
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -288,7 +265,6 @@
         <name>Facet-fqs-dgs-d-s1b-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -333,7 +309,6 @@
         <name>Facet-fqs-dgs-d-s1b-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -358,11 +333,6 @@
         <name>Facet-fqs-dgs-d-s1b-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         S2 — Gift Dates
-    ═══════════════════════════════════════════════════════ -->
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -407,7 +377,6 @@
         <name>Facet-fqs-dgs-d-s2-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -442,7 +411,6 @@
         <name>Facet-fqs-dgs-d-s2-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -467,11 +435,6 @@
         <name>Facet-fqs-dgs-d-s2-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         S3 — Yearly Gift Totals
-    ═══════════════════════════════════════════════════════ -->
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -516,7 +479,6 @@
         <name>Facet-fqs-dgs-d-s3-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -561,7 +523,6 @@
         <name>Facet-fqs-dgs-d-s3-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -586,11 +547,6 @@
         <name>Facet-fqs-dgs-d-s3-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         S4 — Hard and Soft Credits
-    ═══════════════════════════════════════════════════════ -->
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -662,10 +618,19 @@
                 <identifier>fqs_dgs_fi_FirstSoftCreditDate</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>readonly</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.LastSoftCreditDate</fieldItem>
+                <identifier>fqs_dgs_fi_LastSoftCreditDate</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-dgs-d-s4-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -737,20 +702,9 @@
                 <identifier>fqs_dgs_fi_LastSoftCreditAmount</identifier>
             </fieldInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.LastSoftCreditDate</fieldItem>
-                <identifier>fqs_dgs_fi_LastSoftCreditDate</identifier>
-            </fieldInstance>
-        </itemInstances>
         <name>Facet-fqs-dgs-d-s4-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -775,11 +729,6 @@
         <name>Facet-fqs-dgs-d-s4-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         S5 — Recurring Giving
-    ═══════════════════════════════════════════════════════ -->
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -814,7 +763,6 @@
         <name>Facet-fqs-dgs-d-s5-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -839,7 +787,6 @@
         <name>Facet-fqs-dgs-d-s5-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -864,11 +811,6 @@
         <name>Facet-fqs-dgs-d-s5-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         S6 — RFM Scoring
-    ═══════════════════════════════════════════════════════ -->
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -890,6 +832,10 @@
                 <identifier>fqs_dgs_fi_FrequencyScore</identifier>
             </fieldInstance>
         </itemInstances>
+        <name>Facet-fqs-dgs-d-s6-left</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -900,11 +846,6 @@
                 <identifier>fqs_dgs_fi_MonetaryScore</identifier>
             </fieldInstance>
         </itemInstances>
-        <name>Facet-fqs-dgs-d-s6-left</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-
-    <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
                 <fieldInstanceProperties>
@@ -918,7 +859,6 @@
         <name>Facet-fqs-dgs-d-s6-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -943,11 +883,6 @@
         <name>Facet-fqs-dgs-d-s6-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         S7 — System Information
-    ═══════════════════════════════════════════════════════ -->
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -962,7 +897,6 @@
         <name>Facet-fqs-dgs-d-s7-left</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <fieldInstance>
@@ -977,7 +911,6 @@
         <name>Facet-fqs-dgs-d-s7-right</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -1002,11 +935,6 @@
         <name>Facet-fqs-dgs-d-s7-cols</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         detailTabContent — 7 field sections
-    ═══════════════════════════════════════════════════════ -->
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -1156,35 +1084,6 @@
         <name>detailTabContent</name>
         <type>Facet</type>
     </flexiPageRegions>
-
-    <!-- relatedTabContent — parent constraint requires this to be declared and referenced -->
-
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>relatedListComponentOverride</name>
-                    <value>NONE</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>rowsToDisplay</name>
-                    <value>10</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>showActionBar</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentName>force:relatedListContainer</componentName>
-                <identifier>force_relatedListContainer</identifier>
-            </componentInstance>
-        </itemInstances>
-        <mode>Replace</mode>
-        <name>relatedTabContent</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-
-    <!-- maintabs: Detail (active) + Related Lists -->
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -1204,25 +1103,10 @@
                 <identifier>fqs_dgs_tab_detail</identifier>
             </componentInstance>
         </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>relatedTabContent</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Standard.Tab.relatedLists</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-                <identifier>fqs_dgs_tab_related</identifier>
-            </componentInstance>
-        </itemInstances>
         <mode>Replace</mode>
         <name>maintabs</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -1242,13 +1126,6 @@
         <name>main</name>
         <type>Region</type>
     </flexiPageRegions>
-
-    <!-- ═══════════════════════════════════════════════════════
-         SIDEBAR — Accordion (Activities, Files, Field History)
-         activityTabContent + sidebartabs omitted intentionally:
-         accordion sidebar Region replace is sufficient per FQS convention
-    ═══════════════════════════════════════════════════════ -->
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -1263,7 +1140,6 @@
         <name>Facet-fqs-dgs-activityPanel</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -1294,7 +1170,6 @@
         <name>Facet-fqs-dgs-filesPanel</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -1325,7 +1200,6 @@
         <name>Facet-fqs-dgs-fieldHistoryPanel</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -1384,7 +1258,6 @@
         <name>Facet-fqs-dgs-accordionSections</name>
         <type>Facet</type>
     </flexiPageRegions>
-
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
@@ -1404,7 +1277,6 @@
         <name>sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
-
     <masterLabel>FQS DonorGiftSummary Record Page</masterLabel>
     <parentFlexiPage>flexipage__default_rec_L</parentFlexiPage>
     <sobjectType>DonorGiftSummary</sobjectType>
