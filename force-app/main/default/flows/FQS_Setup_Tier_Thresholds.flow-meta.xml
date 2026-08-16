@@ -303,7 +303,7 @@
         </connector>
         <fields>
             <name>DisplayText_ThresholdsHeader</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Adjust the giving thresholds for each donor tier to your nonprofit organization.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;These thresholds decide which donor tier a gift falls into based on the donor&apos;s one-time, annual, and lifetime giving. Each tier also has a &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Credit Type&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; setting that controls whether soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor) count toward that tier alongside the donor&apos;s own gifts. Different tiers can have different Credit Type settings.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;These donor tiers will effect the donor acknowledgement process, formula fields for individuals and gift, and reports included in the Fundraising Quick Start. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Changes take up to a minute to appear after you finish this flow.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Adjust the giving thresholds for each donor tier to fit your organization.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;These thresholds decide which donor tier a gift falls into based on the donor&apos;s one-time, annual, and lifetime giving. Each tier also has a &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Credit Type&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; setting that controls whether soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor) count toward that tier alongside the donor&apos;s own gifts. Different tiers can have different Credit Type settings.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;These donor tiers will affect the donor acknowledgement process, formula fields on individuals and gifts, and reports included in the Fundraising Quick Start. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Changes take up to a minute to appear after you finish this flow.&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -322,7 +322,7 @@
                 <fieldType>Region</fieldType>
                 <fields>
                     <name>DisplayText_MajorHeader</name>
-                    <fieldText>&lt;h2&gt;Major&lt;/h2&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;What does your organization consider to be a major level gift?&lt;/span&gt;&lt;/p&gt;</fieldText>
+                    <fieldText>&lt;h2&gt;Major&lt;/h2&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;What does your organization consider to be a major-level gift?&lt;/span&gt;&lt;/p&gt;</fieldText>
                     <fieldType>DisplayText</fieldType>
                     <styleProperties>
                         <verticalAlignment>
@@ -465,7 +465,7 @@
                 <fieldType>Region</fieldType>
                 <fields>
                     <name>DisplayText_MidHeader</name>
-                    <fieldText>&lt;h2&gt;Mid&lt;/h2&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px; background-color: rgb(255, 255, 255);&quot;&gt;What does your organization consider to be a mid level gift?&lt;/span&gt;&lt;/p&gt;</fieldText>
+                    <fieldText>&lt;h2&gt;Mid&lt;/h2&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px; background-color: rgb(255, 255, 255);&quot;&gt;What does your organization consider to be a mid-level gift?&lt;/span&gt;&lt;/p&gt;</fieldText>
                     <fieldType>DisplayText</fieldType>
                     <styleProperties>
                         <verticalAlignment>
@@ -608,7 +608,7 @@
                 <fieldType>Region</fieldType>
                 <fields>
                     <name>DisplayText_EntryHeader</name>
-                    <fieldText>&lt;h2&gt;Entry&lt;/h2&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); font-size: 16px;&quot;&gt;What does your organization consider to be a entry level gift?&lt;/span&gt;&lt;/p&gt;</fieldText>
+                    <fieldText>&lt;h2&gt;Entry&lt;/h2&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); font-size: 16px;&quot;&gt;What does your organization consider to be an entry-level gift?&lt;/span&gt;&lt;/p&gt;</fieldText>
                     <fieldType>DisplayText</fieldType>
                     <styleProperties>
                         <verticalAlignment>
