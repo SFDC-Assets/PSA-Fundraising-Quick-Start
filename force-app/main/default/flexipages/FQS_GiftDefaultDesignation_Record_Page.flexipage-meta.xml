@@ -150,6 +150,16 @@
                 <identifier>fqs_gdd_d_s1_FQS_Parent_Type__c</identifier>
             </fieldInstance>
         </itemInstances>
+        <itemInstances>
+            <fieldInstance>
+                <fieldInstanceProperties>
+                    <name>uiBehavior</name>
+                    <value>none</value>
+                </fieldInstanceProperties>
+                <fieldItem>Record.FQS_Restriction_Type__c</fieldItem>
+                <identifier>fqs_gdd_d_s1_FQS_Restriction_Type__c</identifier>
+            </fieldInstance>
+        </itemInstances>
         <name>Facet-fqs-gdd-d-s1-right</name>
         <type>Facet</type>
     </flexiPageRegions>
