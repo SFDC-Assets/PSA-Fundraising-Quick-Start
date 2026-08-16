@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Decide_Parent_Is_GC</name>
+        <label>Decide Parent Is GC</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+<description>Two gates in one decision. (1) GDD.ParentRecordId is polymorphic (Campaign / GiftCommitment / Opportunity) — only route to the GC recalc when the parent is a GC (key prefix 6gc). (2) Skip when the running user holds the FQS_Bypass_Automation custom permission so data-migration bulk deletes stay lightweight; run scripts/apex/fqs-recalc-gc-fulfillmenttype.apex afterwards to reconcile. BeforeDelete precludes a filterFormula gate (see [[flow-recordbeforedelete-filterformula-silent-skip]]), so both checks live here.</description>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Parent_Is_GC</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Parent_Prefix</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>6gc</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Permission.FQS_Bypass_Automation</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Call_Recalculate</targetReference>
+            </connector>
+            <label>Recalc</label>
+        </rules>
+    </decisions>
+    <description>Fundraising Quick Start: on delete of a GiftDefaultDesignation whose parent is a GiftCommitment, triggers FQS_Recalculate_GC_FulfillmentType against the parent GC so removing the last restricted designation flips FulfillmentType back to Unconditional.
+
+Deliberately uses BeforeDelete + no filterFormula on the trigger — per the flow-recordbeforedelete-filterformula-silent-skip precedent (non-trivial start filters on managed-object delete flows silently prevent firing). Parent-type gating happens inside the flow via a Decision element on the ParentRecordId key prefix.
+
+Timing: BeforeDelete fires while the row is still visible to queries. Passes excludeGDDId = $Record.Id so the recalc subflow&apos;s GDD query filters it out — deleting the last restricted GDD correctly flips FulfillmentType to Unconditional at the same commit.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>Parent_Prefix</name>
+        <dataType>String</dataType>
+        <expression>LEFT( {!$Record.ParentRecordId}, 3 )</expression>
+    </formulas>
+    <interviewLabel>FQS GC Fulfillment From GDD Delete {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS GC Fulfillment From GDD Delete</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Decide_Parent_Is_GC</targetReference>
+        </connector>
+        <object>GiftDefaultDesignation</object>
+        <recordTriggerType>Delete</recordTriggerType>
+        <triggerType>RecordBeforeDelete</triggerType>
+    </start>
+    <status>Active</status>
+    <subflows>
+        <name>Call_Recalculate</name>
+        <label>Call Recalculate</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Delegates fulfillment-type recalculation to the shared subflow, passing the GDD&apos;s parent GC Id.</description>
+        <flowName>FQS_Recalculate_GC_FulfillmentType</flowName>
+        <inputAssignments>
+            <name>giftCommitmentId</name>
+            <value>
+                <elementReference>$Record.ParentRecordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>excludeGDDId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+</Flow>

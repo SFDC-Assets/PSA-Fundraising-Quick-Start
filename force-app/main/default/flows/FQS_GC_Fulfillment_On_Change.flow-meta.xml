@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <description>Fundraising Quick Start: fires synchronously on GC insert and on any update where FQS_Restriction_Release_Date__c changes, then delegates to FQS_Recalculate_GC_FulfillmentType. Runs in the caller transaction so the recalculated FulfillmentType lands in the same commit.
+
+Bulkification: bypassed for callers who hold the FQS_Bypass_Automation custom permission (assigned via the FQS Bypass Automation permset). Data-migration and Data Loader jobs should assume that permset for their running user so multi-thousand-record inserts/updates don&apos;t multiply this flow&apos;s work into their transaction. After migration, run scripts/apex/fqs-recalc-gc-fulfillmenttype.apex to bring FulfillmentType current on every GC.
+
+Rule (implemented in the subflow): Conditional if any child GDD has FQS_Restriction_Type__c NOT equal to &quot;Without Donor Restriction&quot; (Purpose, Permanent, or Earned Revenue) OR FQS_Restriction_Release_Date__c is populated (any date, past or future); otherwise Unconditional. Clearing the release date is what flips a release-date-only Conditional back to Unconditional — hence the ISCHANGED entry filter on that field. Subflow is idempotent — no recursion risk when it writes back to the GC.</description>
+    <environments>Default</environments>
+    <interviewLabel>FQS GC Fulfillment On Change {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS GC Fulfillment On Change</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Call_Recalculate</targetReference>
+        </connector>
+        <filterFormula>NOT({!$Permission.FQS_Bypass_Automation}) &amp;&amp; (ISNEW() || ISCHANGED({!$Record.FQS_Restriction_Release_Date__c}))</filterFormula>
+        <object>GiftCommitment</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <subflows>
+        <name>Call_Recalculate</name>
+        <label>Call Recalculate</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Delegates fulfillment-type recalculation to the shared subflow, passing the current record&apos;s Id.</description>
+        <flowName>FQS_Recalculate_GC_FulfillmentType</flowName>
+        <inputAssignments>
+            <name>giftCommitmentId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+</Flow>

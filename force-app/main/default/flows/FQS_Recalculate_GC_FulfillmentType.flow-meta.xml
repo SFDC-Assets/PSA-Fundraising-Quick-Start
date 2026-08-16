@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Assign_Restricted_True</name>
+        <label>Assign Restricted True</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Sets varHasRestrictedGD to TRUE and jumps straight to Decide_Fulfillment_Value (skipping remaining loop iterations). Any single GDD whose restriction type is not "Without Donor Restriction" is sufficient to force Conditional; no need to keep iterating.</description>
+        <assignmentItems>
+            <assignToReference>varHasRestrictedGD</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_Fulfillment_Value</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Fulfillment_Conditional</name>
+        <label>Assign Fulfillment Conditional</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Sets the target FulfillmentType to Conditional. Reached when the current GC has any child GDD whose FQS_Restriction_Type__c is not "Without Donor Restriction" (Purpose, Permanent, or Earned Revenue) OR any populated FQS_Restriction_Release_Date__c on the GC.</description>
+        <assignmentItems>
+            <assignToReference>varTargetFulfillmentType</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Conditional</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_Needs_Write</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Fulfillment_Unconditional</name>
+        <label>Assign Fulfillment Unconditional</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Sets the target FulfillmentType to Unconditional. Reached only when every child GDD is "Without Donor Restriction" AND FQS_Restriction_Release_Date__c is blank.</description>
+        <assignmentItems>
+            <assignToReference>varTargetFulfillmentType</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Unconditional</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_Needs_Write</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Fault_Silent_Exit</name>
+        <label>Fault Silent Exit</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Terminal sink for all fault paths in this subflow. Intentional silent exit: FulfillmentType is a low-stakes categorization, so a mid-flight GC delete, a validation-rule collision on the write-back, or an FLS block should NOT throw and cancel the triggering record's save. The next legitimate trigger event on the GC or any child GDD will re-attempt the recalc. Identity no-op with no outgoing connector, so the interview terminates gracefully. If silent failure ever becomes hard to diagnose, replace this sink with a Platform Event publish or a custom-object log — do NOT let faults bubble.</description>
+        <assignmentItems>
+            <assignToReference>varTargetFulfillmentType</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>varTargetFulfillmentType</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Decide_GC_Loaded</name>
+        <label>Decide GC Loaded</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Short-circuit guard: Get_GC uses assignNullValuesIfNoRecordsFound=true, so a mid-flight GC delete (or a bogus id) returns a hollow record with Id=null. Bail via Fault_Silent_Exit before touching Get_GDDs or the loop, otherwise the subsequent SOQL fires against a null bind and either faults or silently returns nothing.</description>
+        <defaultConnector>
+            <targetReference>Fault_Silent_Exit</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Missing</defaultConnectorLabel>
+        <rules>
+            <name>GC_Present</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_GC.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_GDDs</targetReference>
+            </connector>
+            <label>Present</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Is_Excluded</name>
+        <label>Decide Is Excluded</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Per-iteration exclusion: skip the current GDD if excludeGDDId is set AND matches this row's Id. Set only by the BeforeDelete caller. The blank guard is critical — without it, Flow's EqualTo on a blank rightValue can silently match every row, causing the loop to skip all GDDs and the recalc to always return Unconditional.</description>
+        <defaultConnector>
+            <targetReference>Decide_Restricted_GDD</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Keep</defaultConnectorLabel>
+        <rules>
+            <name>Is_Excluded</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>excludeGDDId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Loop_GDDs.Id</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>excludeGDDId</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Loop_GDDs</targetReference>
+            </connector>
+            <label>Skip</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Restricted_GDD</name>
+        <label>Decide Restricted GDD</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Per-iteration check: if the current GDD's restriction type is anything OTHER than "Without Donor Restriction" (i.e., Purpose, Permanent, or Earned Revenue), jump to Assign_Restricted_True and exit the loop. Only truly unrestricted GDDs fall through — every other classification carries strings attached and forces Conditional.</description>
+        <defaultConnector>
+            <targetReference>Loop_GDDs</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Not Restricted</defaultConnectorLabel>
+        <rules>
+            <name>Is_Restricted</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Loop_GDDs.FQS_Restriction_Type__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Without Donor Restriction</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Loop_GDDs.FQS_Restriction_Type__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Restricted_True</targetReference>
+            </connector>
+            <label>Restricted</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Fulfillment_Value</name>
+        <label>Decide Fulfillment Value</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>OR rule: target Conditional if varHasRestrictedGD is TRUE (any child GDD's FQS_Restriction_Type__c is not "Without Donor Restriction" — i.e., Purpose, Permanent, or Earned Revenue) OR the GC's FQS_Restriction_Release_Date__c is populated (any date, past or future — the pledge remains conditional as long as a release-date restriction is on the record). Otherwise Unconditional.</description>
+        <defaultConnector>
+            <targetReference>Assign_Fulfillment_Unconditional</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Unconditional</defaultConnectorLabel>
+        <rules>
+            <name>Is_Conditional</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>varHasRestrictedGD</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>Get_GC.FQS_Restriction_Release_Date__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Fulfillment_Conditional</targetReference>
+            </connector>
+            <label>Conditional</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Needs_Write</name>
+        <label>Decide Needs Write</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Idempotency guard: only fires the record update if the target value differs from the GC's current FulfillmentType. Prevents recursive re-triggering of the GC AfterSave flow when this subflow writes back.</description>
+        <defaultConnectorLabel>No Change</defaultConnectorLabel>
+        <rules>
+            <name>Value_Changed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varTargetFulfillmentType</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>Get_GC.FulfillmentType</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_GC_Fulfillment</targetReference>
+            </connector>
+            <label>Changed</label>
+        </rules>
+    </decisions>
+    <description>Fundraising Quick Start: shared subflow that recomputes GiftCommitment.FulfillmentType. Invoked by GC AfterSave (release-date changes), GDD AfterSave, and GDD BeforeDelete.
+
+Rule (OR): FulfillmentType = 'Conditional' if ANY child GDD (ParentRecordId = giftCommitmentId) has FQS_Restriction_Type__c NOT equal to 'Without Donor Restriction' (i.e., Purpose, Permanent, or Earned Revenue — anything with strings attached) OR the GC's FQS_Restriction_Release_Date__c is populated (any date). Otherwise 'Unconditional'.
+
+Release-date semantics: the presence of a release-date restriction — not its future-ness — determines Conditional. A pledge with a past release date is still a pledge that was made under a time restriction; it flips to Unconditional only when the date is cleared or the restricted designations are removed.
+
+Idempotent: reads the GC's current FulfillmentType and skips DML if the target value matches, so re-invocation is safe and cannot recurse.</description>
+    <environments>Default</environments>
+    <interviewLabel>FQS Recalculate GC FulfillmentType {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Recalculate GC FulfillmentType</label>
+    <loops>
+        <name>Loop_GDDs</name>
+        <label>Loop GDDs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Iterates child GDDs looking for any restriction type other than "Without Donor Restriction". Exits early via Assign_Restricted_True the moment one is found (Assign_Restricted_True routes to Decide_Fulfillment_Value, not back to the loop). Each iteration first passes through Decide_Is_Excluded so BeforeDelete callers can skip the row being deleted.</description>
+        <collectionReference>varGDDs</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Decide_Is_Excluded</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Decide_Fulfillment_Value</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_GC</name>
+        <label>Get GC</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Loads the GiftCommitment identified by the input giftCommitmentId. Reads the current FulfillmentType (for the idempotency guard) and FQS_Restriction_Release_Date__c (for the release-date branch of the Conditional rule). assignNullValuesIfNoRecordsFound=true so a mid-flight GC delete (or a bogus id) short-circuits at Decide_GC_Loaded rather than throwing.</description>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Decide_GC_Loaded</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Fault_Silent_Exit</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>giftCommitmentId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>GiftCommitment</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>FulfillmentType</queriedFields>
+        <queriedFields>FQS_Restriction_Release_Date__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <name>Get_GDDs</name>
+        <label>Get GDDs</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Retrieves all child GiftDefaultDesignation records whose ParentRecordId is the target GC. Uses the GDD.FQS_Restriction_Type__c formula (mirrors parent GD's restriction type) to avoid a second lookup on GiftDesignation. Any excludeGDDId filtering happens per-iteration in the loop (Decide_Is_Excluded), not in this SOQL — keeps the query bind Id-shape agnostic.</description>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Loop_GDDs</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Fault_Silent_Exit</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ParentRecordId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>giftCommitmentId</elementReference>
+            </value>
+        </filters>
+        <object>GiftDefaultDesignation</object>
+        <outputReference>varGDDs</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>FQS_Restriction_Type__c</queriedFields>
+    </recordLookups>
+    <recordUpdates>
+        <name>Update_GC_Fulfillment</name>
+        <label>Update GC Fulfillment</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Writes the computed FulfillmentType back to the GC. Fires only when the target differs from the current value (see Decide_Needs_Write). Fault path routes to Fault_Silent_Exit so a validation-rule collision or FLS block on the write-back never cancels the triggering record's save — the next legitimate trigger will re-attempt.</description>
+        <faultConnector>
+            <targetReference>Fault_Silent_Exit</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>giftCommitmentId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>FulfillmentType</field>
+            <value>
+                <elementReference>varTargetFulfillmentType</elementReference>
+            </value>
+        </inputAssignments>
+        <object>GiftCommitment</object>
+    </recordUpdates>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_GC</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>giftCommitmentId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Optional. When set (only by the BeforeDelete caller), the GDD with this Id is skipped inside the loop so the about-to-be-deleted row does not skew the recalc. Default blank — no live GDD Id equals blank, so all rows are kept for non-delete callers.</description>
+        <name>excludeGDDId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varGDDs</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftDefaultDesignation</objectType>
+    </variables>
+    <variables>
+        <name>varHasRestrictedGD</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
+        <name>varTargetFulfillmentType</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>
