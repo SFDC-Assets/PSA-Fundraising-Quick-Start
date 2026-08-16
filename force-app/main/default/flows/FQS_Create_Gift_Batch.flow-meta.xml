@@ -4,7 +4,7 @@
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <choices>
         <name>choiceTemplate_Default</name>
-        <choiceText>&lt;strong&gt;Undefined Batch&lt;/strong&gt; — uses the default Salesforce Standard Template, a clean baseline to use as a starting point.</choiceText>
+        <choiceText>&lt;strong&gt;Undefined Batch&lt;/strong&gt; — the default Salesforce Standard Template. A clean starting point.</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Default</stringValue>
@@ -240,7 +240,7 @@
         </fields>
         <fields>
             <name>SuccessFooter</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;em&gt;Click &lt;strong&gt;Finish&lt;/strong&gt; to close, or open the record above to keep working.&lt;/em&gt;&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;em&gt;Click &lt;strong&gt;Finish&lt;/strong&gt; to close.&lt;/em&gt;&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>

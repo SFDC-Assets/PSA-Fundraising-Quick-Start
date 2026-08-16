@@ -329,7 +329,7 @@
             </defaultValue>
             <fieldText>Major donor tier stewardship</fieldText>
             <fieldType>DropdownBox</fieldType>
-            <helpText>Determines whether a gift in the Major donor tier triggers an automatic stewardship email (Include All), a personal-touch task (Exclude All), or a lifetime-escalating hybrid (Exclude Lifetime). Applies to the stewardship follow-up ~14 days after acknowledgement, not the acknowledgement itself.</helpText>
+            <helpText>Determines whether a gift in the Major donor tier triggers an automatic stewardship email (Include All), a personal-touch task (Exclude All), or route lifetime major donors to a task instead (Exclude Lifetime). Applies to the stewardship follow-up ~14 days after acknowledgement, not the acknowledgement itself.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
             <styleProperties>
@@ -362,7 +362,7 @@
             </defaultValue>
             <fieldText>Mid donor tier stewardship</fieldText>
             <fieldType>DropdownBox</fieldType>
-            <helpText>Determines whether a gift in the Mid donor tier triggers an automatic stewardship email (Include All), a personal-touch task (Exclude All), or a lifetime-escalating hybrid (Exclude Lifetime). Applies to the stewardship follow-up ~14 days after acknowledgement, not the acknowledgement itself.</helpText>
+            <helpText>Determines whether a gift in the Mid donor tier triggers an automatic stewardship email (Include All), a personal-touch task (Exclude All), or route lifetime major donors to a task instead (Exclude Lifetime). Applies to the stewardship follow-up ~14 days after acknowledgement, not the acknowledgement itself.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
             <styleProperties>
@@ -395,7 +395,7 @@
             </defaultValue>
             <fieldText>Entry donor tier stewardship</fieldText>
             <fieldType>DropdownBox</fieldType>
-            <helpText>Determines whether a gift in the Entry donor tier triggers an automatic stewardship email (Include All), a personal-touch task (Exclude All), or a lifetime-escalating hybrid (Exclude Lifetime). Applies to the stewardship follow-up ~14 days after acknowledgement, not the acknowledgement itself.</helpText>
+            <helpText>Determines whether a gift in the Entry donor tier triggers an automatic stewardship email (Include All), a personal-touch task (Exclude All), or route lifetime major donors to a task instead (Exclude Lifetime). Applies to the stewardship follow-up ~14 days after acknowledgement, not the acknowledgement itself.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
             <styleProperties>
@@ -425,7 +425,7 @@
             <dataType>String</dataType>
             <fieldText>Stewardship setting for all donor tiers</fieldText>
             <fieldType>DropdownBox</fieldType>
-            <helpText>Determines whether a gift in this donor tier triggers an automatic stewardship email (Include All), a personal-touch task (Exclude All), or a lifetime-escalating hybrid (Exclude Lifetime). Applies to Entry, Mid, and Major donor tiers when the &quot;Apply one setting&quot; box is checked.</helpText>
+            <helpText>Determines whether gifts in all three donor tiers trigger an automatic stewardship email (Include All), a personal-touch task (Exclude All), or a lifetime-escalating hybrid (Exclude Lifetime). Applies to Entry, Mid, and Major donor tiers when the &quot;Apply one setting&quot; box is checked.</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
             <styleProperties>

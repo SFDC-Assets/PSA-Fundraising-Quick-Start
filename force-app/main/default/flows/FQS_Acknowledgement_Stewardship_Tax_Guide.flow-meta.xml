@@ -44,7 +44,7 @@
         </fields>
         <fields>
             <name>Intro_Body</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Every organization has to answer this question before turning on the shipped post-gift automation. Acknowledgement, stewardship, and tax receipting overlap and can collapse into a single letter or email — but they solve different problems, and mixing them up costs donor trust and, potentially, tax-compliance standing.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;This guide walks you through five questions, in order. Each answer narrows what you need to turn on.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Every organization has to answer this question before turning on the shipped post-gift automation. Acknowledgement, stewardship, and tax receipting overlap and can collapse into a single letter or email — but they solve different problems, and mixing them up costs donor trust and, potentially, tax-compliance standing.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;This guide walks you through five questions. Each answer narrows what you need to turn on.&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <fields>
@@ -325,7 +325,7 @@
         </fields>
         <fields>
             <name>Ships_Warning</name>
-            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Do not go live with the shipped copy.&lt;/strong&gt; The templates deliberately read as &quot;placeholder&quot; so an accidental activation doesn&apos;t send generic filler to real donors. Rewriting the copy — and, for US orgs, making sure the acknowledgement contains the IRS-required elements from Question 1 — is a launch-checklist task.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Do not go live with the shipped copy.&lt;/strong&gt; The templates deliberately read as placeholders so an accidental activation doesn&apos;t send generic filler to real donors. Rewriting the copy — and, for US orgs, making sure the acknowledgement contains the IRS-required elements from Question 1 — is a launch-checklist task.&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <fields>

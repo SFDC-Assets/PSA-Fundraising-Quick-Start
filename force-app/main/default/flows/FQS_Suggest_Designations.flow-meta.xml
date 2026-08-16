@@ -18,7 +18,7 @@
             <assignToReference>rsv_Candidate.Description</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>The unrestricted org default. Every FQS install ships with this as the org-wide default so the platform&apos;s activate-schedule action has a fallback designation.</stringValue>
+                <stringValue>The unrestricted default. Every FQS install ships with this as the org-wide default so the platform&apos;s activate-schedule action has a fallback designation.</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -1750,7 +1750,7 @@
     </screens>
     <screens>
         <name>Screen_All_Present</name>
-        <label>Everything Is Already Present</label>
+        <label>Starter Catalog Already Complete</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <allowBack>true</allowBack>
@@ -1790,7 +1790,7 @@
         <allowPause>false</allowPause>
         <fields>
             <name>DisplayText_Success</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Your Gift Designation catalog is seeded.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;You can retire any of these at any time by setting IsActive = FALSE on the record page. Retired designations remain queryable and remain valid for back-dated gifts.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;em style=&quot;font-size: 14px;&quot;&gt;This flow is safe to re-run. Any starter designation already in your org (matched by exact Name) is silently omitted from the picker, and only the new picks are created.&lt;/em&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Your Gift Designation catalog is seeded.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;You can retire any of these later by setting IsActive = FALSE on the record page. Retired designations remain queryable and remain valid for back-dated gifts.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;em style=&quot;font-size: 14px;&quot;&gt;This flow is safe to re-run. Any starter designation already in your org (matched by exact Name) is silently omitted from the picker, and only the new picks are created.&lt;/em&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <showFooter>true</showFooter>
