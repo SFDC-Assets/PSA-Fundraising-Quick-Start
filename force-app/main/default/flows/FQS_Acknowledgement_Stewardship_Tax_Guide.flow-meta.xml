@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <description>Read-only informational Screen Flow that paginates the acknowledgement / stewardship / tax-receipting decision guide (docs/acknowledgement-stewardship-tax-receipting.md) into a walk-through. Nine screens, one per section of the doc: intro + three-activities, Q1 through Q5, working-the-process, what-ships. No inputs. No writes. No decisions. No records read. The flow does nothing beyond turning pages — it exists so the guide can be surfaced from the Home page as a flexipage:flowComponent rather than a static markdown file. Screen 1 states this explicitly so users know Finish is not a commit action. Voice / spacing / inline-span pattern mirror FQS_Create_Gift_Batch and the guided-gift-entry Success screens.</description>
+    <environments>Default</environments>
+    <interviewLabel>FQS Acknowledgement, Stewardship &amp; Tax Guide {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>FQS Acknowledgement, Stewardship &amp; Tax Guide</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <runInMode>DefaultMode</runInMode>
+    <screens>
+        <description>Page 1 of 9. Intro. Sets scope (US-based 501(c)(3) primary audience) and states outright that the flow does nothing beyond pagination so users don&apos;t look for a commit button. allowBack=true is required on a first screen per the flow-screen-authoring-gotchas memory, even though there is nowhere back to go.</description>
+        <name>Screen_1_Intro</name>
+        <label>Acknowledgement, Stewardship &amp; Tax Receipting</label>
+        <locationX>176</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Screen_2_Three_Activities</targetReference>
+        </connector>
+        <fields>
+            <name>Intro_Header</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 20px;&quot;&gt;Do you need three processes or one?&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Intro_Body</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Every organization has to answer this question before turning on the shipped post-gift automation. Acknowledgement, stewardship, and tax receipting overlap and can collapse into a single letter or email — but they solve different problems, and mixing them up costs donor trust and, potentially, tax-compliance standing.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;This guide walks you through five questions, in order. Each answer narrows what you need to turn on.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Intro_ScopeNote</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Scope note.&lt;/strong&gt; Written for US-based 501(c)(3) organizations. If you operate outside the US — Canadian CRA charities, UK Gift Aid, Australian DGRs, EU equivalents — the shapes below still apply, but the specific tax-receipt rules do not. Consult your local requirements before relying on an acknowledgement as a receipt.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Intro_NoAutomationNote</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;em&gt;This is a reading guide, not a wizard. Clicking the button below only turns pages — nothing is saved, nothing is deployed, no records are touched.&lt;/em&gt;&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <nextOrFinishButtonLabel>Next: The Three Processes</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <description>Page 2 of 9. Defines the three activities up front so the questions that follow have shared vocabulary.</description>
+        <name>Screen_2_Three_Activities</name>
+        <label>The Three Processes</label>
+        <locationX>176</locationX>
+        <locationY>120</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Screen_3_Q1_Ack_As_Receipt</targetReference>
+        </connector>
+        <fields>
+            <name>Activities_Header</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 20px;&quot;&gt;First, the three processes.&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Activities_Acknowledgement</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Acknowledgement&lt;/strong&gt; — the immediate &quot;we received your gift&quot; confirmation. Fast, transactional, universal. Every donor with a valid email gets one. Its job is to close the loop on the transaction: we got it, here&apos;s the amount, here&apos;s the date, here&apos;s your deduction info. Timing matters more than eloquence — the sooner it lands, the more the donor trusts that their gift landed where they intended.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Activities_Stewardship</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Stewardship&lt;/strong&gt; — the follow-up touch that connects the donor to the mission. Ideally a thank-you, but also a story, a program update, an impact metric, an invitation to see the work. Its job is to deepen the relationship, not to restate the transaction. Voice, personalization, and channel matter more than speed. Timing can be three days to two weeks after the gift, again at year-end, or whenever the mission has something worth sharing.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Activities_TaxReceipting</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Tax receipting&lt;/strong&gt; — the document a donor uses to substantiate a deduction. In the US, this is governed by IRS Publication 1771 and can typically be satisfied by a well-formed acknowledgement email (see Question 1). In other jurisdictions the receipt often needs its own format, sequence, and record-keeping — separate from the acknowledgement entirely.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <backButtonLabel>Back: Intro</backButtonLabel>
+        <nextOrFinishButtonLabel>Next: Acknowledgement as Tax Receipt?</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <description>Page 3 of 9. Question 1: can acknowledgement double as tax receipt? US-primary answer with IRS Pub 1771 elements, sample CWA copy, and pointer to Salesforce native tax-receipt engine.</description>
+        <name>Screen_3_Q1_Ack_As_Receipt</name>
+        <label>Question 1 — Acknowledgement as Tax Receipt?</label>
+        <locationX>176</locationX>
+        <locationY>240</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Screen_4_Q2_Online_Tool</targetReference>
+        </connector>
+        <fields>
+            <name>Q1_Header</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 20px;&quot;&gt;Question 1 — Can your acknowledgement double as the tax receipt?&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Q1_US_Yes</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;In the US: usually yes&lt;/strong&gt;, if the acknowledgement contains the elements IRS Publication 1771 requires:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Your organization&apos;s name&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;The cash amount (or a description of non-cash property — not its value; the donor determines that)&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;One of: &quot;no goods or services were provided in return&quot; OR a description and good-faith fair-market value of anything provided in return&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;For &lt;strong&gt;quid-pro-quo&lt;/strong&gt; gifts over $75 (gala tickets, auction wins, benefit dinners): the FMV of goods received, so the donor knows the deductible portion. This disclosure is required whether the donor asks for it or not.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;If your acknowledgement email contains all of the above for every gift ≥ $250, the acknowledgement &lt;strong&gt;is&lt;/strong&gt; the tax receipt. No separate document required.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Q1_Sample</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Sample language for a US template:&lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;em&gt;Thank you for your gift of $[amount] received on [date]. [Organization Name] is a 501(c)(3) nonprofit organization; no goods or services were provided in exchange for this contribution. Please retain this acknowledgement for your tax records.&lt;/em&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;For quid-pro-quo gifts, swap the &quot;no goods or services&quot; line for a description of what the donor received and its FMV.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Q1_Salesforce_Native</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Salesforce also includes native gift-acknowledgement and tax-receipt functionality&lt;/strong&gt; — a built-in engine that generates receipt documents and handles year-end consolidation. If you need formal receipt documents (versus email-based acknowledgements), it&apos;s the shortest path. See &lt;a href=&quot;https://help.salesforce.com/s/articleView?id=sfdo.fundraising_set_up_gift_acknowledgments_and_tax_receipts.htm&amp;amp;type=5&quot; target=&quot;_blank&quot;&gt;Set Up Gift Acknowledgments and Tax Receipts&lt;/a&gt;.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Q1_NonUS</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Non-US orgs:&lt;/strong&gt; the answer is usually no — plan on separate receipts. Skip ahead to Question 3 if that&apos;s you.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <backButtonLabel>Back: Three Activities</backButtonLabel>
+        <nextOrFinishButtonLabel>Next: Your Donation Tool</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <description>Page 4 of 9. Question 2: does the online donation tool already send a receipt? Two options for avoiding double-sending; physical gifts still need something.</description>
+        <name>Screen_4_Q2_Online_Tool</name>
+        <label>Question 2 — Online Donation Tool</label>
+        <locationX>176</locationX>
+        <locationY>360</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Screen_5_Q3_Mission_Touch</targetReference>
+        </connector>
+        <fields>
+            <name>Q2_Header</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 20px;&quot;&gt;Question 2 — Does your online donation tool already send a receipt?&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Q2_Body</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Most online donation platforms send a receipt email automatically when the card charges. That receipt lands within seconds of the gift, includes the amount and date, and — if you&apos;ve configured the copy — satisfies the US CWA requirement. &lt;strong&gt;In practice, that receipt is often already the acknowledgement.&lt;/strong&gt;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Two options for handling this without double-sending:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Turn off the Gift Acknowledgement flow entirely&lt;/strong&gt; if your donation tool covers every gift. Simplest.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Leave it on&lt;/strong&gt; and have your donation tool set Acknowledgement Status to &quot;Sent.&quot; The flow only acknowledges gifts where that field is still blank, so online gifts are skipped automatically and offline gifts (checks, cash, stock, in-kind) still get covered.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Q2_Physical</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Physical gifts always need something.&lt;/strong&gt; Checks in the mail, cash walked in, stock transfers, in-kind donations — none of these pass through your online tool, and none get an automatic receipt. If the flow is deactivated, you&apos;ll need to handle these manually. If the flow is on, it only acknowledges gifts where Acknowledgement Status is still blank or &quot;To Be Sent.&quot;&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <backButtonLabel>Back: Acknowledgement as Tax Receipt?</backButtonLabel>
+        <nextOrFinishButtonLabel>Next: A Mission Touch?</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <description>Page 5 of 9. Question 3: do you want a mission touch separate from the receipt? Points at the Stewardship Response flow (draft, admin activates) and the alternative of baking mission voice into the acknowledgement itself.</description>
+        <name>Screen_5_Q3_Mission_Touch</name>
+        <label>Question 3 — Mission Touch</label>
+        <locationX>176</locationX>
+        <locationY>480</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Screen_6_Q4_Year_End</targetReference>
+        </connector>
+        <fields>
+            <name>Q3_Header</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 20px;&quot;&gt;Question 3 — Do you want a mission touch separate from the receipt?&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Q3_Body</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;The acknowledgement (or the donation tool&apos;s receipt) closes the transaction. A stewardship touch does something different: it connects the donor to the work. A three-day-to-two-week follow-up with a story, program update, or impact metric is considered table stakes in most donor-relations programs.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Very few donation tools send this follow-up. Even if your donation tool handles acknowledgement end-to-end, you likely still want stewardship running.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Q3_Options</name>
+            <fieldText>&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Yes, I want a mission touch&lt;/strong&gt; — turn on the Stewardship Response flow. It fires roughly 14 days after the acknowledgement. Entry-tier donors get an automated email; major donors always route to a task for personal outreach.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;No, the acknowledgement is enough&lt;/strong&gt; — leave the Stewardship Response flow off. Rewrite the acknowledgement template so it carries the mission voice too — gratitude, one line about impact, done.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <backButtonLabel>Back: Your Donation Tool</backButtonLabel>
+        <nextOrFinishButtonLabel>Next: Year-End Receipts</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <description>Page 6 of 9. Question 4: year-end consolidated tax receipts. Points at the Salesforce native engine as the built option before rolling a custom one.</description>
+        <name>Screen_6_Q4_Year_End</name>
+        <label>Question 4 — Year-End Receipts</label>
+        <locationX>176</locationX>
+        <locationY>600</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Screen_7_Q5_Major_Donors</targetReference>
+        </connector>
+        <fields>
+            <name>Q4_Header</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 20px;&quot;&gt;Question 4 — Do you issue year-end consolidated tax receipts?&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Q4_Body</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Some orgs — most commonly non-US charities, but also US orgs that prefer a single annual document — send a consolidated receipt every January covering the full prior year of giving.&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Yes&lt;/strong&gt; — choose a tool to help you query and format the document batch. Salesforce&apos;s native tax-receipting engine (linked in Question 1) handles year-end consolidation and is worth evaluating before you build custom.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;No&lt;/strong&gt; — skip.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <backButtonLabel>Back: A Mission Touch?</backButtonLabel>
+        <nextOrFinishButtonLabel>Next: Major Donors</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <description>Page 7 of 9. Question 5: major donors and the automation ceiling. Describes shipped Major-tier routing to a task queue and points at the Setup Flow branch for retuning.</description>
+        <name>Screen_7_Q5_Major_Donors</name>
+        <label>Question 5 — Major Donors</label>
+        <locationX>176</locationX>
+        <locationY>720</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Screen_8_Working_The_Process</targetReference>
+        </connector>
+        <fields>
+            <name>Q5_Header</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 20px;&quot;&gt;Question 5 — Do your major donors need something the automation can&apos;t do?&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Q5_Body</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Automated stewardship works well for entry- and mid-tier donors. Major donors typically need a real human touch — a call from the ED, a hand-signed card, a lunch invitation, a program tour.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;The shipped stewardship routing already handles this: the &lt;strong&gt;Major&lt;/strong&gt; tier is seeded to route every gift to a task in the Stewardship Tasks queue, so major-gift officers see the task and deliver the personal outreach themselves. No automated email fires for those gifts.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;If you want to change that — say, send all donors the same automated email regardless of tier — you can retune the routing in the Setup Flow (Configure Donor Groupings branch).&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <backButtonLabel>Back: Year-End Receipts</backButtonLabel>
+        <nextOrFinishButtonLabel>Next: Working the Process</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <description>Page 8 of 9. The operational tooling under the automation: two GiftTransaction list views, four task queues (with per-queue email-notification pattern), and the two shipped Action Plan Templates (Stewardship + Moves Management).</description>
+        <name>Screen_8_Working_The_Process</name>
+        <label>Working the Process</label>
+        <locationX>176</locationX>
+        <locationY>840</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Screen_9_What_Ships</targetReference>
+        </connector>
+        <fields>
+            <name>Ops_Header</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 20px;&quot;&gt;Working the process — List Views, Queues, and Action Plans.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Once the flows are running, the actual work happens in Salesforce&apos;s native record and task-management tools.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Ops_ListViews</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;List Views.&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;To Be Acknowledged&lt;/strong&gt; — gifts where Acknowledgement Status is blank or &quot;To Be Sent&quot; and the gift is old enough that the flow should have picked it up. Use this to spot gifts the automation skipped and work them by hand.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;To Be Stewarded&lt;/strong&gt; — gifts where the acknowledgement has already been sent and stewardship is still pending. Use this to see who&apos;s waiting on a mission touch.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Ops_Queues</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Queues.&lt;/strong&gt; Four queues ship to organize the work by role. They&apos;re empty at install — add members under Setup → Queues.&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Stewardship Tasks&lt;/strong&gt; — mid-tier stewardship follow-ups. Email notifications: on.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Gift Processing Tasks&lt;/strong&gt; — acknowledgements, tax receipting, and gift-entry tasks that need a human. Email notifications: on.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Major Donor Tasks&lt;/strong&gt; — prospect research, proposal drafting, cultivation. Email notifications: off.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Executive Fundraising Tasks&lt;/strong&gt; — handwritten notes, calls, and high-touch actions reserved for the ED or Board. Email notifications: off.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;The email-notification setting is a per-queue choice, not a global rule. The shipped pattern notifies the two high-volume operational queues and stays quiet on the two executive-facing queues so leadership doesn&apos;t get pinged constantly. Flip either flag on the queue record if that pattern doesn&apos;t fit your team.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Ops_ActionPlans</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Action Plans.&lt;/strong&gt; Two Action Plan Templates ship — both target the Account object and both install as Draft, so an admin activates them after review.&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Stewardship&lt;/strong&gt; — a seven-step mid-tier stewardship playbook running roughly six months, from immediate thank-you (day 3) through a mid-year impact story (day 91) and a mission-experience invitation (day 182). Steps chain on completion of the previous step.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Moves Management&lt;/strong&gt; — an eleven-step major-donor cultivation playbook covering prospect research, discovery, cultivation, formal solicitation, proposal, gift processing, and post-ask stewardship. Steps are marked as &quot;Moves&quot; (donor-facing touchpoints, required) or &quot;Tactical&quot; (internal prep, optional).&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;A gift officer opens the donor Account, launches the appropriate template, and works the resulting task sequence. The Action Plan record itself becomes the source of truth for that donor&apos;s cultivation or stewardship journey.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <backButtonLabel>Back: Major Donors</backButtonLabel>
+        <nextOrFinishButtonLabel>Next: What Ships</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <description>Page 9 of 9. What ships — flows and templates — plus the &quot;do not go live with placeholder copy&quot; warning. Terminal screen: Finish label. No downstream connector.</description>
+        <name>Screen_9_What_Ships</name>
+        <label>What Ships</label>
+        <locationX>176</locationX>
+        <locationY>960</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Screen_1_Intro</targetReference>
+            <isGoTo>true</isGoTo>
+        </connector>
+        <fields>
+            <name>Ships_Header</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 20px;&quot;&gt;What ships in the Quick Start.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Two flows and three email templates. Both flows ship as drafts with placeholder templates — you&apos;ll customize the copy before go-live.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Ships_Flows</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Flows (Setup → Flows):&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Gift Acknowledgement&lt;/strong&gt; — runs daily at 06:00 UTC. Emails or creates a task for every paid gift older than 3 days that hasn&apos;t been acknowledged. Routes to email if the donor has a valid opted-in email address; otherwise creates a task for a human to handle.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Stewardship Response&lt;/strong&gt; — runs daily at 07:00 UTC. Sends a tier-differentiated mission touch roughly 14 days after the acknowledgement. Entry-tier donors get an automated email; major donors always route to a task for personal outreach.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Ships_Templates</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Email templates (Setup → Email Templates → Public folder):&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Gift Acknowledgement&lt;/strong&gt; — full-deduction acknowledgement. Ships with placeholder copy.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Gift Acknowledgement (Partial Deduction)&lt;/strong&gt; — used when Tax Deduction Amount is less than Current Amount (event tickets, in-kind, quid-pro-quo). Ships with placeholder copy.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Stewardship Response (Standard)&lt;/strong&gt; — the mission touch. Ships with placeholder copy.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Ships_Warning</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Do not go live with the shipped copy.&lt;/strong&gt; The templates deliberately read as &quot;placeholder&quot; so an accidental activation doesn&apos;t send generic filler to real donors. Rewriting the copy — and, for US orgs, making sure the acknowledgement contains the IRS-required elements from Question 1 — is a launch-checklist task.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Ships_Footer</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;em&gt;Click the button below to loop back to the intro. Nothing has been saved or changed — this was a reading walk-through only.&lt;/em&gt;&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <backButtonLabel>Back: Working the Process</backButtonLabel>
+        <nextOrFinishButtonLabel>Restart: Back to the Intro</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Screen_1_Intro</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+</Flow>

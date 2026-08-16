@@ -1,0 +1,15 @@
+Dear {!Contact.FirstName},
+
+A little while ago you made a gift of {!GiftTransaction.FQS_Amount_Formatted__c} to {!Organization.Name}, and we sent along our thanks. Today we wanted to share a bit more about the difference your support is making.
+
+[PROVIDE SOME INFO ABOUT YOUR HISTORY, A SPECIFIC PROGRAM, PERSON, OR YOUR TOTAL IMPACT]
+
+Your generosity is not just a transaction. It is a partnership, and we are grateful to have you alongside us in this work.
+
+With warm regards,
+
+{!Organization.Name}
+
+---
+If you would prefer not to receive follow-up messages like this, please let us know.
+This is an automated stewardship message sent on behalf of {!Organization.Name}.

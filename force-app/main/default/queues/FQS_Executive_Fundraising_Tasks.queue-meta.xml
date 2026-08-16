@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Queue xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Used to assign tasks needed to be done by an executive. Allows FQS some flexibility in shipping Action Plans, but also could help organizations best support executives with accomplishing fundraising needs.</description>
+    <doesIncludeBosses>false</doesIncludeBosses>
+    <doesSendEmailToMembers>false</doesSendEmailToMembers>
+    <name>Executive Fundraising Tasks</name>
+    <queueSobject>
+        <sobjectType>ActionPlan</sobjectType>
+    </queueSobject>
+    <queueSobject>
+        <sobjectType>Task</sobjectType>
+    </queueSobject>
+</Queue>

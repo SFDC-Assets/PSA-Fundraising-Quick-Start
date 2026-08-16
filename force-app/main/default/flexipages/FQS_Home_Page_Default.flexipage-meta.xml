@@ -152,18 +152,40 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>flowArguments</name>
+                    <value>[]</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>flowLayout</name>
+                    <value>oneColumn</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>flowName</name>
+                    <value>FQS_Acknowledgement_Stewardship_Tax_Guide</value>
+                </componentInstanceProperties>
+                <componentName>flowruntime:interview</componentName>
+                <identifier>flowruntime_interview_ack_steward_tax_guide</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-by42dxkgq2u</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
                     <name>decorate</name>
                     <value>true</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;p&gt;&lt;strong&gt;How FQS thinks about gift dates&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;FQS separates two ideas that many orgs blur together:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong&gt;Transaction Date&lt;/strong&gt; &amp;mdash; when the gift is fully in your hands and reconciled. Check cleared, card settled, wire received, stock sold, in-kind item taken in. This is your canonical &amp;ldquo;when did this gift happen&amp;rdquo; date and drives cash-flow reporting, aging, and rollups on the parent commitment.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Donor Tax Date&lt;/strong&gt; &amp;mdash; when the gift left the donor&amp;rsquo;s control for tax-receipt purposes. Postmark date for a mailed check, charge date for a card, delivery date for stock. This is the date on the donor&amp;rsquo;s receipt for tax purposes.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Many orgs don&amp;rsquo;t have a meaningful gap between the two &amp;mdash; low volume, mostly card gifts, jurisdictions that treat receipt as the acknowledgement date. In those cases, leave &lt;strong&gt;Donor Tax Date&lt;/strong&gt; blank and let &lt;strong&gt;Transaction Date&lt;/strong&gt; speak for both. FQS&amp;rsquo;s acknowledgement, stewardship, and tax-receipting flows use Transaction Date as the anchor.&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Other date fields on a gift&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong&gt;Acknowledgement Date&lt;/strong&gt; &amp;mdash; when the donor was thanked. Written automatically by the FQS Gift Acknowledgement flow.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Tax Receipt Date&lt;/strong&gt; &amp;mdash; when the year-end tax receipt was issued. Manual field; managed by whatever year-end receipting process your org runs.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Stewardship Date&lt;/strong&gt; &amp;mdash; when the follow-up stewardship touch was delivered. Written automatically by the FQS Stewardship Response flow.&lt;/li&gt;&lt;/ul&gt;</value>
+                    <value>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Turn the automation on when you&apos;re ready.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;FQS ships two scheduled flows and three email templates that drive the acknowledgement and stewardship pipeline. Both flows install &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;deactivated&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; so an accidental install doesn&apos;t send placeholder copy to real donors.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Scheduled flows&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; (Setup &amp;rarr; Flows):&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Gift Acknowledgement&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; runs daily at 06:00 UTC. Emails or creates a task for every paid gift older than 3 days that hasn&apos;t been acknowledged.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Stewardship Response&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; runs daily at 07:00 UTC. Sends a tier-differentiated mission touch ~14 days after the acknowledgement.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Email templates&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; (Setup &amp;rarr; Email Templates &amp;rarr; Public folder) &amp;mdash; rewrite before activating the flows above:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Gift Acknowledgement&lt;/strong&gt; &amp;mdash; full-deduction acknowledgement (default).&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Gift Acknowledgement (Partial Deduction)&lt;/strong&gt; &amp;mdash; used when Tax Deduction Amount &amp;lt; Current Amount (event tickets, in-kind, quid-pro-quo).&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Stewardship Response (Standard)&lt;/strong&gt; &amp;mdash; the mission touch.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Queues&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; (Setup &amp;rarr; Queues) &amp;mdash; add members so tasks route to real humans:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Stewardship Tasks&lt;/strong&gt; &amp;mdash; mid-tier stewardship follow-ups.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Gift Processing Tasks&lt;/strong&gt; &amp;mdash; acknowledgement and gift-entry tasks that need a human.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Major Donor Tasks&lt;/strong&gt; &amp;mdash; prospect research, proposal drafting, cultivation.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Executive Fundraising Tasks&lt;/strong&gt; &amp;mdash; handwritten notes and other high-touch actions for the ED or Board.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Suggested activation order:&lt;/strong&gt;&lt;/p&gt;&lt;ol&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Rewrite the three email templates so nothing placeholder can ship.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Add queue members to at least the two Tasks queues the acknowledgement + stewardship flows fall back to.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Confirm stewardship routing per tier in step 7 above.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Activate &lt;strong&gt;FQS Gift Acknowledgement&lt;/strong&gt; first; watch the &lt;em&gt;To Be Acknowledged&lt;/em&gt; sidebar list drain over a few days.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Activate &lt;strong&gt;FQS Stewardship Response&lt;/strong&gt; once acknowledgements are landing cleanly; watch the &lt;em&gt;To Be Stewarded&lt;/em&gt; list.&lt;/span&gt;&lt;/li&gt;&lt;/ol&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
-                <identifier>flexipage_richText8</identifier>
+                <identifier>flexipage_richText_review_automation</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-by42dxkgq2u</name>
+        <name>Facet-review-automation</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -243,18 +265,18 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-stewardship-response-settings</value>
+                    <value>Facet-766c8d6c-1c89-42a2-b25a-292228c860e4</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>4. Configure Stewardship Response Settings</value>
+                    <value>4. Review Guided Gift Entry</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>name</name>
-                    <value>accordionSection--stewardship-response-settings</value>
+                    <value>accordionSection--01dm86kl5ka7</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:accordionSection</componentName>
-                <identifier>flexipage_accordionSection_stewardship</identifier>
+                <identifier>flexipage_accordionSection14</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -279,29 +301,11 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-766c8d6c-1c89-42a2-b25a-292228c860e4</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>6. Review Guided Gift Entry</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>name</name>
-                    <value>accordionSection--01dm86kl5ka7</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:accordionSection</componentName>
-                <identifier>flexipage_accordionSection14</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
                     <value>Facet-by42dxkgq2u</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>7. Guidance on Stewardship, Acknowledgements, and Tax Receipting</value>
+                    <value>6. Guidance on Acknowledgement, Stewardship, and Tax Receipting</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>name</name>
@@ -315,11 +319,47 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
+                    <value>Facet-stewardship-response-settings</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>7. Configure Stewardship Response Settings</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>name</name>
+                    <value>accordionSection--stewardship-response-settings</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>flexipage_accordionSection_stewardship</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-review-automation</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>8. Review Automation</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>name</name>
+                    <value>accordionSection--review-automation</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>flexipage_accordionSection_review_automation</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
                     <value>Facet-ecc4e2a7-95d3-4c53-bbef-1fad966f1c5c</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>8. Update Home Page</value>
+                    <value>9. Update Home Page</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>name</name>
@@ -546,15 +586,31 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>decorate</name>
+                    <name>enableInlineEdit</name>
                     <value>true</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>richTextValue</name>
-                    <value>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Acknowledgment queue&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;List View&lt;/span&gt;&lt;/p&gt;</value>
+                    <name>entityName</name>
+                    <value>GiftTransaction</value>
                 </componentInstanceProperties>
-                <componentName>flexipage:richText</componentName>
-                <identifier>flexipage_richText3</identifier>
+                <componentInstanceProperties>
+                    <name>filterName</name>
+                    <value>FQS_To_Be_Acknowledged</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>hideActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>hideSearchBar</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>pageSize</name>
+                    <value>5</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:filterListCard</componentName>
+                <identifier>flexipage_filterListCard_to_be_acknowledged</identifier>
             </componentInstance>
         </itemInstances>
         <name>Facet-j98izwaotbf</name>
@@ -564,15 +620,31 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>decorate</name>
+                    <name>enableInlineEdit</name>
                     <value>true</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>richTextValue</name>
-                    <value>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Stewardship&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Placeholder&lt;/span&gt;&lt;/p&gt;</value>
+                    <name>entityName</name>
+                    <value>GiftTransaction</value>
                 </componentInstanceProperties>
-                <componentName>flexipage:richText</componentName>
-                <identifier>flexipage_richText7</identifier>
+                <componentInstanceProperties>
+                    <name>filterName</name>
+                    <value>FQS_To_Be_Stewarded</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>hideActionBar</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>hideSearchBar</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>pageSize</name>
+                    <value>5</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:filterListCard</componentName>
+                <identifier>flexipage_filterListCard_to_be_stewarded</identifier>
             </componentInstance>
         </itemInstances>
         <name>Facet-hmypvy4kjm4</name>
@@ -587,7 +659,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Acknowledgments</value>
+                    <value>To Be Acknowledged</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>name</name>
@@ -605,7 +677,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>Stewardship</value>
+                    <value>To Be Stewarded</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>name</name>
