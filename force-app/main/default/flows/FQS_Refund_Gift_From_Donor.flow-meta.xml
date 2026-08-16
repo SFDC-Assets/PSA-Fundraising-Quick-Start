@@ -150,7 +150,9 @@
             <label>None refundable</label>
         </rules>
     </decisions>
-    <description>Screen flow to refund a GiftTransaction, launched from the donor Account tab. First screen presents the donor&apos;s refundable Gift Transactions (Status=Paid, CurrentAmount &gt; 0) in a native flowruntime:datatable (SINGLE_SELECT) so staff see current amount, transaction date, due date, category, and status inline instead of type-searching a lookup. The datatable field shape must be added in Flow Builder — v65+ requires complexValue inputs that source-authoring can&apos;t emit — but round-trips cleanly once emitted (see FQS_Find_Matching_Gift for the same limitation). The rest of the flow mirrors FQS_Refund_Gift exactly. Launched from the Account record page via the FQS_Refund_Donor_Gift quick action.</description>
+    <description>Screen flow launched from the donor Account record page via the FQS Refund Donor Gift quick action. Presents the donor&apos;s refundable Gift Transactions (Status = Paid with a positive outstanding balance) in a picker, then creates a Gift Refund with Status = Completed against the picked gift. Fundraising Cloud handles the downstream cascade automatically (Gift Transaction Current Amount, Refunded Amount, Status = Fully Refunded on full refunds, and Gift Transaction Designation Amount proration).
+
+Pre-flight guards catch three edge cases with clean explanation screens: (1) the donor has zero refundable gifts, (2) the picked gift is already Fully Refunded, (3) the picked gift is not in Paid status. Fee-reversal fields appear only when the picked gift carries non-zero gateway or processor fees.</description>
     <environments>Default</environments>
     <formulas>
         <name>frmExternalId</name>

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>66.0</apiVersion>
-    <description>Screen flow to refund a GiftTransaction. Creates a GiftRefund child with Status=Completed; Fundraising Cloud handles the downstream side effects (GT.CurrentAmount, GT.RefundedAmount, GT.Status='Fully Refunded' on full refunds, GTD.Amount proration). Verified 2026-07-23 via anonymous Apex probe on FundFirst — no backfill needed. Launched from the GiftTransaction record page via the FQS_Refund_Gift quick action. Fee-reversal fields appear only when the source GT carries non-zero gateway or processor fees. Guards against launching on an already-fully-refunded GT with a dead-end explanation screen.</description>
+    <description>Screen flow launched from the Gift Transaction record page via the FQS Refund Gift quick action. Creates a Gift Refund child with Status = Completed; Fundraising Cloud handles the downstream cascade automatically (Gift Transaction Current Amount, Refunded Amount, Status = Fully Refunded on full refunds, and Gift Transaction Designation Amount proration).
+
+Pre-flight guards catch two edge cases with clean explanation screens instead of platform errors: (1) the source gift is already Fully Refunded or has zero outstanding balance, (2) the source gift is not in Paid status (Fundraising Cloud rejects refund inserts on Pending, Failed, or Cancelled gifts). Fee-reversal fields appear only when the source gift carries non-zero gateway or processor fees.</description>
     <environments>Default</environments>
     <formulas>
         <name>frmIsAlreadyRefunded</name>
