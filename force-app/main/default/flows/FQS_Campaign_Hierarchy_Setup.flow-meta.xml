@@ -826,6 +826,28 @@
             <label>Selected</label>
         </rules>
     </decisions>
+    <decisions>
+        <name>Ready_to_Choose</name>
+        <label>Ready to Choose?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Not yet</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Proceed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>IntroGate</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <elementReference>ChoiceIntroGateYes</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Choose_Model</targetReference>
+            </connector>
+            <label>Yes - Proceed</label>
+        </rules>
+    </decisions>
     <description>FQS Campaign Hierarchy Setup — Screen Subflow. Guides an admin through picking a model (Seasonal, Giving Programs, or Audience), one or more year cohorts (last/this/next as multi-select), then Strategic/Operational/Tactical campaigns via native MultiSelectCheckboxes. Tactical choices are filtered by the parent picks so only children whose parent was chosen appear. Invokes FQS_CampaignHierarchyBuilder.build once per selected year and aggregates counts + created campaigns. Rebuilt 2026-08-13: year picker now multi-select so admins can pre-stage multiple fiscal years in one run; review datatable now shows FQS_Enable_Auto_Members__c so the auto-members default flow's effect is visible.</description>
     <dynamicChoiceSets>
         <name>dcsAskChoices</name>
@@ -1368,6 +1390,8 @@
                 </width>
             </styleProperties>
         </fields>
+        <backButtonLabel>Back: Pick Strategic + Operational</backButtonLabel>
+        <nextOrFinishButtonLabel>Next: Confirm and Build</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
@@ -1471,6 +1495,7 @@
                 </conditions>
             </visibilityRule>
         </fields>
+        <nextOrFinishButtonLabel>Next: Choose the Year</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
@@ -1560,6 +1585,8 @@
                 </conditions>
             </visibilityRule>
         </fields>
+        <backButtonLabel>Back: Choose the Year</backButtonLabel>
+        <nextOrFinishButtonLabel>Next: Pick Tactical Campaigns</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
@@ -1610,6 +1637,8 @@
                 </width>
             </styleProperties>
         </fields>
+        <backButtonLabel>Back: Choose Campaign Model</backButtonLabel>
+        <nextOrFinishButtonLabel>Next: Pick Strategic + Operational</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
@@ -1670,6 +1699,8 @@
                 </conditions>
             </visibilityRule>
         </fields>
+        <backButtonLabel>Back: Pick Tactical Campaigns</backButtonLabel>
+        <nextOrFinishButtonLabel>Build the Campaigns</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
@@ -1687,7 +1718,7 @@
         </connector>
         <fields>
             <name>DisplayText_Error</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;There was a problem building your campaign hierarchy.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;{!varErrorMessage}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Click &lt;strong&gt;Back&lt;/strong&gt; to return and try again.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;There was a problem building your campaign hierarchy.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;{!varErrorMessage}&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Click the button below to return to the start and try again.&lt;/span&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -1698,6 +1729,8 @@
                 </width>
             </styleProperties>
         </fields>
+        <backButtonLabel>Back: Confirm and Build</backButtonLabel>
+        <nextOrFinishButtonLabel>Retry: Choose Campaign Model</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
@@ -1722,6 +1755,7 @@
                 </width>
             </styleProperties>
         </fields>
+        <nextOrFinishButtonLabel>Done: Close Flow</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
@@ -1813,6 +1847,7 @@
                 </width>
             </styleProperties>
         </fields>
+        <nextOrFinishButtonLabel>Next: Wrap Up</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
@@ -1825,7 +1860,7 @@
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
-            <targetReference>Screen_Choose_Model</targetReference>
+            <targetReference>Learn_About_Campaign_Hierarchy</targetReference>
         </connector>
         <fields>
             <name>Copy_1_of_DisplayText_Campaign</name>
@@ -1840,6 +1875,21 @@
                 </width>
             </styleProperties>
         </fields>
+        <nextOrFinishButtonLabel>Next: Campaign Hierarchy</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>Learn_About_Campaign_Hierarchy</name>
+        <label>Step 0 — Learn About Campaign Hierarchy</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Learn_About_Campaign_Hierarchy_Choices</targetReference>
+        </connector>
         <fields>
             <name>Copy_1_of_DisplayText_CampaignHierarchy</name>
             <fieldText>&lt;h1&gt;&lt;strong style=&quot;font-size: 20px;&quot;&gt;What is a campaign hierarchy?&lt;/strong&gt;&lt;/h1&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Effective fundraising coordinates and reinforces asks through different channels and through a series of messages. For this reason, creating parent campaigns to organize your asks is helpful. This lets you see, monitor, and report on how your tactics are operating. Native fields like &quot;Responses in Hierarchy&quot; and &quot;Contacts in Hierarchy&quot; provide easy metrics to track, and standard reporting extends this further. We recommend your operational campaigns roll up to a campaign that represents your overall strategy.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;To recap, we recommend a three-level campaign hierarchy:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Level 1 — Strategic:&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; the organizing anchor (a year or a program).&lt;/span&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Level 2 — Operational:&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; a coordinated set of asks — the level most staff watch while a campaign is running.&lt;/span&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Level 3 — Tactical:&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; one concrete solicitation sent to one audience.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;A campaign hierarchy can be five records deep, but we recommend using only three. If your fundraising outreach requires depth beyond three, look at outreach source codes before adding another layer of child campaigns.&lt;/span&gt;&lt;/p&gt;</fieldText>
@@ -1853,6 +1903,22 @@
                 </width>
             </styleProperties>
         </fields>
+        <backButtonLabel>Back: Campaigns</backButtonLabel>
+        <nextOrFinishButtonLabel>Next: Hierarchy Choices</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>Learn_About_Campaign_Hierarchy_Choices</name>
+        <label>Step 0 — Learn About Campaign Hierarchy Choices</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Ready_to_Choose</targetReference>
+        </connector>
         <fields>
             <name>Copy_1_of_DisplayText_CampaignChoice</name>
             <fieldText>&lt;h1&gt;&lt;strong style=&quot;font-size: 20px;&quot;&gt;What campaign hierarchy model is right for your organization?&lt;/strong&gt;&lt;/h1&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;This step helps you choose between three ways to structure your campaign hierarchy. These are starting points — most organizations will add campaigns beyond what&apos;s shown here. This flow gets you a working baseline; you can extend it with manual record creation as your program grows.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;On the next screen we will give you three choices:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Seasonal / Yearly — strategy is formed yearly and giving programs are at the operational level. This model is best for year-over-year reporting and for smaller staffs.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Giving Programs — giving programs at the top, allowing the second level to track specific operational elements. This model is best when programs are staffed separately.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Audience — strategy is formed yearly and donor segment is the operational component. Best when your team plans by donor segment (lapsed, mid-level, acquisition).&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;</fieldText>
@@ -1884,6 +1950,8 @@
                 </width>
             </styleProperties>
         </fields>
+        <backButtonLabel>Back: Campaign Hierarchy</backButtonLabel>
+        <nextOrFinishButtonLabel>Next: Set Up Hierarchy or Exit</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
     </screens>
