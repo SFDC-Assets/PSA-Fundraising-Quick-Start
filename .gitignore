@@ -48,7 +48,7 @@ $RECYCLE.BIN/
 **/*_UtilityBar.flexipage-meta.xml
 
 # Scratch retrieve / drift artifacts (Gate C — never commit)
-.tmp-flow-drift/
+.tmp-*/
 retrieve-tmp/
 compare-tmp/
 mdapi-tmp/
