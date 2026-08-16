@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>FQS: bypass FQS record-triggered flows that maintain derived state (GC.FulfillmentType recalc). Grants FQS_Bypass_Automation. Assign to migration/data-loader users. Post-migration, run scripts/apex/fqs-recalc-gc-fulfillmenttype.apex to reconcile.</description>
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>FQS_Bypass_Automation</name>
+    </customPermissions>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>FQS Bypass Automation</label>
+</PermissionSet>
