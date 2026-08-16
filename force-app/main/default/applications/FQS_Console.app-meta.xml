@@ -57,6 +57,24 @@
     <actionOverrides>
         <actionName>View</actionName>
         <comment>Action override created by Lightning App Builder during activation.</comment>
+        <content>FQS_GiftBatch_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+        <pageOrSobjectType>GiftBatch</pageOrSobjectType>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <comment>Action override created by Lightning App Builder during activation.</comment>
+        <content>FQS_GiftBatch_Record_Page</content>
+        <formFactor>Small</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+        <pageOrSobjectType>GiftBatch</pageOrSobjectType>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <comment>Action override created by Lightning App Builder during activation.</comment>
         <content>FQS_GiftCmtChangeAttrLog_Record_Page</content>
         <formFactor>Large</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
@@ -343,22 +361,69 @@
     <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
     <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
     <label>Fundraising Quick Start</label>
-    <navType>Standard</navType>
+    <navType>Console</navType>
     <tabs>standard-home</tabs>
-    <tabs>FQS_Setup_Configuration</tabs>
-    <tabs>standard-GiftTransaction</tabs>
-    <tabs>standard-GiftCommitment</tabs>
-    <tabs>standard-Opportunity</tabs>
     <tabs>standard-Account</tabs>
+    <tabs>standard-GiftCommitment</tabs>
+    <tabs>standard-GiftTransaction</tabs>
     <tabs>standard-Campaign</tabs>
+    <tabs>standard-Opportunity</tabs>
     <tabs>standard-GiftDesignation</tabs>
-    <tabs>standard-GiftEntryGrid</tabs>
+    <tabs>standard-GiftBatch</tabs>
+    <tabs>standard-Task</tabs>
+    <tabs>standard-ActionPlanTemplate</tabs>
+    <tabs>standard-IndustriesCsvDataimport</tabs>
     <tabs>standard-Dashboard</tabs>
     <tabs>standard-report</tabs>
     <tabs>standard-EmailTemplate</tabs>
-    <tabs>standard-ActionPlan</tabs>
-    <tabs>standard-ActionPlanTemplate</tabs>
-    <tabs>standard-IndustriesCsvDataimport</tabs>
     <uiType>Lightning</uiType>
-    <utilityBar>Fundraising_Quick_Start_UtilityBar</utilityBar>
+    <utilityBar>Fundraising_Quick_Start_UtilityBar1</utilityBar>
+    <workspaceConfig>
+        <mappings>
+            <tab>standard-Account</tab>
+        </mappings>
+        <mappings>
+            <tab>standard-ActionPlanTemplate</tab>
+        </mappings>
+        <mappings>
+            <fieldName>ParentId</fieldName>
+            <tab>standard-Campaign</tab>
+        </mappings>
+        <mappings>
+            <tab>standard-Dashboard</tab>
+        </mappings>
+        <mappings>
+            <tab>standard-EmailTemplate</tab>
+        </mappings>
+        <mappings>
+            <tab>standard-GiftBatch</tab>
+        </mappings>
+        <mappings>
+            <fieldName>DonorId</fieldName>
+            <tab>standard-GiftCommitment</tab>
+        </mappings>
+        <mappings>
+            <tab>standard-GiftDesignation</tab>
+        </mappings>
+        <mappings>
+            <fieldName>DonorId</fieldName>
+            <tab>standard-GiftTransaction</tab>
+        </mappings>
+        <mappings>
+            <tab>standard-IndustriesCsvDataimport</tab>
+        </mappings>
+        <mappings>
+            <fieldName>AccountId</fieldName>
+            <tab>standard-Opportunity</tab>
+        </mappings>
+        <mappings>
+            <tab>standard-Task</tab>
+        </mappings>
+        <mappings>
+            <tab>standard-home</tab>
+        </mappings>
+        <mappings>
+            <tab>standard-report</tab>
+        </mappings>
+    </workspaceConfig>
 </CustomApplication>
