@@ -25,7 +25,7 @@
         <default>false</default>
         <label>N/A</label>
     </customValue>
-    <description>Tracks the lifecycle of a corporate matching-gift request against a Gift Transaction. Shared between GiftTransaction.FQS_Match_Status__c (canonical) and GiftEntry.FQS_Match_Status__c (staging mirror). Distinct from FQS_Matched__c (boolean, set when the matching-employer transaction is linked): Match Status covers the whole workflow — Eligible (identified as match-eligible), Request Confirmed (submitted to employer), Received (match arrived, MatchingEmployerTransactionId now set), Declined (employer refused), N/A (no match expected).</description>
+    <description>Tracks the lifecycle of a corporate matching-gift request against a Gift Transaction. Shared between GiftTransaction.FQS_Match_Status__c (canonical) and GiftEntry.FQS_Match_Status__c (staging mirror). Values cover the whole workflow — Eligible (identified as match-eligible), Request Confirmed (submitted to employer), Received (match arrived, MatchingEmployerTransactionId set), Declined (employer refused), N/A (no match expected). Received is the terminal success state and pairs with MatchingEmployerTransactionId being populated on the donor's GiftTransaction.</description>
     <masterLabel>FQS Match Status</masterLabel>
     <sorted>false</sorted>
 </GlobalValueSet>

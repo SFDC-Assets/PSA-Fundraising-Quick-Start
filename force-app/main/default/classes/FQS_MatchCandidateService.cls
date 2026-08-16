@@ -105,7 +105,7 @@ public with sharing class FQS_MatchCandidateService {
     private static GiftTransaction loadSource(Id giftId) {
         List<GiftTransaction> src = [
             SELECT Id, DonorId, GiftCommitmentId, OriginalAmount, TotalTransactionFee,
-                   CampaignId, MatchingEmployerTransactionId, FQS_Matched__c, GiftType
+                   CampaignId, MatchingEmployerTransactionId, FQS_Match_Status__c, GiftType
             FROM GiftTransaction
             WHERE Id = :giftId
             LIMIT 1

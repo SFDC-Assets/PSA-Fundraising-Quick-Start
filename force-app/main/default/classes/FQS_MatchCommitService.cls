@@ -55,7 +55,7 @@ public with sharing class FQS_MatchCommitService {
         try {
             GiftTransaction src = [
                 SELECT Id, DonorId, GiftCommitmentId, OriginalAmount, TotalTransactionFee, CampaignId,
-                       MatchingEmployerTransactionId, FQS_Matched__c, TransactionDueDate
+                       MatchingEmployerTransactionId, FQS_Match_Status__c, TransactionDueDate
                 FROM GiftTransaction WHERE Id = :req.sourceGiftId LIMIT 1
             ];
 
@@ -156,9 +156,9 @@ public with sharing class FQS_MatchCommitService {
             gtUpdates.add(new GiftTransaction(
                 Id = src.Id,
                 MatchingEmployerTransactionId = corp.Id,
-                FQS_Matched__c = true
+                FQS_Match_Status__c = 'Received'
             ));
-            gtUpdates.add(new GiftTransaction(Id = corp.Id, FQS_Matched__c = true));
+            gtUpdates.add(new GiftTransaction(Id = corp.Id, FQS_Match_Status__c = 'Received'));
             softCredits.add(new GiftSoftCredit(
                 GiftTransactionId = src.Id,
                 RecipientId = corp.DonorId,
@@ -176,7 +176,7 @@ public with sharing class FQS_MatchCommitService {
                 gtUpdates.add(new GiftTransaction(
                     Id = ind.Id,
                     MatchingEmployerTransactionId = src.Id,
-                    FQS_Matched__c = true
+                    FQS_Match_Status__c = 'Received'
                 ));
                 softCredits.add(new GiftSoftCredit(
                     GiftTransactionId = ind.Id,
@@ -191,7 +191,7 @@ public with sharing class FQS_MatchCommitService {
                     Role = ROLE_MATCHED_DONOR
                 ));
             }
-            gtUpdates.add(new GiftTransaction(Id = src.Id, FQS_Matched__c = true));
+            gtUpdates.add(new GiftTransaction(Id = src.Id, FQS_Match_Status__c = 'Received'));
         }
 
         if (!gtUpdates.isEmpty()) update gtUpdates;

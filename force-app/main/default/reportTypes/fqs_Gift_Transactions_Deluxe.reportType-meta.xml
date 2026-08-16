@@ -253,11 +253,6 @@
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
-            <field>FQS_Matched__c</field>
-            <table>GiftTransaction</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
             <field>FQS_Recurring__c</field>
             <table>GiftTransaction</table>
         </columns>

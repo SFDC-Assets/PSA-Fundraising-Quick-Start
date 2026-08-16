@@ -125,9 +125,9 @@ private class FQS_MatchServices_Test {
         List<FQS_MatchCommitService.CommitResponse> cResps = FQS_MatchCommitService.commitMatch(new List<FQS_MatchCommitService.CommitRequest>{ cReq });
 
         System.assertEquals(true, cResps[0].success, 'Commit should succeed: ' + cResps[0].errorMessage);
-        GiftTransaction indAfter = [SELECT MatchingEmployerTransactionId, FQS_Matched__c FROM GiftTransaction WHERE Id = :indGift.Id];
+        GiftTransaction indAfter = [SELECT MatchingEmployerTransactionId, FQS_Match_Status__c FROM GiftTransaction WHERE Id = :indGift.Id];
         System.assertEquals(corpGift.Id, indAfter.MatchingEmployerTransactionId);
-        System.assertEquals(true, indAfter.FQS_Matched__c);
+        System.assertEquals('Received', indAfter.FQS_Match_Status__c);
         List<GiftSoftCredit> credits = [SELECT Id, RecipientId, GiftTransactionId FROM GiftSoftCredit WHERE GiftTransactionId IN (:indGift.Id, :corpGift.Id)];
         System.assertEquals(2, credits.size(), 'Two soft credits expected');
         for (GiftSoftCredit sc : credits) {
@@ -255,9 +255,9 @@ private class FQS_MatchServices_Test {
         Test.stopTest();
 
         System.assertEquals(false, cResps[0].success, 'Bad employer Id should fail commit');
-        GiftTransaction indAfter = [SELECT MatchingEmployerTransactionId, FQS_Matched__c FROM GiftTransaction WHERE Id = :indGift.Id];
+        GiftTransaction indAfter = [SELECT MatchingEmployerTransactionId, FQS_Match_Status__c FROM GiftTransaction WHERE Id = :indGift.Id];
         System.assertEquals(null, indAfter.MatchingEmployerTransactionId, 'Rollback should leave link unset');
-        System.assertEquals(false, indAfter.FQS_Matched__c, 'Rollback should leave FQS_Matched__c false');
+        System.assertNotEquals('Received', indAfter.FQS_Match_Status__c, 'Rollback should leave FQS_Match_Status__c unset (not Received)');
         Integer credits = [SELECT COUNT() FROM GiftSoftCredit WHERE GiftTransactionId IN (:indGift.Id, :corpGift.Id)];
         System.assertEquals(0, credits, 'No credits should exist after rollback');
     }
