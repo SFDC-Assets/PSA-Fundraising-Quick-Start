@@ -3,11 +3,11 @@
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
+        <description>Assigns the derived FQS_Gift_Transaction_Category__c back onto the in-flight GT. Before-save flows edit $Record in place with no DML — free and safe.</description>
         <name>Set_Category</name>
         <label>Set Transaction Category</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Assigns the derived FQS_Gift_Transaction_Category__c back onto the in-flight GT. Before-save flows edit $Record in place with no DML — free and safe.</description>
         <assignmentItems>
             <assignToReference>$Record.FQS_Gift_Transaction_Category__c</assignToReference>
             <operator>Assign</operator>
@@ -16,7 +16,9 @@
             </value>
         </assignmentItems>
     </assignments>
-    <description>Fundraising Quick Start: on insert of an Expected GiftTransaction that has a parent Gift Commitment but no explicit FQS_Gift_Transaction_Category__c, stamps the category from the parent commitment&apos;s FQS_Gift_Commitment_Category__c. Covers engine-fanned Expected GTs from Regular Scheduled and Recurring commitments (the launcher never touches them directly). Mapping: Pledged Gift → Pledge Payment; Recurring Gift → Recurring Gift Payment; Grant Payout → Grant Payment. Fires only when the field is blank so manual entries (Simple Pledge&apos;s Expected GT, Custom&apos;s explicit stamping) are never overwritten.</description>
+    <description>On insert of an Expected GiftTransaction that has a parent Gift Commitment but no explicit FQS_Gift_Transaction_Category__c, stamps the category from the parent commitment&apos;s FQS_Gift_Commitment_Category__c. Mapping: Pledged Gift → Pledge Payment; Recurring Gift → Recurring Gift Payment; Grant Payout → Grant Payment. 
+
+Fires only when the field is blank so explicit launcher stamping (Scheduled Custom&apos;s Loop_Build_Custom_GTs and the Recurring / Pledge first-payment nodes) is never overwritten.</description>
     <environments>Default</environments>
     <formulas>
         <name>Derived_Category</name>
@@ -51,11 +53,11 @@
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordLookups>
+        <description>Fetches the parent Gift Commitment to read its FQS_Gift_Commitment_Category__c. Only queried fields are Id + the category picklist — cheap lookup.</description>
         <name>Get_Commitment</name>
         <label>Get Parent Commitment</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Fetches the parent Gift Commitment to read its FQS_Gift_Commitment_Category__c. Only queried fields are Id + the category picklist — cheap lookup.</description>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Set_Category</targetReference>
