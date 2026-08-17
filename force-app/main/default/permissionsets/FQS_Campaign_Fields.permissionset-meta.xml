@@ -7,16 +7,6 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>Campaign.AmountAllOpportunities</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Campaign.AmountWonOpportunities</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
         <editable>true</editable>
         <field>Campaign.BudgetedCost</field>
         <readable>true</readable>
@@ -48,37 +38,22 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Campaign.HierarchyAmountAllOpportunities</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Campaign.HierarchyAmountWonOpportunities</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Campaign.HierarchyBudgetedCost</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>Campaign.HierarchyNumberOfConvertedLeads</field>
+        <editable>true</editable>
+        <field>Campaign.HierarchyExpectedRevenue</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Campaign.HierarchyNumberOfOpportunities</field>
+        <field>Campaign.HierarchyNumberOfContacts</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
         <field>Campaign.HierarchyNumberOfResponses</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Campaign.HierarchyNumberOfWonOpportunities</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -92,33 +67,13 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Campaign.NumberOfContacts</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>Campaign.NumberOfConvertedLeads</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Campaign.NumberOfLeads</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Campaign.NumberOfOpportunities</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Campaign.NumberOfResponses</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Campaign.NumberOfWonOpportunities</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
