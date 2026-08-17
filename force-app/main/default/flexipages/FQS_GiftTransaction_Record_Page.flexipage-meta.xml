@@ -91,9 +91,6 @@
                     <name>actionNames</name>
                     <valueList>
                         <valueListItems>
-                            <value>GiftTransaction.FQS_Find_Matching_Gift</value>
-                        </valueListItems>
-                        <valueListItems>
                             <value>GiftTransaction.FQS_Refund_Gift</value>
                             <visibilityRule>
                                 <criteria>
