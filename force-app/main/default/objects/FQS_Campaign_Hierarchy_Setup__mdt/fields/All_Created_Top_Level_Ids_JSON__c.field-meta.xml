@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All_Created_Top_Level_Ids_JSON__c</fullName>
+    <description>JSON array of all top-level Campaign IDs created in this run. Populated for GivingPrograms runs where multiple program top-levels are created. For Seasonal and Strategy runs, contains a single-element array matching Last_Top_Level_Id__c. Useful for support investigations and as a target list for future Deep Clone capability.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Stores the Salesforce IDs of all top-level Campaigns created when the setup flow last ran. For Giving Programs runs, this is a JSON array of all program Campaign IDs.</inlineHelpText>
+    <label>All Created Top Level IDs (JSON)</label>
+    <length>32768</length>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>

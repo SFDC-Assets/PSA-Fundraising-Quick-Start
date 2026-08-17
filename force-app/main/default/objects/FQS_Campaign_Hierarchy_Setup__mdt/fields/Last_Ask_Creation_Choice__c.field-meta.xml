@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Last_Ask_Creation_Choice__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Whether the admin chose to create level-3 ask Campaigns during the most recent successful setup run. True = asks were created; false = admin skipped level 3. Written by FQS_CampaignHierarchyBuilder.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <inlineHelpText>Records whether the admin chose to create individual ask campaigns (level 3) during the last setup run.</inlineHelpText>
+    <label>Last Ask Creation Choice</label>
+    <type>Checkbox</type>
+</CustomField>

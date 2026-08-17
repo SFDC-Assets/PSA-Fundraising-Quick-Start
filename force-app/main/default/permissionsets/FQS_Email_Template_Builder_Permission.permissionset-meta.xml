@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Created for the Fundraising Quick Start to provide &quot;Access drag-and-drop content builder&quot; permission for the donor acknowledgment automation.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>FQS Email Template Builder Permission</label>
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>AccessContentBuilder</name>
+    </userPermissions>
+</PermissionSet>
