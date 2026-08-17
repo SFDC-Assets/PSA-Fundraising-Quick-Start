@@ -1024,6 +1024,11 @@ Background tier framing: every field on Outreach Summary is written by the platf
 
 - Calendar vs. fiscal semantics on `GC.TotalCurrentMonth/Quarter/Year/NextYear` — verify against a seeded org before final copy.
 - `GT.GenerationalCohort` off-flexipage — surface only if generational segmentation is in use; deferred with the wealth-screening capability.
+- **Dead-field references (2026-08-16):** two GT descriptions in this doc reference fields that have been destructively deleted from the schema and need a rewrite in the next help-text pass:
+  - Line 59 (GT customized-field roster) still lists `FQS_Matched__c` and `FQS_Processed_Date__c` — both retired.
+  - Line 420 (`GT.TransactionDate` description) says *"Distinct from `FQS_Processed_Date__c` (when the org entered the gift)"*. `FQS_Processed_Date__c` no longer exists; `CreatedDate` (the prior wording) is technically the audit field but the *semantic* distinction the sentence tried to draw — *what the donor did* vs. *when Salesforce learned about it* — needs a live-schema rephrase (there is no dedicated FQS field for the latter anymore).
+  - Line 441 (`GT.GiftType` description) says *"Individual AND `FQS_Matched__c = TRUE`"*. Live gate is `FQS_Match_Status__c = 'Received'`.
+- **Corresponding metadata state:** the retrieve pulled the same dead-field wording into `objects/GiftTransaction/fields/TransactionDate.field-meta.xml` and `.../GiftType.field-meta.xml`. `GiftType.field-meta.xml` was reverted to the prior `FQS_Match_Status__c` wording; `TransactionDate.field-meta.xml` is held un-reverted pending the help-text rewrite.
 
 ## Next steps
 
