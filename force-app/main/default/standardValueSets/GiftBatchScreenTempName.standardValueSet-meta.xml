@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StandardValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sorted>false</sorted>
+    <standardValue>
+        <fullName>FQS_Individual_Outright_Gifts</fullName>
+        <default>true</default>
+        <label>Individual Outright Gifts</label>
+    </standardValue>
+    <standardValue>
+        <fullName>FQS_Pledge_Payments</fullName>
+        <default>false</default>
+        <label>Pledge Payments</label>
+    </standardValue>
+    <standardValue>
+        <fullName>FQS_Event_Registrations</fullName>
+        <default>false</default>
+        <label>Event Registrations</label>
+    </standardValue>
+    <standardValue>
+        <fullName>FQS_Single_Payment_Pledges</fullName>
+        <default>false</default>
+        <label>Single Payment Pledges</label>
+    </standardValue>
+    <standardValue>
+        <fullName>FQS_Multiple_Payment_Pledges</fullName>
+        <default>false</default>
+        <label>Multiple Payment Pledges</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Default</fullName>
+        <default>false</default>
+        <label>Undefined Batch</label>
+    </standardValue>
+</StandardValueSet>
