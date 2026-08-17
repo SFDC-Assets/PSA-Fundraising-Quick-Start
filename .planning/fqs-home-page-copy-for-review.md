@@ -4,7 +4,7 @@
 
 **Source of truth:** [`force-app/main/default/flexipages/FQS_Home_Page_Default.flexipage-meta.xml`](../force-app/main/default/flexipages/FQS_Home_Page_Default.flexipage-meta.xml) and the flows referenced below. If you spot a change you want made, mark it inline and we'll edit the metadata.
 
-**Doc last synced from org:** 2026-08-17.
+**Doc last synced from org:** 2026-08-17 (v9 tier flow, DropdownBox Credit Type above dollar bands).
 
 **What's NOT here:** list-view column labels, dashboard visuals, standard Salesforce component chrome (component headers like "Recent Records" that Salesforce writes automatically), and per-leaf copy inside the shared `FQS_Guided_Gift_Entry_Account` monolith (that's a separate review — this doc only covers the Home Page's own copy and the *front matter* of the embedded launchers).
 
@@ -347,13 +347,13 @@ Header block:
 >
 > Changes take up to a minute to appear after you finish this flow — FQS writes the new thresholds to Custom Metadata, which the platform deploys asynchronously.
 
-Then three sections (**Major**, **Mid**, **Entry**), each with sub-header "What does your organization consider to be a {tier}-level gift?" and five fields:
+Then three sections (**Major**, **Mid**, **Entry**), each with sub-header "What does your organization consider to be a {tier}-level gift?" and five fields, in this order:
 
 - **Branded Name ({tier})** — helptext: *"The branded name of the Tier Key shown to staff and donors in reports, dashboards, and the Donor Gift Summary record page. Changing this value here automatically updates FQS_Donor_Level_Name__c on all Donor Gift Summary records. Example values: Friend, Partner, Champion or Entry, Rising, Summit."*
+- **Credit Type ({tier})** — dropdown: "Hard Credits Only" (default) / "Hard + Soft Credits". Helptext (Major variant): *"Choose which giving totals count toward the Major tier. Hard Credits Only counts the donor's own gifts (TotalGiftsAmount / GiftsThisYearAmount + FQS legacy hard credits). Hard + Soft Credits also counts soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor). Different tiers can have different settings — e.g., Major counts soft credits while Entry stays hard-only."*
 - **One-Time Minimum Amount ({tier})** — helptext: *"The minimum gift amount for a single transaction to qualify for this donor tier. Your administrator controls this threshold. Updating it automatically recalculates the giving level across all Gift Transactions."*
 - **Annual Minimum Amount ({tier})** — helptext: *"The minimum fiscal-year giving total for a donor to qualify for this donor tier annually. Your administrator controls this threshold. Updating it automatically recalculates the annual giving level across all Donor Gift Summary records."*
 - **Lifetime Minimum Amount ({tier})** — helptext: *"The minimum lifetime giving total for a donor to qualify for this donor tier. Your administrator controls this threshold. Updating it automatically recalculates the lifetime giving level across all Donor Gift Summary, Gift Commitment, and related records."*
-- **Credit Type ({tier})** — radio: "Hard Credits Only" / "Hard + Soft Credits". Helptext (Major variant): *"Choose which giving totals count toward the Major tier. Hard Credits Only counts the donor's own gifts (TotalGiftsAmount / GiftsThisYearAmount + FQS legacy hard credits). Hard + Soft Credits also counts soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor). Different tiers can have different settings — e.g., Major counts soft credits while Entry stays hard-only."*
 
 Footer block:
 
@@ -398,6 +398,8 @@ Rich-text only. No embedded flow.
 > - **Undefined Batch** — uses the default Salesforce Standard Template, a clean baseline that mirrors what Salesforce ships out of the box with no FQS columns added. Use it as a starting point when you want to build your own template from scratch.
 >
 > **How to launch:** open Gift Batches, click **New**, pick the template that fits your batch, set expected total and count, then use the grid to enter rows. FQS ships a batch record page with step-by-step instructions for defaults, entry, dry-run, and processing.
+>
+> **How to launch for a single outright gift from an account:** on that account's record page, click **New Gift Entry** from the actions bar. No batch record is required — the grid opens preconfigured for a one-row outright gift on that donor.
 
 ---
 

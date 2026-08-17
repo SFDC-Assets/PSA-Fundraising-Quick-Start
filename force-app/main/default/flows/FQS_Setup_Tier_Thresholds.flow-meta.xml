@@ -354,6 +354,28 @@
                     </styleProperties>
                 </fields>
                 <fields>
+                    <name>pkMajorCreditType</name>
+                    <choiceReferences>choiceCreditTypeHardOnly</choiceReferences>
+                    <choiceReferences>choiceCreditTypeHardPlusSoft</choiceReferences>
+                    <dataType>String</dataType>
+                    <defaultValue>
+                        <elementReference>Get_Major_CMDT.Credit_Type__c</elementReference>
+                    </defaultValue>
+                    <fieldText>Credit Type (Major)</fieldText>
+                    <fieldType>DropdownBox</fieldType>
+                    <helpText>Choose which giving totals count toward the Major tier. Hard Credits Only counts the donor&apos;s own gifts (TotalGiftsAmount / GiftsThisYearAmount + FQS legacy hard credits). Hard + Soft Credits also counts soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor). Different tiers can have different settings — e.g., Major counts soft credits while Entry stays hard-only.</helpText>
+                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <isRequired>true</isRequired>
+                    <styleProperties>
+                        <verticalAlignment>
+                            <stringValue>top</stringValue>
+                        </verticalAlignment>
+                        <width>
+                            <stringValue>12</stringValue>
+                        </width>
+                    </styleProperties>
+                </fields>
+                <fields>
                     <name>numMajorOneTime</name>
                     <dataType>Number</dataType>
                     <defaultValue>
@@ -416,28 +438,6 @@
                         </width>
                     </styleProperties>
                 </fields>
-                <fields>
-                    <name>pkMajorCreditType</name>
-                    <choiceReferences>choiceCreditTypeHardOnly</choiceReferences>
-                    <choiceReferences>choiceCreditTypeHardPlusSoft</choiceReferences>
-                    <dataType>String</dataType>
-                    <defaultValue>
-                        <elementReference>Get_Major_CMDT.Credit_Type__c</elementReference>
-                    </defaultValue>
-                    <fieldText>Credit Type (Major)</fieldText>
-                    <fieldType>RadioButtons</fieldType>
-                    <helpText>Choose which giving totals count toward the Major tier. Hard Credits Only counts the donor&apos;s own gifts (TotalGiftsAmount / GiftsThisYearAmount + FQS legacy hard credits). Hard + Soft Credits also counts soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor). Different tiers can have different settings — e.g., Major counts soft credits while Entry stays hard-only.</helpText>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-                    <isRequired>true</isRequired>
-                    <styleProperties>
-                        <verticalAlignment>
-                            <stringValue>top</stringValue>
-                        </verticalAlignment>
-                        <width>
-                            <stringValue>12</stringValue>
-                        </width>
-                    </styleProperties>
-                </fields>
                 <inputParameters>
                     <name>width</name>
                     <value>
@@ -485,6 +485,28 @@
                     <fieldText>Branded Name (Mid)</fieldText>
                     <fieldType>InputField</fieldType>
                     <helpText>The branded name of the Tier Key shown to staff and donors in reports, dashboards, and the Donor Gift Summary record page. Changing this value here automatically updates FQS_Donor_Level_Name__c on all Donor Gift Summary records. Example values: Friend, Partner, Champion or Entry, Rising, Summit.</helpText>
+                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <isRequired>true</isRequired>
+                    <styleProperties>
+                        <verticalAlignment>
+                            <stringValue>top</stringValue>
+                        </verticalAlignment>
+                        <width>
+                            <stringValue>12</stringValue>
+                        </width>
+                    </styleProperties>
+                </fields>
+                <fields>
+                    <name>pkMidCreditType</name>
+                    <choiceReferences>choiceCreditTypeHardOnly</choiceReferences>
+                    <choiceReferences>choiceCreditTypeHardPlusSoft</choiceReferences>
+                    <dataType>String</dataType>
+                    <defaultValue>
+                        <elementReference>Get_Mid_CMDT.Credit_Type__c</elementReference>
+                    </defaultValue>
+                    <fieldText>Credit Type (Mid)</fieldText>
+                    <fieldType>DropdownBox</fieldType>
+                    <helpText>Choose which giving totals count toward the Mid tier. Hard Credits Only counts the donor&apos;s own gifts. Hard + Soft Credits also counts soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor).</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <styleProperties>
@@ -559,28 +581,6 @@
                         </width>
                     </styleProperties>
                 </fields>
-                <fields>
-                    <name>pkMidCreditType</name>
-                    <choiceReferences>choiceCreditTypeHardOnly</choiceReferences>
-                    <choiceReferences>choiceCreditTypeHardPlusSoft</choiceReferences>
-                    <dataType>String</dataType>
-                    <defaultValue>
-                        <elementReference>Get_Mid_CMDT.Credit_Type__c</elementReference>
-                    </defaultValue>
-                    <fieldText>Credit Type (Mid)</fieldText>
-                    <fieldType>RadioButtons</fieldType>
-                    <helpText>Choose which giving totals count toward the Mid tier. Hard Credits Only counts the donor&apos;s own gifts. Hard + Soft Credits also counts soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor).</helpText>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-                    <isRequired>true</isRequired>
-                    <styleProperties>
-                        <verticalAlignment>
-                            <stringValue>top</stringValue>
-                        </verticalAlignment>
-                        <width>
-                            <stringValue>12</stringValue>
-                        </width>
-                    </styleProperties>
-                </fields>
                 <inputParameters>
                     <name>width</name>
                     <value>
@@ -628,6 +628,28 @@
                     <fieldText>Branded Name (Entry)</fieldText>
                     <fieldType>InputField</fieldType>
                     <helpText>The branded name of the Tier Key shown to staff and donors in reports, dashboards, and the Donor Gift Summary record page. Changing this value here automatically updates FQS_Donor_Level_Name__c on all Donor Gift Summary records. Example values: Friend, Partner, Champion or Entry, Rising, Summit.</helpText>
+                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+                    <isRequired>true</isRequired>
+                    <styleProperties>
+                        <verticalAlignment>
+                            <stringValue>top</stringValue>
+                        </verticalAlignment>
+                        <width>
+                            <stringValue>12</stringValue>
+                        </width>
+                    </styleProperties>
+                </fields>
+                <fields>
+                    <name>pkEntryCreditType</name>
+                    <choiceReferences>choiceCreditTypeHardOnly</choiceReferences>
+                    <choiceReferences>choiceCreditTypeHardPlusSoft</choiceReferences>
+                    <dataType>String</dataType>
+                    <defaultValue>
+                        <elementReference>Get_Entry_CMDT.Credit_Type__c</elementReference>
+                    </defaultValue>
+                    <fieldText>Credit Type (Entry)</fieldText>
+                    <fieldType>DropdownBox</fieldType>
+                    <helpText>Choose which giving totals count toward the Entry tier. Hard Credits Only counts the donor&apos;s own gifts. Hard + Soft Credits also counts soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor).</helpText>
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <styleProperties>
@@ -693,28 +715,6 @@
                     <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
                     <isRequired>true</isRequired>
                     <scale>2</scale>
-                    <styleProperties>
-                        <verticalAlignment>
-                            <stringValue>top</stringValue>
-                        </verticalAlignment>
-                        <width>
-                            <stringValue>12</stringValue>
-                        </width>
-                    </styleProperties>
-                </fields>
-                <fields>
-                    <name>pkEntryCreditType</name>
-                    <choiceReferences>choiceCreditTypeHardOnly</choiceReferences>
-                    <choiceReferences>choiceCreditTypeHardPlusSoft</choiceReferences>
-                    <dataType>String</dataType>
-                    <defaultValue>
-                        <elementReference>Get_Entry_CMDT.Credit_Type__c</elementReference>
-                    </defaultValue>
-                    <fieldText>Credit Type (Entry)</fieldText>
-                    <fieldType>RadioButtons</fieldType>
-                    <helpText>Choose which giving totals count toward the Entry tier. Hard Credits Only counts the donor&apos;s own gifts. Hard + Soft Credits also counts soft-credit totals (spouse-attributed gifts, foundation-driven gifts recognized to the donor).</helpText>
-                    <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-                    <isRequired>true</isRequired>
                     <styleProperties>
                         <verticalAlignment>
                             <stringValue>top</stringValue>
