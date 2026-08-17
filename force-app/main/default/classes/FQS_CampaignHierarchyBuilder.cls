@@ -264,8 +264,17 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
         //     FQS_Create_First_Outreach_Source_Code__c=true on each Ask; the record-triggered
         //     flow FQS_Campaign_Create_First_OSC fires on the update and creates the placeholder
         //     natively. Flow is idempotent via External_Id__c so re-runs never duplicate.
+        //
+        //     Skip when FundraisingConfig.OutreachSourceCodeGenFmla is null — the platform
+        //     back-fills OutreachSourceCode.SourceCode from that formula at insert; without it
+        //     the flow's recordCreate fails REQUIRED_FIELD_MISSING. Admins configure the
+        //     formula in Fundraising Setup post-install; until then, skip placeholder OSCs.
         Integer oscCreated = 0;
-        if (!askCampaigns.isEmpty()) {
+        Boolean oscConfigured = false;
+        List<FundraisingConfig> cfg = [SELECT OutreachSourceCodeGenFmla FROM FundraisingConfig LIMIT 1];
+        if (!cfg.isEmpty() && String.isNotBlank(cfg[0].OutreachSourceCodeGenFmla)) oscConfigured = true;
+
+        if (!askCampaigns.isEmpty() && oscConfigured) {
             List<Id> askIds = new List<Id>();
             for (Campaign a : askCampaigns) askIds.add(a.Id);
             try {

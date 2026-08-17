@@ -44,8 +44,10 @@ private class FQS_CampaignHierarchyBuilder_Test {
         System.assertEquals(1, res.rollupCount, 'One top-level for Seasonal');
         System.assert(res.strategyCount >= 1, 'At least one strategy');
 
+        // Rollups (Level 1) intentionally carry no Category — only Level 2 (Strategy)
+        // and Level 3 (Ask) rows get categorized. See FQS_CampaignHierarchyBuilder line 125/139.
         List<Campaign> tops = [SELECT FQS_Campaign_Category__c FROM Campaign WHERE Id IN :res.createdTopLevelIds];
-        System.assertEquals('Fundraising Top Level Campaign', tops[0].FQS_Campaign_Category__c);
+        System.assertEquals(null, tops[0].FQS_Campaign_Category__c, 'Rollups should have no Category');
 
         List<Campaign> fnd = [SELECT FQS_Campaign_Category__c FROM Campaign WHERE Name LIKE '%Foundation Giving%' AND ParentId IN :res.createdTopLevelIds];
         if (!fnd.isEmpty()) System.assertEquals('Grants', fnd[0].FQS_Campaign_Category__c);
@@ -75,8 +77,10 @@ private class FQS_CampaignHierarchyBuilder_Test {
         System.assert(res.rollupCount >= 1, 'At least one program rollup');
         System.assertEquals(res.rollupCount, res.strategyCount, 'One year-cohort strategy per program');
 
-        List<Campaign> fndTop = [SELECT FQS_Campaign_Category__c FROM Campaign WHERE Name = 'Foundation Giving' AND Id IN :res.createdTopLevelIds];
-        if (!fndTop.isEmpty()) System.assertEquals('Grants', fndTop[0].FQS_Campaign_Category__c);
+        // Foundation Giving Grants promotion happens at Strategy level (year-cohort child),
+        // not the Rollup. Rollups are Category-blank by design.
+        List<Campaign> fndStrat = [SELECT FQS_Campaign_Category__c FROM Campaign WHERE Name LIKE '%Foundation Giving' AND ParentId IN :res.createdTopLevelIds];
+        if (!fndStrat.isEmpty()) System.assertEquals('Grants', fndStrat[0].FQS_Campaign_Category__c);
     }
 
     @isTest
@@ -195,7 +199,9 @@ private class FQS_CampaignHierarchyBuilder_Test {
         run(req('GivingPrograms'));
         Test.stopTest();
 
-        for (Campaign c : [SELECT Name, FQS_Campaign_Category__c FROM Campaign WHERE Name LIKE '%Foundation Giving%']) {
+        // Grants promotion applies to Level 2/3 (Strategy + Ask). Rollups (ParentId=null)
+        // are intentionally Category-blank; excluding them here matches the builder contract.
+        for (Campaign c : [SELECT Name, FQS_Campaign_Category__c FROM Campaign WHERE Name LIKE '%Foundation Giving%' AND ParentId != null]) {
             System.assertEquals('Grants', c.FQS_Campaign_Category__c, 'Foundation Giving must be Grants for: ' + c.Name);
         }
     }

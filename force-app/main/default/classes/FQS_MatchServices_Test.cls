@@ -13,6 +13,35 @@
 @IsTest(IsParallel=false)
 private class FQS_MatchServices_Test {
 
+    // Running user needs Person Account RT visibility for the personAccount() helper.
+    // @TestSetup provisions a Standard User with the FQS_Person_Account_Fields permset
+    // (both User + PermissionSetAssignment are setup DML, safe to co-insert); helpers
+    // that insert Person Accounts run their DML + RT-lookup inside System.runAs(u).
+    @TestSetup
+    static void setupPersonAcctUser() {
+        Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
+        String uniq = String.valueOf(System.currentTimeMillis()) + String.valueOf(Math.mod(Math.abs(Crypto.getRandomLong()), 1000000));
+        User u = new User(
+            FirstName = 'FQS',
+            LastName = 'MatchTest',
+            Email = 'fqs.match.' + uniq + '@example.com.invalid',
+            Username = 'fqs.match.' + uniq + '@example.com.invalid',
+            Alias = 'fqsmt',
+            TimeZoneSidKey = 'America/Los_Angeles',
+            LocaleSidKey = 'en_US',
+            EmailEncodingKey = 'UTF-8',
+            LanguageLocaleKey = 'en_US',
+            ProfileId = p.Id
+        );
+        insert u;
+        Id psId = [SELECT Id FROM PermissionSet WHERE Name = 'FQS_Person_Account_Fields' LIMIT 1].Id;
+        insert new PermissionSetAssignment(AssigneeId = u.Id, PermissionSetId = psId);
+    }
+
+    private static User getPersonAcctUser() {
+        return [SELECT Id FROM User WHERE LastName = 'MatchTest' AND Email LIKE 'fqs.match.%@example.com.invalid' LIMIT 1];
+    }
+
     private static Account bizAccount(String name, Boolean programFlag) {
         Account a = new Account(Name = name);
         a.FQS_Matching_Gift_Program__c = programFlag;
@@ -28,13 +57,11 @@ private class FQS_MatchServices_Test {
     }
 
     private static Account personAccount(String firstName, String lastName) {
-        Id personRt = getPersonAccountRecordTypeId();
-        Account pa = new Account(
-            FirstName = firstName,
-            LastName = lastName,
-            RecordTypeId = personRt
-        );
-        insert pa;
+        Account pa = new Account(FirstName = firstName, LastName = lastName);
+        System.runAs(getPersonAcctUser()) {
+            pa.RecordTypeId = getPersonAccountRecordTypeId();
+            insert pa;
+        }
         return [SELECT Id, PersonContactId, IsPersonAccount FROM Account WHERE Id = :pa.Id];
     }
 

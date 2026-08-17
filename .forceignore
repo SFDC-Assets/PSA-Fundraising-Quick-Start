@@ -17,6 +17,11 @@ package.xml
 # LWC Jest
 **/__tests__/**
 
+# AppSwitcher / appMenus: org-managed, no FQS customization needed
+# (matches SMQS-DEV-1 precedent — the AppSwitcher deploy is edition-sensitive and
+# only fails validation without adding FQS value)
+force-app/main/default/appMenus/
+
 # Non-FQS permission sets, permission set groups, and profiles
 **/permissionsetgroups/force__*
 **/permissionsets/sfdcInternalInt__*
@@ -239,8 +244,9 @@ package.xml
 
 # Standard Campaign FlexiPage + QAs (no FQS customization)
 **/flexipages/Campaign_Base_Page.flexipage-meta.xml
+# Campaign.Hierarchy_Metrics temporarily un-ignored 2026-08-17 to bootstrap ProdFund
+# **/quickActions/Campaign.Hierarchy_Metrics.quickAction-meta.xml
 **/quickActions/Campaign.Campaign_Metric_Fields.quickAction-meta.xml
-**/quickActions/Campaign.Hierarchy_Metrics.quickAction-meta.xml
 
 # Non-FQS permset (file's own description literally says "in the org, but
 # not in the repo or the package")
@@ -253,8 +259,9 @@ package.xml
 **/settings/Account.settings-meta.xml
 **/settings/Analytics.settings-meta.xml
 
+# Value_Matches_Expected temporarily un-ignored 2026-08-17 to bootstrap ProdFund
 # FundFirst-platform-managed GiftBatch visual (not FQS-authored)
-**/uiFormatSpecificationSets/Value_Matches_Expected.uiFormatSpecificationSet-meta.xml
+# **/uiFormatSpecificationSets/Value_Matches_Expected.uiFormatSpecificationSet-meta.xml
 
 # SF-shipped content assets (arrows, backgrounds, icons)
 **/contentassets/arrows.asset*
@@ -267,5 +274,16 @@ package.xml
 # Deprecated empty report folder (Setup-UI delete pending per prior session)
 **/reports/FQSDonorGroupingReports.reportFolder-meta.xml
 
-# NOTE: batchCalcJobDefinitions/ (3 CloneManageFundraisingDefinitionsIA files,
-# ~254KB) POSTPONED for further review — not yet added to ignore list.
+# batchCalcJobDefinitions: 3 CloneManageFundraisingDefinitionsIA files require
+# Analytics Cloud Integration User FLS grants in each target org before they can
+# deploy. Kept out of source tracking + deploy until FLS strategy is finalized.
+**/batchCalcJobDefinitions/**
+
+# FQSSeedGenerator: 1851-line demo-data generator for dev/sandbox use only
+# (per memory [[seed-scripts-purpose]] — seed scripts serve testing/development,
+# demos are secondary). Not exercised by any @IsTest → 0% coverage → drags the
+# repo-wide average below the 75% production deploy threshold. Excluded from the
+# FQS Quick Start package; devs invoke it manually via anonymous Apex against
+# sandboxes when they need seed data.
+**/classes/FQSSeedGenerator.cls
+**/classes/FQSSeedGenerator.cls-meta.xml

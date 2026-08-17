@@ -145,10 +145,6 @@
         <style>CustomLinks</style>
     </layoutSections>
     <relatedLists>
-        <fields>Name</fields>
-        <fields>OriginalAmount</fields>
-        <fields>TransactionDate</fields>
-        <fields>Status</fields>
         <relatedList>MatchingEmployerTransactions</relatedList>
     </relatedLists>
     <relatedLists>
