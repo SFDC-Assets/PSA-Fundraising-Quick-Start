@@ -316,13 +316,14 @@
         </fields>
         <fields>
             <name>Screen_Thresholds_Section1</name>
+            <fieldText>Major</fieldText>
             <fieldType>RegionContainer</fieldType>
             <fields>
                 <name>Screen_Thresholds_Section1_Column1</name>
                 <fieldType>Region</fieldType>
                 <fields>
                     <name>DisplayText_MajorHeader</name>
-                    <fieldText>&lt;h2&gt;Major&lt;/h2&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;What does your organization consider to be a major-level gift?&lt;/span&gt;&lt;/p&gt;</fieldText>
+                    <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;What does your organization consider to be a major-level gift?&lt;/span&gt;&lt;/p&gt;</fieldText>
                     <fieldType>DisplayText</fieldType>
                     <styleProperties>
                         <verticalAlignment>
@@ -447,7 +448,7 @@
                 <isRequired>false</isRequired>
             </fields>
             <isRequired>false</isRequired>
-            <regionContainerType>SectionWithoutHeader</regionContainerType>
+            <regionContainerType>SectionWithHeader</regionContainerType>
             <styleProperties>
                 <verticalAlignment>
                     <stringValue>top</stringValue>
@@ -459,13 +460,14 @@
         </fields>
         <fields>
             <name>Screen_Thresholds_Section2</name>
+            <fieldText>Mid</fieldText>
             <fieldType>RegionContainer</fieldType>
             <fields>
                 <name>Screen_Thresholds_Section2_Column1</name>
                 <fieldType>Region</fieldType>
                 <fields>
                     <name>DisplayText_MidHeader</name>
-                    <fieldText>&lt;h2&gt;Mid&lt;/h2&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px; background-color: rgb(255, 255, 255);&quot;&gt;What does your organization consider to be a mid-level gift?&lt;/span&gt;&lt;/p&gt;</fieldText>
+                    <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;What does your organization consider to be a mid-level gift?&lt;/span&gt;&lt;/p&gt;</fieldText>
                     <fieldType>DisplayText</fieldType>
                     <styleProperties>
                         <verticalAlignment>
@@ -590,7 +592,7 @@
                 <isRequired>false</isRequired>
             </fields>
             <isRequired>false</isRequired>
-            <regionContainerType>SectionWithoutHeader</regionContainerType>
+            <regionContainerType>SectionWithHeader</regionContainerType>
             <styleProperties>
                 <verticalAlignment>
                     <stringValue>top</stringValue>
@@ -602,13 +604,14 @@
         </fields>
         <fields>
             <name>Screen_Thresholds_Section3</name>
+            <fieldText>Entry</fieldText>
             <fieldType>RegionContainer</fieldType>
             <fields>
                 <name>Screen_Thresholds_Section3_Column1</name>
                 <fieldType>Region</fieldType>
                 <fields>
                     <name>DisplayText_EntryHeader</name>
-                    <fieldText>&lt;h2&gt;Entry&lt;/h2&gt;&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); font-size: 16px;&quot;&gt;What does your organization consider to be an entry-level gift?&lt;/span&gt;&lt;/p&gt;</fieldText>
+                    <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;What does your organization consider to be an entry-level gift?&lt;/span&gt;&lt;/p&gt;</fieldText>
                     <fieldType>DisplayText</fieldType>
                     <styleProperties>
                         <verticalAlignment>
@@ -733,7 +736,7 @@
                 <isRequired>false</isRequired>
             </fields>
             <isRequired>false</isRequired>
-            <regionContainerType>SectionWithoutHeader</regionContainerType>
+            <regionContainerType>SectionWithHeader</regionContainerType>
             <styleProperties>
                 <verticalAlignment>
                     <stringValue>top</stringValue>

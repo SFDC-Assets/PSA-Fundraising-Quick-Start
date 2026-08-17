@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>TransactionDate</fullName>
-    <description>For pledge payments, this is the *payment* date, not the pledge date (which lives on the parent commitment's `EffectiveStartDate`). Distinct from `CreatedDate` (when the org entered the gift into Salesforce).</description>
+    <description>For pledge payments, this is the *payment* date, not the pledge date (which lives on the parent commitment&apos;s `EffectiveStartDate`). Distinct from `FQS_Processed_Date__c` (when the org entered the gift).</description>
     <inlineHelpText>The date the donor made this gift — check date, credit-card charge date, or the date the wire hit. Required when Status is Paid or Fully Refunded.</inlineHelpText>
     <trackHistory>false</trackHistory>
 </CustomField>
