@@ -44,20 +44,6 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>decorate</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>richTextValue</name>
-                    <value>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;What donor tiers do for you&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Donor tiers sort every donor into one of three levels &amp;mdash; Entry, Mid, and Major &amp;mdash; based on the size of their gifts. The tier drives acknowledgement copy, stewardship routing, gift-level formulas, and the reports and dashboards that ship with FQS. Adjust the thresholds below so they match how your organization thinks about donor tiers.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Each tier has three dollar bands you can tune: &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;One-Time&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; (a single gift big enough to qualify), &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Annual&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; (fiscal-year cumulative giving), and &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Lifetime&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; (all-time cumulative giving). A donor lands in the highest tier they qualify for on any of the three bands.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;You can also rebrand the tier names &amp;mdash; use &lt;em&gt;Friend / Partner / Champion&lt;/em&gt; if that fits your voice better than Entry / Mid / Major.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Changes take up to a minute to flow through &amp;mdash; FQS writes the new thresholds to Custom Metadata, which the platform deploys asynchronously.&lt;/span&gt;&lt;/p&gt;</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:richText</componentName>
-                <identifier>flexipage_richText10</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
                     <name>flowArguments</name>
                     <value>[]</value>
                 </componentInstanceProperties>
@@ -74,6 +60,64 @@
             </componentInstance>
         </itemInstances>
         <name>Facet-5c569687-1645-46ab-af32-ad6883f7c7b8</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>decorate</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>richTextValue</name>
+                    <value>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;The Gift Entry Grid is a spreadsheet-style data entry tool. It&apos;s the right tool when you have a stack of gifts to enter that share a shape — a mail-in batch of pledge payments or an event-registration list.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Consider using grid when any of these are true:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;You&apos;re working from a batch&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a physical mail run, a bank download, an event registration export.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Your volume is steady&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — you enter gifts every day or week and the throughput matters.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;A dedicated data-entry person or team owns the workflow&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — someone who has learned the shortcuts and knows which template to pick.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Gift Entry Grid can also be used outside of a batch. The &quot;New Gift Entry&quot; on Account is the most streamlined way to enter an outright gift (sometimes called a cash gift, or a one-time gift).&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;If these don&apos;t apply, consider Guided Gift Entry. Guided Gift Entry provides a form based entry tool, more clicks and less flexibility but more direction for the user.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Templates that ship with FQS&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Every template pre-selects the right columns for the shape of the gift being entered. Pick the one that matches your batch:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Individual Outright Gifts&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — One-time cash, check, or card gifts. No pledge, no schedule — a single completed transaction per row.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Single Payment Pledges&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a pledge commitment with only one expected payment. Creates the parent Gift Commitment and its first (and only) Gift Transaction in a single row. Includes match-eligibility and restriction fields.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Pledge Payments&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — individual payments applied against pledges that already exist. Each row picks a commitment; designations cascade from the commitment&apos;s defaults.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Event Registrations&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — ticket / registration payments where part or all of the amount is fee-for-service. Includes a Fair Market Value column so the deductible portion can be split from the goods-received portion.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Undefined Batch&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — uses the default Salesforce Standard Template, a clean baseline that mirrors what Salesforce ships out of the box with no FQS columns added. Use it as a starting point when you want to build your own template from scratch.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;How to launch:&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; open Gift Batches, click &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;New&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;, pick the template that fits your batch, set expected total and count, then use the grid to enter rows. FQS ships a batch record page with step-by-step instructions for defaults, entry, dry-run, and processing.&lt;/span&gt;&lt;/p&gt;</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:richText</componentName>
+                <identifier>flexipage_richText9</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-70a9be05-6480-4420-88b6-c0bbc6bae541</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>decorate</name>
+                    <value>true</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>richTextValue</name>
+                    <value>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Guided Gift Entry is for one-off grants, pledges, gifts or other transactions.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Guided entry walks a user through a single gift one screen at a time. It&apos;s a form-based experience that asks questions to make sure the gift is entered accurately. Based on the donor, it suggests campaigns that the donor is a member of, identifies employers for matching gifts, and provides a list of related individuals. Consider guided gift entry when:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;You have a one-off gift&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a major-gift check hand-delivered or a pledge phoned in.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Your volume is inconsistent&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — some weeks you enter twenty gifts, other weeks two. For those slow weeks the guided entry might be all that&apos;s needed.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Your staff is small&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — anyone on the team may need to enter a gift, and they shouldn&apos;t have to memorize which columns go with which gift shape.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;The pledge/grant is complex&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — Guided Gift Entry can support a custom pledge/grant schedule where either the dates are inconsistently spaced and/or the amounts are not evenly divided. &lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Categories&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Guided entry starts by asking &lt;/span&gt;&lt;em style=&quot;font-size: 16px;&quot;&gt;what kind of gift are you recording?&lt;/em&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; The three top-level categories:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;1. Log an individual gift transaction&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Outright Gift&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a one-time cash / check / card gift, not tied to a pledge.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Pledge Payment&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a payment applied against an existing active commitment. Pick which commitment; designations cascade from its defaults.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Recurring Gift&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a set amount is given every month with no fixed end date, typically created through an integration with an online form tool.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;2. Set up a pledge or grant&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Single Payment&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — creates a pledge and a single payment to be given at a later date.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Multiple Payment Pledge&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a pledge with more than one expected payment. Either with even installments (monthly, quarterly, yearly) over a defined period or on a custom schedule. A custom schedule is needed when the dates are not on a regular cadence and/or the amounts are not evenly divided.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;3. Log an in-kind, earned income, or event registration&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;In-Kind Gift&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a donation of goods, services, stock, or property. Records a Fair Market Value and flags the gift as in-kind so it&apos;s excluded from cash rollups.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Earned Income&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — program-service revenue, honoraria, sponsorship where goods or services were exchanged. Kept out of donor-lifetime rollups.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Event Registration&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — ticket revenue where the deductible portion is smaller than the amount paid. Fair Market Value marks the goods-received portion; the difference is the tax-deductible gift.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;How to launch:&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; use the &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Guided Gift Entry&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; section in the right-hand sidebar of this Home page, the quick action on any donor Account, or the quick action on a Gift Commitment (for pledge payments) or Opportunity (for pledge set-up).&lt;/span&gt;&lt;/p&gt;</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:richText</componentName>
+                <identifier>flexipage_richText4</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-766c8d6c-1c89-42a2-b25a-292228c860e4</name>
+        <type>Facet</type>
+    </flexiPageRegions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>flowArguments</name>
+                    <value>[]</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>flowLayout</name>
+                    <value>oneColumn</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>flowName</name>
+                    <value>FQS_Acknowledgement_Stewardship_Tax_Guide</value>
+                </componentInstanceProperties>
+                <componentName>flowruntime:interview</componentName>
+                <identifier>flowruntime_interview_ack_steward_tax_guide</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>Facet-by42dxkgq2u</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -121,65 +165,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>richTextValue</name>
-                    <value>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;The Gift Entry Grid is a spreadsheet-style data entry tool. It&apos;s the right tool when you have a stack of gifts to enter that share a shape — a mail-in batch of pledge payments or an event-registration list.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Consider using grid when any of these are true:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;You&apos;re working from a batch&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a physical mail run, a bank download, an event registration export.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Your volume is steady&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — you enter gifts every day or week and the throughput matters.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;A dedicated data-entry person or team owns the workflow&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — someone who has learned the shortcuts and knows which template to pick.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Gift Entry Grid can also be used outside of a batch. The &quot;New Gift Entry&quot; on Account is the most streamlined way to enter an outright gift (sometimes called a cash gift, or a one-time gift).&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;If these don&apos;t apply, consider Guided Gift Entry. Guided Gift Entry provides a form based entry tool, more clicks and less flexibility but more direction for the user.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Templates that ship with FQS&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Every template pre-selects the right columns for the shape of the gift being entered. Pick the one that matches your batch:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Individual Outright Gifts&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — One-time cash, check, or card gifts. No pledge, no schedule — a single completed transaction per row.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Single Payment Pledges&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a pledge commitment with only one expected payment. Creates the parent Gift Commitment and its first (and only) Gift Transaction in a single row. Includes match-eligibility and restriction fields.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Pledge Payments&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — individual payments applied against pledges that already exist. Each row picks a commitment; designations cascade from the commitment&apos;s defaults.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Event Registrations&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — ticket / registration payments where part or all of the amount is fee-for-service. Includes a Fair Market Value column so the deductible portion can be split from the goods-received portion.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Undefined Batch&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — uses the default Salesforce Standard Template, a clean baseline that mirrors what Salesforce ships out of the box with no FQS columns added. Use it as a starting point when you want to build your own template from scratch.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;How to launch:&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; open Gift Batches, click &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;New&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;, pick the template that fits your batch, set expected total and count, then use the grid to enter rows. FQS ships a batch record page with step-by-step instructions for defaults, entry, dry-run, and processing.&lt;/span&gt;&lt;/p&gt;</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:richText</componentName>
-                <identifier>flexipage_richText9</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-70a9be05-6480-4420-88b6-c0bbc6bae541</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>decorate</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>richTextValue</name>
-                    <value>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Guided Gift Entry is for one-off grants, pledges, gifts or other transactions.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Guided entry walks a user through a single gift one screen at a time. It&apos;s a form-based experience that asks questions to make sure the gift is entered accurately. Based on the donor, it suggests campaigns that the donor is a member of, identifies employers for matching gifts, and provides a list of related individuals. Consider guided gift entry when:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;You have a one-off gift&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a major-gift check hand-delivered or a pledge phoned in.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Your volume is inconsistent&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — some weeks you enter twenty gifts, other weeks two. For those slow weeks the guided entry might be all that&apos;s needed.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Your staff is small&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — anyone on the team may need to enter a gift, and they shouldn&apos;t have to memorize which columns go with which gift shape.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;The pledge/grant is complex&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — Guided Gift Entry can support a custom pledge/grant schedule where either the dates are inconsistently spaced and/or the amounts are not evenly divided. &lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Categories&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Guided entry starts by asking &lt;/span&gt;&lt;em style=&quot;font-size: 16px;&quot;&gt;what kind of gift are you recording?&lt;/em&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; The three top-level categories:&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;1. Log an individual gift transaction&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Outright Gift&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a one-time cash / check / card gift, not tied to a pledge.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Pledge Payment&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a payment applied against an existing active commitment. Pick which commitment; designations cascade from its defaults.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Recurring Gift&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a fixed amount given on a recurring schedule (typically monthly) with no fixed end date, usually created through an online donation form integration. &lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;2. Set up a pledge or grant&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Single Payment&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — creates a pledge and a single payment to be given at a later date.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Multiple Payment Pledge&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a pledge with more than one expected payment. Either even installments (monthly, quarterly, yearly) over a defined period, or a custom schedule when dates are irregular and/or amounts vary. &lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;3. Log an in-kind, earned income, or event registration&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;In-Kind Gift&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — a donation of goods, services, stock, or property. Records a Fair Market Value and flags the gift as in-kind so it&apos;s excluded from cash rollups.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Earned Income&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — program-service revenue, honoraria, sponsorship where goods or services were exchanged. Kept out of donor-lifetime rollups.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Event Registration&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; — ticket revenue where the deductible portion is smaller than the amount paid. Fair Market Value marks the goods-received portion; the difference is the tax-deductible gift.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;How to launch:&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; use the &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Guided Gift Entry&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; section in the right-hand sidebar of this Home page, the quick action on any donor Account, or the quick action on a Gift Commitment (for pledge payments) or Opportunity (for pledge set-up).&lt;/span&gt;&lt;/p&gt;</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:richText</componentName>
-                <identifier>flexipage_richText4</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-766c8d6c-1c89-42a2-b25a-292228c860e4</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>flowArguments</name>
-                    <value>[]</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>flowLayout</name>
-                    <value>oneColumn</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>flowName</name>
-                    <value>FQS_Acknowledgement_Stewardship_Tax_Guide</value>
-                </componentInstanceProperties>
-                <componentName>flowruntime:interview</componentName>
-                <identifier>flowruntime_interview_ack_steward_tax_guide</identifier>
-            </componentInstance>
-        </itemInstances>
-        <name>Facet-by42dxkgq2u</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>decorate</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>richTextValue</name>
-                    <value>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Turn the automation on when you&apos;re ready.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;FQS ships two scheduled flows and three email templates that drive the acknowledgement and stewardship pipeline. Both flows install &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;deactivated&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; so an accidental install doesn&apos;t send placeholder copy to real donors.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Scheduled flows&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; (Setup &amp;rarr; Flows):&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Gift Acknowledgement&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; runs daily at 06:00 UTC. Emails or creates a task for every paid gift older than 3 days that hasn&apos;t been acknowledged.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Stewardship Response&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; runs daily at 07:00 UTC. Sends a tier-differentiated mission touch ~14 days after the acknowledgement.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Email templates&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; (Setup &amp;rarr; Email Templates &amp;rarr; Public folder) &amp;mdash; rewrite before activating the flows above:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Gift Acknowledgement&lt;/strong&gt; &amp;mdash; full-deduction acknowledgement (default).&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Gift Acknowledgement (Partial Deduction)&lt;/strong&gt; &amp;mdash; used when Tax Deduction Amount &amp;lt; Current Amount (event tickets, in-kind, quid-pro-quo).&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Stewardship Response (Standard)&lt;/strong&gt; &amp;mdash; the mission touch.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Queues&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; (Setup &amp;rarr; Queues) &amp;mdash; add members so tasks route to real humans:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Stewardship Tasks&lt;/strong&gt; &amp;mdash; mid-tier stewardship follow-ups.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Gift Processing Tasks&lt;/strong&gt; &amp;mdash; acknowledgement and gift-entry tasks that need a human.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Major Donor Tasks&lt;/strong&gt; &amp;mdash; prospect research, proposal drafting, cultivation.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;&lt;strong&gt;Executive Fundraising Tasks&lt;/strong&gt; &amp;mdash; handwritten notes and other high-touch actions for the ED or Board.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Suggested activation order:&lt;/strong&gt;&lt;/p&gt;&lt;ol&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Rewrite the three email templates so nothing placeholder can ship.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Add queue members to at least the two Tasks queues the acknowledgement + stewardship flows fall back to.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Confirm stewardship routing per tier in step 7 above.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Activate &lt;strong&gt;FQS Gift Acknowledgement&lt;/strong&gt; first; watch the &lt;em&gt;To Be Acknowledged&lt;/em&gt; sidebar list drain over a few days.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Activate &lt;strong&gt;FQS Stewardship Response&lt;/strong&gt; once acknowledgements are landing cleanly; watch the &lt;em&gt;To Be Stewarded&lt;/em&gt; list.&lt;/span&gt;&lt;/li&gt;&lt;/ol&gt;</value>
+                    <value>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Review the other automation FQS ships.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Beyond stewardship, acknowledgement, and gift entry (covered in earlier sections), FQS ships a set of behind-the-scenes flows that keep records named, campaign memberships accurate, rollups fresh, and gift commitments processing correctly. Most are active by default; a few need queue members before their tasks route to humans. Nothing here needs configuration to work &amp;mdash; but reviewing what&apos;s running helps you understand where derived values come from and which flows to gate with the &lt;strong&gt;FQS Bypass Automation&lt;/strong&gt; permission set during data loads.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Naming and categorization&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; (before-save, no DML):&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Auto-Name Gift Transaction / Gift Commitment / Opportunity&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; writes a human-readable Name onto each record on create/update.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Auto-Category Gift Transaction&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; derives &lt;em&gt;FQS Gift Transaction Category&lt;/em&gt; (Outright / Pledge Payment / Recurring / Grant / In-Kind / Earned Income / Event Registration) so reports and dashboards can group by intent.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Campaign membership and hierarchy&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Campaign Auto-Members Default&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; on Campaign insert, checks &lt;em&gt;Enable Automatic Campaign Members&lt;/em&gt; on Tactical (Level 3) campaigns only; rollup levels stay unchecked.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Campaign Member Status &amp;mdash; Ladder / On Commitment / On Gift Transaction&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; seeds the Sent / Responded / Attended ladder on tactical campaigns, then keeps CampaignMember.Status in sync as commitments and transactions land, cancel, or refund.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Campaign Child Count (Update / Delete)&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; maintains rollup counts on Strategic and Operational parents when children move between hierarchies.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Campaign Create First OSC&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; provisions the first Outreach Source Code on a Tactical campaign when &lt;em&gt;Create First Outreach Source Code&lt;/em&gt; is checked (by the Campaign Hierarchy Setup flow or by an admin).&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Gift Commitment lifecycle&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Coordinate Gift Commitment Processing&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; resolves the enabled Fundraising Cloud processing-engine version and hands off to the platform-managed processor. Runs on GC insert / activation.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS GC Fulfillment (From GDD / On Change / Recalculate)&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; recomputes GC &lt;em&gt;Fulfillment Type&lt;/em&gt; whenever a linked Gift Default Designation changes or the &lt;em&gt;Restriction Release Date&lt;/em&gt; moves. Keeps &quot;restricted vs unrestricted&quot; classification current without a nightly job.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Manage Gift Commitment Actions&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; the quick-action screen flow on GC record pages; presents Pause / Resume / Cancel / Adjust and calls the matching platform-managed action. No configuration needed.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Refunds&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Refund Gift&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; quick action on Gift Transaction. Creates a Gift Refund child in &lt;em&gt;Completed&lt;/em&gt; status; Fundraising Cloud cascades the effect to rollups and campaign members.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Refund Gift From Donor&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; account-side launcher for the same refund action; picks a GT from the donor&apos;s history first.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Scheduled rollups&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Automatic Rollup Updates&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; daily scheduled flow that invokes &lt;em&gt;Manage Fundraising Definitions&lt;/em&gt; to refresh Donor Gift Summary, Outreach Summary, and Gift Designation rollups. Installed &lt;strong&gt;deactivated&lt;/strong&gt;. Activate once you&apos;re past initial data load so overnight rollups stay current.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Queues&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; (Setup &amp;rarr; Queues) &amp;mdash; add members so tasks fired by the acknowledgement, stewardship, and refund flows route to real humans:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Stewardship Tasks&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; mid-tier stewardship follow-ups.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Gift Processing Tasks&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; acknowledgement and gift-entry tasks that need a human.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Major Donor Tasks&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; prospect research, proposal drafting, cultivation.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Executive Fundraising Tasks&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; &amp;mdash; handwritten notes and other high-touch actions for the ED or Board.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Bypass&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;: every record-triggered flow above checks the &lt;/span&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;FQS Bypass Automation&lt;/strong&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt; permission set. Assign it to your data-load user during bulk imports so triggers don&apos;t fire per row; assign a reconciler script (&lt;/span&gt;&lt;em style=&quot;font-size: 16px;&quot;&gt;scripts/apex/*-recalc-*.apex&lt;/em&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;) after the load to backfill derived state.&lt;/span&gt;&lt;/p&gt;</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:richText</componentName>
                 <identifier>flexipage_richText_review_automation</identifier>
@@ -265,29 +251,11 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-766c8d6c-1c89-42a2-b25a-292228c860e4</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>4. Review Guided Gift Entry</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>name</name>
-                    <value>accordionSection--01dm86kl5ka7</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:accordionSection</componentName>
-                <identifier>flexipage_accordionSection14</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
                     <value>Facet-70a9be05-6480-4420-88b6-c0bbc6bae541</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>5. Enter Gift Batches with Gift Entry Grid</value>
+                    <value>4. Enter Gift Batches with Gift Entry Grid</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>name</name>
@@ -295,6 +263,24 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:accordionSection</componentName>
                 <identifier>flexipage_accordionSection13</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-766c8d6c-1c89-42a2-b25a-292228c860e4</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>5. Review Guided Gift Entry</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>name</name>
+                    <value>accordionSection--01dm86kl5ka7</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>flexipage_accordionSection14</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>
@@ -341,7 +327,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>label</name>
-                    <value>8. Review Automation</value>
+                    <value>8. Review Automation and Queue Membership</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>name</name>
@@ -574,6 +560,10 @@
                     <name>accordionSections</name>
                     <value>Facet-5273a981-753f-4678-b013-241c82b836f3</value>
                 </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>defaultSectionName</name>
+                    <value>accordionSection2</value>
+                </componentInstanceProperties>
                 <componentName>flexipage:accordion</componentName>
                 <identifier>flexipage_accordion2</identifier>
             </componentInstance>
@@ -697,6 +687,10 @@
                     <name>accordionSections</name>
                     <value>Facet-d3t6bzddn08</value>
                 </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>defaultSectionName</name>
+                    <value>accordionSection2</value>
+                </componentInstanceProperties>
                 <componentName>flexipage:accordion</componentName>
                 <identifier>flexipage_accordion3</identifier>
             </componentInstance>
@@ -764,13 +758,13 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>flowName</name>
-                    <value>FQS_Guided_Gift_Entry_HomePage</value>
+                    <value>FQS_Create_Gift_Batch</value>
                 </componentInstanceProperties>
                 <componentName>flowruntime:interview</componentName>
-                <identifier>flowruntime_interview_guided_gift_entry</identifier>
+                <identifier>flowruntime_interview_create_gift_batch</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-guided-gift-entry-home</name>
+        <name>Facet-create-gift-batch-home</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -786,13 +780,13 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>flowName</name>
-                    <value>FQS_Create_Gift_Batch</value>
+                    <value>FQS_Guided_Gift_Entry_HomePage</value>
                 </componentInstanceProperties>
                 <componentName>flowruntime:interview</componentName>
-                <identifier>flowruntime_interview_create_gift_batch</identifier>
+                <identifier>flowruntime_interview_guided_gift_entry</identifier>
             </componentInstance>
         </itemInstances>
-        <name>Facet-create-gift-batch-home</name>
+        <name>Facet-guided-gift-entry-home</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -864,24 +858,6 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-guided-gift-entry-home</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Guided Gift Entry</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>name</name>
-                    <value>accordionSection--guided-gift-entry</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:accordionSection</componentName>
-                <identifier>flexipage_accordionSection_guided_gift_entry</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
                     <value>Facet-create-gift-batch-home</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
@@ -894,6 +870,24 @@
                 </componentInstanceProperties>
                 <componentName>flexipage:accordionSection</componentName>
                 <identifier>flexipage_accordionSection_create_gift_batch</identifier>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
+                <componentInstanceProperties>
+                    <name>body</name>
+                    <value>Facet-guided-gift-entry-home</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>label</name>
+                    <value>Guided Gift Entry</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>name</name>
+                    <value>accordionSection--guided-gift-entry</value>
+                </componentInstanceProperties>
+                <componentName>flexipage:accordionSection</componentName>
+                <identifier>flexipage_accordionSection_guided_gift_entry</identifier>
             </componentInstance>
         </itemInstances>
         <itemInstances>

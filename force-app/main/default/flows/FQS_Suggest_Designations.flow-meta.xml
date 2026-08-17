@@ -3,54 +3,19 @@
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
-        <name>Assign_General_Operating</name>
-        <label>Stage General Operating</label>
+        <name>Append_Selected_To_Create</name>
+        <label>Append Selected Row</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
-            <assignToReference>rsv_Candidate.Name</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>FQS General Operating Fund</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.Description</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>The unrestricted default. Every FQS install ships with this as the org-wide default so the platform&apos;s activate-schedule action has a fallback designation.</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.FQS_Restriction_Type__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Without Donor Restriction</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.IsActive</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.IsDefault</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>col_Candidates</assignToReference>
+            <assignToReference>col_NewDesignations</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference>rsv_Candidate</elementReference>
+                <elementReference>Loop_Selected_Rows</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Decide_Include_Board_Designated</targetReference>
+            <targetReference>Loop_Selected_Rows</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -105,6 +70,57 @@
         </connector>
     </assignments>
     <assignments>
+        <name>Assign_Capital_Campaign</name>
+        <label>Stage Capital Campaign</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.Name</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>FQS Capital Campaign Fund</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Capital-project purpose (building, renovation, major equipment above the capitalization threshold). Capital gifts release when the asset is placed in service, not on a schedule.</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.FQS_Restriction_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>With Donor Restriction - Purpose</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.IsActive</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.IsDefault</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>col_Candidates</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>rsv_Candidate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_Include_Endowment</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Assign_Cash_Reserve</name>
         <label>Stage Cash Reserve</label>
         <locationX>0</locationX>
@@ -156,6 +172,210 @@
         </connector>
     </assignments>
     <assignments>
+        <name>Assign_Endowment</name>
+        <label>Stage Endowment</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.Name</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>FQS Endowment</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Endowment principal is held indefinitely; only earnings are spendable. Add named endowments (e.g., Smith Family Scholarship Endowment) as your program grows.</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.FQS_Restriction_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>With Donor Restriction - Permanent</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.IsActive</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.IsDefault</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>col_Candidates</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>rsv_Candidate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_Include_Events</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Equipment_Supply</name>
+        <label>Stage Equipment and Supply</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.Name</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>FQS Equipment and Supply Fund</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Purpose can be tangible non-capital spending: below-capitalization-threshold equipment, consumable supplies. Distinct from Capital Campaign Fund.</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.FQS_Restriction_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>With Donor Restriction - Purpose</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.IsActive</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.IsDefault</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>col_Candidates</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>rsv_Candidate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_Include_Staff_Salary</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Events</name>
+        <label>Stage Events</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.Name</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>FQS Events</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Exchange-transaction revenue: gala ticket sales, event registration, workshop admission. Distinct from a donation given AT an event, this is what the ticket itself was worth.</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.FQS_Restriction_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Earned Revenue</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.IsActive</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.IsDefault</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>col_Candidates</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>rsv_Candidate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_Include_Merchandise</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_General_Operating</name>
+        <label>Stage General Operating</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.Name</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>FQS General Operating Fund</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>The unrestricted default. Every FQS install ships with this as the org-wide default so the platform&apos;s activate-schedule action has a fallback designation.</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.FQS_Restriction_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Without Donor Restriction</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.IsActive</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.IsDefault</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>col_Candidates</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>rsv_Candidate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_Include_Board_Designated</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Assign_General_Program</name>
         <label>Stage General Program</label>
         <locationX>0</locationX>
@@ -204,6 +424,281 @@
         </assignmentItems>
         <connector>
             <targetReference>Decide_Include_Program_A</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_Board_Designated</name>
+        <label>Mark Board Designated Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsBoardDesignated</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_Capital_Campaign</name>
+        <label>Mark Capital Campaign Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsCapitalCampaign</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_Cash_Reserve</name>
+        <label>Mark Cash Reserve Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsCashReserve</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_Endowment</name>
+        <label>Mark Endowment Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsEndowment</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_Equipment_Supply</name>
+        <label>Mark Equipment and Supply Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsEquipmentSupply</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_Events</name>
+        <label>Mark Events Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsEvents</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_Exists_By_Name</name>
+        <label>Mark Existing By Name</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsGeneralOperating</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_General_Program</name>
+        <label>Mark General Program Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsGeneralProgram</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_Merchandise</name>
+        <label>Mark Merchandise Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsMerchandise</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_Program_A</name>
+        <label>Mark Program A Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsProgramA</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_Program_B</name>
+        <label>Mark Program B Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsProgramB</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_Program_Expansion</name>
+        <label>Mark Program Expansion Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsProgramExpansion</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_Program_Services</name>
+        <label>Mark Program Services Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsProgramServices</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Mark_Staff_Salary</name>
+        <label>Mark Staff Salary Exists</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>var_ExistsStaffSalary</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Existing_Designations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Merchandise</name>
+        <label>Stage Merchandise</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.Name</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>FQS Merchandise</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Sale of goods: t-shirts, books, branded items. Exchange transaction, not a contribution. The buyer received something of equivalent value.</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.FQS_Restriction_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Earned Revenue</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.IsActive</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>rsv_Candidate.IsDefault</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>col_Candidates</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>rsv_Candidate</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decide_Include_Program_Services</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -360,29 +855,29 @@
         </connector>
     </assignments>
     <assignments>
-        <name>Assign_Equipment_Supply</name>
-        <label>Stage Equipment and Supply</label>
+        <name>Assign_Program_Services</name>
+        <label>Stage Program Services</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <assignmentItems>
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS Equipment and Supply Fund</stringValue>
+                <stringValue>FQS Program Services</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>rsv_Candidate.Description</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>Purpose can be tangible non-capital spending: below-capitalization-threshold equipment, consumable supplies. Distinct from Capital Campaign Fund.</stringValue>
+                <stringValue>Program-related fee revenue: participation fees, consulting retainers, service delivery charges. Distinct from a program-restricted donation.</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>rsv_Candidate.FQS_Restriction_Type__c</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>With Donor Restriction - Purpose</stringValue>
+                <stringValue>Earned Revenue</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -407,7 +902,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Decide_Include_Staff_Salary</targetReference>
+            <targetReference>Decide_Any_Candidates</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -461,501 +956,406 @@
             <targetReference>Decide_Include_Capital_Campaign</targetReference>
         </connector>
     </assignments>
-    <assignments>
-        <name>Assign_Capital_Campaign</name>
-        <label>Stage Capital Campaign</label>
+    <decisions>
+        <name>Decide_Any_Candidates</name>
+        <label>Any Starters Missing?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.Name</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>FQS Capital Campaign Fund</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.Description</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Capital-project purpose (building, renovation, major equipment above the capitalization threshold). Capital gifts release when the asset is placed in service, not on a schedule.</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.FQS_Restriction_Type__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>With Donor Restriction - Purpose</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.IsActive</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.IsDefault</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>col_Candidates</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>rsv_Candidate</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
+        <defaultConnector>
+            <targetReference>Screen_All_Present</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>None</defaultConnectorLabel>
+        <rules>
+            <name>Has_Candidates</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>col_Candidates</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Screen_Pick_Designations</targetReference>
+            </connector>
+            <label>At least one</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Any_Selected</name>
+        <label>Any Rows Selected?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Screen_Nothing_Selected</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>None</defaultConnectorLabel>
+        <rules>
+            <name>Rows_Selected</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>col_NewDesignations</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_Designations</targetReference>
+            </connector>
+            <label>At least one</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_Board_Designated</name>
+        <label>Stage Board Designated?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Decide_Include_Cash_Reserve</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_Board_Designated</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsBoardDesignated</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Board_Designated</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_Capital_Campaign</name>
+        <label>Stage Capital Campaign?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
             <targetReference>Decide_Include_Endowment</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Endowment</name>
-        <label>Stage Endowment</label>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_Capital_Campaign</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsCapitalCampaign</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Capital_Campaign</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_Cash_Reserve</name>
+        <label>Stage Cash Reserve?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.Name</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>FQS Endowment</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.Description</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Endowment principal is held indefinitely; only earnings are spendable. Add named endowments (e.g., Smith Family Scholarship Endowment) as your program grows.</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.FQS_Restriction_Type__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>With Donor Restriction - Permanent</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.IsActive</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.IsDefault</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>col_Candidates</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>rsv_Candidate</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
+        <defaultConnector>
+            <targetReference>Decide_Include_General_Program</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_Cash_Reserve</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsCashReserve</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Cash_Reserve</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_Endowment</name>
+        <label>Stage Endowment?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
             <targetReference>Decide_Include_Events</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Events</name>
-        <label>Stage Events</label>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_Endowment</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsEndowment</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Endowment</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_Equipment_Supply</name>
+        <label>Stage Equipment and Supply?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.Name</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>FQS Events</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.Description</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Exchange-transaction revenue: gala ticket sales, event registration, workshop admission. Distinct from a donation given AT an event, this is what the ticket itself was worth.</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.FQS_Restriction_Type__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Earned Revenue</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.IsActive</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.IsDefault</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>col_Candidates</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>rsv_Candidate</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
+        <defaultConnector>
+            <targetReference>Decide_Include_Staff_Salary</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_Equipment_Supply</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsEquipmentSupply</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Equipment_Supply</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_Events</name>
+        <label>Stage Events?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
             <targetReference>Decide_Include_Merchandise</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Merchandise</name>
-        <label>Stage Merchandise</label>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_Events</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsEvents</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Events</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_General_Operating</name>
+        <label>Stage General Operating?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.Name</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>FQS Merchandise</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.Description</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Sale of goods: t-shirts, books, branded items. Exchange transaction, not a contribution. The buyer received something of equivalent value.</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.FQS_Restriction_Type__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Earned Revenue</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.IsActive</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.IsDefault</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>col_Candidates</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>rsv_Candidate</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
+        <defaultConnector>
+            <targetReference>Decide_Include_Board_Designated</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_General_Operating</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsGeneralOperating</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_General_Operating</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_General_Program</name>
+        <label>Stage General Program?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Decide_Include_Program_A</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_General_Program</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsGeneralProgram</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_General_Program</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_Merchandise</name>
+        <label>Stage Merchandise?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
             <targetReference>Decide_Include_Program_Services</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Program_Services</name>
-        <label>Stage Program Services</label>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_Merchandise</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsMerchandise</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Merchandise</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_Program_A</name>
+        <label>Stage Program A?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.Name</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>FQS Program Services</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.Description</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Program-related fee revenue: participation fees, consulting retainers, service delivery charges. Distinct from a program-restricted donation.</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.FQS_Restriction_Type__c</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Earned Revenue</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.IsActive</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>rsv_Candidate.IsDefault</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>col_Candidates</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>rsv_Candidate</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
+        <defaultConnector>
+            <targetReference>Decide_Include_Program_B</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_Program_A</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsProgramA</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Program_A</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_Program_B</name>
+        <label>Stage Program B?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Decide_Include_Program_Expansion</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_Program_B</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsProgramB</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Program_B</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_Program_Expansion</name>
+        <label>Stage Program Expansion?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Decide_Include_Equipment_Supply</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_Program_Expansion</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsProgramExpansion</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Program_Expansion</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_Program_Services</name>
+        <label>Stage Program Services?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
             <targetReference>Decide_Any_Candidates</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_Exists_By_Name</name>
-        <label>Mark Existing By Name</label>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_Program_Services</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsProgramServices</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Program_Services</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Decide_Include_Staff_Salary</name>
+        <label>Stage Staff Salary?</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsGeneralOperating</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_Board_Designated</name>
-        <label>Mark Board Designated Exists</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsBoardDesignated</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_Cash_Reserve</name>
-        <label>Mark Cash Reserve Exists</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsCashReserve</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_General_Program</name>
-        <label>Mark General Program Exists</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsGeneralProgram</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_Program_A</name>
-        <label>Mark Program A Exists</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsProgramA</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_Program_B</name>
-        <label>Mark Program B Exists</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsProgramB</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_Program_Expansion</name>
-        <label>Mark Program Expansion Exists</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsProgramExpansion</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_Equipment_Supply</name>
-        <label>Mark Equipment and Supply Exists</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsEquipmentSupply</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_Staff_Salary</name>
-        <label>Mark Staff Salary Exists</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsStaffSalary</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_Capital_Campaign</name>
-        <label>Mark Capital Campaign Exists</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsCapitalCampaign</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_Endowment</name>
-        <label>Mark Endowment Exists</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsEndowment</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_Events</name>
-        <label>Mark Events Exists</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsEvents</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_Merchandise</name>
-        <label>Mark Merchandise Exists</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsMerchandise</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Assign_Mark_Program_Services</name>
-        <label>Mark Program Services Exists</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>var_ExistsProgramServices</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Existing_Designations</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Append_Selected_To_Create</name>
-        <label>Append Selected Row</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>col_NewDesignations</assignToReference>
-            <operator>Add</operator>
-            <value>
-                <elementReference>Loop_Selected_Rows</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Selected_Rows</targetReference>
-        </connector>
-    </assignments>
+        <defaultConnector>
+            <targetReference>Decide_Include_Capital_Campaign</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Skip</defaultConnectorLabel>
+        <rules>
+            <name>Include_Staff_Salary</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>var_ExistsStaffSalary</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Staff_Salary</targetReference>
+            </connector>
+            <label>Add</label>
+        </rules>
+    </decisions>
     <decisions>
         <name>Decide_Which_Existing</name>
         <label>Which Existing Designation?</label>
@@ -1176,406 +1576,6 @@
             <label>Program Services</label>
         </rules>
     </decisions>
-    <decisions>
-        <name>Decide_Include_General_Operating</name>
-        <label>Stage General Operating?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Include_Board_Designated</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_General_Operating</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsGeneralOperating</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_General_Operating</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Include_Board_Designated</name>
-        <label>Stage Board Designated?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Include_Cash_Reserve</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_Board_Designated</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsBoardDesignated</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_Board_Designated</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Include_Cash_Reserve</name>
-        <label>Stage Cash Reserve?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Include_General_Program</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_Cash_Reserve</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsCashReserve</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_Cash_Reserve</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Include_General_Program</name>
-        <label>Stage General Program?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Include_Program_A</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_General_Program</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsGeneralProgram</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_General_Program</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Include_Program_A</name>
-        <label>Stage Program A?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Include_Program_B</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_Program_A</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsProgramA</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_Program_A</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Include_Program_B</name>
-        <label>Stage Program B?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Include_Program_Expansion</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_Program_B</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsProgramB</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_Program_B</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Include_Program_Expansion</name>
-        <label>Stage Program Expansion?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Include_Equipment_Supply</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_Program_Expansion</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsProgramExpansion</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_Program_Expansion</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Include_Equipment_Supply</name>
-        <label>Stage Equipment and Supply?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Include_Staff_Salary</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_Equipment_Supply</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsEquipmentSupply</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_Equipment_Supply</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Include_Staff_Salary</name>
-        <label>Stage Staff Salary?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Include_Capital_Campaign</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_Staff_Salary</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsStaffSalary</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_Staff_Salary</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Include_Capital_Campaign</name>
-        <label>Stage Capital Campaign?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Include_Endowment</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_Capital_Campaign</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsCapitalCampaign</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_Capital_Campaign</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Include_Endowment</name>
-        <label>Stage Endowment?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Include_Events</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_Endowment</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsEndowment</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_Endowment</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Include_Events</name>
-        <label>Stage Events?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Include_Merchandise</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_Events</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsEvents</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_Events</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Include_Merchandise</name>
-        <label>Stage Merchandise?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Include_Program_Services</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_Merchandise</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsMerchandise</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_Merchandise</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Include_Program_Services</name>
-        <label>Stage Program Services?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Decide_Any_Candidates</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Skip</defaultConnectorLabel>
-        <rules>
-            <name>Include_Program_Services</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>var_ExistsProgramServices</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Assign_Program_Services</targetReference>
-            </connector>
-            <label>Add</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Any_Candidates</name>
-        <label>Any Starters Missing?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Screen_All_Present</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>None</defaultConnectorLabel>
-        <rules>
-            <name>Has_Candidates</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>col_Candidates</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Screen_Pick_Designations</targetReference>
-            </connector>
-            <label>At least one</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Decide_Any_Selected</name>
-        <label>Any Rows Selected?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Screen_Nothing_Selected</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>None</defaultConnectorLabel>
-        <rules>
-            <name>Rows_Selected</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>col_NewDesignations</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Create_Designations</targetReference>
-            </connector>
-            <label>At least one</label>
-        </rules>
-    </decisions>
     <description>Setup-time Screen Flow that seeds a starter Gift Designation catalog. Admin sees a datatable pre-populated with 14 curated starter designations across the four restriction categories; each row has editable Name + Description and a read-only Restriction Type badge. User un-ticks any they do not want, edits any names/descriptions inline, and clicks Next to insert the selected rows via recordCreates. Idempotent: queries existing designations by Name and silently omits any already present in the org, so the flow can be re-run to top up missing starters.</description>
     <interviewLabel>FQS Suggest Designations {!$Flow.CurrentDateTime}</interviewLabel>
     <label>FQS Suggest Designations</label>
@@ -1644,6 +1644,7 @@
         <label>Get Existing Designations by Name</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Loop_Existing_Designations</targetReference>
         </connector>
@@ -1654,6 +1655,54 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <runInMode>DefaultMode</runInMode>
+    <screens>
+        <name>Screen_All_Present</name>
+        <label>Starter Catalog Already Complete</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>DisplayText_All_Present</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Every starter designation is already in your org.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Nothing to do here. Click Finish to exit. To add non-starter designations, create them directly on the Gift Designation object.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>Screen_Create_Fault</name>
+        <label>Could Not Create Designations</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>DisplayText_Fault</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;The flow could not create the selected designations.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Common causes:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Your permission set does not grant Create on Gift Designation. Ensure FQS Custom Fields (or an equivalent permset) is assigned.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;An org-wide default is already set on another Gift Designation. Only one Gift Designation can carry IsDefault = TRUE at a time.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;A validation rule or trigger on Gift Designation rejected the insert.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Close this flow, resolve the cause, and relaunch it.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;Fault message: &lt;/span&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
     <screens>
         <name>Screen_Intro</name>
         <label>Seed Your Gift Designation Catalog</label>
@@ -1669,6 +1718,38 @@
             <name>DisplayText_Intro</name>
             <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Review Suggested Designations.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Gift Designations help you record and understand donor intent, and in some cases the reason behind the gift. In the next screen you will see a set of suggested designations, choose the ones that make the most sense for your organization.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;All organizations will need one default designation, typically an unrestricted or general operating fund. Beyond that, designations can be used to track a variety of purposes (specific programs or specific expense categories) or for permanent restrictions. Typically designations are not created for time-based restrictions, those are set on the gift itself through entering the &apos;Restriction Release Date&apos;.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;On the next screen, pick which designations serve your organization&apos;s needs. These are meant to be a starter set, with some generic names, you can rename and manually edit any of these later from the Gift Designation record page.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;em style=&quot;font-size: 14px;&quot;&gt;This release ships 14 starter entries across the four restriction categories: Without Donor Restriction, With Donor Restriction - Purpose, With Donor Restriction - Permanent, and Earned Revenue.&lt;/em&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;em style=&quot;font-size: 14px;&quot;&gt;This flow is safe to re-run. Any starter designation already in your org (matched by exact Name) is skipped, and only the new picks are created. Re-run any time to add designations you unchecked earlier.&lt;/em&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>Screen_Nothing_Selected</name>
+        <label>No Rows Selected</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>DisplayText_Nothing_Selected</name>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;No rows were selected.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Nothing was created. Click Previous to select at least one row, or Finish to exit without creating any designations.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
@@ -1688,6 +1769,14 @@
             <name>DisplayText_Pick_Intro</name>
             <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Every starter designation missing from your org is pre-selected below. Un-tick any you do not want. Edit Name or Description inline; Restriction Type is fixed for these starters and can be changed later from the record page.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;em style=&quot;font-size: 14px;&quot;&gt;A note on time restrictions: FQS deliberately does not offer a &quot;With Donor Restriction - Time&quot; category on the designation. A designation names&lt;/em&gt;&lt;em style=&quot;font-size: 14px;&quot;&gt; what &lt;/em&gt;&lt;em style=&quot;font-size: 14px;&quot;&gt;the money is for, not&lt;/em&gt;&lt;em style=&quot;font-size: 14px;&quot;&gt; when &lt;/em&gt;&lt;em style=&quot;font-size: 14px;&quot;&gt;it becomes spendable. Time boundaries (e.g., FY2027, or &quot;hold until the building opens&quot;) belong on the individual gift instead, on the &lt;/em&gt;&lt;strong style=&quot;font-size: 14px;&quot;&gt;&lt;em&gt;Restriction Release Date&lt;/em&gt;&lt;/strong&gt;&lt;em style=&quot;font-size: 14px;&quot;&gt; field on the Gift Commitment or Gift Transaction. That lets one purpose-restricted designation (e.g., &quot;Building Fund&quot;) carry gifts with many different release dates without proliferating year-suffixed designations.&lt;/em&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <fields>
             <name>DesignationsDataTable</name>
@@ -1744,38 +1833,14 @@
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <storeOutputAutomatically>true</storeOutputAutomatically>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>false</showHeader>
-    </screens>
-    <screens>
-        <name>Screen_All_Present</name>
-        <label>Starter Catalog Already Complete</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>false</allowPause>
-        <fields>
-            <name>DisplayText_All_Present</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Every starter designation is already in your org.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Nothing to do here. Click Finish to exit. To add non-starter designations, create them directly on the Gift Designation object.&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>false</showHeader>
-    </screens>
-    <screens>
-        <name>Screen_Nothing_Selected</name>
-        <label>No Rows Selected</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <allowBack>true</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>false</allowPause>
-        <fields>
-            <name>DisplayText_Nothing_Selected</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;No rows were selected.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Nothing was created. Click Previous to select at least one row, or Finish to exit without creating any designations.&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
@@ -1790,24 +1855,16 @@
         <allowPause>false</allowPause>
         <fields>
             <name>DisplayText_Success</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Your Gift Designation catalog is seeded.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;You can retire any of these later by setting IsActive = FALSE on the record page. Retired designations remain queryable and remain valid for back-dated gifts.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;em style=&quot;font-size: 14px;&quot;&gt;This flow is safe to re-run. Any starter designation already in your org (matched by exact Name) is silently omitted from the picker, and only the new picks are created.&lt;/em&gt;&lt;/p&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;Your selected Gift Designation records are created.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;You can retire any of these at any time by setting IsActive = FALSE on the record page. Retired designations remain queryable and remain valid for back-dated gifts.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;em style=&quot;font-size: 14px;&quot;&gt;This flow is safe to re-run. Any starter designation already in your org (matched by exact Name) is skipped, and only the new picks are created. Re-run any time to add designations you unchecked earlier.&lt;/em&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>false</showHeader>
-    </screens>
-    <screens>
-        <name>Screen_Create_Fault</name>
-        <label>Could Not Create Designations</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <allowBack>false</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>false</allowPause>
-        <fields>
-            <name>DisplayText_Fault</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 16px;&quot;&gt;The flow could not create the selected designations.&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Common causes:&lt;/span&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Your permission set does not grant Create on Gift Designation. Ensure FQS Custom Fields (or an equivalent permset) is assigned.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;An org-wide default is already set on another Gift Designation. Only one Gift Designation can carry IsDefault = TRUE at a time.&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;A validation rule or trigger on Gift Designation rejected the insert.&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 16px;&quot;&gt;Close this flow, resolve the cause, and relaunch it.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;Fault message: &lt;/span&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;{!$Flow.FaultMessage}&lt;/span&gt;&lt;/p&gt;</fieldText>
-            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>false</showHeader>
@@ -1820,14 +1877,6 @@
         </connector>
     </start>
     <status>Active</status>
-    <variables>
-        <name>rsv_Candidate</name>
-        <dataType>SObject</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <objectType>GiftDesignation</objectType>
-    </variables>
     <variables>
         <name>col_Candidates</name>
         <dataType>SObject</dataType>
@@ -1845,7 +1894,15 @@
         <objectType>GiftDesignation</objectType>
     </variables>
     <variables>
-        <name>var_ExistsGeneralOperating</name>
+        <name>rsv_Candidate</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>GiftDesignation</objectType>
+    </variables>
+    <variables>
+        <name>var_ExistsBoardDesignated</name>
         <dataType>Boolean</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -1855,7 +1912,7 @@
         </value>
     </variables>
     <variables>
-        <name>var_ExistsBoardDesignated</name>
+        <name>var_ExistsCapitalCampaign</name>
         <dataType>Boolean</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -1875,7 +1932,57 @@
         </value>
     </variables>
     <variables>
+        <name>var_ExistsEndowment</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
+        <name>var_ExistsEquipmentSupply</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
+        <name>var_ExistsEvents</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
+        <name>var_ExistsGeneralOperating</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
         <name>var_ExistsGeneralProgram</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
+        <name>var_ExistsMerchandise</name>
         <dataType>Boolean</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -1915,7 +2022,7 @@
         </value>
     </variables>
     <variables>
-        <name>var_ExistsEquipmentSupply</name>
+        <name>var_ExistsProgramServices</name>
         <dataType>Boolean</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
@@ -1926,56 +2033,6 @@
     </variables>
     <variables>
         <name>var_ExistsStaffSalary</name>
-        <dataType>Boolean</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <value>
-            <booleanValue>false</booleanValue>
-        </value>
-    </variables>
-    <variables>
-        <name>var_ExistsCapitalCampaign</name>
-        <dataType>Boolean</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <value>
-            <booleanValue>false</booleanValue>
-        </value>
-    </variables>
-    <variables>
-        <name>var_ExistsEndowment</name>
-        <dataType>Boolean</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <value>
-            <booleanValue>false</booleanValue>
-        </value>
-    </variables>
-    <variables>
-        <name>var_ExistsEvents</name>
-        <dataType>Boolean</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <value>
-            <booleanValue>false</booleanValue>
-        </value>
-    </variables>
-    <variables>
-        <name>var_ExistsMerchandise</name>
-        <dataType>Boolean</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <value>
-            <booleanValue>false</booleanValue>
-        </value>
-    </variables>
-    <variables>
-        <name>var_ExistsProgramServices</name>
         <dataType>Boolean</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
