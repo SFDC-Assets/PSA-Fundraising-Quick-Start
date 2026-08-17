@@ -120,3 +120,152 @@ package.xml
 # `sf project retrieve start -m <MetadataType>:<ApiName>` with an explicit list
 # rather than a full-object retrieve — that way you never pull the noise in the
 # first place.
+
+# --- 2026-08-16: Standard-object bloat from full-org retrieve ---
+#
+# Full Account / GiftTransactionDesignation / PersonAccount retrieves pull
+# dozens of standard fields, listViews, recordTypes, and webLinks that FQS
+# does not customize. Same rationale as the Campaign standard-field block
+# above (lines 25-66).
+#
+# Rule for adding to this block: strip if API name is not FQS_-prefixed AND
+# the description/help/values do not mention FQS or fundraising.
+#
+# ============================================================================
+# PROTOCOL — customizing a currently-ignored standard field or object stub
+# ============================================================================
+# If FQS ever adds description / help text / picklist values / action
+# overrides to ANY file listed below:
+#
+#   1. Remove the specific line from .forceignore FIRST.
+#   2. Re-run `sf project retrieve start -m <MetadataType>:<ApiName>` OR make
+#      the edit locally.
+#   3. Deploy.
+#
+# Skipping step 1 = the customization is silently absent from the working
+# tree and will not deploy. Do NOT use wildcards / globs on these Account or
+# PersonAccount lines — the enumeration is deliberate so every file is
+# individually auditable.
+# ============================================================================
+
+# Account object-level file (standard action overrides only; FQS compact-layout
+# assignment lives on the Organization recordType which is also ignored below)
+**/objects/Account/Account.object-meta.xml
+
+# Account standard fields (no FQS customization)
+**/objects/Account/fields/AccountNumber.field-meta.xml
+**/objects/Account/fields/AccountSource.field-meta.xml
+**/objects/Account/fields/AnnualRevenue.field-meta.xml
+**/objects/Account/fields/BillingAddress.field-meta.xml
+**/objects/Account/fields/Description.field-meta.xml
+**/objects/Account/fields/Fax.field-meta.xml
+**/objects/Account/fields/Industry.field-meta.xml
+**/objects/Account/fields/Jigsaw.field-meta.xml
+**/objects/Account/fields/Name.field-meta.xml
+**/objects/Account/fields/NumberOfEmployees.field-meta.xml
+**/objects/Account/fields/OwnerId.field-meta.xml
+**/objects/Account/fields/Ownership.field-meta.xml
+**/objects/Account/fields/ParentId.field-meta.xml
+**/objects/Account/fields/Phone.field-meta.xml
+**/objects/Account/fields/Rating.field-meta.xml
+**/objects/Account/fields/ShippingAddress.field-meta.xml
+**/objects/Account/fields/Sic.field-meta.xml
+**/objects/Account/fields/SicDesc.field-meta.xml
+**/objects/Account/fields/Site.field-meta.xml
+**/objects/Account/fields/SourceSystemIdentifier.field-meta.xml
+**/objects/Account/fields/TickerSymbol.field-meta.xml
+**/objects/Account/fields/Tier.field-meta.xml
+**/objects/Account/fields/Type.field-meta.xml
+**/objects/Account/fields/Website.field-meta.xml
+
+# Account Person* fields (Person Account bloat; enumerated NOT globbed so any
+# future FQS customization on a specific Person* field can be un-ignored by
+# removing just that one line — see PROTOCOL above)
+**/objects/Account/fields/PersonAssistantName.field-meta.xml
+**/objects/Account/fields/PersonAssistantPhone.field-meta.xml
+**/objects/Account/fields/PersonBirthdate.field-meta.xml
+**/objects/Account/fields/PersonDepartment.field-meta.xml
+**/objects/Account/fields/PersonDoNotCall.field-meta.xml
+**/objects/Account/fields/PersonEmail.field-meta.xml
+**/objects/Account/fields/PersonGenderIdentity.field-meta.xml
+**/objects/Account/fields/PersonHasOptedOutOfEmail.field-meta.xml
+**/objects/Account/fields/PersonHasOptedOutOfFax.field-meta.xml
+**/objects/Account/fields/PersonHomePhone.field-meta.xml
+**/objects/Account/fields/PersonIndividualId.field-meta.xml
+**/objects/Account/fields/PersonLastCURequestDate.field-meta.xml
+**/objects/Account/fields/PersonLastCUUpdateDate.field-meta.xml
+**/objects/Account/fields/PersonLeadSource.field-meta.xml
+**/objects/Account/fields/PersonMailingAddress.field-meta.xml
+**/objects/Account/fields/PersonMaritalStatus.field-meta.xml
+**/objects/Account/fields/PersonMobilePhone.field-meta.xml
+**/objects/Account/fields/PersonOtherAddress.field-meta.xml
+**/objects/Account/fields/PersonOtherPhone.field-meta.xml
+**/objects/Account/fields/PersonPronouns.field-meta.xml
+**/objects/Account/fields/PersonTitle.field-meta.xml
+
+# Account standard listViews / recordTypes / webLinks (SF-shipped).
+# NOTE: Account.recordTypes/Organization currently carries
+# <compactLayoutAssignment>FQS_Account_Compact_Layout</compactLayoutAssignment>
+# — that assignment becomes a README post-install step (see memory
+# readme-standard-field-edits). If we ever want it in-source, un-ignore.
+**/objects/Account/listViews/AllAccounts.listView-meta.xml
+**/objects/Account/listViews/MyAccounts.listView-meta.xml
+**/objects/Account/listViews/NewThisWeek.listView-meta.xml
+**/objects/Account/recordTypes/Organization.recordType-meta.xml
+**/objects/Account/webLinks/AltavistaNews.webLink-meta.xml
+**/objects/Account/webLinks/GoogleMaps.webLink-meta.xml
+**/objects/Account/webLinks/GoogleNews.webLink-meta.xml
+**/objects/Account/webLinks/GoogleSearch.webLink-meta.xml
+**/objects/Account/webLinks/HooversProfile.webLink-meta.xml
+**/objects/Account/webLinks/YahooMaps.webLink-meta.xml
+
+# PersonAccount object-meta.xml stub (empty CustomObject; the FQS compact
+# layout is what we own, and it lives under PersonAccount/compactLayouts/
+# and remains tracked). If action overrides or object-level FQS customization
+# ever need to land here, un-ignore this specific line — see PROTOCOL above.
+**/objects/PersonAccount/PersonAccount.object-meta.xml
+
+# GiftTransactionDesignation standard fields + listView (no FQS content)
+**/objects/GiftTransactionDesignation/fields/Amount.field-meta.xml
+**/objects/GiftTransactionDesignation/fields/GiftTransactionId.field-meta.xml
+**/objects/GiftTransactionDesignation/fields/Name.field-meta.xml
+**/objects/GiftTransactionDesignation/fields/OwnerId.field-meta.xml
+**/objects/GiftTransactionDesignation/fields/Percent.field-meta.xml
+**/objects/GiftTransactionDesignation/listViews/All_GiftTransactionDesignations.listView-meta.xml
+
+# --- 2026-08-16: Non-object standard/platform bloat ---
+# Same PROTOCOL applies: if FQS ever customizes one of these files, remove the
+# specific line from .forceignore first, then edit + deploy.
+
+# Standard Campaign FlexiPage + QAs (no FQS customization)
+**/flexipages/Campaign_Base_Page.flexipage-meta.xml
+**/quickActions/Campaign.Campaign_Metric_Fields.quickAction-meta.xml
+**/quickActions/Campaign.Hierarchy_Metrics.quickAction-meta.xml
+
+# Non-FQS permset (file's own description literally says "in the org, but
+# not in the repo or the package")
+**/permissionsets/Person_Account_Record_Type_Access.permissionset-meta.xml
+
+# Standard CampaignType value set (no FQS values)
+**/standardValueSets/CampaignType.standardValueSet-meta.xml
+
+# Setup-level org-wide toggles (not FQS-authored)
+**/settings/Account.settings-meta.xml
+**/settings/Analytics.settings-meta.xml
+
+# FundFirst-platform-managed GiftBatch visual (not FQS-authored)
+**/uiFormatSpecificationSets/Value_Matches_Expected.uiFormatSpecificationSet-meta.xml
+
+# SF-shipped content assets (arrows, backgrounds, icons)
+**/contentassets/arrows.asset*
+**/contentassets/background.asset*
+**/contentassets/crm_analytics_icon.asset*
+**/contentassets/crm_analytics_icon_small.asset*
+**/contentassets/expand_icon.asset*
+**/contentassets/help_centerpng.asset*
+
+# Deprecated empty report folder (Setup-UI delete pending per prior session)
+**/reports/FQSDonorGroupingReports.reportFolder-meta.xml
+
+# NOTE: batchCalcJobDefinitions/ (3 CloneManageFundraisingDefinitionsIA files,
+# ~254KB) POSTPONED for further review — not yet added to ignore list.
