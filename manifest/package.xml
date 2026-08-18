@@ -433,11 +433,13 @@
         <members>GiftRefund.FQS_Completed_Refunds</members>
         <members>GiftRefund.FQS_Failed_Refunds</members>
         <members>GiftRefund.FQS_Initiated_Refunds</members>
+        <members>GiftSoftCredit.FQS_All_Soft_Credits</members>
         <members>GiftSoftCredit.FQS_Honoree_Credits</members>
         <members>GiftSoftCredit.FQS_Matched_Donor_Credits</members>
         <members>GiftSoftCredit.FQS_Soft_Credits</members>
         <members>GiftSoftCredit.FQS_Solicitor_Credits</members>
         <members>GiftTransaction.FQS_Failed_Canceled_7d</members>
+        <members>GiftTransaction.FQS_In_Kind_Gifts</members>
         <members>GiftTransaction.FQS_Grant_Payments</members>
         <members>GiftTransaction.FQS_Outright_Gifts</members>
         <members>GiftTransaction.FQS_Pledge_Payments</members>
