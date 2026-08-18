@@ -25,7 +25,6 @@
     </types>
     <types>
         <members>FQS_Console</members>
-        <members>standard__FundraisingOperationsConsole</members>
         <name>CustomApplication</name>
     </types>
     <types>
@@ -69,11 +68,6 @@
         <members>DonorGiftSummary.TotalBookableRevenue</members>
         <members>DonorGiftSummary.TotalPaidRcrInstallments</members>
         <members>DonorGiftSummary.TotalPaidRcrInstlAmt</members>
-        <members>FQS_Campaign_Hierarchy_Setup__mdt.All_Created_Top_Level_Ids_JSON__c</members>
-        <members>FQS_Campaign_Hierarchy_Setup__mdt.Chosen_Model__c</members>
-        <members>FQS_Campaign_Hierarchy_Setup__mdt.Last_Ask_Creation_Choice__c</members>
-        <members>FQS_Campaign_Hierarchy_Setup__mdt.Last_Run_At__c</members>
-        <members>FQS_Campaign_Hierarchy_Setup__mdt.Last_Top_Level_Id__c</members>
         <members>FQS_Campaign_Template__mdt.Applicable_Models__c</members>
         <members>FQS_Campaign_Template__mdt.Date_Rule__c</members>
         <members>FQS_Campaign_Template__mdt.Default_In_Model__c</members>
@@ -274,7 +268,6 @@
     <types>
         <members>Campaign</members>
         <members>DonorGiftSummary</members>
-        <members>FQS_Campaign_Hierarchy_Setup__mdt</members>
         <members>FQS_Campaign_Template__mdt</members>
         <members>FQS_Donor_Tier__mdt</members>
         <members>GiftCommitment</members>
@@ -288,7 +281,7 @@
         <name>CustomPermission</name>
     </types>
     <types>
-        <members>FQS_Donor_Tiers</members>
+        <members>FQSDashboards/FQS_Donor_Tiers</members>
         <name>Dashboard</name>
     </types>
     <types>
@@ -503,8 +496,6 @@
         <members>Account.FQS_Guided_Gift_Entry</members>
         <members>Account.FQS_Refund_Donor_Gift</members>
         <members>Campaign.Hierarchy_Metrics</members>
-        <members>FQS_New_Grant</members>
-        <members>FQS_New_Major_Gift</members>
         <members>GiftCommitment.FQS_Pledge_Payment</members>
         <members>GiftTransaction.FQS_Refund_Gift</members>
         <members>Opportunity.FQS_Setup_Commitment</members>
@@ -544,7 +535,6 @@
     </types>
     <types>
         <members>Campaign_Deluxe</members>
-        <members>Campaigns_and_Gift_Transactions</members>
         <members>GiftDesignation_Deluxe</members>
         <members>fqs_Donor_Gift_Summary_Deluxe</members>
         <members>fqs_Gift_Commitments_Deluxe</members>
