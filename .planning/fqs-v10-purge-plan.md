@@ -120,6 +120,10 @@ Update [`manifest/package.xml`](../manifest/package.xml) to reflect all §1 and 
 - [ ]  Add `FQSSeedGenerator` to `<name>ApexClass</name>` (post-test-coverage)
 - [ ]  Add `FQSSeedGenerator_Test` to `<name>ApexClass</name>`
 - [X]  Investigate: figure out `fieldMappingConfigs/FieldMappingConfig.fieldMappingConfig` (v67 schema violation) so it can ship. Options: (a) hand-author XML that satisfies `processType`, (b) ship the file via mdapi format instead of source format, (c) document manual admin-created steps in README.
+  - **Resolution 2026-08-18:** chose option (c) plus a developer alternate path. `**/fieldMappingConfigs/**` stays in `.forceignore`; the source file remains checked in as canonical record but never participates in deploys. Two install paths ship in v1.0:
+    - **Admin path** — README §IV.9 "Configure Gift Entry field mappings" (Setup UI click-path, 12 mappings tabulated).
+    - **Developer path** — `docs/fqs-fieldmappingconfig-install.md` (Setup UI + Tooling API bulk-insert bash snippet; mdapi-format deploy flagged as not-recommended due to silent no-op quirk on items beyond the first).
+  - **Post-v1.0 monitor:** re-attempt source-format deploy after any `sf` CLI major-version bump. If the DX ↔ mdapi disagreement is resolved, remove the `**/fieldMappingConfigs/**` line from `.forceignore`, add `FieldMappingConfig` to `manifest/package.xml`, and drop this dev doc path.
 
 ---
 

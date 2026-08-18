@@ -564,6 +564,39 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
    The paste-ready checklist lives at `docs/manual-help-text-setup.md` in this repository. Open it in your working copy or on the FQS GitHub page, then walk each object → Fields & Relationships → field edit and paste the Help Text and Description into the corresponding fields. Estimated time: 45–60 minutes for the full pass. Fields already applied in steps 3–7 above are called out with a **✔ already in README** marker so you don't do them twice.
 
+9. **Configure Gift Entry field mappings**
+
+   FQS ships 12 custom fields on the `GiftEntry` staging object that need to carry their values through to the downstream `GiftTransaction` or `GiftCommitment` on commit. Those mappings live in Salesforce's `FieldMappingConfig` metadata, which the unmanaged package cannot ship in source format (see `docs/fqs-fieldmappingconfig-install.md` for the deploy-time bug that forced this carve-out). This step creates the 12 mappings manually via the Setup UI. Estimated time: 10–15 minutes.
+
+   1. From Setup, search for and open **Fundraising Setup**.
+   2. Under **Gift Entry**, click **Field Mapping**.
+   3. If no Field Mapping Set exists yet, click **New Field Mapping Set**, name it `FieldMappingConfig`, and set:
+      * **Source Object:** Gift Entry
+      * **Process Type:** Gift Entry
+   4. For each row in the table below, click **New Mapping** and enter the source field, destination object, destination field, and sequence exactly as shown. Save each row before moving to the next.
+
+      | Sequence | Source field (on GiftEntry)              | Destination object | Destination field                        |
+      | -------- | ---------------------------------------- | ------------------ | ---------------------------------------- |
+      | 1        | FQS Gift Transaction Category            | Gift Transaction   | FQS Gift Transaction Category            |
+      | 2        | FQS Donor Tax Date                       | Gift Transaction   | FQS Donor Tax Date                       |
+      | 3        | FQS Fair Market Value Amount             | Gift Transaction   | FQS Fair Market Value Amount             |
+      | 4        | FQS Match Status                         | Gift Transaction   | FQS Match Status                         |
+      | 5        | FQS GC Restriction Release Date          | Gift Commitment    | FQS Restriction Release Date             |
+      | 6        | FQS GT Restriction Release Date          | Gift Transaction   | FQS Restriction Release Date             |
+      | 7        | FQS GC Skip Naming                       | Gift Commitment    | FQS Skip Naming                          |
+      | 8        | FQS GT Skip Naming                       | Gift Transaction   | FQS Skip Naming                          |
+      | 9        | FQS Stewardship Date                     | Gift Transaction   | FQS Stewardship Date                     |
+      | 10       | FQS Stewardship Status                   | Gift Transaction   | FQS Stewardship Status                   |
+      | 11       | FQS Tax Receipt Date                     | Gift Transaction   | FQS Tax Receipt Date                     |
+      | 12       | FQS GC Match Eligible                    | Gift Commitment    | FQS Match Eligible                       |
+
+   5. When all 12 rows are in place, spot-check by opening a Gift Entry record in the FQS app, populating any one of the source fields (e.g., Stewardship Date), committing the gift, and confirming the value landed on the corresponding downstream Gift Transaction or Gift Commitment record.
+
+   Notes:
+
+   * Rows 5–8 look duplicative but are intentional — a `FieldMappingConfig` enforces "one source → one destination", so a canonical FQS field that lives on both Gift Commitment and Gift Transaction (Restriction Release Date, Skip Naming) needs two paired staging columns (`FQS_GC_*` and `FQS_GT_*`) with two separate mappings.
+   * Developers preferring a scripted install can use the Tooling API path documented in `docs/fqs-fieldmappingconfig-install.md`.
+
 **V. Configure Designation, Soft Credit, and Tribute Objects**
 
 <!-- TODO: still to fill in:

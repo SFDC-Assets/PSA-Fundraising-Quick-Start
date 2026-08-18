@@ -9,10 +9,14 @@ package.xml
 # .deferred/README.md for re-integration path.
 .deferred/**
 
-# TEMPORARY — FieldMappingConfig.fieldMappingConfig fails schema validation
-# ("Missing processType on FieldMappingConfigItem"). Ignore during deploys until
-# the schema-vs-processType placement bug is resolved (v67 DX artifact). Retrieval
-# via mdapi format still works; see memory [[fieldmappingconfig-metadata-type]].
+# FieldMappingConfig.fieldMappingConfig fails source-format deploy at v66/v67
+# with `ConversionError: Missing processType on FieldMappingConfigItem`. Adding
+# the element inside each item makes the Metadata API reject it — the DX
+# converter and mdapi schema disagree. The file stays checked in as the
+# canonical mapping record; deploys skip it. Install path documented at
+# docs/fqs-fieldmappingconfig-install.md (dev — Setup UI + Tooling API) and
+# README §IV.9 (admin — Setup UI click-path). If a future `sf` release fixes
+# the converter, remove this line and add `FieldMappingConfig` to package.xml.
 **/fieldMappingConfigs/**
 
 # LWC configuration files
