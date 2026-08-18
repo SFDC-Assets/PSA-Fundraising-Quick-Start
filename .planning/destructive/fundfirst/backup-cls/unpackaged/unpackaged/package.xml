@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>FQSSeedGenerator</members>
+        <members>FQS_MatchCandidate</members>
+        <members>FQS_MatchCandidateService</members>
+        <members>FQS_MatchCommitService</members>
+        <members>FQS_MatchServices_Test</members>
+        <name>ApexClass</name>
+    </types>
+    <version>67.0</version>
+</Package>

@@ -430,7 +430,7 @@ public inherited sharing class FQS_CampaignHierarchyBuilder {
 
     private static String resolveCategoryForTopLevel(String templateKey, String model) {
         if (model == 'GivingPrograms') return TOP_LEVEL_CATEGORY_MAP.get(templateKey);
-        return 'Fundraising Top Level Campaign';
+        return null;
     }
 
     private static String resolveCategoryForStrategy(String strategyName, String model) {
