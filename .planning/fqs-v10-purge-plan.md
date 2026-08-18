@@ -69,11 +69,17 @@ Action: Don't delete the file, just keep out of manifest and repo.  |
 
 Convert three Classic templates in `force-app/main/default/email/FQS_Templates/`:
 
-- [X]  `FQS_Gift_Acknowledgement.email` → Lightning `EmailTemplate`
-- [X]  `FQS_Gift_Acknowledgement_Partial.email` → Lightning `EmailTemplate`
-- [X]  `FQS_Stewardship_Response_Standard.email` → Lightning `EmailTemplate`
+- [X]  `FQS_Gift_Acknowledgement.email` → Lightning `EmailTemplate` (2026-08-18)
+- [X]  `FQS_Gift_Acknowledgement_Partial.email` → Lightning `EmailTemplate` (2026-08-18)
+- [X]  `FQS_Stewardship_Response_Standard.email` → Lightning `EmailTemplate` (2026-08-18)
 
-For each: preserve body/subject verbatim, migrate merge fields to Lightning `{{{Recipient.Field__c}}}` syntax where needed, verify the referencing flows (`FQS_Gift_Acknowledgement`, `FQS_Stewardship_Response`) can bind the new templates by DeveloperName.
+**Executed 2026-08-18.** Per-template change set (identical across all three):
+
+- `.email-meta.xml`: `<type>text</type>` → `<type>custom</type>`; added `<uiType>SFX</uiType>` (Lightning) and `<relatedEntityType>GiftTransaction</relatedEntityType>` so the merge-field picker in Setup narrows to GT fields the flow already passes as `relatedRecordId`.
+- `.email`: plain-text body → minimal `<html><body>` with `<p>` paragraphs and `<hr/>` separator. All merge fields (`{!Contact.FirstName}`, `{!GiftTransaction.FQS_Amount_Formatted__c}`, `{!Organization.Name}`, `{!GiftTransaction.FQS_TaxDeduction_Amount_Formatted__c}`, `{!GiftTransaction.FQS_Transaction_Date_LongForm__c}`) preserved verbatim — Lightning `type=custom` templates use the same `{!Object.Field}` syntax as Classic; the `{{{Recipient.Field}}}` triple-brace syntax noted in the original plan is Marketing Cloud, not Sales/Service Cloud. Subject lines byte-identical.
+- Bracket placeholder `[PROVIDE SOME INFO ABOUT YOUR HISTORY, A SPECIFIC PROGRAM, PERSON, OR YOUR TOTAL IMPACT]` preserved so marketing still has the same replacement token.
+
+**Flow bindings unchanged.** Both `FQS_Gift_Acknowledgement.flow` and `FQS_Stewardship_Response.flow` bind via `<setupReference>` = template `<name>` (label), which was not changed. No flow edits, no manifest edits (`EmailTemplate` members already list the three by folder/DeveloperName).
 
 ---
 
