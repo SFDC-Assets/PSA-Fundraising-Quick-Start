@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>DonorGiftSummary.FQS_Donor_Level__c</members>
+        <members>DonorGiftSummary.FQS_Donor_Level_Name__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>FQS_Donor_Grouping.Entry</members>
+        <members>FQS_Donor_Grouping.Major</members>
+        <members>FQS_Donor_Grouping.Mid</members>
+        <name>CustomMetadata</name>
+    </types>
+    <types>
+        <members>FQS_Donor_Grouping__mdt</members>
+        <members>FQS_Campaign_Hierarchy_Setup__mdt</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>FQS_New_Grant</members>
+        <members>FQS_New_Major_Gift</members>
+        <name>QuickAction</name>
+    </types>
+    <version>67.0</version>
+</Package>

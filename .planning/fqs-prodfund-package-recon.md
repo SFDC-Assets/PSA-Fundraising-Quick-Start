@@ -21,8 +21,8 @@
 | Action | Count |
 |--------|------:|
 | **ADD to ProdFund package** (in repo, not in package) — total | **144** |
-| — of which addable via Package Manager UI | **135** |
-| — of which post-install-only (not addable to package) | **9** |
+| — of which addable via Package Manager UI | **65** |
+| — of which post-install-only (not addable to package) | **79** |
 | **REMOVE from ProdFund package** (in package, not in repo) | **31** |
 
 ---
@@ -31,7 +31,7 @@
 
 For each entry: Setup → Package Manager → Fundraising Quick Start → **Add Components** → filter to the correct Component Type → check the box → **Add To Package**.
 
-**⚠️ Post-install-only categories** (below sections marked `[POST-INSTALL]` are not addable to an unmanaged package via *Add Components*; they must be recreated by the installing admin per README post-install steps): FundraisingConfig, StandardValueSet, Queue, Group, EmailFolder. **9 members total.**
+**⚠️ Post-install-only categories** (below sections marked `[POST-INSTALL]` are not addable to an unmanaged package via *Add Components*; they must be recreated by the installing admin per README post-install steps): FundraisingConfig, StandardValueSet, Queue, Group, EmailFolder, **and CustomField overlays on standard objects** (Package Manager rejects standard-object field additions in unmanaged packages). **79 members total.**
 
 ### ActionPlanTemplate — 2
 
@@ -48,7 +48,10 @@ For each entry: Setup → Package Manager → Fundraising Quick Start → **Add 
 - `Account.FQS_Account_Compact_Layout`
 - `PersonAccount.FQS_Person_Account_Compact_Layout`
 
-### CustomField — 70
+### CustomField — 70  [POST-INSTALL]
+
+Package Manager on this org rejects standard-object CustomField overlays (`DonorGiftSummary.*`, `GiftCommitment.*`, `GiftTransaction.*`, `Opportunity.*`, `OutreachSourceCode.*`, etc.) as addable components — the picker won't accept them. These deploy fine when the package is installed (they're in `manifest/package.xml` and `force-app/`), but they can't be catalogued in the Package Manager component list. Left in this section for reconciliation-record completeness.
+
 
 - `DonorGiftSummary.BestGiftYear`
 - `DonorGiftSummary.BookedPledges`
