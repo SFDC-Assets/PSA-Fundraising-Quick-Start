@@ -1154,8 +1154,8 @@
 
 Tasks are both &quot;moves&quot;, intentional touch points, as well as smaller tactical follow ups. Moves are required, tactical steps are created at the same time as their proceeding move for clarity.</description>
     <isAdHocItemCreationEnabled>true</isAdHocItemCreationEnabled>
-    <name>Moves Management</name>
+    <name>FQS Moves Management</name>
     <status>Draft</status>
     <targetEntityType>Account</targetEntityType>
-    <uniqueName>Moves_Management_65c3e74a_90d4_11f1_9ffa_750d1a89e526</uniqueName>
+    <uniqueName>FQS_Moves_Management</uniqueName>
 </ActionPlanTemplate>

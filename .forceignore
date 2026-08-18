@@ -4,6 +4,11 @@
 
 package.xml
 
+# --- Deferred work parked for future FQS releases ---
+# Files under .deferred/ are intentionally excluded from deploys. See
+# .deferred/README.md for re-integration path.
+.deferred/**
+
 # TEMPORARY — FieldMappingConfig.fieldMappingConfig fails schema validation
 # ("Missing processType on FieldMappingConfigItem"). Ignore during deploys until
 # the schema-vs-processType placement bug is resolved (v67 DX artifact). Retrieval

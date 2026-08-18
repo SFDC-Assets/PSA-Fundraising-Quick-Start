@@ -41,13 +41,6 @@
             <operator>equals</operator>
             <value>Unpaid,Paid,Pending</value>
         </criteriaItems>
-        <criteriaItems>
-            <column>Campaign$Id</column>
-            <columnToColumn>false</columnToColumn>
-            <isUnlocked>false</isUnlocked>
-            <operator>equals</operator>
-            <value>701WB000017gThP</value>
-        </criteriaItems>
     </filter>
     <format>Summary</format>
     <groupingsDown>
@@ -64,7 +57,7 @@
         <name>co</name>
         <value>1</value>
     </params>
-    <reportType>Campaigns_and_Gift_Transactions__c</reportType>
+    <reportType>Campaign_Deluxe</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
     <showGrandTotal>true</showGrandTotal>

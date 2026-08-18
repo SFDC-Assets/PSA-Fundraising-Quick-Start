@@ -4,7 +4,7 @@
     <active>true</active>
     <businessProcess>FQS_Major_Gift_Process</businessProcess>
     <description>Major-gift cultivation for individuals and households above the org&apos;s major-gift threshold.</description>
-    <label>Major Gift</label>
+    <label>Major Gift Plan</label>
     <picklistValues>
         <picklist>ForecastCategoryName</picklist>
         <values>

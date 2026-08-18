@@ -693,8 +693,8 @@
 
 Days are all set as divisible by 7.</description>
     <isAdHocItemCreationEnabled>true</isAdHocItemCreationEnabled>
-    <name>Stewardship</name>
+    <name>FQS Stewardship</name>
     <status>Draft</status>
     <targetEntityType>Account</targetEntityType>
-    <uniqueName>Stewardship_38e8d861_90da_11f1_b64a_f1bc2df97554</uniqueName>
+    <uniqueName>FQS_Stewardship</uniqueName>
 </ActionPlanTemplate>

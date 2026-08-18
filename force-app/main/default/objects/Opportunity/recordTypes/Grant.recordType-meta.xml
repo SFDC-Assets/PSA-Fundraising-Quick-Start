@@ -4,7 +4,7 @@
     <active>true</active>
     <businessProcess>FQS Grant Process</businessProcess>
     <description>Foundation and government grant lifecycle. Typically Organization donors.</description>
-    <label>Grant</label>
+    <label>Grant Request</label>
     <picklistValues>
         <picklist>ForecastCategoryName</picklist>
         <values>

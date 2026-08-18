@@ -8,14 +8,6 @@
         <apexClass>FQS_CustomMetadataSaver</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>FQS_MatchCandidateService</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>FQS_MatchCommitService</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
     <description>Grants access to all custom and patched fields on GiftCommitment for the Fundraising Quick Start.</description>
     <fieldPermissions>
         <editable>true</editable>
