@@ -1,20 +1,15 @@
-<html>
-<body>
-<p>Dear {!Contact.FirstName},</p>
+Dear {!Contact.FirstName},
 
-<p>Thank you for your generous gift of {!GiftTransaction.FQS_Amount_Formatted__c} to {!Organization.Name}, received on {!GiftTransaction.FQS_Transaction_Date_LongForm__c}.</p>
+Thank you for your generous gift of {!GiftTransaction.FQS_Amount_Formatted__c} to {!Organization.Name}, received on {!GiftTransaction.FQS_Transaction_Date_LongForm__c}.
 
-<p>[PROVIDE SOME INFO ABOUT YOUR HISTORY, A SPECIFIC PROGRAM, PERSON, OR YOUR TOTAL IMPACT]</p>
+[PROVIDE SOME INFO ABOUT YOUR HISTORY, A SPECIFIC PROGRAM, PERSON, OR YOUR TOTAL IMPACT]
 
-<p>For your tax records: {!Organization.Name} is a 501(c)(3) nonprofit organization. The tax-deductible portion of your gift is {!GiftTransaction.FQS_TaxDeduction_Amount_Formatted__c}. Please retain this letter as your official acknowledgement.</p>
+For your tax records: {!Organization.Name} is a 501(c)(3) nonprofit organization. The tax-deductible portion of your gift is {!GiftTransaction.FQS_TaxDeduction_Amount_Formatted__c}. Please retain this letter as your official acknowledgement.
 
-<p>With deep gratitude,</p>
+With deep gratitude,
 
-<p>{!Organization.Name}</p>
+{!Organization.Name}
 
-<hr/>
-
-<p><small>Questions about your gift? Please contact us and reference your gift record.<br/>
-This is an automated acknowledgement sent on behalf of {!Organization.Name}.</small></p>
-</body>
-</html>
+---
+Questions about your gift? Please contact us and reference your gift record.
+This is an automated acknowledgement sent on behalf of {!Organization.Name}.

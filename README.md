@@ -1125,7 +1125,7 @@ Many orgs don't have a meaningful gap between the two — low volume, mostly car
 
 ### 10. Email Templates for Acknowledgement and Stewardship
 
-FQS ships three plain-text email templates in a dedicated **FQS Templates** Lightning email folder. They are sent by the FQS_Gift_Acknowledgement and FQS_Stewardship_Response scheduled flows.
+FQS ships three plain-text email templates in a dedicated **FQS Templates** Classic email folder. They are sent by the FQS_Gift_Acknowledgement and FQS_Stewardship_Response scheduled flows.
 
 * **FQS Gift Acknowledgement** — universal thank-you sent to every donor with a valid email. Uses standard 501(c)(3) tax-receipt language ("No goods or services were provided in exchange for this contribution").
 * **FQS Gift Acknowledgement (Partial Deduction)** — sent when the deductible portion is less than the gift total (event tickets, benefit dinners, auction wins, in-kind gifts with variable cash-equivalence). The FQS_Gift_Acknowledgement flow routes to this template automatically when `TaxDeductionAmount < CurrentAmount`.
@@ -1136,6 +1136,16 @@ FQS ships three plain-text email templates in a dedicated **FQS Templates** Ligh
 Each template contains a `[PROVIDE SOME INFO ABOUT YOUR HISTORY, A SPECIFIC PROGRAM, PERSON, OR YOUR TOTAL IMPACT]` placeholder that must be replaced with mission-specific copy before the flows are activated.
 
 **Important tax consideration.** The universal acknowledgement uses IRS-preferred "No goods or services" language, which is only correct when the donor received nothing of value in return. For event tickets, benefit dinners, auction wins, and membership gifts with tangible benefits, staff must set `TaxDeductionAmount` on the GiftTransaction to something less than `CurrentAmount` — that routes the flow to the Partial Deduction template. If staff enter these gifts with `TaxDeductionAmount` blank or equal to `CurrentAmount`, the donor will receive the wrong tax language. Train staff to enter FMV and non-deductible portions on non-standard gifts, and consider a periodic audit of high-benefit campaigns before year-end receipting.
+
+**Optional: rebuild in Lightning Email Template Builder for drag-drop editing.** The templates ship as Classic text templates because Salesforce does not expose the "Made in Email Template Builder" flag to metadata deploys — templates authored outside the UI always install as plain HTML shells even when the underlying markup would otherwise render as blocks. If your admins want the drag-drop editing experience (add image blocks, buttons, column layouts, use the merge-field picker), recreate each template once, in the org, using the Builder:
+
+1. **Setup → Email Templates** (the Lightning list, not Classic Email Templates).
+2. **New Email Template** → pick the **FQS Templates** folder (or create a new Lightning folder if you prefer to keep the originals as fallback).
+3. Copy the subject, body, and merge fields from the corresponding text template into the Builder. Set **Related Entity Type = Gift Transaction** so the flow can still find it by name.
+4. Save with the same **API Name** as the original (e.g., `FQS_Gift_Acknowledgement`) so the flow's template lookup continues to resolve — Salesforce disambiguates by name across folders, so avoid creating duplicates in different folders with the same name.
+5. Deactivate or delete the Classic version once the Builder version is confirmed working end-to-end (send a test through the flow).
+
+This is a one-time, one-org exercise per template — the drag-drop editability is a client-side UI state that Salesforce does not persist through metadata deploys, so it cannot be committed back to source control for other orgs to inherit. Any org that wants Builder editing repeats these steps locally.
 
 ## Known Issues
 
