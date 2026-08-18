@@ -290,10 +290,13 @@ force-app/main/default/appMenus/
 
 # FQSSeedGenerator: 1851-line demo-data generator for dev/sandbox use only
 # (per memory [[seed-scripts-purpose]] — seed scripts serve testing/development,
-# demos are secondary). Not exercised by any @IsTest → 0% coverage → drags the
-# repo-wide average below the 75% production deploy threshold. Excluded from the
-# FQS Quick Start package; devs invoke it manually via anonymous Apex against
-# sandboxes when they need seed data.
+# demos are secondary). Deliberately never in the FQS unmanaged package: it has
+# no @IsTest coverage, would drag the repo-wide average below 75%, and provides
+# no runtime value to end-user orgs. The file stays in this repo as the canonical
+# generator source (invoked by scripts/apex/seed/fqs-seed-*.apex). To deploy it
+# manually to a sandbox / dev org for seed-data runs, use:
+#   sf project deploy start --metadata ApexClass:FQSSeedGenerator --target-org <alias>
+# (metadata-name resolution bypasses .forceignore; source-dir does not).
 **/classes/FQSSeedGenerator.cls
 **/classes/FQSSeedGenerator.cls-meta.xml
 

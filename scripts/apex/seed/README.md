@@ -26,19 +26,26 @@ Primary purpose is **testing and development**; demo polish is secondary.
 
    Enable via **Setup → Profiles → your profile → Record Type Settings**.
 
-2. **Deploy the `External_Id__c` fields, the `FQS_Donor_Grouping__mdt` records, and `FQSSeedGenerator.cls`**:
+2. **Deploy the `External_Id__c` fields, the `FQS_Donor_Tier__mdt` records, and `FQSSeedGenerator.cls`**:
    ```bash
    sf project deploy start --source-dir force-app/main/default/objects --target-org FundFirst
    sf project deploy start --source-dir force-app/main/default/customMetadata --target-org FundFirst
-   sf project deploy start --source-dir force-app/main/default/classes/FQSSeedGenerator.cls --target-org FundFirst
+   sf project deploy start --metadata ApexClass:FQSSeedGenerator --target-org FundFirst
    ```
+   `FQSSeedGenerator.cls` is deliberately excluded from the FQS unmanaged package
+   (see `.forceignore` — the class is dev-only and has no test coverage). It still
+   deploys individually when named via `--metadata ApexClass:FQSSeedGenerator` —
+   metadata-name resolution bypasses `.forceignore` where `--source-dir` does not.
+   Deploy it manually to any sandbox / dev org where you need to run seeds, and
+   leave it out of production org deploys.
+
    The seed scripts write to `External_Id__c` on every seeded object; they will
    error if the field is missing. Objects that carry the field: Account, Campaign,
    GiftDesignation, OutreachSourceCode, GiftCommitment, GiftCommitmentSchedule,
    GiftTransaction, GiftTransactionDesignation, GiftRefund, GiftSoftCredit,
    GiftTribute, PaymentInstrument, Opportunity.
 
-   The generator queries `FQS_Donor_Grouping__mdt` at run time to derive the per-level
+   The generator queries `FQS_Donor_Tier__mdt` at run time to derive the per-level
    amount bands (see the Mix section). All three records (Entry / Mid / Major) must
    exist in the target org.
 
@@ -75,7 +82,7 @@ FQSSeedGenerator.PYRAMID_MID_PCT = 0;           // pure Major fixture
 FQSSeedGenerator.seedChunk(10, 0);
 ```
 
-If you change `FQS_Donor_Grouping__mdt` One_Time / Annual thresholds and want the
+If you change `FQS_Donor_Tier__mdt` One_Time / Annual thresholds and want the
 generator to pick them up, no code change is required — the next run queries the
 current values and adjusts the bands automatically.
 

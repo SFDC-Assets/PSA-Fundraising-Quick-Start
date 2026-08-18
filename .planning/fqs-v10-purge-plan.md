@@ -28,7 +28,7 @@
 | [x]`FQSDonorGroupingReports.reportFolder`            | `reports/FQSDonorGroupingReports.reportFolder-meta.xml`                             | Deprecated empty folder (superseded by`FQSDonorTierReports`)                                                                                                                     |
 | [x]`FQS_Campaign_Hierarchy_Setup__mdt` type + fields | `objects/FQS_Campaign_Hierarchy_Setup__mdt/`                                        | No longer used per Justin 2026-08-17; delete type + 5 fields<br /><br /><br /><br />Action: confirm no longeer used                                                              |
 | [x]`Campaigns_and_Gift_Transactions.reportType`      | `reportTypes/Campaigns_and_Gift_Transactions.reportType-meta.xml`                   | Replaced by`Campaign_Deluxe` — **PRE-CHECK required**: `grep -rln Campaigns_and_Gift_Transactions force-app/` must return zero non-metadata refs before delete                  |
-| [ ]`~125 help-text-only field overlays`              | `objects/*/fields/<Standard>.field-meta.xml`                                        | If a standard field carries only`<description>` / `<inlineHelpText>` and no picklist values, move copy → `docs/fqs-post-config-help-text.md`; delete field-meta.xml<br /><br /> |
+| [x]`~125 help-text-only field overlays`              | `objects/*/fields/<Standard>.field-meta.xml`                                        | **Reframed 2026-08-18 (Justin):** keep field-meta.xml files that carry FQS-authored `<description>` / `<inlineHelpText>` — those overlays ship help text via deploy. Phase 4b (commit `8b5dcd5`) pruned only zero-content retrieves (55 files). No extraction to a separate doc.<br /><br /> |
 
 Action: Don't delete the file, just keep out of manifest and repo.  |
 | [X]`FQS_Manage_Gift_Commitment_Actions.flow`      | `flows/…`                                                                                                                    | Deferred to future release; move to holding folder (see §3.2)                                                                                                                                                                                |
@@ -63,7 +63,7 @@ Action: Don't delete the file, just keep out of manifest and repo.  |
 | Item                                              | Action                                                                                                                                                                       |
 | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [x]`Campaigns_and_Gift_Transactions` CRT          | Consolidate into`Campaign_Deluxe`. Update any reports depending on the retired CRT to `<baseObject>Campaign_Deluxe</baseObject>` before destructive-delete                   |
-| [ ] Non-FQS-prefixed field overlays (~125 fields) | Extract`<description>` + `<inlineHelpText>` content into `docs/fqs-post-config-help-text.md` grouped by object; delete field-meta.xml files; add README post-install pointer |
+| [x] Non-FQS-prefixed field overlays (~125 fields) | **Reframed 2026-08-18 (Justin):** FQS-authored `<description>` / `<inlineHelpText>` stays inline in the field-meta.xml overlays and deploys with the package. Phase 4b (commit `8b5dcd5`) pruned only 55 zero-content retrieves. No extraction, no separate doc. |
 
 ### 2.3 Classic → Lightning email templates
 
@@ -87,7 +87,7 @@ Convert three Classic templates in `force-app/main/default/email/FQS_Templates/`
 
 ### 3.1 Test coverage
 
-- [X]  `FQSSeedGenerator.cls` (1851 lines, currently `.forceignore`d for 0% coverage). Author `FQSSeedGenerator_Test.cls` targeting **≥75%** so the class can rejoin the package. Strategy: exercise the public `seedFoundation` / `seedSmall` / `seedMedium` entrypoints in `Test.startTest()` / `Test.stopTest()` blocks with a `Test.setMock` where the class hits external systems.
+- [X]  `FQSSeedGenerator.cls` (1851 lines, currently `.forceignore`d for 0% coverage). **Decision 2026-08-18 (Justin):** class is dev-only and never ships in the package. No test class authored. Rationale: FQSSeedGenerator generates demo/dev seed data and has hard dependencies on foundation records + `FQS_Donor_Tier__mdt` + Nonprofit Cloud managed triggers that make in-test end-to-end coverage brittle. It provides no runtime value to end-user orgs. `.forceignore` keeps the class out of package-wide deploys; developers deploy it manually to sandboxes via `sf project deploy start --metadata ApexClass:FQSSeedGenerator` when they need seed data. `scripts/apex/seed/README.md` install step 2 documents this path.
 
 ### 3.2 Deferred-work holding folder
 
@@ -101,7 +101,7 @@ Convert three Classic templates in `force-app/main/default/email/FQS_Templates/`
 
 ### 3.3 New docs
 
-- [X]  `docs/fqs-post-config-help-text.md` — content extracted from the ~125 field overlays being deleted from `force-app/`.
+- [X]  ~~`docs/fqs-post-config-help-text.md` — content extracted from the ~125 field overlays being deleted from `force-app/`.~~ — DROPPED 2026-08-18: Phase 4b reframed the extraction scope. Help text stays inline in field-meta.xml overlays (deployed with the package). Skeleton doc deleted.
 
 ---
 
@@ -117,8 +117,8 @@ Update [`manifest/package.xml`](../manifest/package.xml) to reflect all §1 and 
 - [ ]  Remove `~125 <members>` from `<name>CustomField</name>` (help-text-only overlays)
 - [X]  Remove `FQS_Manage_Gift_Commitment_Actions` + `FQS_Find_Matching_Gift` from `<name>Flow</name>`
 - [X]  Remove 3 `FQS_Match*` classes from `<name>ApexClass</name>`
-- [ ]  Add `FQSSeedGenerator` to `<name>ApexClass</name>` (post-test-coverage)
-- [ ]  Add `FQSSeedGenerator_Test` to `<name>ApexClass</name>`
+- [X]  ~~Add `FQSSeedGenerator` to `<name>ApexClass</name>` (post-test-coverage)~~ — DROPPED 2026-08-18: class is dev-only and never ships in the package. See §3.1 for rationale.
+- [X]  ~~Add `FQSSeedGenerator_Test` to `<name>ApexClass</name>`~~ — DROPPED 2026-08-18: no test class authored; class stays `.forceignore`d.
 - [X]  Investigate: figure out `fieldMappingConfigs/FieldMappingConfig.fieldMappingConfig` (v67 schema violation) so it can ship. Options: (a) hand-author XML that satisfies `processType`, (b) ship the file via mdapi format instead of source format, (c) document manual admin-created steps in README.
   - **Resolution 2026-08-18:** chose option (c) plus a developer alternate path. `**/fieldMappingConfigs/**` stays in `.forceignore`; the source file remains checked in as canonical record but never participates in deploys. Two install paths ship in v1.0:
     - **Admin path** — README §IV.9 "Configure Gift Entry field mappings" (Setup UI click-path, 12 mappings tabulated).
