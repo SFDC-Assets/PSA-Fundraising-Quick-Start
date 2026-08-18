@@ -845,6 +845,36 @@ Runtime gate: FQS_Enable_Auto_Members__c must be TRUE, FQS_Hierarchy_Depth__c mu
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
 
+    <recordLookups>
+        <name>Get_Current_Member_Retry</name>
+        <label>Get Current Member (Retry after Create fault)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Re-fetches the CampaignMember after Create_Member_Pledged_Gave faults. In bulk DML two GTs for the same (donor, campaign) can both miss Get_Current_Member and race into Create — the loser hits the CampaignMember unique constraint. This retry lookup finds the row the winner just committed and hands its Id to Update_Member_Retry so the ladder still lands at Pledged/Gave.</description>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Update_Member_Retry</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>CampaignId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.CampaignId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>ContactId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Get_Donor_Account.PersonContactId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>CampaignMember</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+
     <!-- ================= RECORD UPDATES + CREATES ================= -->
 
     <recordUpdates>
@@ -919,12 +949,38 @@ Runtime gate: FQS_Enable_Auto_Members__c must be TRUE, FQS_Hierarchy_Depth__c mu
         <object>CampaignMember</object>
     </recordUpdates>
 
+    <recordUpdates>
+        <name>Update_Member_Retry</name>
+        <label>Update Member (Retry after Create fault)</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <description>Retry-path update: after Create_Member_Pledged_Gave faults (unique-constraint race) and Get_Current_Member_Retry finds the row committed by the winning parallel Create, flip its Status to Pledged/Gave.</description>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Get_Current_Member_Retry.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Pledged/Gave</stringValue>
+            </value>
+        </inputAssignments>
+        <object>CampaignMember</object>
+    </recordUpdates>
+
     <recordCreates>
         <name>Create_Member_Pledged_Gave</name>
         <label>Create Member (Pledged/Gave)</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <description>Upgrade branch: creates a new CampaignMember at Pledged/Gave for donors who gave without a prior member record.</description>
+        <description>Upgrade branch: creates a new CampaignMember at Pledged/Gave for donors who gave without a prior member record. Fault-guarded because AfterSave flow batching lets two GTs in the same DML for (donor, campaign) each miss the other's Get_Current_Member; the second Create hits CampaignMember's (CampaignId, ContactId) unique constraint. Fault path re-fetches and routes to Update_Member_Pledged_Gave so the ladder still lands at Pledged/Gave.</description>
+        <faultConnector>
+            <targetReference>Get_Current_Member_Retry</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>CampaignId</field>
             <value>
