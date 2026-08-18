@@ -121,26 +121,10 @@
         <members>GiftDefaultDesignation.FQS_Restriction_Type__c</members>
         <members>GiftDefaultDesignation.GiftDesignationId</members>
         <members>GiftDefaultSoftCredit.FQS_Parent_Type__c</members>
-        <members>GiftDesignation.AverageTransactionAmount</members>
-        <members>GiftDesignation.CurrentYearTransactionCount</members>
-        <members>GiftDesignation.CurrentYearTrxnAmount</members>
-        <members>GiftDesignation.Description</members>
         <members>GiftDesignation.External_Id__c</members>
         <members>GiftDesignation.FQS_Restriction_Type__c</members>
-        <members>GiftDesignation.FirstPaidTransactionDate</members>
-        <members>GiftDesignation.HighestTransactionAmount</members>
         <members>GiftDesignation.IsActive</members>
         <members>GiftDesignation.IsDefault</members>
-        <members>GiftDesignation.LastPaidTransactionDate</members>
-        <members>GiftDesignation.LastTwoYearTrxnAmount</members>
-        <members>GiftDesignation.LastTwoYearTrxnCount</members>
-        <members>GiftDesignation.LastYearTransactionCount</members>
-        <members>GiftDesignation.LastYearTrxnAmount</members>
-        <members>GiftDesignation.LowestTransactionAmount</members>
-        <members>GiftDesignation.Name</members>
-        <members>GiftDesignation.OwnerId</members>
-        <members>GiftDesignation.TotalTransactionAmount</members>
-        <members>GiftDesignation.TotalTransactionCount</members>
         <members>GiftEntry.FQS_Donor_Tax_Date__c</members>
         <members>GiftEntry.FQS_Fair_Market_Value_Amount__c</members>
         <members>GiftEntry.FQS_GC_Match_Eligible__c</members>
@@ -159,11 +143,7 @@
         <members>GiftTransaction.AcknowledgementDate</members>
         <members>GiftTransaction.AcknowledgementStatus</members>
         <members>GiftTransaction.CampaignId</members>
-        <members>GiftTransaction.CheckDate</members>
         <members>GiftTransaction.CurrentAmount</members>
-        <members>GiftTransaction.Description</members>
-        <members>GiftTransaction.DonorCoverAmount</members>
-        <members>GiftTransaction.DonorId</members>
         <members>GiftTransaction.External_Id__c</members>
         <members>GiftTransaction.FQS_Amount_Formatted__c</members>
         <members>GiftTransaction.FQS_Donor_Tax_Date__c</members>
@@ -182,36 +162,16 @@
         <members>GiftTransaction.FQS_TaxDeduction_Amount_Formatted__c</members>
         <members>GiftTransaction.FQS_Tax_Receipt_Date__c</members>
         <members>GiftTransaction.FQS_Transaction_Date_LongForm__c</members>
-        <members>GiftTransaction.GatewayReference</members>
-        <members>GiftTransaction.GatewayTransactionFee</members>
-        <members>GiftTransaction.GenerationalCohort</members>
-        <members>GiftTransaction.GiftCommitmentId</members>
-        <members>GiftTransaction.GiftCommitmentScheduleId</members>
         <members>GiftTransaction.GiftType</members>
-        <members>GiftTransaction.IsFullyRefunded</members>
-        <members>GiftTransaction.IsPaid</members>
-        <members>GiftTransaction.IsPartiallyRefunded</members>
-        <members>GiftTransaction.IsWrittenOff</members>
-        <members>GiftTransaction.LastGatewayErrorMessage</members>
-        <members>GiftTransaction.LastGatewayProcessedDate</members>
-        <members>GiftTransaction.LastGatewayResponseCode</members>
-        <members>GiftTransaction.MatchingEmployerTransactionId</members>
         <members>GiftTransaction.Name</members>
         <members>GiftTransaction.NonTaxDeductibleAmount</members>
         <members>GiftTransaction.OriginalAmount</members>
         <members>GiftTransaction.OutreachSourceCodeId</members>
-        <members>GiftTransaction.OwnerId</members>
-        <members>GiftTransaction.PartyPhilanthropicRsrchPrflId</members>
         <members>GiftTransaction.PaymentIdentifier</members>
-        <members>GiftTransaction.PaymentInstrumentId</members>
         <members>GiftTransaction.PaymentMethod</members>
-        <members>GiftTransaction.ProcessorReference</members>
-        <members>GiftTransaction.ProcessorTransactionFee</members>
-        <members>GiftTransaction.RefundedAmount</members>
         <members>GiftTransaction.Status</members>
         <members>GiftTransaction.TaxDeductionAmount</members>
         <members>GiftTransaction.TaxReceiptStatus</members>
-        <members>GiftTransaction.TotalTransactionFee</members>
         <members>GiftTransaction.TransactionDate</members>
         <members>GiftTransaction.TransactionDueDate</members>
         <members>GiftTransactionDesignation.External_Id__c</members>
@@ -220,30 +180,15 @@
         <members>GiftTribute.External_Id__c</members>
         <members>GiftTribute.HonoreeContactId</members>
         <members>GiftTribute.TributeType</members>
-        <members>Opportunity.AccountId</members>
         <members>Opportunity.Amount</members>
-        <members>Opportunity.CampaignId</members>
         <members>Opportunity.CloseDate</members>
-        <members>Opportunity.ContractId</members>
-        <members>Opportunity.Description</members>
         <members>Opportunity.ExpectedRevenue</members>
         <members>Opportunity.External_Id__c</members>
         <members>Opportunity.FQS_Grant_Deadline__c</members>
         <members>Opportunity.FQS_Grant_Report_Due__c</members>
         <members>Opportunity.FQS_Skip_Naming__c</members>
         <members>Opportunity.FQS_Solicitation_Date__c</members>
-        <members>Opportunity.IqScore</members>
-        <members>Opportunity.IsPrivate</members>
-        <members>Opportunity.LeadSource</members>
-        <members>Opportunity.Name</members>
-        <members>Opportunity.NextStep</members>
-        <members>Opportunity.OwnerId</members>
-        <members>Opportunity.Pricebook2Id</members>
         <members>Opportunity.Probability</members>
-        <members>Opportunity.SourceId</members>
-        <members>Opportunity.StageName</members>
-        <members>Opportunity.TotalOpportunityQuantity</members>
-        <members>Opportunity.Type</members>
         <members>OutreachSourceCode.AudienceCount</members>
         <members>OutreachSourceCode.External_Id__c</members>
         <members>OutreachSourceCode.FQS_Message_Channel_Segment__c</members>

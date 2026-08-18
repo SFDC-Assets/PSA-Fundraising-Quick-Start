@@ -292,3 +292,72 @@ force-app/main/default/appMenus/
 # sandboxes when they need seed data.
 **/classes/FQSSeedGenerator.cls
 **/classes/FQSSeedGenerator.cls-meta.xml
+
+# --- 2026-08-18: v1.0 OSS cut — prune zero-content standard-field retrieves ---
+#
+# GiftTransaction / Opportunity / GiftDesignation retrieves pulled 55 standard
+# fields that FQS never customized (no description, no help text, no picklist
+# values, no lookupFilter, no validation, no formula). Same PROTOCOL as the
+# Account/PersonAccount block above: to reintroduce customization on any of
+# these fields, remove the specific line, re-retrieve, and deploy.
+
+# GiftTransaction standard fields (no FQS customization)
+**/objects/GiftTransaction/fields/CheckDate.field-meta.xml
+**/objects/GiftTransaction/fields/Description.field-meta.xml
+**/objects/GiftTransaction/fields/DonorCoverAmount.field-meta.xml
+**/objects/GiftTransaction/fields/DonorId.field-meta.xml
+**/objects/GiftTransaction/fields/GatewayReference.field-meta.xml
+**/objects/GiftTransaction/fields/GatewayTransactionFee.field-meta.xml
+**/objects/GiftTransaction/fields/GenerationalCohort.field-meta.xml
+**/objects/GiftTransaction/fields/GiftCommitmentId.field-meta.xml
+**/objects/GiftTransaction/fields/GiftCommitmentScheduleId.field-meta.xml
+**/objects/GiftTransaction/fields/IsFullyRefunded.field-meta.xml
+**/objects/GiftTransaction/fields/IsPaid.field-meta.xml
+**/objects/GiftTransaction/fields/IsPartiallyRefunded.field-meta.xml
+**/objects/GiftTransaction/fields/IsWrittenOff.field-meta.xml
+**/objects/GiftTransaction/fields/LastGatewayErrorMessage.field-meta.xml
+**/objects/GiftTransaction/fields/LastGatewayProcessedDate.field-meta.xml
+**/objects/GiftTransaction/fields/LastGatewayResponseCode.field-meta.xml
+**/objects/GiftTransaction/fields/MatchingEmployerTransactionId.field-meta.xml
+**/objects/GiftTransaction/fields/OwnerId.field-meta.xml
+**/objects/GiftTransaction/fields/PartyPhilanthropicRsrchPrflId.field-meta.xml
+**/objects/GiftTransaction/fields/PaymentInstrumentId.field-meta.xml
+**/objects/GiftTransaction/fields/ProcessorReference.field-meta.xml
+**/objects/GiftTransaction/fields/ProcessorTransactionFee.field-meta.xml
+**/objects/GiftTransaction/fields/RefundedAmount.field-meta.xml
+**/objects/GiftTransaction/fields/TotalTransactionFee.field-meta.xml
+
+# Opportunity standard fields (no FQS customization)
+**/objects/Opportunity/fields/AccountId.field-meta.xml
+**/objects/Opportunity/fields/CampaignId.field-meta.xml
+**/objects/Opportunity/fields/ContractId.field-meta.xml
+**/objects/Opportunity/fields/Description.field-meta.xml
+**/objects/Opportunity/fields/IqScore.field-meta.xml
+**/objects/Opportunity/fields/IsPrivate.field-meta.xml
+**/objects/Opportunity/fields/LeadSource.field-meta.xml
+**/objects/Opportunity/fields/Name.field-meta.xml
+**/objects/Opportunity/fields/NextStep.field-meta.xml
+**/objects/Opportunity/fields/OwnerId.field-meta.xml
+**/objects/Opportunity/fields/Pricebook2Id.field-meta.xml
+**/objects/Opportunity/fields/SourceId.field-meta.xml
+**/objects/Opportunity/fields/StageName.field-meta.xml
+**/objects/Opportunity/fields/TotalOpportunityQuantity.field-meta.xml
+**/objects/Opportunity/fields/Type.field-meta.xml
+
+# GiftDesignation standard fields (no FQS customization)
+**/objects/GiftDesignation/fields/AverageTransactionAmount.field-meta.xml
+**/objects/GiftDesignation/fields/CurrentYearTransactionCount.field-meta.xml
+**/objects/GiftDesignation/fields/CurrentYearTrxnAmount.field-meta.xml
+**/objects/GiftDesignation/fields/Description.field-meta.xml
+**/objects/GiftDesignation/fields/FirstPaidTransactionDate.field-meta.xml
+**/objects/GiftDesignation/fields/HighestTransactionAmount.field-meta.xml
+**/objects/GiftDesignation/fields/LastPaidTransactionDate.field-meta.xml
+**/objects/GiftDesignation/fields/LastTwoYearTrxnAmount.field-meta.xml
+**/objects/GiftDesignation/fields/LastTwoYearTrxnCount.field-meta.xml
+**/objects/GiftDesignation/fields/LastYearTransactionCount.field-meta.xml
+**/objects/GiftDesignation/fields/LastYearTrxnAmount.field-meta.xml
+**/objects/GiftDesignation/fields/LowestTransactionAmount.field-meta.xml
+**/objects/GiftDesignation/fields/Name.field-meta.xml
+**/objects/GiftDesignation/fields/OwnerId.field-meta.xml
+**/objects/GiftDesignation/fields/TotalTransactionAmount.field-meta.xml
+**/objects/GiftDesignation/fields/TotalTransactionCount.field-meta.xml
