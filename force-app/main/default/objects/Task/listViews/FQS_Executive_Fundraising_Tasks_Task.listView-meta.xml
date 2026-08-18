@@ -2,7 +2,7 @@
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Executive_Fundraising_Tasks_Task</fullName>
     <filterScope>Queue</filterScope>
-    <label>Executive Fundraising Tasks</label>
+    <label>FQS Executive Fundraising Tasks</label>
     <queue>FQS_Executive_Fundraising_Tasks</queue>
     <sharedTo>
         <allInternalUsers></allInternalUsers>

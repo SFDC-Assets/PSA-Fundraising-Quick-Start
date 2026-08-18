@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>Household Member</value>
     </filters>
-    <label>Household Member Defaults</label>
+    <label>FQS Household Member Defaults</label>
 </ListView>

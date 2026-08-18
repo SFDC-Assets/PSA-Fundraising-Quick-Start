@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>Without Donor Restriction</value>
     </filters>
-    <label>Without Donor Restriction</label>
+    <label>FQS Without Donor Restriction</label>
 </ListView>

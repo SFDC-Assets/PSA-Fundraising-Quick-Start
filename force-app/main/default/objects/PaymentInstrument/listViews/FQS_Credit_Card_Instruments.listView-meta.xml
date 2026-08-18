@@ -7,7 +7,7 @@
         <operation>equals</operation>
         <value>Credit Card</value>
     </filters>
-    <label>Credit Card Instruments</label>
+    <label>FQS Credit Card Instruments</label>
     <columns>Name</columns>
     <columns>Type</columns>
     <columns>Account</columns>

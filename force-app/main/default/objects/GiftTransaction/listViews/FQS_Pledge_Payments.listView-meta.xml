@@ -13,5 +13,5 @@
         <operation>equals</operation>
         <value>Pledge Payment</value>
     </filters>
-    <label>Pledge Payments</label>
+    <label>FQS Pledge Payments</label>
 </ListView>

@@ -18,5 +18,5 @@
         <value>Social Paid</value>
     </filters>
     <booleanFilter>1 OR 2</booleanFilter>
-    <label>Digital Codes</label>
+    <label>FQS Digital Codes</label>
 </ListView>

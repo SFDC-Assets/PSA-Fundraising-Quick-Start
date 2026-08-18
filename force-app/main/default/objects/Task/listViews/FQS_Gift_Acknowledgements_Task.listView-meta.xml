@@ -2,7 +2,7 @@
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Gift_Acknowledgements_Task</fullName>
     <filterScope>Queue</filterScope>
-    <label>Gift Processing Tasks</label>
+    <label>FQS Gift Processing Tasks</label>
     <queue>FQS_Gift_Processing_Tasks</queue>
     <sharedTo>
         <allInternalUsers></allInternalUsers>

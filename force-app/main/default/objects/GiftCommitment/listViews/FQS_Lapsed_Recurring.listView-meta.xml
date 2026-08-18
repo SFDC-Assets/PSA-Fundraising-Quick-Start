@@ -18,5 +18,5 @@
         <operation>lessThan</operation>
         <value>LAST_N_DAYS:60</value>
     </filters>
-    <label>Lapsed Recurring — No Gift 60d</label>
+    <label>FQS Lapsed Recurring — No Gift 60d</label>
 </ListView>

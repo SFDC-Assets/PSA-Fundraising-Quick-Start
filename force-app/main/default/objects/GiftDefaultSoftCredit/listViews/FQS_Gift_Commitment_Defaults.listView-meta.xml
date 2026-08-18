@@ -13,5 +13,5 @@
         <operation>equals</operation>
         <value>Gift Commitment</value>
     </filters>
-    <label>Gift Commitment Defaults</label>
+    <label>FQS Gift Commitment Defaults</label>
 </ListView>

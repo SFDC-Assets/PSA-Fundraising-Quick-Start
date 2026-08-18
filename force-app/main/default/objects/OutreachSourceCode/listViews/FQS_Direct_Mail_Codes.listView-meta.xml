@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>Direct Mail</value>
     </filters>
-    <label>Direct Mail Codes</label>
+    <label>FQS Direct Mail Codes</label>
 </ListView>

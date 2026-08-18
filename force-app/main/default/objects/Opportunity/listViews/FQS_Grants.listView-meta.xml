@@ -28,5 +28,5 @@
         <value>Awarded</value>
     </filters>
     <booleanFilter>1 AND 2 AND 3 AND 4</booleanFilter>
-    <label>Grants (Open)</label>
+    <label>FQS Grants (Open)</label>
 </ListView>

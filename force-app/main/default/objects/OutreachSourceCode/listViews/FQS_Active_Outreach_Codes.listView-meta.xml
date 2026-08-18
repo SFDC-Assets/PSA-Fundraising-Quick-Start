@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>Active</value>
     </filters>
-    <label>Active Outreach Codes</label>
+    <label>FQS Active Outreach Codes</label>
 </ListView>

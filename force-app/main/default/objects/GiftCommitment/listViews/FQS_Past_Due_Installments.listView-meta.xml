@@ -18,5 +18,5 @@
         <operation>lessThan</operation>
         <value>TODAY</value>
     </filters>
-    <label>Past Due Installments</label>
+    <label>FQS Past Due Installments</label>
 </ListView>

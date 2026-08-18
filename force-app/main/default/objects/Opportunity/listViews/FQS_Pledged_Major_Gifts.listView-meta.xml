@@ -11,5 +11,5 @@
         <operation>equals</operation>
         <value>Pledged</value>
     </filters>
-    <label>Pledged Major Gifts</label>
+    <label>FQS Pledged Major Gifts</label>
 </ListView>

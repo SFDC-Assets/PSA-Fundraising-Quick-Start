@@ -18,7 +18,7 @@
         <operation>lessThan</operation>
         <value>LAST_N_DAYS:21</value>
     </filters>
-    <label>Major Gifts — Stale 21+ Days</label>
+    <label>FQS Major Gifts — Stale 21+ Days</label>
     <sharedTo>
         <group>FQS_Fundraisers</group>
     </sharedTo>

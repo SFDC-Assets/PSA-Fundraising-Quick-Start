@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>Fundraising Top Level Campaign</value>
     </filters>
-    <label>Top Level Campaigns</label>
+    <label>FQS Top Level Campaigns</label>
 </ListView>
