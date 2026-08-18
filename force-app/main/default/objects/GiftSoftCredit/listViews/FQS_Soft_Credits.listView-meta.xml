@@ -7,7 +7,7 @@
         <operation>equals</operation>
         <value>Soft Credit</value>
     </filters>
-    <label>FQS Soft Credits</label>
+    <label>Soft Credits</label>
     <columns>Name</columns>
     <columns>Recipient</columns>
     <columns>GiftTransaction</columns>

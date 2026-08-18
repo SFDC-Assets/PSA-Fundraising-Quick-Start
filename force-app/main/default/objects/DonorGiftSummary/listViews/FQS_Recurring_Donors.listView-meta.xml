@@ -15,5 +15,5 @@
         <operation>greaterThan</operation>
         <value>0</value>
     </filters>
-    <label>FQS Recurring Donors</label>
+    <label>Recurring Donors</label>
 </ListView>

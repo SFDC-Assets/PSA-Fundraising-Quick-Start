@@ -7,7 +7,7 @@
         <operation>equals</operation>
         <value>Memorial</value>
     </filters>
-    <label>FQS Memorial Tributes</label>
+    <label>Memorial Tributes</label>
     <columns>Name</columns>
     <columns>HonoreeName</columns>
     <columns>GiftTransaction</columns>

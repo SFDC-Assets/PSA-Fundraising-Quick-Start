@@ -14,5 +14,5 @@
         <operation>greaterThan</operation>
         <value>0</value>
     </filters>
-    <label>FQS Current Year Givers</label>
+    <label>Current Year Givers</label>
 </ListView>

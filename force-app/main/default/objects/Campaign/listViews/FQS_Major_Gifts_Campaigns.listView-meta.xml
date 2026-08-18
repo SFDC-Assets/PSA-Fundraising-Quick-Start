@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>Major Gifts</value>
     </filters>
-    <label>FQS Major Gifts Campaigns</label>
+    <label>Major Gifts Campaigns</label>
 </ListView>

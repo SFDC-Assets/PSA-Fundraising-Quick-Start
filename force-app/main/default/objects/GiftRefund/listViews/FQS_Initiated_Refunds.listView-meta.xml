@@ -7,7 +7,7 @@
         <operation>equals</operation>
         <value>Initiated</value>
     </filters>
-    <label>FQS Initiated Refunds</label>
+    <label>Initiated Refunds</label>
     <columns>Name</columns>
     <columns>GiftTransaction</columns>
     <columns>Amount</columns>

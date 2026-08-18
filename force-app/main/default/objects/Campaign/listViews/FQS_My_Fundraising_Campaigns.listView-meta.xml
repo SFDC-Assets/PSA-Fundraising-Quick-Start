@@ -8,5 +8,5 @@
     <columns>CAMPAIGN.END_DATE</columns>
     <columns>CAMPAIGN.ACTIVE</columns>
     <filterScope>Mine</filterScope>
-    <label>FQS My Fundraising Campaigns</label>
+    <label>My Fundraising Campaigns</label>
 </ListView>

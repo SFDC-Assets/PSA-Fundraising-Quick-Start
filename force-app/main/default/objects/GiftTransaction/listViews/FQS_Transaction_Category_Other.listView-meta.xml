@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>Other</value>
     </filters>
-    <label>FQS Transaction Category - Other</label>
+    <label>Transaction Category - Other</label>
 </ListView>

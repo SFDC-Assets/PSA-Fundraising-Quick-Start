@@ -11,5 +11,5 @@
         <operation>equals</operation>
         <value>0</value>
     </filters>
-    <label>FQS Inactive Designations</label>
+    <label>Inactive Designations</label>
 </ListView>

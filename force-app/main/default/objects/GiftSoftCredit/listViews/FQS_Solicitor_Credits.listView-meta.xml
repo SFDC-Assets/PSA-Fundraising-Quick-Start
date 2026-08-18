@@ -7,7 +7,7 @@
         <operation>equals</operation>
         <value>Solicitor</value>
     </filters>
-    <label>FQS Solicitor Credits</label>
+    <label>Solicitor Credits</label>
     <columns>Name</columns>
     <columns>Recipient</columns>
     <columns>GiftTransaction</columns>

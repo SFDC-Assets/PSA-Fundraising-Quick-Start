@@ -18,5 +18,5 @@
         <operation>equals</operation>
         <value>LAST_N_DAYS:7</value>
     </filters>
-    <label>FQS Failed / Canceled — Last 7 Days</label>
+    <label>Failed / Canceled — Last 7 Days</label>
 </ListView>

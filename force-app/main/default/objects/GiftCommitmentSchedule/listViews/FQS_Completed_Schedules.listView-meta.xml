@@ -13,5 +13,5 @@
         <operation>lessThan</operation>
         <value>TODAY</value>
     </filters>
-    <label>FQS Completed Schedules</label>
+    <label>Completed Schedules</label>
 </ListView>

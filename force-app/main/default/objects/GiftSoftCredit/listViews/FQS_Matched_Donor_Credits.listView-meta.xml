@@ -7,7 +7,7 @@
         <operation>equals</operation>
         <value>Matched Donor</value>
     </filters>
-    <label>FQS Matched Donor Credits</label>
+    <label>Matched Donor Credits</label>
     <columns>Name</columns>
     <columns>Recipient</columns>
     <columns>GiftTransaction</columns>

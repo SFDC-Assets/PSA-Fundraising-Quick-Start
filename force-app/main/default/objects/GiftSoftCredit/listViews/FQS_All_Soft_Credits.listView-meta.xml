@@ -2,7 +2,7 @@
 <ListView xmlns="urn:metadata.tooling.soap.sforce.com">
     <fullName>FQS_All_Soft_Credits</fullName>
     <filterScope>Everything</filterScope>
-    <label>FQS All Soft Credits</label>
+    <label>All Soft Credits</label>
     <columns>Name</columns>
     <columns>Recipient</columns>
     <columns>GiftTransaction</columns>

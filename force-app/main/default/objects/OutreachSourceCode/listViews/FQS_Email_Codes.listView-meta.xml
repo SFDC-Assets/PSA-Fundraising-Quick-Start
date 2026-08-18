@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>Email</value>
     </filters>
-    <label>FQS Email Codes</label>
+    <label>Email Codes</label>
 </ListView>

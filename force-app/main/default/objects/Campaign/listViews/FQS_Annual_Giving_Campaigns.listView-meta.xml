@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>Annual Giving</value>
     </filters>
-    <label>FQS Annual Giving Campaigns</label>
+    <label>Annual Giving Campaigns</label>
 </ListView>

@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>Events</value>
     </filters>
-    <label>FQS Event Campaigns</label>
+    <label>Event Campaigns</label>
 </ListView>

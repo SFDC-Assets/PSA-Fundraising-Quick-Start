@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>Outright Gift</value>
     </filters>
-    <label>FQS Outright Gifts</label>
+    <label>Outright Gifts</label>
 </ListView>

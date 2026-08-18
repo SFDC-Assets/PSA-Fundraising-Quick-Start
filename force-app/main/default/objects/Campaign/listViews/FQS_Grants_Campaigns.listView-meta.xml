@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>Grants</value>
     </filters>
-    <label>FQS Grants Campaigns</label>
+    <label>Grants Campaigns</label>
 </ListView>

@@ -7,7 +7,7 @@
         <operation>equals</operation>
         <value>Failed</value>
     </filters>
-    <label>FQS Failed Refunds</label>
+    <label>Failed Refunds</label>
     <columns>Name</columns>
     <columns>GiftTransaction</columns>
     <columns>Amount</columns>

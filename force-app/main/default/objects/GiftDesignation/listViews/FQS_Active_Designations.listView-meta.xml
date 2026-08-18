@@ -11,5 +11,5 @@
         <operation>equals</operation>
         <value>1</value>
     </filters>
-    <label>FQS Active Designations</label>
+    <label>Active Designations</label>
 </ListView>

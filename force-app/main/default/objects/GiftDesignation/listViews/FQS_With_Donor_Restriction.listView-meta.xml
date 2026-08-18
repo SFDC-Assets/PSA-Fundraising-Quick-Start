@@ -23,5 +23,5 @@
         <operation>equals</operation>
         <value>With Donor Restriction - Permanent</value>
     </filters>
-    <label>FQS With Donor Restriction</label>
+    <label>With Donor Restriction</label>
 </ListView>

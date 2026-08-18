@@ -7,7 +7,7 @@
         <operation>equals</operation>
         <value>Completed</value>
     </filters>
-    <label>FQS Completed Refunds</label>
+    <label>Completed Refunds</label>
     <columns>Name</columns>
     <columns>GiftTransaction</columns>
     <columns>Amount</columns>

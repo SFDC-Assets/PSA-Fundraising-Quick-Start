@@ -7,7 +7,7 @@
         <operation>equals</operation>
         <value>Honoree</value>
     </filters>
-    <label>FQS Honoree Credits</label>
+    <label>Honoree Credits</label>
     <columns>Name</columns>
     <columns>Recipient</columns>
     <columns>GiftTransaction</columns>

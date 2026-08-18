@@ -33,5 +33,5 @@
         <value>Declined</value>
     </filters>
     <booleanFilter>1 AND 2 AND 3 AND 4 AND 5</booleanFilter>
-    <label>FQS Major Gifts (Open)</label>
+    <label>Major Gifts (Open)</label>
 </ListView>

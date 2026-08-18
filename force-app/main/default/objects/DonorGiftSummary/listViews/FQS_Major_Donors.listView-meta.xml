@@ -14,5 +14,5 @@
         <operation>equals</operation>
         <value>1</value>
     </filters>
-    <label>FQS Major Donors</label>
+    <label>Major Donors</label>
 </ListView>

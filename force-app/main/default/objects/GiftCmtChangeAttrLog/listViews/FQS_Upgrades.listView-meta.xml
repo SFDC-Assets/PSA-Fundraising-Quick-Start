@@ -7,7 +7,7 @@
         <operation>equals</operation>
         <value>Upgrade</value>
     </filters>
-    <label>FQS Upgrades</label>
+    <label>Upgrades</label>
     <columns>Name</columns>
     <columns>GiftCommitment</columns>
     <columns>ChangeType</columns>

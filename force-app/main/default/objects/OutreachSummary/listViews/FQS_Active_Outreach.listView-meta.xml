@@ -7,7 +7,7 @@
         <operation>greaterThan</operation>
         <value>0</value>
     </filters>
-    <label>FQS Active Outreach</label>
+    <label>Active Outreach</label>
     <columns>Name</columns>
     <columns>Campaign</columns>
     <columns>OutreachSourceCode</columns>

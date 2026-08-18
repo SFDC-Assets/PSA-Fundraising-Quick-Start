@@ -13,5 +13,5 @@
         <operation>equals</operation>
         <value>Grant Payout</value>
     </filters>
-    <label>FQS Grant Payouts</label>
+    <label>Grant Payouts</label>
 </ListView>

@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>1</value>
     </filters>
-    <label>FQS In-Kind Gifts</label>
+    <label>In-Kind Gifts</label>
 </ListView>

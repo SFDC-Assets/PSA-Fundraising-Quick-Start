@@ -7,7 +7,7 @@
         <operation>equals</operation>
         <value>Pause</value>
     </filters>
-    <label>FQS Paused Commitments</label>
+    <label>Paused Commitments</label>
     <columns>Name</columns>
     <columns>GiftCommitment</columns>
     <columns>ChangeType</columns>

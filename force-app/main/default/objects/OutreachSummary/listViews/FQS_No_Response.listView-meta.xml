@@ -7,7 +7,7 @@
         <operation>equals</operation>
         <value>0</value>
     </filters>
-    <label>FQS No Response</label>
+    <label>No Response</label>
     <columns>Name</columns>
     <columns>Campaign</columns>
     <columns>OutreachSourceCode</columns>

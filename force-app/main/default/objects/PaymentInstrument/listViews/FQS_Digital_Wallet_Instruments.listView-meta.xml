@@ -13,7 +13,7 @@
         <value>Venmo</value>
     </filters>
     <booleanFilter>1 OR 2</booleanFilter>
-    <label>FQS Digital Wallet Instruments</label>
+    <label>Digital Wallet Instruments</label>
     <columns>Name</columns>
     <columns>Type</columns>
     <columns>Account</columns>

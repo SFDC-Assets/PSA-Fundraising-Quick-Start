@@ -2,7 +2,7 @@
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>FQS_Stewardship_Response_Task</fullName>
     <filterScope>Queue</filterScope>
-    <label>FQS Stewardship Tasks</label>
+    <label>Stewardship Tasks</label>
     <queue>FQS_Stewardship_Tasks</queue>
     <sharedTo>
         <allInternalUsers></allInternalUsers>

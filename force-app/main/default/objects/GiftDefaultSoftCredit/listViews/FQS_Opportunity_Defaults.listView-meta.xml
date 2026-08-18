@@ -13,5 +13,5 @@
         <operation>equals</operation>
         <value>Opportunity</value>
     </filters>
-    <label>FQS Opportunity Defaults</label>
+    <label>Opportunity Defaults</label>
 </ListView>

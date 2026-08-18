@@ -23,7 +23,7 @@
         <value>BECS Debit</value>
     </filters>
     <booleanFilter>1 OR 2 OR 3 OR 4</booleanFilter>
-    <label>FQS Bank Debit Instruments</label>
+    <label>Bank Debit Instruments</label>
     <columns>Name</columns>
     <columns>Type</columns>
     <columns>Account</columns>

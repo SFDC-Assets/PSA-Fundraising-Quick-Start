@@ -17,7 +17,7 @@
         <operation>equals</operation>
         <value>NEXT_N_DAYS:30</value>
     </filters>
-    <label>FQS Major Gifts — Closing Next 30</label>
+    <label>Major Gifts — Closing Next 30</label>
     <sharedTo>
         <group>FQS_Fundraisers</group>
     </sharedTo>

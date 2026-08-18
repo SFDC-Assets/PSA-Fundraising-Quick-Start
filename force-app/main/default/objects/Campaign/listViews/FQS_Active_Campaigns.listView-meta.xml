@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>1</value>
     </filters>
-    <label>FQS Active Fundraising Campaigns</label>
+    <label>Active Fundraising Campaigns</label>
 </ListView>

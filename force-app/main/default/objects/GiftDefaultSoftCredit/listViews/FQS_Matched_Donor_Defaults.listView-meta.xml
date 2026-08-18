@@ -12,5 +12,5 @@
         <operation>equals</operation>
         <value>Matched Donor</value>
     </filters>
-    <label>FQS Matched Donor Defaults</label>
+    <label>Matched Donor Defaults</label>
 </ListView>
