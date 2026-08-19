@@ -365,6 +365,10 @@
                     <name>accordionSections</name>
                     <value>Facet-14cf9e70-c677-491e-8f86-ee31ba50f49b</value>
                 </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>allowMultipleSectionsOpen</name>
+                    <value>false</value>
+                </componentInstanceProperties>
                 <componentName>flexipage:accordion</componentName>
                 <identifier>flexipage_accordion4</identifier>
             </componentInstance>
@@ -458,7 +462,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>filterName</name>
-                    <value>MyOpportunities</value>
+                    <value>FQS_Major_Gifts_Stale</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>hideActionBar</name>
@@ -559,6 +563,10 @@
                 <componentInstanceProperties>
                     <name>accordionSections</name>
                     <value>Facet-5273a981-753f-4678-b013-241c82b836f3</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>allowMultipleSectionsOpen</name>
+                    <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>defaultSectionName</name>
@@ -686,6 +694,10 @@
                 <componentInstanceProperties>
                     <name>accordionSections</name>
                     <value>Facet-d3t6bzddn08</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>allowMultipleSectionsOpen</name>
+                    <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>defaultSectionName</name>
@@ -917,6 +929,10 @@
                 <componentInstanceProperties>
                     <name>accordionSections</name>
                     <value>Facet-c2f43e8a-9f01-461a-aaa6-ecf0bd084fdc</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
+                    <name>allowMultipleSectionsOpen</name>
+                    <value>false</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>defaultSectionName</name>
