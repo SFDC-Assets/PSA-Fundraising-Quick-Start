@@ -27,7 +27,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS Board Designated Fund</stringValue>
+                <stringValue>Board Designated Fund</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -78,7 +78,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS Capital Campaign Fund</stringValue>
+                <stringValue>Capital Campaign Fund</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -129,7 +129,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS Cash Reserve</stringValue>
+                <stringValue>Cash Reserve</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -180,7 +180,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS Endowment</stringValue>
+                <stringValue>Endowment</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -231,7 +231,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS Equipment and Supply Fund</stringValue>
+                <stringValue>Equipment and Supply Fund</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -282,7 +282,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS Events</stringValue>
+                <stringValue>Events</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -333,7 +333,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS General Operating Fund</stringValue>
+                <stringValue>General Operating Fund</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -384,7 +384,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS General Program</stringValue>
+                <stringValue>General Program</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -659,7 +659,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS Merchandise</stringValue>
+                <stringValue>Merchandise</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -710,7 +710,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS Program A</stringValue>
+                <stringValue>Program A</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -761,7 +761,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS Program B</stringValue>
+                <stringValue>Program B</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -812,7 +812,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS Program Expansion Fund</stringValue>
+                <stringValue>Program Expansion Fund</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -863,7 +863,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS Program Services</stringValue>
+                <stringValue>Program Services</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -914,7 +914,7 @@
             <assignToReference>rsv_Candidate.Name</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>FQS Staff Salary Fund</stringValue>
+                <stringValue>Staff Salary Fund</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -1372,7 +1372,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS General Operating Fund</stringValue>
+                    <stringValue>General Operating Fund</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -1387,7 +1387,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS Board Designated Fund</stringValue>
+                    <stringValue>Board Designated Fund</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -1402,7 +1402,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS Cash Reserve</stringValue>
+                    <stringValue>Cash Reserve</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -1417,7 +1417,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS General Program</stringValue>
+                    <stringValue>General Program</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -1432,7 +1432,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS Program A</stringValue>
+                    <stringValue>Program A</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -1447,7 +1447,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS Program B</stringValue>
+                    <stringValue>Program B</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -1462,7 +1462,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS Program Expansion Fund</stringValue>
+                    <stringValue>Program Expansion Fund</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -1477,7 +1477,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS Equipment and Supply Fund</stringValue>
+                    <stringValue>Equipment and Supply Fund</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -1492,7 +1492,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS Staff Salary Fund</stringValue>
+                    <stringValue>Staff Salary Fund</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -1507,7 +1507,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS Capital Campaign Fund</stringValue>
+                    <stringValue>Capital Campaign Fund</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -1522,7 +1522,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS Endowment</stringValue>
+                    <stringValue>Endowment</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -1537,7 +1537,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS Events</stringValue>
+                    <stringValue>Events</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -1552,7 +1552,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS Merchandise</stringValue>
+                    <stringValue>Merchandise</stringValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -1567,7 +1567,7 @@
                 <leftValueReference>Loop_Existing_Designations.Name</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
-                    <stringValue>FQS Program Services</stringValue>
+                    <stringValue>Program Services</stringValue>
                 </rightValue>
             </conditions>
             <connector>
