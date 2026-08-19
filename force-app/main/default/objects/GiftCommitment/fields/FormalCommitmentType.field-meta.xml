@@ -2,4 +2,5 @@
 <CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
     <fullName>FormalCommitmentType</fullName>
     <description>Allowed values: Verbal, Written.</description>
+    <inlineHelpText>How the donor made this commitment. Pick Written when you have a signed agreement or email; Verbal for a phone or in-person conversation.</inlineHelpText>
 </CustomField>

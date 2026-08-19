@@ -2,6 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>AcknowledgementStatus</fullName>
     <description>Written by the `FQS_Gift_Acknowledgement` flow. `To Be Sent` (default) queues the gift for the daily run; `Sent` stamps `AcknowledgementDate`. Clearing back to `To Be Sent` re-queues on next daily run.</description>
+    <inlineHelpText>Leave as To Be Sent for the daily acknowledgement flow to pick up. Sent stamps Acknowledgement Date; clear back to To Be Sent to re-queue.</inlineHelpText>
     <trackHistory>false</trackHistory>
     <type>Picklist</type>
 </CustomField>

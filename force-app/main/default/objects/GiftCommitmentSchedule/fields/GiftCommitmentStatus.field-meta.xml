@@ -2,4 +2,5 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>GiftCommitmentStatus</fullName>
     <description>Read-only mirror of the parent Gift Commitment Status field. Allowed values: Draft (commitment not yet active), Active (installments being processed), Lapsed (past due with no recent payment), Failing (payment processing errors), Paused (installments temporarily suspended), Closed (commitment fulfilled or cancelled).</description>
+    <inlineHelpText>Read-only. Mirrors the parent Gift Commitment Status so schedule reports don't need a join. Update the parent Gift Commitment to change this.</inlineHelpText>
 </CustomField>
