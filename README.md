@@ -991,7 +991,7 @@ To deliver a seamless user experience, transition the components from the standa
 
 **Migrate Dynamic Pages:** Review the dynamic Lightning record pages provided by the package for Gift Transaction, Gift Commitment, Gift Designation, Gift Refund, Gift Tribute, Donor Gift Summary, Outreach Source Code, Outreach Summary, Payment Instrument, Campaign, and Opportunity. Instead of using the default standalone app layout, use the Lightning App Builder to assign these dynamic pages (or migrate their conditional visibility components) to your organization's primary working apps.
 
-**Consolidate Page Layouts:** Audit your existing Gift Transaction and Gift Commitment page layouts to embed the custom fields (like `FQS_Gift_Transaction_Category__c`, `FQS_In_Kind__c`, `FQS_Matched__c`, `FQS_Recurring__c`, `FQS_Restriction_Type__c`) and replace standard related lists with the package's modular components where appropriate.
+**Consolidate Page Layouts:** Audit your existing Gift Transaction and Gift Commitment page layouts to embed the custom fields (like `FQS_Gift_Transaction_Category__c`, `FQS_In_Kind__c`, `FQS_Match_Status__c`, `FQS_Recurring__c`, `FQS_Restriction_Type__c`) and replace standard related lists with the package's modular components where appropriate.
 
 **Salesforce Documentation:**
 

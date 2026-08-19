@@ -211,9 +211,6 @@
         <members>FQS_Campaign_Template.Acq_P2p_Drive</members>
         <members>FQS_Campaign_Template.Acq_Peer_Referral</members>
         <members>FQS_Campaign_Template.Acq_Welcome_Series</members>
-        <members>FQS_Campaign_Template.Adv_Newsletter_Signup</members>
-        <members>FQS_Campaign_Template.Adv_Petition</members>
-        <members>FQS_Campaign_Template.Adv_Volunteer_Recruit</members>
         <members>FQS_Campaign_Template.Evt_Celebration_Invite</members>
         <members>FQS_Campaign_Template.Evt_Celebration_Savedate</members>
         <members>FQS_Campaign_Template.Evt_Celebration_Sponsor</members>
