@@ -485,11 +485,6 @@
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
-            <field>FQS_Recurring__c</field>
-            <table>Campaign.GiftTransaction</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
             <field>FQS_Is_Entry_Gift__c</field>
             <table>Campaign.GiftTransaction</table>
         </columns>

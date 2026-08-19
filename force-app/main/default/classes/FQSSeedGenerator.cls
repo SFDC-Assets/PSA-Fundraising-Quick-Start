@@ -1171,7 +1171,6 @@ public with sharing class FQSSeedGenerator {
                 if (kind == 'grant-multiyear' || kind == 'grant-custom') {
                     gt.FQS_Restriction_Release_Date__c = txnDate.addYears(1);
                 }
-                if (kind == 'recurring') gt.FQS_Recurring__c = true;
                 if (scenario == 1 || scenario == 3) {
                     gt.FQS_Match_Status__c = 'Received';
                 }

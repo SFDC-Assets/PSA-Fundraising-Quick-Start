@@ -48,7 +48,7 @@
         <field>Campaign$Status</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
-    <name>Campaign Record Page Report</name>
+    <name>Campaign Record Page Report – Level 3+</name>
     <params>
         <name>scopeid</name>
         <value></value>

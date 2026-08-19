@@ -148,7 +148,6 @@
         <members>GiftTransaction.FQS_Is_Major_Gift__c</members>
         <members>GiftTransaction.FQS_Is_Mid_Gift__c</members>
         <members>GiftTransaction.FQS_Match_Status__c</members>
-        <members>GiftTransaction.FQS_Recurring__c</members>
         <members>GiftTransaction.FQS_Restriction_Release_Date__c</members>
         <members>GiftTransaction.FQS_Skip_Naming__c</members>
         <members>GiftTransaction.FQS_Stewardship_Date__c</members>
