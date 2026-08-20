@@ -139,10 +139,44 @@ It is recommended (but not required) that the [Stakeholder Management Quick Star
    * [How Does a Flow's Running User Work](https://help.salesforce.com/s/articleView?id=sf.flow_distribute_system_mode.htm&type=5)
    * [Prepare to Install Nonprofit Cloud](https://help.salesforce.com/s/articleView?id=industries.NPC_prepare_install.htm&type=5)
 
-3. **Enable Nonprofit Cloud Fundraising**
-   1. In Setup, search for **Fundraising**, and select **Fundraising Settings**.
-   2. Turn on **Fundraising Tools for Everyone**.
-   3. <!-- TODO: any additional Fundraising Settings toggles required (recurring gifts, tributes, matching, refunds) -->
+3. **Enable Nonprofit Cloud Fundraising and Review Fundraising Settings**
+
+   Fundraising Settings is a single Setup page with a large surface area of toggles, thresholds, and integration knobs. Review the whole page carefully during install — several defaults are aggressive (retry counts, validation pauses) and several depend on assets that don't exist yet at pre-install time (Duplicate Rules, custom external-ID fields).
+
+   1. From **Setup**, in the **Quick Find** box, enter **Fundraising**, and select **Fundraising Settings**.
+
+   2. **Fundraising Tools for Everyone** — turn on. This is the master switch that lights up Fundraising for all licensed users.
+
+   3. **General Fundraising Settings** — review the three retry thresholds and two automation checkboxes below with your finance / gift-ops team before go-live:
+      * **Installment Extension Day Count** (default 1) — how many days beyond a scheduled installment date the platform waits before flagging the installment as late.
+      * **Lapsed Unpaid Transaction Count** (default 3) — how many consecutive unpaid installments before the parent Gift Commitment is marked Lapsed.
+      * **Failing Transaction Count** (default 1) — how many failed transactions before the parent Gift Commitment is flagged Failing.
+      * **Create Recurring Schedule Transaction** — controls whether the platform auto-fans-out scheduled Gift Transaction records ahead of the payment date. FQS assumes this is **on**; several FQS reports and the Gift Acknowledgement flow depend on Expected-status GTs being present.
+      * **Auto Close Recurring Commitment** — auto-closes recurring commitments when their end date passes. Leave on unless your finance team explicitly manages recurring closure by hand.
+
+   4. **NextGen Commitment Processing** — leave off unless your org has high recurring-gift volume and has coordinated the switch with Salesforce Support. FQS is authored against the current commitment processing engine; NextGen changes fanout timing.
+
+   5. **Gift Entry — External ID** — leave blank at pre-install. FQS does not ship a donor-matching external-ID field; revisit this after go-live only if you introduce a custom donor-matching field.
+
+   6. **Donor Matching Method** — set to **No Matching** at pre-install. The **Duplicate Management Rules** option depends on the FQS Duplicate Rules being deployed and active, which happens during package install. Return to this setting during post-install and flip to **Duplicate Management Rules** once the `FQS_Contact_Dupe` and `FQS_Account_*_Dupe` rules are confirmed active.
+
+   7. **Philanthropic Research Topics in Agentforce** — leave off unless Agentforce is provisioned and your org has explicitly opted in to Einstein Generative AI features. Consumes Einstein Requests.
+
+   8. **Gift Planning and Agreements** — turn on **Gift Planning** and **Gift Agreements** if your org handles planned gifts (bequests, trusts, endowments) or formal gift-agreement contracts. Both are independent switches; turn on only what you'll actually use.
+
+   9. **Configure Data Cloud Access** — click only if your org has Data Cloud provisioned and plans to segment or activate on Fundraising data. No-op otherwise.
+
+   10. **Pause Gift Validations** — leave all three toggles **off** for normal operation:
+       * Pause Gift Transaction Validations
+       * Pause Gift Commitment Validations
+       * Pause Gift Commitment Schedule Validations
+
+       *Notice: These pauses disable platform validation rules on the named objects. Only turn them on during a supervised bulk-import or migration window, and turn them back off before go-live. Leaving any of them on in production corrupts data integrity over time — validation rules exist to catch scheduling and totals errors that silently break rollups downstream.*
+
+   Supporting documentation:
+
+   * [Enable Fundraising](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_enable_fundraising.htm&type=5)
+   * [Fundraising Settings Reference](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_settings_reference.htm&type=5) <!-- verify article id before ship -->
 
 4. **Assign the Fundraising_Admin Permission Set Group**
    1. From Setup, in the Quick Find box, enter **Permission Set Groups**, and then select **Permission Set Groups**.
@@ -153,16 +187,15 @@ It is recommended (but not required) that the [Stakeholder Management Quick Star
    6. Optionally, select an expiration date for the user assignment to expire.
    7. Click **Assign**.
 
-5. **Enable Person Accounts for Fundraising** (only if not already enabled via Stakeholder Management Quick Start)
-   1. <!-- TODO: reference SMQS steps or link to sfdo.fundraising_enable_person_accounts_for_fundraising.htm -->
+5. **Enable Person Accounts for Fundraising** (skip if already enabled via Stakeholder Management Quick Start)
+   1. From **Setup**, in the **Quick Find** box, enter **Person Accounts**, and follow the steps on the Setup page.
+   2. Click **View Org Impacts**, review the Org Impact Acknowledgement, and click **Enable Person Accounts**.
+   3. Once Person Accounts is enabled, follow [Enable Person Accounts for Fundraising](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_enable_person_accounts_for_fundraising.htm&type=5) to complete the fundraising-specific configuration (record-type mapping, layout adjustments).
+   4. **Recommended:** rename the platform-created Person Account record type to **Individual** for consistency with the Stakeholder Management Quick Start and with the everyday-language conventions used across both accelerators. From **Setup → Object Manager → Person Account → Record Types**, click **Person Account**, then **Edit**, and set the Record Type Label and Record Type Name to `Individual`. Suggested description: *Select this for any individual. This will create a person account.* You can pick a different name if your organization prefers — just apply the same choice consistently, since a later post-install step (§III) grants record type visibility on that same record type by name.
 
-6. **Enable Multiple Address Management** (only if not already enabled via Stakeholder Management Quick Start)
-   1. <!-- TODO: cross-reference SMQS or provide standalone steps -->
+   *Notice: Person Accounts is a one-way switch — once enabled it cannot be disabled without Salesforce Support involvement. Coordinate with your finance and stakeholder-management leads before enabling.*
 
-7. **Enable Data Protection and Privacy** (only if not already enabled via Stakeholder Management Quick Start)
-   1. <!-- TODO: cross-reference SMQS or provide standalone steps -->
-
-8. **Plan Your Field History Tracking Strategy**
+6. **Plan Your Field History Tracking Strategy**
 
    Field history tracking records old and new values when a field changes, creating an auditable change log that is invaluable for gift-entry audits, finance reconciliations, and donor-relationship reviews. **Plan your tracking strategy before you install and start entering data** — Salesforce only begins tracking from the moment you enable it; there is no way to retroactively capture changes that happened before tracking was turned on.
 
@@ -194,7 +227,7 @@ It is recommended (but not required) that the [Stakeholder Management Quick Star
    * [Field History Tracking](https://help.salesforce.com/s/articleView?id=platform.tracking_field_history.htm&type=5)
    * [Salesforce Shield Field Audit Trail](https://help.salesforce.com/s/articleView?id=platform.field_audit_trail.htm&type=5)
 
-9. **Enable Contacts to Multiple Accounts**
+7. **Enable Contacts to Multiple Accounts**
    1. From Setup, enter **Account Settings** in the Quick Find box, and then select **Account Settings**.
 
       Note: Only users with the Customize Application permission can view or edit Account Settings.
@@ -202,8 +235,6 @@ It is recommended (but not required) that the [Stakeholder Management Quick Star
    2. Click **Edit**.
    3. Select **Allow users to relate a contact to multiple accounts** and click **Save**.
    4. When the Contacts to Multiple Accounts Settings section appears, review the default options and save your changes.
-
-8. <!-- TODO: any additional pre-install setting (payment gateway config, currency setup) that FQS depends on -->
 
 Supporting documentation:
 
@@ -235,46 +266,9 @@ Supporting documentation:
 
 **I. Enable Settings**
 
-<!-- TODO: enumerate any remaining UI, currency, or Fundraising-specific settings that must be toggled after install. Candidates:
-* Multi-currency (if in scope)
-* Advanced Currency Management
-* Recurring Gift settings
-* Gift Matching settings
-* Gift Refund / Adjustment settings
--->
+1. **Enable Field History Tracking**
 
-1. **Configure Fiscal Year**
-
-   Nonprofit fundraising reporting almost always follows the organization's fiscal calendar rather than the calendar year (year-end appeals, board reporting, 990 preparation, and donor giving history all key off the fiscal year). Configure this **before** loading historical gifts or building fundraising reports — changing fiscal year settings after the fact can invalidate existing reports, forecasts, and period-based automation.
-
-   1. **Decide between Standard and Custom Fiscal Year**
-      1. Choose **Standard Fiscal Year** if your organization uses a 12-month fiscal year that starts on the first day of a month (e.g., July 1 – June 30, October 1 – September 30, January 1 – December 31). This is the right choice for the majority of nonprofits.
-      2. Choose **Custom Fiscal Year** only if your organization uses a 4-4-5, 52/53-week, or other non-standard fiscal calendar. <!-- TODO: link internal guidance for orgs on custom fiscal years -->
-
-      *Notice: Once Custom Fiscal Year is enabled it cannot be disabled without Salesforce Support involvement. Confirm with your finance team before enabling.*
-
-   2. **Set the Fiscal Year Start Month (Standard Fiscal Year)**
-      1. From Setup, in the Quick Find box, enter **Fiscal Year**, and then select **Fiscal Year**.
-      2. Select **Standard Fiscal Year**.
-      3. Select the **Fiscal Year Start Month** that matches your organization's fiscal calendar (e.g., **July** for a July–June fiscal year).
-      4. Under **Fiscal Year Is Based On**, choose whether the fiscal year is named for the year in which it **starts** or **ends**. Confirm this with your finance team — GAAP-reporting nonprofits typically name the fiscal year for the year in which it **ends** (a July 2025 – June 2026 fiscal year is "FY2026").
-      5. Click **Save**.
-      6. Acknowledge the impact warning. Existing forecasts, quotas, and fiscal-year-based reports will be recalculated.
-
-   3. **Verify Fiscal Year on Gift Transaction Reporting**
-      1. Open the **Fundraising Quick Start** app and navigate to a Gift Transaction record with a Close Date in the current fiscal year.
-      2. Confirm that standard fiscal-year-based report filters (e.g., "This Fiscal Year", "Current and Previous Fiscal Year") return the expected gifts.
-      3. <!-- TODO: reference the specific FQS reports / dashboards that key off fiscal year once built -->
-
-   Supporting documentation:
-
-   * [Set the Fiscal Year](https://help.salesforce.com/s/articleView?id=platform.admin_about_fiscal_years.htm&type=5)
-   * [Customize the Fiscal Year Structure](https://help.salesforce.com/s/articleView?id=platform.customize_fiscalyear.htm&type=5)
-   * [Define a Custom Fiscal Year](https://help.salesforce.com/s/articleView?id=platform.customize_fyf.htm&type=5)
-
-2. **Enable Field History Tracking**
-
-   Complete the fields you identified in the pre-install planning step (Before You Install, step 7) for each object. The steps below cover Campaign (package-deployed with history enabled but no fields selected), Opportunity (package-deployed with history disabled), and the Salesforce-managed Fundraising objects.
+   Complete the fields you identified in the pre-install planning step (Before You Install, step 6) for each object. The steps below cover Campaign (package-deployed with history enabled but no fields selected), Opportunity (package-deployed with history disabled), and the Salesforce-managed Fundraising objects.
 
    1. **Configure field history tracking on Campaign**
       1. From **Setup**, click the **Object Manager** tab.
@@ -321,7 +315,7 @@ Supporting documentation:
 
    * [Field History Tracking](https://help.salesforce.com/s/articleView?id=platform.tracking_field_history.htm&type=5)
 
-3. **Create and Configure an Org-Wide Email Address for Donor Acknowledgements**
+2. **Create and Configure an Org-Wide Email Address for Donor Acknowledgements**
 
    The Gift Acknowledgement flow sends automated emails to donors on behalf of your organization. By default, Salesforce sends automated emails from the address of the running user or the Default Workflow User, which is usually an internal admin address that donors should never see. Setting up a dedicated org-wide email address (e.g., `acknowledgements@yourorg.org`) gives donors a recognizable, reply-able sender and ensures acknowledgement emails do not appear to come from a staff member's personal account.
 
@@ -405,7 +399,7 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
 6. **Review flow statuses**
    1. Scan the list for any flows with a status of **Inactive** or **Invalid Draft**.
-   2. The **FQS Gift Acknowledgement** flow will appear **Inactive** here — this is expected. Activate it only after completing section VIII.
+   2. The **FQS Gift Acknowledgement** flow will appear **Inactive** here — this is expected. Activate it only after completing section VII.
    3. All other FQS flows should be **Active** after package installation. If any show as Inactive or Invalid Draft, investigate before going live.
 
 **III. Assign Permission Sets**
@@ -449,122 +443,338 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
       5. Click **Assign**.
       6. Click **Done**.
 
-<!-- TODO: add additional FQS-specific permission sets as they are built out
-3. **Assign the FQS Gift Entry Permission Set**
-4. **Assign the FQS Gift Refunds Permission Set**
-5. **Assign the FQS Donor Summary Permission Set**
--->
+4. **Assign the FQS Record Type Access Permission Set**
+
+   The **FQS Record Type Access** permission set grants visibility on three record types the accelerator relies on: `Campaign.FQS_Fundraising` (the fundraising campaign record type used throughout FQS), `Opportunity.Grant`, and `Opportunity.Major_Gift`. Assign it to any user who will create or edit Campaigns or Opportunities — without it, users see only the record types their Profile grants directly and the FQS flows and dynamic pages that key off these record types produce ambiguous "Which Record Type?" dialogs or no options at all.
+
+   1. From Setup, in the Quick Find box, enter **Permission Sets**, and then select **Permission Sets**.
+   2. Click the permission set **FQS Record Type Access** in the list view.
+   3. To assign your user:
+      1. Click **Manage Assignments**.
+      2. Click **Add Assignments**.
+      3. Select each user, and then click **Next**.
+      4. *Optional:* Select an expiration date.
+      5. Click **Assign**.
+      6. Click **Done**.
+
+5. **Assign the FQS Person Account Fields Permission Set** (only if Person Accounts is enabled)
+
+   The **FQS Person Account Fields** permission set grants read/edit access to the Person-Account-specific standard fields on Account (birthdate, salutation, department, opt-out flags, and related name/title fields). The permset intentionally does **not** grant Person Account record type visibility — this mirrors the pattern used by the Stakeholder Management Quick Start and avoids a hard install-time dependency on Person Accounts being enabled. Grant record type access manually as a follow-up step below. Skip this entire step if your org has not enabled Person Accounts.
+
+   1. From Setup, in the Quick Find box, enter **Permission Sets**, and then select **Permission Sets**.
+   2. Click the permission set **FQS Person Account Fields** in the list view.
+   3. Assign users:
+      1. Click **Manage Assignments**.
+      2. Click **Add Assignments**.
+      3. Select each user, and then click **Next**.
+      4. *Optional:* Select an expiration date.
+      5. Click **Assign**.
+      6. Click **Done**.
+   4. Grant Person Account record type visibility on the permset:
+      1. Return to the permission set detail page (**Setup → Permission Sets → FQS Person Account Fields**).
+      2. Click **Object Settings**.
+      3. Click **Accounts** in the Object Name list.
+      4. Click **Edit**.
+      5. Check the **Assigned Record Types** checkbox next to the Person Account record type. If you followed the recommendation in Before You Install step 5, this record type is labeled **Individual**; if you chose a different label, select the one you chose.
+      6. Click **Save**.
+
+6. **Assign Permission Sets for System Integration Users**
+
+   The accelerator ships four permission sets meant for system integration users — the accounts that back data-loading and data-migration jobs, ongoing integrations with donation-form tools (Classy, GiveLively, Every.org, custom Experience Cloud portals), and any other automated pipe writing into the fundraising data model. Assign these directly to the specific integration users or integration-user profiles that need them; do not roll them into the permission set groups used for day-to-day human staff.
+
+   * **FQS Rollup DPE Read** — grants read access on the standard fields the three shipped Fundraising Data Processing Engine (DPE) definitions read at runtime (GiftCommitment, GiftTransaction, GiftDesignation, GiftSoftCredit, GiftTransactionDesignation, GiftCmtChangeAttrLog, OutreachSummary, OutreachSourceCode, PartyRelationshipGroup). Assign to the built-in **Integration User** (Profile: Analytics Cloud Integration User; Username pattern: `integration@<orgid>.com`). Fundraising Cloud's Analytics Cloud Integration User profile grants object-level access to these objects out of the box but does **not** ship field-level access to standard fields; without this permission set the DPE save fails with errors such as *"the integration user with the Analytics Cloud Integration User profile doesn't have access to the ScheduleType field of GiftCommitment"*. Verify by opening any of the three DPE definitions (**Setup → Data Processing Engine**) and clicking **Save** — it should now save without field-access errors.
+
+   * **FQS Bypass Automation** — grants the `FQS_Bypass_Automation` custom permission, which short-circuits the FQS record-triggered flows that maintain derived state (currently the three flows that recalc `GiftCommitment.FulfillmentType`). Assign to migration runners, Data Loader operators, mass-update jobs, and any ongoing integration whose upstream system is authoritative for the fields these flows recalculate. After a bulk load, run `scripts/apex/fqs-recalc-gc-fulfillmenttype.apex` to reconcile `FulfillmentType` across affected commitments. See Post-Install Considerations §5 for the full pattern.
+
+   * **FQS Naming Opt Out** — grants the `FQS_Skip_Record_Naming` custom permission plus edit FLS on `FQS_Skip_Naming__c` for GiftCommitment, GiftTransaction, and Opportunity. Assign to migration users and to any ongoing integration whose upstream system owns the record Name — this prevents FQS's auto-naming flows from overwriting names coming from that system.
+
+   * **FQS Email Template Builder Permission** — grants the `AccessContentBuilder` user permission, needed to edit templates in the Lightning Email Template Builder. Assign only to admins who want to rebuild the shipped Classic email templates in the drag-and-drop Builder (see Post-Install Considerations §10). Day-to-day use of the FQS Gift Acknowledgement and Stewardship flows does not require this permset — the flows send with the Classic templates as-is.
+
+   To assign any of these:
+   1. From Setup, in the Quick Find box, enter **Users** (for named users) or **Permission Sets** (for direct permset assignment).
+   2. Locate the integration user or the permission set.
+   3. Add the permission set to the user's **Permission Set Assignments** and click **Save**.
 
 **IV. Configure Gift Transaction and Gift Commitment Access**
 
-<!-- TODO: fill out with the concrete profile / permission-set / page-layout / record-type assignments that need to happen. Rough shape:
-1. Provide access to the FQS Fundraising Campaign Record Type
-2. Modify Gift Transaction Page Layouts (assign SMQS-equivalent FQS layouts)
-3. Modify Gift Commitment Page Layouts
-4. Modify Search Layouts on Gift Transaction and Gift Commitment
-5. Modify List View Button Layouts on Gift Transaction and Gift Commitment
--->
+1. **Assign FQS Dynamic Lightning Record Pages and Layouts to the Right Profiles**
 
-1. **Add the leaf-Campaign lookup filter to Gift Transaction**
+   The accelerator ships dynamic Lightning record pages (flexipages) tuned for fundraising workflows, but standard objects still rely on classic page layouts to control some behavior on those Lightning pages (related list membership, mobile card visibility, and profile-level field defaults). Assign both the flexipages and the shipped classic page layouts to the appropriate profiles for your org. The right set of profiles is org-specific — pick the profiles that reflect who will do gift-entry and development work in your organization.
 
-   `GiftTransaction.CampaignId` is a Nonprofit Cloud–owned standard field. Salesforce does not include lookup-filter edits to standard fields in unmanaged packages, so this step must be applied manually in every install. The filter steers users to attribute each gift to a level-3 (ask) Campaign — the concrete solicitation — rather than a level-1 rollup or level-2 strategy. Ask-level attribution keeps performance reports honest; rollup-level attribution hides the ask from the numbers you were trying to measure.
+   The record pages and layouts that most commonly need explicit profile assignment:
 
-   The filter uses `FQS_Hierarchy_Depth__c` on Campaign — a formula field the package installs (1 = top rollup, 2 = strategy, 3 = ask, up to 5 levels). It ships as **Optional** so users can override for exceptions (e.g., a gift attributed to an evergreen program rollup with no ask-level campaign yet).
+   * **Opportunity** — `FQS_Opportunity_Record_Page` and **FQS Opportunity Layout**.
+   * **Campaign** — `FQS_Campaign_Record_Page` and **FQS Campaign Layout**.
+   * **Person Account** — **FQS Person Account Layout** (if your org uses Person Accounts).
+   * **Account** — `FQS_Account_Record_Page` and **FQS Account Layout**.
 
-   1. From Setup, click the **Object Manager** tab.
-   2. Search for and click **Gift Transaction**, then select **Fields & Relationships**.
-   3. Click the field **Campaign**.
-   4. Scroll down to **Lookup Filter** and click **Edit**.
-   5. Select **Show only records that match the filter criteria (Optional)**.
-   6. Add the following filter criterion:
-      * **Field:** Campaign: Hierarchy Depth
-      * **Operator:** greater or equal
-      * **Value:** 3
-   7. In the **Info Message** field, enter: *FQS reporting expects gifts to be attributed to a level-3 (ask) campaign or deeper. Higher levels are rollups.*
-   8. In the **Error Message** field, enter: *Pick a leaf-level Campaign (the actual ask). Rollups and strategies are for reporting only — attributing a gift there hides it from ask-level performance reports.*
-   9. Confirm **Filter Type** is **Optional** (matches the FQS convention — users see the warning and can uncheck **Filter by:** in the picker to select a rollup when a legitimate exception exists).
-   10. Click **Save**.
+   For each record page:
+   1. From **Setup**, in the **Quick Find** box, enter **Lightning App Builder**, and then select **Lightning App Builder**.
+   2. Open the flexipage from the list.
+   3. Click **Activation**, then **Assign as Org Default** or **Assign as App Default** and pick the app(s).
+   4. Under **Assign to profiles**, select each profile that should see this record page and click **Next**, then **Save**.
 
-2. **Add the leaf-Campaign lookup filter to Gift Commitment**
+   For each classic page layout, assign it in **Setup → Object Manager → [object] → Page Layouts → Page Layout Assignment**.
 
-   Apply the same lookup-filter pattern to `GiftCommitment.CampaignId`. Same rationale, same standard-field caveat.
+   Supporting documentation:
 
-   1. From Setup, click the **Object Manager** tab.
-   2. Search for and click **Gift Commitment**, then select **Fields & Relationships**.
-   3. Click the field **Campaign**.
-   4. Scroll down to **Lookup Filter** and click **Edit**.
-   5. Select **Show only records that match the filter criteria (Optional)**.
-   6. Add the following filter criterion:
-      * **Field:** Campaign: Hierarchy Depth
-      * **Operator:** greater or equal
-      * **Value:** 3
-   7. In the **Info Message** field, enter: *FQS reporting expects commitments to be attributed to a level-3 (ask) campaign or deeper. Higher levels are rollups.*
-   8. In the **Error Message** field, enter: *Pick a leaf-level Campaign (the actual ask). Rollups and strategies are for reporting only — attributing a commitment there hides it from ask-level performance reports.*
-   9. Confirm **Filter Type** is **Optional**.
-   10. Click **Save**.
+   * [Assign a Lightning Record Page](https://help.salesforce.com/s/articleView?id=platform.lightning_app_builder_customize_lex_pages_assign.htm&type=5)
 
-3. **Add help text to Gift Commitment: Effective Start Date**
+2. **Configure Gift Transaction**
 
-   `GiftCommitment.EffectiveStartDate` is a Nonprofit Cloud–owned standard field. Salesforce does not include help-text edits to standard fields in unmanaged packages, so this step must be applied manually in every install. Documenting the field on the record prevents a common data-entry mistake: end users assume this is the date the first payment posts, when it is actually the date the donor formally committed (signed the pledge or grant letter). Those two dates can differ by weeks or months.
+   Complete the following edits in a single **Setup → Object Manager → Gift Transaction** visit. Gift Transaction is a Nonprofit Cloud–owned standard object, so none of these edits ship in the unmanaged package — apply each in the target org after install.
 
-   1. From Setup, click the **Object Manager** tab.
-   2. Search for and click **Gift Commitment**, then select **Fields & Relationships**.
-   3. Click the field **Effective Start Date**.
-   4. Click **Edit**.
-   5. In the **Help Text** field, enter: *The date the donor formally committed to this gift (signed the pledge or grant letter). This can be earlier than when the first payment arrives.*
-   6. Click **Save**.
+   1. **Remove `New` from the list view button layout.** Gift Transactions are meant to be created through one of three supported paths: the **Gift Entry Grid** (batch entry for development staff), an **integration using the Business Process API** (donation form tools, integration hubs, lockbox importers), or the **guided gift-entry flows** shipped with FQS. Direct list-view creation bypasses the validation, soft-credit / designation defaulting, and acknowledgement-status wiring these paths apply.
+      1. In Object Manager for Gift Transaction, select **Search Layouts**.
+      2. Locate the row named **List View** and click **Edit**.
+      3. Move **New** from the **Selected Buttons** column to the **Available Buttons** column.
+      4. Click **Save**.
 
-4. **Add help text to Gift Commitment Schedule: Start Date**
+      *Notice: Removing New from the list view button layout removes it from the list-view page, but does not prevent Apex, integration, or flow creation of Gift Transaction records. That is intended — the three supported creation paths all bypass the UI list view and continue to work.*
 
-   `GiftCommitmentSchedule.StartDate` is a Nonprofit Cloud–owned standard field. Documenting it clarifies the split between the signing date on the parent commitment (Effective Start Date) and the first-payment date on the schedule — a common source of manual-entry confusion. It also flags the platform activation gate: Salesforce back-fills the parent commitment's Current Gift Commitment Schedule, Next Transaction Date, and Last Paid Transaction Date only when Start Date is on or before today.
+   2. **Configure Search Layouts.** Search Layouts control which fields appear on the object's Tab list view, search results, and lookup dialogs. Apply the following field selections so fundraising staff can identify a gift at a glance.
 
-   1. From Setup, click the **Object Manager** tab.
-   2. Search for and click **Gift Commitment Schedule**, then select **Fields & Relationships**.
-   3. Click the field **Start Date**.
-   4. Click **Edit**.
-   5. In the **Help Text** field, enter: *The date the first scheduled payment is expected. This can be later than the signing date on the parent commitment. The schedule stays inactive until this date is on or before today.*
-   6. Click **Save**.
+      Recommended fields on all four search layouts (**Default Layout** / Tab, **Search Results**, **Lookup Dialogs**, **Lookup Phone Dialogs**):
 
-5. **Add help text to Gift Transaction: Transaction Date**
+      * Donor
+      * Transaction Date
+      * Transaction Due Date
+      * Current Amount
+      * Status
+      * FQS Gift Transaction Category
 
-   `GiftTransaction.TransactionDate` (Transaction Completion Date) is a Nonprofit Cloud–owned standard field. FQS treats it as the canonical "when did this gift happen" date — the date the gift is fully in the org's hands and reconciled (check cleared, card settled, wire received, stock sold, in-kind item taken into custody). Documenting the field on the record heads off the most common misuse: end users default to entering the donor's mailing / signing / postmark date, which belongs on the separate `FQS_Donor_Tax_Date__c` field. FQS's cash-flow reporting, aging, and rollups all anchor to Transaction Date; getting it wrong misstates when the org actually received the funds.
+      1. Still in **Search Layouts** for Gift Transaction, click **Edit** on **Default Layout**.
+      2. Move the six fields above into the **Selected Fields** column and click **Save**.
+      3. Repeat for **Search Results**, **Lookup Dialogs**, and **Lookup Phone Dialogs**.
 
-   1. From Setup, click the **Object Manager** tab.
-   2. Search for and click **Gift Transaction**, then select **Fields & Relationships**.
-   3. Click the field **Transaction Date**.
-   4. Click **Edit**.
-   5. In the **Help Text** field, enter: *When the org fully received and reconciled the gift — check cleared, card settled, wire received. If you also track when the donor sent the gift (postmark, charge date), use Donor Tax Date. Required when Status is Paid or Fully Refunded.*
-   6. Click **Save**.
+   3. **Add the leaf-Campaign lookup filter to `Campaign`.** The filter steers users to attribute each gift to a level-3 (ask) Campaign — the concrete solicitation — rather than a level-1 rollup or level-2 strategy. Ask-level attribution keeps performance reports honest; rollup-level attribution hides the ask from the numbers you were trying to measure. The filter uses `FQS_Hierarchy_Depth__c` on Campaign — a formula field the package installs (1 = top rollup, 2 = strategy, 3 = ask, up to 5 levels). It ships as **Optional** so users can override for exceptions.
+      1. In Object Manager for Gift Transaction, select **Fields & Relationships**.
+      2. Click the field **Campaign**.
+      3. Scroll down to **Lookup Filter** and click **Edit**.
+      4. Select **Show only records that match the filter criteria (Optional)**.
+      5. Add the following filter criterion:
+         * **Field:** Campaign: Hierarchy Depth
+         * **Operator:** greater or equal
+         * **Value:** 3
+      6. In the **Info Message** field, enter: *FQS reporting expects gifts to be attributed to a level-3 (ask) campaign or deeper. Higher levels are rollups.*
+      7. In the **Error Message** field, enter: *Pick a leaf-level Campaign (the actual ask). Rollups and strategies are for reporting only — attributing a gift there hides it from ask-level performance reports.*
+      8. Confirm **Filter Type** is **Optional**.
+      9. Click **Save**.
 
-6. **Add help text to Gift Transaction: Acknowledgement Date**
+   4. **Add help text and description to `Current Amount`.** `CurrentAmount` is not writable via API or Apex — attempting to set it returns `INVALID_FIELD_FOR_INSERT_UPDATE`. It equals `OriginalAmount` until a Gift Refund is posted, at which point the platform recomputes it. The help text prevents a user from trying to "correct" an amount by editing this field.
+      1. In Object Manager for Gift Transaction → **Fields & Relationships**, click the field **Current Amount**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *Set automatically. The gift amount remaining after any refunds or adjustments. Equals the Original Amount unless a Gift Refund has been posted.*
+      4. In the **Description** field, enter: *Not writable via API or Apex — attempting to set returns `INVALID_FIELD_FOR_INSERT_UPDATE`. To reduce, insert a GiftRefund child instead of mutating this field.*
+      5. Click **Save**.
 
-   `GiftTransaction.AcknowledgementDate` is a Nonprofit Cloud–owned standard field. FQS writes it automatically from the Gift Acknowledgement flow when the thank-you is delivered — end users normally do not set it by hand. Documenting the field prevents confusion with two adjacent dates: `FQS_Donor_Tax_Date__c` (when the gift left the donor's control for tax-receipt purposes — postmark for checks, delivery for stock) and `FQS_Tax_Receipt_Date__c` (when the year-end tax receipt was issued).
+   5. **Add help text and description to `Transaction Date`.** FQS treats this as the canonical "when did this gift happen" date — the date the gift is fully in the org's hands and reconciled (check cleared, card settled, wire received, stock sold, in-kind item taken into custody). End users often default to entering the donor's mailing / signing / postmark date, which belongs on the separate `FQS_Donor_Tax_Date__c` field. FQS's cash-flow reporting, aging, and rollups all anchor to Transaction Date.
+      1. In Object Manager for Gift Transaction → **Fields & Relationships**, click the field **Transaction Date**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *The date the donor made this gift — check date, credit-card charge date, or the date the wire hit. Required when Status is Paid or Fully Refunded.*
+      4. In the **Description** field, enter: *For pledge payments, this is the payment date, not the pledge date (which lives on the parent commitment's `EffectiveStartDate`).*
+      5. Click **Save**.
 
-   1. From Setup, click the **Object Manager** tab.
-   2. Search for and click **Gift Transaction**, then select **Fields & Relationships**.
-   3. Click the field **Acknowledgement Date**.
-   4. Click **Edit**.
-   5. In the **Help Text** field, enter: *When this donor was thanked for the gift. Usually set automatically by the FQS Gift Acknowledgement flow when the thank-you goes out. Not the tax receipt date and not the donor tax date.*
-   6. Click **Save**.
+   6. **Add help text and description to `Transaction Due Date`.** `TransactionDueDate` is required on insert *even for gifts already in Paid status*. For outright gifts, it should equal `TransactionDate`; for pledge payments, it matches the parent `GiftCommitmentSchedule` installment row. Missing help text here is a common source of "why is the platform asking me for a due date on a paid gift" support tickets.
+      1. In Object Manager for Gift Transaction → **Fields & Relationships**, click the field **Transaction Due Date**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *The date this gift was expected. For a one-time gift you're recording now, set the same date as Transaction Date. For a pledge or recurring payment, this matches the installment's scheduled due date.*
+      4. In the **Description** field, enter: *Required on insert even for gifts in Paid status. For outright gifts, set equal to `TransactionDate`. For pledge payments, match the parent `GiftCommitmentSchedule` installment row.*
+      5. Click **Save**.
 
-7. **Add help text to Gift Transaction: Payment Identifier**
+   7. **Add help text and description to `Non-Tax Deductible Amount`.** `NonTaxDeductibleAmount` is the quid-pro-quo field — the value of any goods or services the donor received in exchange for the gift (event tickets, dinners, benefits). It is **not** auto-computed; when populated, the platform expects `TaxDeductionAmount = CurrentAmount − NonTaxDeductibleAmount`. Getting this wrong misstates the receiptable portion of the gift.
+      1. In Object Manager for Gift Transaction → **Fields & Relationships**, click the field **Non-Tax Deductible Amount**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *The portion of this gift the donor cannot deduct — e.g., the fair-market value of event tickets, dinners, or benefits received in exchange for the gift.*
+      4. In the **Description** field, enter: *Quid-pro-quo tracking. When populated, `TaxDeductionAmount` should equal `CurrentAmount − NonTaxDeductibleAmount`. Not auto-computed.*
+      5. Click **Save**.
 
-   `GiftTransaction.PaymentIdentifier` is a Nonprofit Cloud–owned standard field. FQS surfaces it on the Gift Entry Gift Details screen, conditionally shown when the payment method is Check or ACH so the user can capture the reference that ties the gift to the bank record. The default label ("Payment Identifier") doesn't tell a data-entry user what to actually type — the help text disambiguates.
+3. **Configure Gift Commitment**
 
-   1. From Setup, click the **Object Manager** tab.
-   2. Search for and click **Gift Transaction**, then select **Fields & Relationships**.
-   3. Click the field **Payment Identifier**.
-   4. Click **Edit**.
-   5. In the **Help Text** field, enter: *Check Number of Bank Account Name*
-   6. Click **Save**.
+   Complete the following edits in a single **Setup → Object Manager → Gift Commitment** visit. Same standard-field caveat as Gift Transaction — none of these edits ship in the unmanaged package.
 
-8. **Apply the remaining standard-field help text and descriptions**
+   1. **Remove `New` from the list view button layout.** Same rationale as Gift Transaction: commitments are created through the Gift Entry Grid, the Business Process API, or the FQS guided flows, not through a list-view New button.
+      1. In Object Manager for Gift Commitment, select **Search Layouts**.
+      2. Locate the row named **List View** and click **Edit**.
+      3. Move **New** from the **Selected Buttons** column to the **Available Buttons** column.
+      4. Click **Save**.
 
-   Beyond the six standard fields covered in steps 1–7, FQS recommends Help Text and Description on ~32 additional Nonprofit Cloud–owned standard fields across Campaign, Gift Commitment, Gift Commitment Schedule, Gift Transaction Designation, Gift Default Designation, Gift Soft Credit, Gift Default Soft Credit, Gift Tribute, Gift Refund, Campaign Member, and Gift Batch. Salesforce does not include help-text or description edits to standard fields in unmanaged packages, so this bulk pass must be applied manually in every install.
+   2. **Configure Search Layouts.** Recommended fields on both search layouts (**Default Layout** / Tab, **Search Results**):
 
-   The paste-ready checklist lives at `docs/manual-help-text-setup.md` in this repository. Open it in your working copy or on the FQS GitHub page, then walk each object → Fields & Relationships → field edit and paste the Help Text and Description into the corresponding fields. Estimated time: 45–60 minutes for the full pass. Fields already applied in steps 3–7 above are called out with a **✔ already in README** marker so you don't do them twice.
+      * Status
+      * FQS Gift Commitment Category
+      * Expected Total Commitment Amount
+      * Next Transaction Date
 
-9. **Configure Gift Entry field mappings**
+      1. Still in **Search Layouts** for Gift Commitment, click **Edit** on **Default Layout**.
+      2. Move the four fields above into the **Selected Fields** column and click **Save**.
+      3. Repeat for **Search Results**.
+
+   3. **Add the leaf-Campaign lookup filter to `Campaign`.** Same rationale and settings as Gift Transaction step 2.3.
+      1. In Object Manager for Gift Commitment, select **Fields & Relationships**.
+      2. Click the field **Campaign**.
+      3. Scroll down to **Lookup Filter** and click **Edit**.
+      4. Select **Show only records that match the filter criteria (Optional)**.
+      5. Add the following filter criterion:
+         * **Field:** Campaign: Hierarchy Depth
+         * **Operator:** greater or equal
+         * **Value:** 3
+      6. In the **Info Message** field, enter: *FQS reporting expects commitments to be attributed to a level-3 (ask) campaign or deeper. Higher levels are rollups.*
+      7. In the **Error Message** field, enter: *Pick a leaf-level Campaign (the actual ask). Rollups and strategies are for reporting only — attributing a commitment there hides it from ask-level performance reports.*
+      8. Confirm **Filter Type** is **Optional**.
+      9. Click **Save**.
+
+   4. **Add help text to `Campaign`.** The lookup filter added in step 3 above restricts this picker to leaf-level (ask) campaigns, but the help text makes the "why" visible on the record page itself. Ask-level attribution keeps performance reporting honest.
+      1. In Object Manager for Gift Commitment → **Fields & Relationships**, click the field **Campaign**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *The campaign this pledge or recurring commitment is attributed to. Pick a leaf-level ask campaign — rollups and strategy branches are for reporting only.*
+      4. Click **Save**.
+
+   5. **Add help text and description to `Formal Commitment Type`.** The picklist offers *Verbal* and *Written*; without help text, users routinely pick the wrong one for pledge documentation and downstream stewardship reporting suffers.
+      1. In Object Manager for Gift Commitment → **Fields & Relationships**, click the field **Formal Commitment Type**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *How the donor made this commitment. Pick Written when you have a signed agreement or email; Verbal for a phone or in-person conversation.*
+      4. In the **Description** field, enter: *Allowed values: Verbal, Written.*
+      5. Click **Save**.
+
+   6. **Add help text and description to `Fulfillment Type`.** *Unconditional* vs *Conditional* determines whether committed funds are usable on arrival or contingent on milestones (typical for grants). Reporting-only in FQS but distinguishes grant management flows from unconditional pledges.
+      1. In Object Manager for Gift Commitment → **Fields & Relationships**, click the field **Fulfillment Type**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *Choose Unconditional when the committed funds are usable as soon as they arrive. Choose Conditional when the gift is contingent on specific milestones being met — typical for grants with reporting or programmatic conditions.*
+      4. In the **Description** field, enter: *Restricted picklist. Legal values: Unconditional, Conditional. Reporting-only in FQS. Default: Unconditional.*
+      5. Click **Save**.
+
+   7. **Add help text and description to `Recurrence Type`.** *Fixed Length* vs *Open Ended* is the difference between a pledge (has an end) and a recurring gift (no end). The platform does **not** derive this from the child schedule — it has to be set explicitly on the parent commitment.
+      1. In Object Manager for Gift Commitment → **Fields & Relationships**, click the field **Recurrence Type**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *Choose Fixed Length for pledges, grants, and scheduled gifts with a defined end date. Choose Open Ended for recurring gifts with no end date — the donor gives on a regular cadence until they cancel.*
+      4. In the **Description** field, enter: *Restricted picklist. Legal values: Fixed Length, Open Ended. Set explicitly by the launcher / seed generator; the platform does not derive this from the child schedule. Default: Open Ended.*
+      5. Click **Save**.
+
+   8. **Add help text to `Schedule Type`.** For standard recurring gifts and pledges, leave blank — the platform sets it from the attached schedule. *Custom* is the escape hatch for irregular grant schedules (variable amounts, uneven spacing) that Apex has to create directly because Flow can't build them.
+      1. In Object Manager for Gift Commitment → **Fields & Relationships**, click the field **Schedule Type**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *Leave blank for standard recurring gifts and pledges — the platform will fill this in from the schedule you attach. Set to Custom only when the schedule has irregular installment amounts or spacing (typical for grants).*
+      4. Click **Save**.
+
+   9. **Add help text to `Effective Start Date`.** End users often assume this is the date the first payment posts, when it is actually the date the donor formally committed (signed the pledge or grant letter). Those two dates can differ by weeks or months.
+      1. In Object Manager for Gift Commitment → **Fields & Relationships**, click the field **Effective Start Date**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *The date the donor formally committed to this gift (signed the pledge or grant letter). This can be earlier than when the first payment arrives.*
+      4. Click **Save**.
+
+4. **Configure Campaign**
+
+   Complete the following edit in a **Setup → Object Manager → Campaign** visit.
+
+   1. **Configure Search Layouts.** Campaign is in the FQS Console app; apply the following field selections so the Campaign tab, search results, and lookup dialogs surface the fields fundraising staff need to identify the right campaign fast (particularly when picking one during gift entry).
+
+      Recommended fields on **Default Layout** (Tab):
+
+      * Campaign Name
+      * FQS Campaign Category
+
+      Recommended fields on **Search Results**:
+
+      * Campaign Name
+      * FQS Campaign Category
+      * Status
+      * Active
+      * Start Date
+      * End Date
+      * Parent Campaign
+
+      Recommended field on **Lookup Dialogs** and **Lookup Phone Dialogs**:
+
+      * Campaign Name
+
+      1. In Object Manager for Campaign, select **Search Layouts**.
+      2. For each layout row above, click **Edit**, move the recommended fields into **Selected Fields**, and click **Save**.
+
+5. **Configure Opportunity**
+
+   Complete the following edits in a single **Setup → Object Manager → Opportunity** visit.
+
+   1. **Configure Search Layouts.** Opportunity is in the FQS Console app; apply the following field selections so gift officers can find a cultivation record by donor + stage at a glance.
+
+      Recommended fields on **Default Layout** (Tab):
+
+      * Opportunity Name
+      * Account Name
+      * Stage
+      * Amount
+      * Close Date
+
+      Recommended fields on **Search Results**:
+
+      * Opportunity Name
+      * Account Name
+      * Stage
+      * Amount
+      * Close Date
+      * Owner Alias
+
+      Recommended fields on **Lookup Dialogs** and **Lookup Phone Dialogs**:
+
+      * Opportunity Name
+      * Account Name
+      * Account Site
+
+      1. In Object Manager for Opportunity, select **Search Layouts**.
+      2. For each layout row above, click **Edit**, move the recommended fields into **Selected Fields**, and click **Save**.
+
+   2. **Add help text and description to `Amount`.** On close-won, the FQS Opportunity launcher writes this into the resulting `GiftCommitment.ExpectedTotalCmtAmount` or `GiftTransaction.OriginalAmount`. The Opportunity here represents an expected gift — the value the donor is anticipated to give — not a raised total.
+      1. In Object Manager for Opportunity → **Fields & Relationships**, click the field **Amount**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *The dollar value the donor is expected to give if this Opportunity closes-won. For grants, the request amount; for major gifts, the ask amount.*
+      4. In the **Description** field, enter: *On close-won, the FQS Opportunity launcher writes this value into the resulting `GiftCommitment.ExpectedTotalCmtAmount` or `GiftTransaction.OriginalAmount`.*
+      5. Click **Save**.
+
+   3. **Add help text and description to `Close Date`.** Required by the platform. On close-won, the FQS launcher writes this into `GiftCommitment.EffectiveStartDate` or `GiftTransaction.TransactionDate` — so it functions as the "when the ask lands" date, not the "when we asked" date.
+      1. In Object Manager for Opportunity → **Fields & Relationships**, click the field **Close Date**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *The date this Opportunity is expected to close — award decision date for grants, expected commitment date for major gifts.*
+      4. In the **Description** field, enter: *Required by the platform. On close-won, the FQS launcher writes this into `GiftCommitment.EffectiveStartDate` or `GiftTransaction.TransactionDate`.*
+      5. Click **Save**.
+
+   4. **Add help text and description to `Probability (%)`.** Probability defaults from the selected Stage — the platform maintains a Stage → Probability mapping in Opportunity Stage setup. Users can override on a per-record basis, but the override is not reflected back in the stage default. FQS forecasting reports weight expected revenue by this field.
+      1. In Object Manager for Opportunity → **Fields & Relationships**, click the field **Probability (%)**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *Likelihood this Opportunity closes-won, as a percentage. Defaults from the selected Stage — override only when you have Opportunity-specific intelligence.*
+      4. In the **Description** field, enter: *Stage → Probability mapping is managed at the platform level. Manual override is per-record and does not update the stage default.*
+      5. Click **Save**.
+
+6. **Configure Gift Designation**
+
+   Complete the following edit in a **Setup → Object Manager → Gift Designation** visit.
+
+   1. **Configure Search Layouts.** Gift Designation is in the FQS Console app; apply the following field selections so admins can spot at a glance which designations are active, which is the org-wide default, and how much has been credited to each.
+
+      Recommended fields on both search layouts (**Default Layout** / Tab, **Search Results**):
+
+      * FQS Restriction Type
+      * Active
+      * Is Default
+      * Total Transaction Amount
+
+      1. In Object Manager for Gift Designation, select **Search Layouts**.
+      2. Click **Edit** on **Default Layout**.
+      3. Move the four fields above into **Selected Fields** and click **Save**.
+      4. Repeat for **Search Results**.
+
+7. **Apply the additional standard-field help text and descriptions**
+
+   Beyond the fields covered in the per-object steps above, FQS recommends Help Text and Description on additional Nonprofit Cloud–owned standard fields across Gift Commitment Schedule, Outreach Source Code, Campaign, Gift Transaction, Gift Tribute, Gift Refund, Campaign Member, Gift Batch, and other objects. Salesforce does not ship help-text or description edits to standard fields in unmanaged packages, so these are applied manually.
+
+   The paste-ready checklist lives at [`docs/manual-help-text-setup.md`](docs/manual-help-text-setup.md). The document is organized in three tiers:
+
+   * **Tier 1 — ✔ already in README:** the 15 automation-critical fields walked through in the per-object steps above (Gift Transaction, Gift Commitment, Opportunity, Gift Designation). Skip this section if you followed the README start-to-finish.
+   * **Tier 2 — critical standard fields on non-key objects:** ~12 additional fields where the help text protects FQS or platform automation (Gift Commitment Schedule mechanics, Outreach Source Code UTM mapping). Apply these next. Estimated time: 10–15 minutes.
+   * **Tier 3 — additional recommendations:** the remaining fields where help text is nice-to-have (parity, convention, clarity) but not automation-critical. Apply at your leisure. Estimated time: 30–40 minutes.
+
+   Open the doc in your working copy or on the FQS GitHub page, then walk each object → Fields & Relationships → field edit and paste the Help Text and Description into the corresponding fields.
+
+8. **Configure Gift Entry field mappings**
 
    FQS ships 12 custom fields on the `GiftEntry` staging object that need to carry their values through to the downstream `GiftTransaction` or `GiftCommitment` on commit. Those mappings live in Salesforce's `FieldMappingConfig` metadata, which the unmanaged package cannot ship in source format (see `docs/fqs-fieldmappingconfig-install.md` for the deploy-time bug that forced this carve-out). This step creates the 12 mappings manually via the Setup UI. Estimated time: 10–15 minutes.
 
@@ -597,14 +807,7 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
    * Rows 5–8 look duplicative but are intentional — a `FieldMappingConfig` enforces "one source → one destination", so a canonical FQS field that lives on both Gift Commitment and Gift Transaction (Restriction Release Date, Skip Naming) needs two paired staging columns (`FQS_GC_*` and `FQS_GT_*`) with two separate mappings.
    * Developers preferring a scripted install can use the Tooling API path documented in `docs/fqs-fieldmappingconfig-install.md`.
 
-**V. Configure Designation, Soft Credit, and Tribute Objects**
-
-<!-- TODO: still to fill in:
-1. Modify the Gift Designation Object (picklist cleanup on FQS_Restriction_Type__c, IsActive default, help text)
-4. Modify the Gift Soft Credit Object
-5. Modify the Gift Default Soft Credit Object
-6. Modify the Gift Tribute Object
--->
+**V. Configure Designation and Tribute Objects**
 
 1. **Establish an org-wide default Gift Designation**
 
@@ -629,51 +832,105 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
    *Notice: If a user launches gift entry before this step is complete, the launcher will present a "Set up designations before continuing" screen and exit. Complete this section, then have the user relaunch from the donor's Account page.*
 
-2. **Add the Active-Designation lookup filter to the Gift Default Designation object**
+2. **Configure Gift Designation**
 
-   By default, the **Designation** lookup on the Gift Default Designation object lets users pick any Gift Designation, including designations that have been retired (`IsActive = false`). Left as-is, this makes it easy for users to attach a payment schedule to a designation the finance team has explicitly closed. Add a lookup filter that restricts the picker to active designations, while still allowing users to override the filter when there is a legitimate reason (e.g., a back-dated correction to a retired designation).
+   Complete the following edits in a **Setup → Object Manager → Gift Designation** visit.
 
-   1. From Setup, click the **Object Manager** tab.
-   2. Click the object name **Gift Default Designation**.
-   3. Click **Fields & Relationships**, then click the field **Designation**.
-   4. Scroll down to **Lookup Filter** and click **Edit**.
-   5. Select **Show only records that match the filter criteria (Optional)**. This is the key setting — it activates the filter but leaves an *"Show all results"* toggle in the picker so users can still bypass the filter and select a retired designation when needed.
-   6. Add the following filter criterion:
-      * **Field:** Gift Designation: Active
-      * **Operator:** equals
-      * **Value:** True
-   7. Under **Filter Type**, confirm the filter is set to **Required** *only if* you want to block all inactive-designation selections outright. FQS ships this filter as **Optional** so that users can override in edge cases; changing to **Required** removes the override.
-   8. In the **Error Message** field, enter: *This is not an active Gift Designation. Uncheck the "Filter by:" checkbox in the lookup dialog to see all designations, including inactive ones.*
-   9. Click **Save**.
+   1. **Add help text and description to `Is Default`.** `GiftDesignation.IsDefault` is load-bearing — the managed `processGiftCommitment` action aborts with *"org wide default designation is not yet configured"* if no active designation has `IsDefault = true`. Only one active designation may carry the flag at a time; to retire the current default, promote a successor first. The help text prevents an admin from accidentally clearing the flag during a routine designation cleanup pass.
+      1. In Object Manager for Gift Designation, select **Fields & Relationships**.
+      2. Click the field **Is Default**.
+      3. Click **Edit**.
+      4. In the **Help Text** field, enter: *Check exactly ONE active designation as the org-wide default — usually the general operating fund. Gifts that arrive without an explicit designation split fall through to this bucket.*
+      5. In the **Description** field, enter: *Load-bearing. The managed `processGiftCommitment` aborts with "org wide default designation is not yet configured" if no active GD has IsDefault=true. FQS seed flags FQS-GD-GENERAL-OPERATING on install. Only one GD may be IsDefault=true at a time; the platform enforces uniqueness across active records. To retire the current default, promote a successor first.*
+      6. Click **Save**.
+
+   2. **Add help text and description to `Active`.** Deactivation (`IsActive = false`) is how designations get retired without breaking historical Gift Transaction Designation splits. The platform blocks direct delete of an active designation (*"You can't delete an active designation"*); the correct teardown order is un-default → deactivate → delete.
+      1. In Object Manager for Gift Designation → **Fields & Relationships**, click the field **Active**.
+      2. Click **Edit**.
+      3. In the **Help Text** field, enter: *Uncheck to retire this designation. Retired designations stay on historical gifts but won't appear when adding new gifts.*
+      4. In the **Description** field, enter: *Controls availability on new GiftTransactionDesignation splits via the GiftDesignationId lookup filter. An active GD cannot be deleted — the platform raises "You can't delete an active designation." Teardown pattern is un-default (IsDefault=false) → deactivate (IsActive=false) → delete. Deactivation does NOT affect existing historical GTD rows.*
+      5. Click **Save**.
+
+3. **Configure Gift Default Designation**
+
+   Complete the following edit in a **Setup → Object Manager → Gift Default Designation** visit.
+
+   1. **Add the Active-Designation lookup filter to `Designation`.** By default, the Designation lookup lets users pick any Gift Designation, including designations that have been retired (`IsActive = false`). Left as-is, this makes it easy for users to attach a payment schedule to a designation the finance team has explicitly closed. Add a lookup filter that restricts the picker to active designations, while still allowing users to override for legitimate exceptions (e.g., a back-dated correction to a retired designation).
+      1. In Object Manager for Gift Default Designation, select **Fields & Relationships**.
+      2. Click the field **Designation**.
+      3. Scroll down to **Lookup Filter** and click **Edit**.
+      4. Select **Show only records that match the filter criteria (Optional)**. This activates the filter but leaves an *"Show all results"* toggle in the picker so users can still bypass the filter and select a retired designation when needed.
+      5. Add the following filter criterion:
+         * **Field:** Gift Designation: Active
+         * **Operator:** equals
+         * **Value:** True
+      6. Under **Filter Type**, confirm the filter is set to **Optional**. FQS ships this filter as Optional so admins can override in edge cases; changing to Required removes the override.
+      7. In the **Error Message** field, enter: *This is not an active Gift Designation. Uncheck the "Filter by:" checkbox in the lookup dialog to see all designations, including inactive ones.*
+      8. Click **Save**.
 
    *Notice: This differs from the Stakeholder Management Quick Start convention, which uses a Required filter on similar lookups. FQS deliberately allows the override to accommodate finance corrections against retired designations.*
 
-3. **Add the Active-Designation lookup filter to the Gift Transaction Designation object**
+4. **Configure Gift Transaction Designation**
 
-   Apply the same lookup-filter pattern to the **Designation** lookup on the Gift Transaction Designation object. This keeps runtime gift entry against a curated list of active designations while preserving the ability to override for corrections and back-dated adjustments.
+   Complete the following edit in a **Setup → Object Manager → Gift Transaction Designation** visit.
 
-   1. From Setup, click the **Object Manager** tab.
-   2. Click the object name **Gift Transaction Designation**.
-   3. Click **Fields & Relationships**, then click the field **Designation**.
-   4. Scroll down to **Lookup Filter** and click **Edit**.
-   5. Select **Show only records that match the filter criteria (Optional)**.
-   6. Add the following filter criterion:
-      * **Field:** Gift Designation: Active
-      * **Operator:** equals
-      * **Value:** True
-   7. Confirm **Filter Type** is **Optional** (matches the FQS convention on Gift Default Designation).
-   8. In the **Error Message** field, enter: *This is not an active Gift Designation. Uncheck the "Filter by:" checkbox in the lookup dialog to see all designations, including inactive ones.*
-   9. Click **Save**.
+   1. **Add the Active-Designation lookup filter to `Designation`.** Same rationale and settings as Gift Default Designation step 3.1.
+      1. In Object Manager for Gift Transaction Designation, select **Fields & Relationships**.
+      2. Click the field **Designation**.
+      3. Scroll down to **Lookup Filter** and click **Edit**.
+      4. Select **Show only records that match the filter criteria (Optional)**.
+      5. Add the following filter criterion:
+         * **Field:** Gift Designation: Active
+         * **Operator:** equals
+         * **Value:** True
+      6. Confirm **Filter Type** is **Optional** (matches the FQS convention on Gift Default Designation).
+      7. In the **Error Message** field, enter: *This is not an active Gift Designation. Uncheck the "Filter by:" checkbox in the lookup dialog to see all designations, including inactive ones.*
+      8. Click **Save**.
 
-**VI. Configure Refunds, Payment Instruments, and Outreach**
+5. **Configure Gift Tribute**
 
-<!-- TODO: fill out with the steps to enable Gift Refunds and wire up Outreach Source Code / Outreach Summary. Candidates:
-1. Modify the Gift Refund Object (lookup filters, help text, page layout)
-2. Modify the Payment Instrument Object (record types, page layout)
-3. Modify Outreach Source Code and Outreach Summary picklists
--->
+   Complete the following edit in a **Setup → Object Manager → Gift Tribute** visit.
 
-**VII. Configure Outreach Source Code Auto-Generation**
+   1. **Add the Person-Account lookup filter to `Honoree Contact`.** By default, the Honoree Contact lookup on Gift Tribute lets users pick any Account (including organizations and households). FQS restricts the picker to Person Accounts so tributes are attributed to a specific individual honoree, matching the field's intended semantic. Unlike the designation lookup filters shipped as Optional, this filter ships **Required** — organizational and household tributes are not a supported pattern and would produce ambiguous acknowledgement copy.
+      1. In Object Manager for Gift Tribute, select **Fields & Relationships**.
+      2. Click the field **Honoree Contact**.
+      3. Scroll down to **Lookup Filter** and click **Edit**.
+      4. Select **Show only records that match the filter criteria (Required)**.
+      5. Add the following filter criterion:
+         * **Field:** Account: Is Person Account
+         * **Operator:** equals
+         * **Value:** True
+      6. In the **Error Message** field, enter: *Select an individual (Person Account) for the honoree contact.*
+      7. Click **Save**.
+
+   Standard-field help text on `Tribute Type` is covered by the Tier 3 recommendations in [`docs/manual-help-text-setup.md`](docs/manual-help-text-setup.md) (see step IV.7).
+
+**VI. Revisit Fundraising Settings and Configure Outreach Source Code**
+
+Three items were intentionally left at their pre-install defaults during Before You Install step 3 (Fundraising Settings) because they depend on assets that only exist after the package is installed. Complete them now, once the FQS Duplicate Rules are active in the org and you are ready to wire Outreach Source Codes into your campaign hierarchy.
+
+1. **Revisit Donor Matching Method in Fundraising Settings**
+
+   During pre-install, **Donor Matching Method** was set to **No Matching** because the FQS Duplicate Rules had not yet been deployed. With the package now installed, flip it to **Duplicate Management Rules** so that donor lookups performed by the Business Process API check against `FQS_Contact_Dupe` and the `FQS_Account_*_Dupe` rules before creating a new record.
+
+   1. From **Setup**, in the **Quick Find** box, enter **Fundraising**, and select **Fundraising Settings**.
+   2. In the **Donor Matching** section, change **Donor Matching Method** to **Duplicate Management Rules**.
+   3. Click **Save**.
+   4. Verify the FQS Duplicate Rules are active in **Setup → Duplicate Rules** — `FQS_Contact_Dupe`, `FQS_Account_Organization_Dupe`, and `FQS_Account_Person_Dupe` should all show as **Active**. If any are inactive, activate them before continuing.
+
+2. **Revisit Gift Entry External ID in Fundraising Settings**
+
+   During pre-install, **Gift Entry — External ID** was left blank because FQS does not ship a donor-matching external-ID field. Revisit this setting only if your organization has introduced (or plans to introduce) a custom external-ID field on Account/Contact that donation-form tools, migration jobs, or ongoing integrations will populate for donor-matching purposes. If you have one:
+
+   1. From **Setup**, in the **Quick Find** box, enter **Fundraising**, and select **Fundraising Settings**.
+   2. In the **Gift Entry** section, set the **External ID** field to your custom donor-matching field.
+   3. Click **Save**.
+
+   If your org does not have such a field, leave this setting blank and skip to step 3.
+
+3. **Configure Outreach Source Code**
+
+   Outreach Source Code (OSC) setup has two halves: (a) the FQS-installed automation that creates a placeholder OSC on every Tactical campaign so the record is waiting for the user, and (b) the Salesforce-native UTM parameter mapping and Code Formula that populate the `SourceCode` field. Complete both before running FQS Campaign Hierarchy Setup for the first time — placeholder-OSC creation depends on the platform back-filling `SourceCode` at save, so the Code Formula must be configured first.
 
 FQS ships with **automatic placeholder Outreach Source Code creation** for every Tactical (Level 3+) campaign. One placeholder OSC named **Create First OSC** is auto-created per tactical so the record is ready and waiting for the user — they fill in **Source Code** via the Generate Source Code quick action on the OSC record page, then rename. Users are expected to add additional OSCs for each channel variant (a second OSC for social paid, a third for direct mail, etc.).
 
@@ -687,7 +944,7 @@ The placeholder OSC is populated as follows:
 | OSC field | Value |
 |---|---|
 | `Name` | `Create First OSC` — CTA placeholder; rename after populating Source Code |
-| `SourceCode` | *(blank)* — populated by the **Generate Source Code** quick action on the OSC record page using the Setup-configured Code Formula (see the Outreach Source Code Auto-Generation section below) |
+| `SourceCode` | *(blank)* — populated by the **Generate Source Code** quick action on the OSC record page using the Setup-configured Code Formula (see the Code Formula subsection below) |
 | `CampaignId` | Parent tactical campaign |
 | `Status` | `Active` when `Campaign.IsActive = true`, else `Inactive` |
 | `UsageType` | `Fundraising` |
@@ -710,8 +967,6 @@ The placeholder OSC is populated as follows:
 | *(blank or other)* | Email | Other Email Platform |
 
 These pre-seeds are a low-friction starting point. Users edit Channel/Platform on the placeholder as needed, then click **Generate Source Code** so the Setup-configured Code Formula populates `SourceCode`, and rename off "Create First OSC" to the intended tactic label. Add additional OSCs for each channel variant on the campaign the same way.
-
-> **Order-of-operations note.** Complete the **Outreach Source Code Auto-Generation** Setup step (below) before running Campaign Hierarchy Setup. Placeholder-OSC creation depends on the platform back-filling `SourceCode` at save; without the Setup step configured, the auto-provisioned placeholder may fail to insert on orgs where `SourceCode` is enforced not-null.
 
 ---
 
@@ -770,7 +1025,7 @@ Supporting documentation:
 
 ---
 
-**VIII. Review and Customize Donor Tiers**
+**VII. Review and Customize Donor Tiers**
 
 The accelerator ships with a `FQS_Donor_Tier__mdt` custom metadata type that defines three donor tiers — Entry, Mid, and Major. These records serve two purposes: (1) they set the dollar thresholds used by flows and formula fields to classify each gift, and (2) they control how the Gift Acknowledgement flow routes each donor tier between automated emails and personal-touch tasks. **Review and adjust these before activating the Gift Acknowledgement flow.**
 
@@ -855,7 +1110,7 @@ Supporting documentation:
 
 ---
 
-**IX. Review and Activate the Gift Acknowledgement Flow**
+**VIII. Review and Activate the Gift Acknowledgement Flow**
 
 The **FQS Gift Acknowledgement** flow is a daily-scheduled AutoLaunched flow on the Gift Transaction object. It picks up gifts with `Status='Paid'` and no acknowledgement stamp yet, then routes each to either an automated email or a personal-touch Task based on a universal rule — every donor with a valid email address receives the acknowledgement email; opt-outs and blank emails route to a Task in the acknowledgement queue. The follow-on **FQS Stewardship Response** flow (scheduled daily, fires ~14 days after acknowledgement) is what consults the `FQS_Auto_Stewardship__c` per-tier setting configured in the previous section.
 
@@ -875,16 +1130,15 @@ The **FQS Gift Acknowledgement** flow is a daily-scheduled AutoLaunched flow on 
 
 **Before you activate**
 
-1. **Complete section VIII** — Confirm that your Donor Tier thresholds and Auto Stewardship settings reflect your organization's donor tiers and outreach philosophy.
+1. **Complete section VII** — Confirm that your Donor Tier thresholds and Auto Stewardship settings reflect your organization's donor tiers and outreach philosophy.
 
-2. **Review and customize the email content** — The flow sends a plain-text email. The body is built by a formula resource named `frmEmailBody` inside the flow — **not** by a referenced email template. A companion shell template (`FQS_Gift_Acknowledgement`) is included in the package for reference, but the live email text comes from the formula. To customize it:
-   1. Open the flow in **Flow Builder** (Setup → Flows → FQS Gift Acknowledgement).
-   2. In the **Toolbox** panel on the left, click **Formulas**.
-   3. Click **frmEmailBody** to open and edit the formula.
-   4. The default formula already merges in: the donor's salutation and first name, `CurrentAmount`, `TransactionDate`, `TaxDeductionAmount`, and `$Organization.Name`. Confirm these fields resolve correctly for your gift entry process before going live.
-   5. Replace the `[Placeholder copy — replace before go-live.]` line with your organization's actual acknowledgement language. Add your organization's EIN, mailing address, and any legally required tax-receipt language for your jurisdiction.
-   6. Update the email subject if needed. The subject (`"Thank you for your gift!"`) is set directly on the **Send Acknowledgement Email** action element — find it on the flow canvas to edit it.
-   7. You can also review the shell template text at [force-app/main/default/email/unfiled$public/FQS_Gift_Acknowledgement.email](force-app/main/default/email/unfiled$public/FQS_Gift_Acknowledgement.email) as a plain-text reference, but editing that file does not change what the flow sends — only editing the `frmEmailBody` formula does.
+2. **Review and customize the email content** — The flow uses the platform's `emailSimple` action with the shipped Classic email templates in the **FQS Templates** folder. Two templates carry the acknowledgement body:
+   * `FQS_Gift_Acknowledgement` — universal thank-you.
+   * `FQS_Gift_Acknowledgement_Partial` — used automatically when `TaxDeductionAmount < CurrentAmount`.
+
+   Edit both from **Setup → Email → Classic Email Templates → FQS Templates**. Each contains a `[PROVIDE SOME INFO ABOUT YOUR HISTORY, A SPECIFIC PROGRAM, PERSON, OR YOUR TOTAL IMPACT]` placeholder that must be replaced with your organization's copy before activating the flow. See §10 (Email Templates for Acknowledgement and Stewardship) for the full editing walkthrough, including the optional rebuild-in-Lightning-Email-Builder path.
+
+   The email subject is set on the **Send Acknowledgement Email** action element inside the flow, not on the template. Edit it in Flow Builder (Setup → Flows → FQS Gift Acknowledgement) if you want a subject line other than the default `"Thank you for your gift!"`.
 
 3. **Verify the FQS Gift Acknowledgements queue exists** — Gifts routed to **Exclude All** or **Exclude Lifetime** (lifetime escalation) create Tasks owned by this queue. Confirm the queue exists and has the right members before activating.
    1. From **Setup**, in the **Quick Find** box, enter **Queues**, and then select **Queues**.
@@ -893,7 +1147,7 @@ The **FQS Gift Acknowledgement** flow is a daily-scheduled AutoLaunched flow on 
 
 4. **Verify `FQS_Is_Major_Gift__c` and `FQS_Is_Mid_Gift__c` are being populated** — The flow's tier-resolution logic reads these checkbox fields on the Gift Transaction. If they are not being set by your gift entry process or a classification flow, the flow will default every gift to the `Entry` donor tier. Confirm how these fields are populated in your org before activating.
 
-5. **Test in a sandbox** — Create a test Gift Transaction, set its status to `Paid`, and verify the 3-day scheduled path fires correctly and routes to the expected email or Task.
+5. **Test in a sandbox** — Create a test Gift Transaction, set its status to `Paid`, wait for the next daily run of the flow (or trigger it manually from Setup → Flows), and verify it routes to the expected email or Task.
 
 **Activate the flow**
 
@@ -913,7 +1167,7 @@ Supporting documentation:
 
 ---
 
-**X. Configure App Access**
+**IX. Configure App Access**
 
 1. **Change Access to Lightning Apps**
    1. From Setup, in the Quick Find box, enter 'App Manager', and then select **App Manager**.
@@ -932,20 +1186,17 @@ While this package installs a standalone custom app, it is highly likely that yo
 
 ### 1. Review Component Configurations via the Home Page
 
-<!-- TODO: describe the Fundraising Quick Start home page and any guided setup flows that live on it. Placeholder structure below mirrors the SMQS pattern. -->
+The homepage of the **Fundraising Quick Start** Lightning app serves as your starting point for learning and mastering the various components of the accelerator. The main accordion walks you through the nine post-install milestones in the order FQS expects an org to complete them; the accordion body carries the guidance, links, and quick actions for each. Review the page and follow the accordion sections top-to-bottom.
 
-The homepage of the Fundraising Quick Start Lightning App serves as your starting point for learning and mastering the various components of the package. Review the page and follow the guidance to complete the setup.
-
-* **1a. Gift Transactions and Commitments:**
-  * <!-- TODO: describe any guided flow / setup component on the home page related to gift entry and recurring commitments -->
-* **1b. Designations and Restrictions:**
-  * <!-- TODO: describe designation setup guidance, including how to align FQS_Restriction_Type__c values with the org's chart of accounts -->
-* **1c. Soft Credits and Tributes:**
-  * <!-- TODO: describe soft credit / tribute setup considerations -->
-* **1d. Refunds and Adjustments:**
-  * <!-- TODO: describe the refund workflow and how to keep totals accurate -->
-* **1e. Outreach Attribution:**
-  * <!-- TODO: describe how Outreach Source Code and Outreach Summary connect to Gift Transaction for appeal reporting -->
+* **1. Set Up Gift Designations** — establish your active designation catalog, flag the org-wide default, and align `FQS_Restriction_Type__c` values with your finance team's chart of accounts. Ties back to Post-Install step V.1.
+* **2. Establish Solicitation and Outreach Tracking (Campaign Hierarchy)** — build your first Campaign Hierarchy with the FQS Campaign Hierarchy Setup flow, then let the platform auto-create placeholder Outreach Source Codes on each Tactical campaign. Ties back to Post-Install step VI.3.
+* **3. Define Donor Tiers and Thresholds** — review the packaged Entry / Mid / Major tier defaults and adjust the dollar thresholds and credit-type settings to match your development team's definitions. Ties back to Post-Install step VII.
+* **4. Enter Gift Batches with Gift Entry Grid** — the batch-oriented gift-entry surface for development staff. Walks the reader through creating a Gift Batch and posting gifts through the grid.
+* **5. Review Guided Gift Entry** — the FQS guided single-gift-entry flow. Walks the reader through launching from a donor's Account or the FQS launcher tile on the home page.
+* **6. Guidance on Acknowledgement, Stewardship, and Tax Receipting** — the FQS date model (Transaction Date vs. Donor Tax Date vs. Acknowledgement Date vs. Tax Receipt Date) and the two-flow acknowledgement + stewardship pattern. Cross-references Post-Install Considerations §9 (How FQS Thinks About Gift Dates) and §10 (Email Templates).
+* **7. Configure Stewardship Response Settings** — the per-tier Auto Stewardship setting (Include All / Exclude Lifetime / Exclude All) that controls how the Gift Stewardship flow routes each donor. Ties back to Post-Install step VII.
+* **8. Review Automation and Queue Membership** — audit the FQS record-triggered and scheduled flows, verify the four FQS queues (`FQS_Gift_Acknowledgements`, `FQS_Stewardship_Tasks`, `FQS_Gift_Processing_Tasks`, `FQS_Executive_Fundraising_Tasks`, `FQS_Major_Donor_Tasks`) have the right members, and confirm the Gift Acknowledgement flow is only activated after §VIII is complete.
+* **9. Update Home Page** — replace the FQS-shipped home page with your organization's operational home page once setup is complete. The FQS home page is a walkthrough surface, not a day-to-day dashboard; day-to-day users should land on a page tuned to your team's workflows.
 
 **Flow Resources:**
 
@@ -991,7 +1242,7 @@ To deliver a seamless user experience, transition the components from the standa
 
 **Migrate Dynamic Pages:** Review the dynamic Lightning record pages provided by the package for Gift Transaction, Gift Commitment, Gift Designation, Gift Refund, Gift Tribute, Donor Gift Summary, Outreach Source Code, Outreach Summary, Payment Instrument, Campaign, and Opportunity. Instead of using the default standalone app layout, use the Lightning App Builder to assign these dynamic pages (or migrate their conditional visibility components) to your organization's primary working apps.
 
-**Consolidate Page Layouts:** Audit your existing Gift Transaction and Gift Commitment page layouts to embed the custom fields (like `FQS_Gift_Transaction_Category__c`, `FQS_In_Kind__c`, `FQS_Match_Status__c`, `FQS_Recurring__c`, `FQS_Restriction_Type__c`) and replace standard related lists with the package's modular components where appropriate.
+**Consolidate Page Layouts:** Audit your existing Gift Transaction and Gift Commitment page layouts to embed the custom fields (like `FQS_Gift_Transaction_Category__c`, `FQS_In_Kind__c`, `FQS_Match_Status__c`, `FQS_Restriction_Type__c`) and replace standard related lists with the package's modular components where appropriate.
 
 **Salesforce Documentation:**
 
@@ -1055,7 +1306,7 @@ The accelerator ships three Custom Report Types, seven reports, and one dashboar
 * **FQS Major Commitments Active** — outstanding major-donor pledges grouped by `Status`, filtered to `Status IN ('Active', 'Failing', 'Paused')` — excludes Completed and Lapsed. Chart shows both record count and `SUM(ExpectedTotalCmtAmount)` for at-a-glance pipeline visibility.
 * **FQS Mid to Major Upgrade Pipeline** — mid-tier annual donors (`FQS_Is_Mid_Annual_Donor__c = TRUE AND FQS_Is_Major_Annual_Donor__c = FALSE`) ranked by current fiscal-year giving. Use to prioritize cultivation conversations.
 * **FQS Stewardship Pipeline** — Matrix report of Paid contribution transactions over the last six months grouped by `FQS_Stewardship_Status__c` × `FQS_Gift_Transaction_Category__c`. Surfaces gifts stuck in "To Be Sent" past SLA — the operational surface for the daily 07:00 UTC stewardship batch. Excludes fee-for-service and payment transactions by design (those don't warrant stewardship touches).
-* **FQS Campaign Performance By Depth** — Summary report of paid-gift totals grouped by `Campaign.FQS_Hierarchy_Depth__c` (1 = rollup, 5 = leaf). Validates that the optional lookup filter shipped on `GiftTransaction.CampaignId` and `GiftCommitment.CampaignId` (see Post-Install steps IV and V) is being honored — depth-3 (ask-level) attribution should dominate healthy data. If most gifts land on depth 1 or 2, users are attributing to rollups and reporting is being skewed.
+* **FQS Campaign Performance By Depth** — Summary report of paid-gift totals grouped by `Campaign.FQS_Hierarchy_Depth__c` (1 = rollup, 5 = leaf). Validates that the optional lookup filter shipped on `GiftTransaction.CampaignId` and `GiftCommitment.CampaignId` (see Post-Install step IV) is being honored — depth-3 (ask-level) attribution should dominate healthy data. If most gifts land on depth 1 or 2, users are attributing to rollups and reporting is being skewed.
 
 **Dashboard (`force-app/main/default/dashboards/FQSDashboards/`):**
 
@@ -1064,7 +1315,7 @@ The accelerator ships three Custom Report Types, seven reports, and one dashboar
 **Adopt or extend:**
 
 * All seven reports live in the shared **FQS Donor Tier Reports** folder with `Shared` access and `ReadWrite` public-folder access — change this to match your access model.
-* The lookup filters on `GiftTransaction.CampaignId` and `GiftCommitment.CampaignId` are shipped as `isOptional = true` (warn only, users can bypass). Consider tightening to `isOptional = false` if you want to hard-enforce ask-level attribution — see Post-Install steps IV.1 and V.3 for the click-path.
+* The lookup filters on `GiftTransaction.CampaignId` and `GiftCommitment.CampaignId` are shipped as `isOptional = true` (warn only, users can bypass). Consider tightening to `isOptional = false` if you want to hard-enforce ask-level attribution — see Post-Install steps IV.2 and IV.3 for the click-path.
 * Deferred future additions the seed already supports but which need policy decisions from your org first: **recurring giving retention** (needs a rolling snapshot policy), **refund and adjustment audit** (needs your refund-reason taxonomy), **outreach source-code attribution** (needs your UTM / channel definitions locked in), and **restriction-type breakdown of committed revenue** (needs your finance team's chart-of-accounts mapping to `FQS_Restriction_Type__c` locked in — see Section 5 above).
 
 **Salesforce Documentation:**
@@ -1075,7 +1326,36 @@ The accelerator ships three Custom Report Types, seven reports, and one dashboar
 
 ### 7. Currency, Fiscal Year, and Multi-Entity Considerations
 
-<!-- TODO: describe how this accelerator behaves under multi-currency, custom fiscal years, and multi-entity setups. Note anything that is out of scope. -->
+Nonprofit fundraising reporting almost always follows the organization's fiscal calendar rather than the calendar year — year-end appeals, board reporting, 990 preparation, and donor giving history all key off the fiscal year. Salesforce Fiscal Year settings are an org-wide decision, not an FQS toggle, but FQS reports and rollups inherit them, so it is worth a deliberate pass before you activate the accelerator against real data.
+
+**When to configure fiscal year**
+
+Configure fiscal year **before** loading historical gifts or building fundraising reports. Changing fiscal year settings after data is in flight recalculates existing forecasts, invalidates period-based automation, and can break saved report filters that reference "This Fiscal Year" / "Last Fiscal Year". If you inherited an org that already has fiscal year configured correctly, leave it alone.
+
+**Standard vs. Custom Fiscal Year**
+
+* **Standard Fiscal Year** — a 12-month fiscal year that starts on the first day of a month (e.g., July 1 – June 30, October 1 – September 30, January 1 – December 31). This is the right choice for the majority of nonprofits.
+* **Custom Fiscal Year** — only if your organization uses a 4-4-5, 52/53-week, or other non-standard fiscal calendar.
+
+*Notice: Once Custom Fiscal Year is enabled it cannot be disabled without Salesforce Support involvement. Confirm with your finance team before enabling.*
+
+**Set the Fiscal Year Start Month (Standard Fiscal Year)**
+
+1. From Setup, in the Quick Find box, enter **Fiscal Year**, and then select **Fiscal Year**.
+2. Select **Standard Fiscal Year**.
+3. Select the **Fiscal Year Start Month** that matches your organization's fiscal calendar (e.g., **July** for a July–June fiscal year).
+4. Under **Fiscal Year Is Based On**, choose whether the fiscal year is named for the year in which it **starts** or **ends**. Confirm this with your finance team — GAAP-reporting nonprofits typically name the fiscal year for the year in which it **ends** (a July 2025 – June 2026 fiscal year is "FY2026").
+5. Click **Save** and acknowledge the impact warning. Existing forecasts, quotas, and fiscal-year-based reports will be recalculated.
+
+**Multi-currency and multi-entity**
+
+FQS is authored against a single-currency, single-entity org. Multi-currency and multi-entity setups are supported by the underlying Nonprofit Cloud objects but are out of scope for this accelerator's ships-with automation and reports. If you run multi-currency: audit the FQS reports for hard-coded currency assumptions (`SUM(CurrentAmount)` rollups aggregate in the record's transaction currency; the FQS Donor Tiers dashboard does not switch presentation currency). If you run multi-entity (multiple business units in one org with data-sharing rules): re-scope the FQS Donor Tiers dashboard's Dynamic Dashboard `runningUser` per entity, and consider cloning the Custom Report Types (`fqs_*_Deluxe`) with entity-scoped filters before rolling out to end users.
+
+Supporting documentation:
+
+* [Set the Fiscal Year](https://help.salesforce.com/s/articleView?id=platform.admin_about_fiscal_years.htm&type=5)
+* [Customize the Fiscal Year Structure](https://help.salesforce.com/s/articleView?id=platform.customize_fiscalyear.htm&type=5)
+* [Define a Custom Fiscal Year](https://help.salesforce.com/s/articleView?id=platform.customize_fyf.htm&type=5)
 
 ### 8. Campaign Influence for Complex Major Gift Attribution
 
@@ -1157,14 +1437,17 @@ This is a one-time, one-org exercise per template — the drag-drop editability 
 
 ## Backlog Items
 
-<!-- TODO: replace the placeholder backlog with concrete items as they get scoped. Rough starting list: -->
+The following items are on the roadmap for future FQS releases. They are not shipping in the current release; some depend on platform features that are themselves on the Nonprofit Cloud roadmap.
 
-* **Recurring Gift Retention Toolkit:** Additional dynamic-page components and reports focused on lapsing recurring donors and retention health.
-* **Batch Gift Entry Templates:** Pre-built Gift Entry batch templates for common intake channels (event, direct mail, online, matching gift).
-* **Payment Gateway Reconciliation:** Guidance and optional automation for reconciling Payment Instrument records with external gateway transactions.
-* **Grant Lifecycle Handoffs:** Cleaner handoffs between Fundraising (Gift Commitment / Gift Transaction) and Grants Management for grant-funded revenue.
-* **Localization and Translation:** Move hardcoded flow text to metadata labels to support future Spanish and French translation packs.
-* **Automation Bypass Framework:** A supported switch for temporarily disabling FQS automation during bulk loads or data migrations.
+* **Corporate matching-gift screen flow** — the Apex layer for matching-gift orchestration (`FQS_MatchCandidateService` + `FQS_MatchCommitService`) ships along with `FQS_Match_Eligible__c` on `GiftCommitment`, but the front-end Find-Match screen flow (which surfaces eligible employers from Account Contact Relationships, creates the matching-gift `GiftCommitment` / `GiftTransaction` pair, and pairs it via `MatchingEmployerTransactionId`) is deferred. Post-1.0 scope may also add a matching-gift program lookup (`FQS_Matching_Gift_Program__c`, `FQS_Match_Ratio__c`, `FQS_Match_Annual_Individual_Maximum__c`) on the employer Account.
+
+* **Soft credit automation** — possibly on the Nonprofit Cloud product roadmap. FQS will re-evaluate what to layer on top (auto-application from Account Contact Relationships / Contact Contact Relationships, household soft-credit defaults, tribute-driven soft credits) based on what the platform delivers natively.
+
+* **OmniStudio Document Generation for tax receipting** — Nonprofit Cloud Fundraising ships native OmniStudio Document Generation templates for acknowledgement letters. FQS is scoped to extend those templates and orchestration for annual tax-receipting workflows (year-end aggregated receipts, per-gift receipts with FQS-specific fields like `FQS_Restriction_Release_Date__c` and split-designation breakdowns, and integration with the FQS stewardship flow).
+
+* **Reporting — Community Asset Hub integration** — integrate the Salesforce Commons AFNP Best Practices — Community Asset Hub Fundraising reports (see [sfdo-community-sprints.github.io/npc-best-practices/fundraising/Reporting/](https://sfdo-community-sprints.github.io/npc-best-practices/fundraising/Reporting/)) alongside the FQS-authored reports and dashboards so admins have a broader library to adopt and extend without rebuilding from scratch.
+
+* **Localization and Translation** — move hardcoded flow screen text, custom labels, and help-text strings to metadata labels to support future translation packs (Spanish and French are the two most-requested).
 
 ## Miscellaneous
 
