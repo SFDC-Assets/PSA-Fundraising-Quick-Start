@@ -6,7 +6,7 @@ The steps below walk you through applying the FQS-recommended Help Text and Desc
 
 **Scope:** ~40 standard fields across 10 objects, organized in three tiers:
 
-* **Tier 1 (✔ already in README):** 15 automation-critical fields — walked through step-by-step in the README's per-object post-install sections (`Post-Install Setup and Configuration → Section IV` for Gift Transaction / Gift Commitment / Opportunity, `→ Section V` for Gift Designation). Listed here in a callout at the top of this doc for reference; skip the callout if you followed the README.
+* **Tier 1 (✔ already in README):** 15 automation-critical fields — walked through step-by-step in the README's per-object post-install sections (`Post-Install Setup and Configuration → Section V` for Gift Transaction / Gift Commitment / Opportunity, `→ Section VI` for Gift Designation). Listed here in a callout at the top of this doc for reference; skip the callout if you followed the README.
 * **Tier 2 (critical, non-key objects):** 12 fields where help text protects FQS or platform automation — Gift Commitment Schedule mechanics and Outreach Source Code UTM mapping. Apply these next. Estimated time: 10–15 minutes.
 * **Tier 3 (additional recommendations):** the remainder — parity, convention, and clarity edits that aren't automation-critical. Apply at your leisure. Estimated time: 30–40 minutes.
 
@@ -41,21 +41,21 @@ These 15 automation-critical fields are walked through step-by-step in the READM
 
 | Object | Field | README location |
 | --- | --- | --- |
-| Gift Transaction | Current Amount | §IV.2 step 4 |
-| Gift Transaction | Transaction Date | §IV.2 step 5 |
-| Gift Transaction | Transaction Due Date | §IV.2 step 6 |
-| Gift Transaction | Non-Tax Deductible Amount | §IV.2 step 7 |
-| Gift Commitment | Campaign | §IV.3 step 4 |
-| Gift Commitment | Formal Commitment Type | §IV.3 step 5 |
-| Gift Commitment | Fulfillment Type | §IV.3 step 6 |
-| Gift Commitment | Recurrence Type | §IV.3 step 7 |
-| Gift Commitment | Schedule Type | §IV.3 step 8 |
-| Gift Commitment | Effective Start Date | §IV.3 step 9 |
-| Opportunity | Amount | §IV.5 step 2 |
-| Opportunity | Close Date | §IV.5 step 3 |
-| Opportunity | Probability (%) | §IV.5 step 4 |
-| Gift Designation | Is Default | §V.2 step 1 |
-| Gift Designation | Active | §V.2 step 2 |
+| Gift Transaction | Current Amount | §V.2 step 4 |
+| Gift Transaction | Transaction Date | §V.2 step 5 |
+| Gift Transaction | Transaction Due Date | §V.2 step 6 |
+| Gift Transaction | Non-Tax Deductible Amount | §V.2 step 7 |
+| Gift Commitment | Campaign | §V.3 step 4 |
+| Gift Commitment | Formal Commitment Type | §V.3 step 5 |
+| Gift Commitment | Fulfillment Type | §V.3 step 6 |
+| Gift Commitment | Recurrence Type | §V.3 step 7 |
+| Gift Commitment | Schedule Type | §V.3 step 8 |
+| Gift Commitment | Effective Start Date | §V.3 step 9 |
+| Opportunity | Amount | §V.5 step 2 |
+| Opportunity | Close Date | §V.5 step 3 |
+| Opportunity | Probability (%) | §V.5 step 4 |
+| Gift Designation | Is Default | §VI.2 step 1 |
+| Gift Designation | Active | §VI.2 step 2 |
 
 ---
 
@@ -213,7 +213,7 @@ The remainder of FQS's standard-field help text and description edits. These are
 
 ### Object: Gift Transaction
 
-Gift Transaction Tier 1 fields (Current Amount, Transaction Date, Transaction Due Date, Non-Tax Deductible Amount) are covered in README §IV.2. The following additional Gift Transaction standard fields ship with FQS-authored guidance.
+Gift Transaction Tier 1 fields (Current Amount, Transaction Date, Transaction Due Date, Non-Tax Deductible Amount) are covered in README §V.2. The following additional Gift Transaction standard fields ship with FQS-authored guidance.
 
 #### Gift Transaction: Acknowledgement Date
 
@@ -285,7 +285,7 @@ Gift Transaction Tier 1 fields (Current Amount, Transaction Date, Transaction Du
 #### Gift Tribute: Honoree Contact
 
 - **Help:** The Person Account the tribute is for. Use this when the honoree already exists in FundFirst as a Person Account; fall back to Honoree Name for one-off honorees who don't need their own record.
-- **Description:** Lookup to Account with an FQS-added lookup filter restricting selection to `IsPersonAccount = True` (see README §V.5 for the lookup filter setup). When set, Honoree Name should mirror the Person Account's full name; FQS does not auto-sync.
+- **Description:** Lookup to Account with an FQS-added lookup filter restricting selection to `IsPersonAccount = True` (see README §VI.5 for the lookup filter setup). When set, Honoree Name should mirror the Person Account's full name; FQS does not auto-sync.
 
 #### Gift Tribute: Honoree Name
 

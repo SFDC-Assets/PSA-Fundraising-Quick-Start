@@ -154,19 +154,21 @@ It is recommended (but not required) that the [Stakeholder Management Quick Star
       * **Create Recurring Schedule Transaction** — controls whether the platform auto-fans-out scheduled Gift Transaction records ahead of the payment date. FQS assumes this is **on**; several FQS reports and the Gift Acknowledgement flow depend on Expected-status GTs being present.
       * **Auto Close Recurring Commitment** — auto-closes recurring commitments when their end date passes. Leave on unless your finance team explicitly manages recurring closure by hand.
 
-   4. **NextGen Commitment Processing** — leave off unless your org has high recurring-gift volume and has coordinated the switch with Salesforce Support. FQS is authored against the current commitment processing engine; NextGen changes fanout timing.
+   4. **Gift Entry Grid** — turn **on**. FQS ships four Gift Entry Grid templates (`FQS_Event_Registrations`, `FQS_Individual_Outright_Gifts`, `FQS_Pledge_Payments`, `FQS_Single_Payment_Pledges`) and the Home Page walkthrough (§XII, accordion item 4) uses the Grid as the primary batch-entry surface. Leaving this toggle off hides the Grid tab and the shipped templates aren't reachable.
 
-   5. **Gift Entry — External ID** — leave blank at pre-install. FQS does not ship a donor-matching external-ID field; revisit this after go-live only if you introduce a custom donor-matching field.
+   5. **NextGen Commitment Processing** — leave off unless your org has high recurring-gift volume and has coordinated the switch with Salesforce Support. FQS is authored against the current commitment processing engine; NextGen changes fanout timing.
 
-   6. **Donor Matching Method** — set to **No Matching** at pre-install. The **Duplicate Management Rules** option depends on the FQS Duplicate Rules being deployed and active, which happens during package install. Return to this setting during post-install and flip to **Duplicate Management Rules** once the `FQS_Contact_Dupe` and `FQS_Account_*_Dupe` rules are confirmed active.
+   6. **Gift Entry — External ID** — leave blank at pre-install. FQS does not ship a donor-matching external-ID field; revisit this after go-live only if you introduce a custom donor-matching field.
 
-   7. **Philanthropic Research Topics in Agentforce** — leave off unless Agentforce is provisioned and your org has explicitly opted in to Einstein Generative AI features. Consumes Einstein Requests.
+   7. **Donor Matching Method** — set to **No Matching** at pre-install. The **Duplicate Management Rules** option depends on the FQS Duplicate Rules being deployed and active, which happens during package install. Return to this setting during post-install and flip to **Duplicate Management Rules** once the `FQS_Contact_Dupe` and `FQS_Account_*_Dupe` rules are confirmed active.
 
-   8. **Gift Planning and Agreements** — turn on **Gift Planning** and **Gift Agreements** if your org handles planned gifts (bequests, trusts, endowments) or formal gift-agreement contracts. Both are independent switches; turn on only what you'll actually use.
+   8. **Philanthropic Research Topics in Agentforce** — leave off unless Agentforce is provisioned and your org has explicitly opted in to Einstein Generative AI features. Consumes Einstein Requests.
 
-   9. **Configure Data Cloud Access** — click only if your org has Data Cloud provisioned and plans to segment or activate on Fundraising data. No-op otherwise.
+   9. **Gift Planning and Agreements** — turn on **Gift Planning** and **Gift Agreements** if your org handles planned gifts (bequests, trusts, endowments) or formal gift-agreement contracts. Both are independent switches; turn on only what you'll actually use.
 
-   10. **Pause Gift Validations** — leave all three toggles **off** for normal operation:
+   10. **Configure Data Cloud Access** — click only if your org has Data Cloud provisioned and plans to segment or activate on Fundraising data. No-op otherwise.
+
+   11. **Pause Gift Validations** — leave all three toggles **off** for normal operation:
        * Pause Gift Transaction Validations
        * Pause Gift Commitment Validations
        * Pause Gift Commitment Schedule Validations
@@ -191,7 +193,7 @@ It is recommended (but not required) that the [Stakeholder Management Quick Star
    1. From **Setup**, in the **Quick Find** box, enter **Person Accounts**, and follow the steps on the Setup page.
    2. Click **View Org Impacts**, review the Org Impact Acknowledgement, and click **Enable Person Accounts**.
    3. Once Person Accounts is enabled, follow [Enable Person Accounts for Fundraising](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_enable_person_accounts_for_fundraising.htm&type=5) to complete the fundraising-specific configuration (record-type mapping, layout adjustments).
-   4. **Recommended:** rename the platform-created Person Account record type to **Individual** for consistency with the Stakeholder Management Quick Start and with the everyday-language conventions used across both accelerators. From **Setup → Object Manager → Person Account → Record Types**, click **Person Account**, then **Edit**, and set the Record Type Label and Record Type Name to `Individual`. Suggested description: *Select this for any individual. This will create a person account.* You can pick a different name if your organization prefers — just apply the same choice consistently, since a later post-install step (§III) grants record type visibility on that same record type by name.
+   4. **Recommended:** rename the platform-created Person Account record type to **Individual** for consistency with the Stakeholder Management Quick Start and with the everyday-language conventions used across both accelerators. From **Setup → Object Manager → Person Account → Record Types**, click **Person Account**, then **Edit**, and set the Record Type Label and Record Type Name to `Individual`. Suggested description: *Select this for any individual. This will create a person account.* You can pick a different name if your organization prefers — just apply the same choice consistently, since a later post-install step (§IV) grants record type visibility on that same record type by name.
 
    *Notice: Person Accounts is a one-way switch — once enabled it cannot be disabled without Salesforce Support involvement. Coordinate with your finance and stakeholder-management leads before enabling.*
 
@@ -358,7 +360,171 @@ Supporting documentation:
    * [Set Up Organization-Wide Email Addresses](https://help.salesforce.com/s/articleView?id=sf.emailadmin_orgwide_addresses_overview.htm&type=5)
    * [Process Automation Settings](https://help.salesforce.com/s/articleView?id=platform.customize_wf.htm&type=5)
 
-**II. Set Up the Automation App and Create a Flows List View**
+**VII. Revisit Fundraising Settings and Configure Outreach Source Code**
+
+Three items were intentionally left at their pre-install defaults during Before You Install step 3 (Fundraising Settings) because they depend on assets that only exist after the package is installed — the FQS Duplicate Rules for Donor Matching, a custom donor-matching external-ID field for Gift Entry, and the Outreach Source Code mappings which need the FQS-installed Platform picklist and Campaign Short Name field. Complete all three now in the same Fundraising Settings visit so you don't return to this screen later.
+
+1. **Revisit Donor Matching Method in Fundraising Settings**
+
+   During pre-install, **Donor Matching Method** was set to **No Matching** because the FQS Duplicate Rules had not yet been deployed. With the package now installed, flip it to **Duplicate Management Rules** so that donor lookups performed by the Business Process API check against `FQS_Contact_Dupe` and the `FQS_Account_*_Dupe` rules before creating a new record.
+
+   1. From **Setup**, in the **Quick Find** box, enter **Fundraising**, and select **Fundraising Settings**.
+   2. In the **Donor Matching** section, change **Donor Matching Method** to **Duplicate Management Rules**.
+   3. Click **Save**.
+   4. Verify the FQS Duplicate Rules are active in **Setup → Duplicate Rules** — `FQS_Contact_Dupe`, `FQS_Account_Organization_Dupe`, and `FQS_Account_Person_Dupe` should all show as **Active**. If any are inactive, activate them before continuing.
+
+2. **Revisit Gift Entry External ID in Fundraising Settings**
+
+   During pre-install, **Gift Entry — External ID** was left blank because FQS does not ship a donor-matching external-ID field. Revisit this setting only if your organization has introduced (or plans to introduce) a custom external-ID field on Account/Contact that donation-form tools, migration jobs, or ongoing integrations will populate for donor-matching purposes. If you have one:
+
+   1. From **Setup**, in the **Quick Find** box, enter **Fundraising**, and select **Fundraising Settings**.
+   2. In the **Gift Entry** section, set the **External ID** field to your custom donor-matching field.
+   3. Click **Save**.
+
+   If your org does not have such a field, leave this setting blank and skip to step 3.
+
+3. **Configure Outreach Source Code**
+
+   Outreach Source Code (OSC) setup has two halves: (a) the FQS-installed automation that creates a placeholder OSC on every Tactical campaign so the record is waiting for the user, and (b) the Salesforce-native UTM parameter mapping and Code Formula that populate the `SourceCode` field. Complete both before running FQS Campaign Hierarchy Setup for the first time — placeholder-OSC creation depends on the platform back-filling `SourceCode` at save, so the Code Formula must be configured first.
+
+FQS ships with **automatic placeholder Outreach Source Code creation** for every Tactical (Level 3+) campaign. One placeholder OSC named **Create First OSC** is auto-created per tactical so the record is ready and waiting for the user — they fill in **Source Code** via the Generate Source Code quick action on the OSC record page, then rename. Users are expected to add additional OSCs for each channel variant (a second OSC for social paid, a third for direct mail, etc.).
+
+The auto-creation runs in two paths, both routed through the same native record-triggered flow (`FQS_Campaign_Create_First_OSC`) — no Apex involved in the OSC create step:
+
+1. **During FQS Campaign Hierarchy Setup** — after the hierarchy builder inserts the Level 3 tacticals, it flips **Create First Outreach Source Code** to true on each Ask. The record-triggered flow fires on the update and creates the placeholder OSC. The Final screen shows the count.
+2. **Manually per-campaign** — check the **Create First Outreach Source Code** checkbox on any Tactical campaign; the record-triggered flow creates the placeholder. Idempotent (flow Gets the placeholder by External_Id__c first and short-circuits if it already exists) — safe to re-check if the earlier OSC was deleted. The checkbox stays checked afterward as a persistent audit flag.
+
+The placeholder OSC is populated as follows:
+
+| OSC field | Value |
+|---|---|
+| `Name` | `Create First OSC` — CTA placeholder; rename after populating Source Code |
+| `SourceCode` | *(blank)* — populated by the **Generate Source Code** quick action on the OSC record page using the Setup-configured Code Formula (see the Code Formula subsection below) |
+| `CampaignId` | Parent tactical campaign |
+| `Status` | `Active` when `Campaign.IsActive = true`, else `Inactive` |
+| `UsageType` | `Fundraising` |
+| `MessageChannel` | Pre-seeded from `FQS_Campaign_Category__c` as a starting point — see mapping below; user can change before generating the Source Code |
+| `FQS_Platform__c` | Pre-seeded from `FQS_Campaign_Category__c` as a starting point — see mapping below; user can change before generating the Source Code |
+| `FQS_Message_Channel_Segment__c` | Auto-derived formula field (Organic / Paid Digital / Owned or Acquired Lists) |
+| `External_Id__c` | `FQS-OSC-{CampaignId15}-DEFAULT` — unique key that guarantees one placeholder per campaign |
+
+**Category → Channel/Platform mapping**
+
+| Campaign Category | MessageChannel | Platform |
+|---|---|---|
+| Annual Giving | Direct Mail | Direct Mail House |
+| Planned Giving | Direct Mail | Direct Mail House |
+| Grants | Direct Mail | Direct Mail House |
+| Events | Email | Other Email Platform |
+| Corporate Match | Email | Other Email Platform |
+| In-Kind | Email | Other Email Platform |
+| Major Gifts | Physical | *(blank)* |
+| *(blank or other)* | Email | Other Email Platform |
+
+These pre-seeds are a low-friction starting point. Users edit Channel/Platform on the placeholder as needed, then click **Generate Source Code** so the Setup-configured Code Formula populates `SourceCode`, and rename off "Create First OSC" to the intended tactic label. Add additional OSCs for each channel variant on the campaign the same way.
+
+---
+
+Beyond the FQS defaults, Salesforce Fundraising can automatically generate a standardized `SourceCode` value on each Outreach Source Code record based on a formula you define. This keeps your source codes consistent and machine-readable without relying on gift officers to type them manually.
+
+**Why FQS ships a custom `Platform` picklist.** The Outreach Source Code standard schema exposes `MessageChannelPlatform` as a **free-text** field, which produces the classic attribution problem: `Instagram`, `instagram`, `IG`, and `insta` all become distinct values, and rollups fragment. FQS introduces a custom picklist field, **Platform** (`FQS_Platform__c`), that constrains input to a governed set of options (Facebook, Instagram, Google Ads, Mailchimp, Direct Mail House, etc.). Users pick from the picklist, which keeps channel-level attribution clean and rollup-friendly on the OSC record even though it is not used in the SourceCode string itself.
+
+The FQS convention maps UTM parameters to the Outreach Source Code data model as follows, using a **campaign-anchored** Code Formula: `{Campaign.FQS_Short_Name__c}`
+
+| UTM Parameter | Maps to object | Maps to field | Why |
+|---|---|---|---|
+| UTM Source | Outreach Source Code | `FQS_Platform__c` (Platform) | The specific platform or source within a channel (e.g., `Instagram`, `Mailchimp`, `Google Ads`), governed as a picklist for rollup consistency |
+| UTM Medium | Outreach Source Code | `MessageChannel` (Message Channel) | The delivery channel type (Email, Direct Mail, Social Paid, etc.) |
+| UTM Campaign | Campaign | `FQS_Short_Name__c` (Short Name) | A short, URL-safe campaign identifier (e.g., `fy26-yearend`) rather than the full campaign name |
+
+**Steps**
+
+1. From **Setup**, in the **Quick Find** box, enter **Fundraising**, and then select **Outreach Source Codes**.
+
+2. **Set the UTM parameter mappings**
+   1. For **UTM Source**, set **Custom Object** to **Outreach Source Code** and **Custom Field** to **Platform** (`FQS_Platform__c`).
+   2. For **UTM Medium**, set **Custom Object** to **Outreach Source Code** and **Custom Field** to **Message Channel** (`MessageChannel`).
+   3. For **UTM Campaign**, set **Custom Object** to **Campaign** and **Custom Field** to **Short Name** (`FQS_Short_Name__c`).
+
+3. **Turn on Outreach Source Code Generation**
+   1. Toggle **Outreach Source Code Generation** to on.
+   2. The **Code Formula Structure** section opens.
+
+4. **Build the code generation formula**
+   1. Using the reference fields, functions, and operators in the formula builder, construct the following formula:
+      ```
+      {Campaign.FQS_Short_Name__c}
+      ```
+   2. Add the token by selecting it from the reference fields panel rather than typing it manually — this ensures the syntax is valid.
+   3. Salesforce will **append random characters to the SourceCode automatically to guarantee uniqueness** whenever the Code Formula alone doesn't resolve to a distinct value (per the platform's own note: *"Random numbers are appended to the source code to ensure uniqueness if a code structure is not set or the Reference field is not referable."*). Because every Outreach Source Code under a single campaign shares the same Short Name, this uniqueness suffix is what makes the code distinct across the campaign's OSCs — the FQS convention leans on that behavior instead of hand-composing a multi-segment formula.
+
+5. **Validate and save**
+   1. Click **Validate Syntax** to confirm the formula is valid. Fix any errors before proceeding.
+   2. Click **Save**.
+
+Once saved, Salesforce will auto-populate the `SourceCode` field on new Outreach Source Code records with `{Campaign.FQS_Short_Name__c}` plus the platform-appended uniqueness suffix. For example, three OSCs on a campaign with Short Name `fy26-yearend` might generate `fy26-yearend`, `fy26-yearend-a7f2`, and `fy26-yearend-9x31` — the campaign anchor is human-legible while Salesforce guarantees each row's SourceCode is unique.
+
+*Notice: The formula acts on the value of `FQS_Short_Name__c` at the time the Outreach Source Code record is saved. If Campaign Short Name is blank, only the auto-appended random suffix will populate the SourceCode. Ensure the Campaign Short Name is populated before creating Outreach Source Codes against a campaign.*
+
+**Graduating to a richer SourceCode.** If your team decides to encode more attribution directly in the SourceCode string rather than relying on the platform's uniqueness suffix, consider **replacing the campaign-anchored formula above with a multi-segment Code Formula** that composes several fields. You have three field families to choose between as building blocks:
+
+- The FQS custom **Platform** picklist (`FQS_Platform__c`) — governed values, best for rollup consistency
+- The standard **Message Channel Platform** (`MessageChannelPlatform`) free-text field — flexible catch-all
+- The standard **Message Channel Account** field — when attribution needs to tie to a specific account/handle (e.g., a specific Instagram business account or ad account) rather than the platform in the abstract
+
+Mix and match those inputs in your Code Formula Structure to match how your organization actually reports on channel performance (for example: `{FQS_Platform__c} + "-" + {MessageChannel} + "-" + {Campaign.FQS_Short_Name__c}`).
+
+Supporting documentation:
+
+* [Set Up Outreach Source Codes](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_set_up_outreach_source_codes.htm&type=5)
+
+---
+
+**XI. Turn On RFM Scoring**
+
+Nonprofit Cloud Fundraising ships a Donor Gift Summary (DGS) rollup engine backed by three Data Processing Engine (DPE) definitions: **Donor Gift Summary**, **Outreach Summary**, and **Gift Designation Summary**. When enabled, the platform runs the DPEs nightly to populate Recency / Frequency / Monetary (RFM) scoring, current-year vs prior-year giving totals, best gift year, giving-level classification, and campaign / OSC / designation rollups. FQS depends on these fields — the Donor Tier resolution (`FQS_Is_Major_Gift__c`, `FQS_Is_Mid_Gift__c`, `FQS_Is_Entry_Gift__c`), the Donor Gift Summary record page, the Major Gifts Stale list view on the home page, and the Gift Acknowledgement flow's tier-based routing all read DGS values.
+
+FQS also ships the **FQS Rollup DPE Read** permission set to grant the Analytics Cloud Integration User read access to the standard fields the DPEs need to run. Without that permission set assignment, the DPEs save but fail on execution with FLS errors on standard fields the profile does not natively expose.
+
+1. **Assign the FQS Rollup DPE Read permission set to the Analytics Cloud Integration User**
+   1. From Setup, in the Quick Find box, enter **Users**, and then select **Users**.
+   2. Filter the list to **All Users** and locate the **Analytics Cloud Integration User** (also known as the Analytics Integration User).
+   3. Open the user record and click **Permission Set Assignments** → **Edit Assignments**.
+   4. Add **FQS Rollup DPE Read** to the Enabled Permission Sets column and click **Save**.
+
+2. **Enable Fundraising Analytics and turn on the DPEs**
+   1. From **Setup**, in the **Quick Find** box, enter **Fundraising**, and select **Fundraising Analytics** (or the equivalent Nonprofit Cloud Analytics setup page in your org).
+   2. Locate the three DPE definitions — **Donor Gift Summary**, **Outreach Summary**, and **Gift Designation Summary** — and toggle each to **Active**.
+   3. If your org has never run these DPEs before, kick off a **one-time backfill run** from the DPE definition page so historical Donor Gift Summary, Outreach Summary, and Gift Designation Summary records populate before the first nightly schedule fires. The backfill can take several minutes to several hours depending on gift volume.
+
+3. **Verify the DPEs are populating data**
+   1. Open a Person Account or organization Account with historical gifts.
+   2. On the Account, open the related Donor Gift Summary record.
+   3. Confirm the RFM scoring fields (`RecencyScore`, `FrequencyScore`, `MonetaryScore`, `CompositeRfmScore`), the giving totals, and the FQS-authored formula fields (`FQS_Is_Entry_Annual_Donor__c`, `FQS_Is_Mid_Annual_Donor__c`, `FQS_Is_Major_Annual_Donor__c` and their Lifetime counterparts) are populated.
+
+Supporting documentation:
+
+* [Set Up Fundraising Analytics](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_set_up_analytics.htm&type=5)
+* [Data Processing Engine Overview](https://help.salesforce.com/s/articleView?id=platform.data_processing_engine.htm&type=5)
+
+---
+
+**II. Configure App Access**
+
+Assign the Fundraising Quick Start Lightning app to the right profiles before any downstream configuration. The remaining post-install steps assume you are working inside the FQS app — its navigation, home page walkthrough (§XII), and shipped list views are the intended context for every setup task that follows.
+
+1. **Change Access to Lightning Apps**
+   1. From Setup, in the Quick Find box, enter 'App Manager', and then select **App Manager**.
+   2. Click the icon on the **Fundraising Quick Start** app's row, and select **Edit**.
+   3. Under 'App Settings', click on **User Profiles**.
+   4. Select the appropriate Profiles in the **Available Profiles** column and move to **Selected Profiles**.
+   5. Click **Save**.
+
+2. **Navigate to Fundraising Quick Start**
+   1. Click the **App Launcher** icon (nine dots) on the far left of the top navigation bar.
+   2. Select **Fundraising Quick Start**. If unavailable use the **Search apps and items** box.
+
+**III. Set Up the Automation App and Create a Flows List View**
 
 The **Automation** Lightning app gives admins a central place to monitor, activate, and deactivate flows without navigating through Setup. Creating a saved list view scoped to FQS and Nonprofit Cloud Fundraising flows makes it easy to confirm that the right flows are active and to spot any that failed or were inadvertently deactivated.
 
@@ -399,10 +565,10 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
 6. **Review flow statuses**
    1. Scan the list for any flows with a status of **Inactive** or **Invalid Draft**.
-   2. The **FQS Gift Acknowledgement** flow will appear **Inactive** here — this is expected. Activate it only after completing section VII.
+   2. The **FQS Gift Acknowledgement** flow will appear **Inactive** here — this is expected. Activate it only after completing section VIII (Review and Customize Donor Tiers) and section IX (Review and Activate the Gift Acknowledgement Flow).
    3. All other FQS flows should be **Active** after package installation. If any show as Inactive or Invalid Draft, investigate before going live.
 
-**III. Assign Permission Sets**
+**IV. Assign Permission Sets**
 
 1. **Assign the FQS Custom Fields Permission Set**
    1. From Setup, in the Quick Find box, enter 'Permission Sets', and then select **Permission Sets**.
@@ -484,18 +650,52 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
    * **FQS Rollup DPE Read** — grants read access on the standard fields the three shipped Fundraising Data Processing Engine (DPE) definitions read at runtime (GiftCommitment, GiftTransaction, GiftDesignation, GiftSoftCredit, GiftTransactionDesignation, GiftCmtChangeAttrLog, OutreachSummary, OutreachSourceCode, PartyRelationshipGroup). Assign to the built-in **Integration User** (Profile: Analytics Cloud Integration User; Username pattern: `integration@<orgid>.com`). Fundraising Cloud's Analytics Cloud Integration User profile grants object-level access to these objects out of the box but does **not** ship field-level access to standard fields; without this permission set the DPE save fails with errors such as *"the integration user with the Analytics Cloud Integration User profile doesn't have access to the ScheduleType field of GiftCommitment"*. Verify by opening any of the three DPE definitions (**Setup → Data Processing Engine**) and clicking **Save** — it should now save without field-access errors.
 
-   * **FQS Bypass Automation** — grants the `FQS_Bypass_Automation` custom permission, which short-circuits the FQS record-triggered flows that maintain derived state (currently the three flows that recalc `GiftCommitment.FulfillmentType`). Assign to migration runners, Data Loader operators, mass-update jobs, and any ongoing integration whose upstream system is authoritative for the fields these flows recalculate. After a bulk load, run `scripts/apex/fqs-recalc-gc-fulfillmenttype.apex` to reconcile `FulfillmentType` across affected commitments. See Post-Install Considerations §5 for the full pattern.
+   * **FQS Bypass Automation** — grants the `FQS_Bypass_Automation` custom permission, which short-circuits the FQS record-triggered flows that maintain derived state (currently the three flows that recalc `GiftCommitment.FulfillmentType`). Assign to migration runners, Data Loader operators, mass-update jobs, and any ongoing integration whose upstream system is authoritative for the fields these flows recalculate. After a bulk load, run `scripts/apex/fqs-recalc-gc-fulfillmenttype.apex` to reconcile `FulfillmentType` across affected commitments. See Post-Install Considerations §4 for the full pattern.
 
    * **FQS Naming Opt Out** — grants the `FQS_Skip_Record_Naming` custom permission plus edit FLS on `FQS_Skip_Naming__c` for GiftCommitment, GiftTransaction, and Opportunity. Assign to migration users and to any ongoing integration whose upstream system owns the record Name — this prevents FQS's auto-naming flows from overwriting names coming from that system.
 
-   * **FQS Email Template Builder Permission** — grants the `AccessContentBuilder` user permission, needed to edit templates in the Lightning Email Template Builder. Assign only to admins who want to rebuild the shipped Classic email templates in the drag-and-drop Builder (see Post-Install Considerations §10). Day-to-day use of the FQS Gift Acknowledgement and Stewardship flows does not require this permset — the flows send with the Classic templates as-is.
+   * **FQS Email Template Builder Permission** — grants the `AccessContentBuilder` user permission, needed to edit templates in the Lightning Email Template Builder. Assign only to admins who want to rebuild the shipped Classic email templates in the drag-and-drop Builder (see Post-Install Considerations §9). Day-to-day use of the FQS Gift Acknowledgement and Stewardship flows does not require this permset — the flows send with the Classic templates as-is.
 
    To assign any of these:
    1. From Setup, in the Quick Find box, enter **Users** (for named users) or **Permission Sets** (for direct permset assignment).
    2. Locate the integration user or the permission set.
    3. Add the permission set to the user's **Permission Set Assignments** and click **Save**.
 
-**IV. Configure Gift Transaction and Gift Commitment Access**
+**X. Set Up Queues**
+
+FQS ships four queues (`FQS_Executive_Fundraising_Tasks`, `FQS_Gift_Processing_Tasks`, `FQS_Major_Donor_Tasks`, `FQS_Stewardship_Tasks`) and expects a fifth (`FQS_Gift_Acknowledgements`) to exist before the Gift Acknowledgement flow (§IX) is activated. The Home Page walkthrough (§XII, accordion item 8 — *Review Automation and Queue Membership*) reinforces this — end users following the accordion top-to-bottom will only see accurate queue guidance if membership is already in place.
+
+**Queues shipped by the package** — each supports both **Task** and **ActionPlan** sObjects:
+
+| Queue | Purpose |
+| --- | --- |
+| `FQS_Executive_Fundraising_Tasks` | Executive-level tasks — used by Action Plans that need executive attention. |
+| `FQS_Gift_Processing_Tasks` | Gift entry, acknowledgement, and tax-receipting tasks created by the Moves Management and Stewardship Action Plans. |
+| `FQS_Major_Donor_Tasks` | Research and proposal-creation tasks for the Moves Management Action Plan. |
+| `FQS_Stewardship_Tasks` | Cultivation tasks created by the Stewardship Action Plan. |
+
+**Queue you must create manually** — the Gift Acknowledgement flow assigns fallback Tasks to `FQS_Gift_Acknowledgements` when a donor tier is routed to Exclude All / Exclude Lifetime. This queue is not shipped in the package because Task queue metadata for the standard Task object requires org-specific member assignments:
+
+1. From Setup, in the Quick Find box, enter **Queues**, and click **New**.
+2. **Label:** `FQS Gift Acknowledgements`. **Name:** `FQS_Gift_Acknowledgements`.
+3. **Queue Email:** the shared inbox for gift-acknowledgement escalations (typically the same acknowledgements address used in the org-wide email addresses set up in §I).
+4. **Supported Objects:** add **Task**.
+5. **Queue Members:** add the users, roles, or public groups who should receive escalated acknowledgement tasks. Include at least one active user, or Tasks assigned to this queue will be invisible to work-lists.
+6. Click **Save**.
+
+**Add members to the four shipped queues:**
+
+1. From Setup, in the Quick Find box, enter **Queues**.
+2. For each of the four shipped queues, click the queue Label to open it.
+3. Click **Edit**.
+4. Add the appropriate users, roles, or public groups to **Queue Members** — matching your org's development-team structure. See Post-Install Considerations §2 (*Review Profiles and Permission Sets*) for guidance on segregating duties.
+5. Click **Save**.
+
+Supporting documentation:
+
+* [Create and Manage Queues](https://help.salesforce.com/s/articleView?id=platform.setting_up_queues.htm&type=5)
+
+**V. Configure Gift Transaction and Gift Commitment Access**
 
 1. **Assign FQS Dynamic Lightning Record Pages and Layouts to the Right Profiles**
 
@@ -807,7 +1007,7 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
    * Rows 5–8 look duplicative but are intentional — a `FieldMappingConfig` enforces "one source → one destination", so a canonical FQS field that lives on both Gift Commitment and Gift Transaction (Restriction Release Date, Skip Naming) needs two paired staging columns (`FQS_GC_*` and `FQS_GT_*`) with two separate mappings.
    * Developers preferring a scripted install can use the Tooling API path documented in `docs/fqs-fieldmappingconfig-install.md`.
 
-**V. Configure Designation and Tribute Objects**
+**VI. Configure Designation and Tribute Objects**
 
 1. **Establish an org-wide default Gift Designation**
 
@@ -903,129 +1103,9 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
       6. In the **Error Message** field, enter: *Select an individual (Person Account) for the honoree contact.*
       7. Click **Save**.
 
-   Standard-field help text on `Tribute Type` is covered by the Tier 3 recommendations in [`docs/manual-help-text-setup.md`](docs/manual-help-text-setup.md) (see step IV.7).
+   Standard-field help text on `Tribute Type` is covered by the Tier 3 recommendations in [`docs/manual-help-text-setup.md`](docs/manual-help-text-setup.md) (see step V.7).
 
-**VI. Revisit Fundraising Settings and Configure Outreach Source Code**
-
-Three items were intentionally left at their pre-install defaults during Before You Install step 3 (Fundraising Settings) because they depend on assets that only exist after the package is installed. Complete them now, once the FQS Duplicate Rules are active in the org and you are ready to wire Outreach Source Codes into your campaign hierarchy.
-
-1. **Revisit Donor Matching Method in Fundraising Settings**
-
-   During pre-install, **Donor Matching Method** was set to **No Matching** because the FQS Duplicate Rules had not yet been deployed. With the package now installed, flip it to **Duplicate Management Rules** so that donor lookups performed by the Business Process API check against `FQS_Contact_Dupe` and the `FQS_Account_*_Dupe` rules before creating a new record.
-
-   1. From **Setup**, in the **Quick Find** box, enter **Fundraising**, and select **Fundraising Settings**.
-   2. In the **Donor Matching** section, change **Donor Matching Method** to **Duplicate Management Rules**.
-   3. Click **Save**.
-   4. Verify the FQS Duplicate Rules are active in **Setup → Duplicate Rules** — `FQS_Contact_Dupe`, `FQS_Account_Organization_Dupe`, and `FQS_Account_Person_Dupe` should all show as **Active**. If any are inactive, activate them before continuing.
-
-2. **Revisit Gift Entry External ID in Fundraising Settings**
-
-   During pre-install, **Gift Entry — External ID** was left blank because FQS does not ship a donor-matching external-ID field. Revisit this setting only if your organization has introduced (or plans to introduce) a custom external-ID field on Account/Contact that donation-form tools, migration jobs, or ongoing integrations will populate for donor-matching purposes. If you have one:
-
-   1. From **Setup**, in the **Quick Find** box, enter **Fundraising**, and select **Fundraising Settings**.
-   2. In the **Gift Entry** section, set the **External ID** field to your custom donor-matching field.
-   3. Click **Save**.
-
-   If your org does not have such a field, leave this setting blank and skip to step 3.
-
-3. **Configure Outreach Source Code**
-
-   Outreach Source Code (OSC) setup has two halves: (a) the FQS-installed automation that creates a placeholder OSC on every Tactical campaign so the record is waiting for the user, and (b) the Salesforce-native UTM parameter mapping and Code Formula that populate the `SourceCode` field. Complete both before running FQS Campaign Hierarchy Setup for the first time — placeholder-OSC creation depends on the platform back-filling `SourceCode` at save, so the Code Formula must be configured first.
-
-FQS ships with **automatic placeholder Outreach Source Code creation** for every Tactical (Level 3+) campaign. One placeholder OSC named **Create First OSC** is auto-created per tactical so the record is ready and waiting for the user — they fill in **Source Code** via the Generate Source Code quick action on the OSC record page, then rename. Users are expected to add additional OSCs for each channel variant (a second OSC for social paid, a third for direct mail, etc.).
-
-The auto-creation runs in two paths, both routed through the same native record-triggered flow (`FQS_Campaign_Create_First_OSC`) — no Apex involved in the OSC create step:
-
-1. **During FQS Campaign Hierarchy Setup** — after the hierarchy builder inserts the Level 3 tacticals, it flips **Create First Outreach Source Code** to true on each Ask. The record-triggered flow fires on the update and creates the placeholder OSC. The Final screen shows the count.
-2. **Manually per-campaign** — check the **Create First Outreach Source Code** checkbox on any Tactical campaign; the record-triggered flow creates the placeholder. Idempotent (flow Gets the placeholder by External_Id__c first and short-circuits if it already exists) — safe to re-check if the earlier OSC was deleted. The checkbox stays checked afterward as a persistent audit flag.
-
-The placeholder OSC is populated as follows:
-
-| OSC field | Value |
-|---|---|
-| `Name` | `Create First OSC` — CTA placeholder; rename after populating Source Code |
-| `SourceCode` | *(blank)* — populated by the **Generate Source Code** quick action on the OSC record page using the Setup-configured Code Formula (see the Code Formula subsection below) |
-| `CampaignId` | Parent tactical campaign |
-| `Status` | `Active` when `Campaign.IsActive = true`, else `Inactive` |
-| `UsageType` | `Fundraising` |
-| `MessageChannel` | Pre-seeded from `FQS_Campaign_Category__c` as a starting point — see mapping below; user can change before generating the Source Code |
-| `FQS_Platform__c` | Pre-seeded from `FQS_Campaign_Category__c` as a starting point — see mapping below; user can change before generating the Source Code |
-| `FQS_Message_Channel_Segment__c` | Auto-derived formula field (Organic / Paid Digital / Owned or Acquired Lists) |
-| `External_Id__c` | `FQS-OSC-{CampaignId15}-DEFAULT` — unique key that guarantees one placeholder per campaign |
-
-**Category → Channel/Platform mapping**
-
-| Campaign Category | MessageChannel | Platform |
-|---|---|---|
-| Annual Giving | Direct Mail | Direct Mail House |
-| Planned Giving | Direct Mail | Direct Mail House |
-| Grants | Direct Mail | Direct Mail House |
-| Events | Email | Other Email Platform |
-| Corporate Match | Email | Other Email Platform |
-| In-Kind | Email | Other Email Platform |
-| Major Gifts | Physical | *(blank)* |
-| *(blank or other)* | Email | Other Email Platform |
-
-These pre-seeds are a low-friction starting point. Users edit Channel/Platform on the placeholder as needed, then click **Generate Source Code** so the Setup-configured Code Formula populates `SourceCode`, and rename off "Create First OSC" to the intended tactic label. Add additional OSCs for each channel variant on the campaign the same way.
-
----
-
-Beyond the FQS defaults, Salesforce Fundraising can automatically generate a standardized `SourceCode` value on each Outreach Source Code record based on a formula you define. This keeps your source codes consistent and machine-readable without relying on gift officers to type them manually.
-
-**Why FQS ships a custom `Platform` picklist.** The Outreach Source Code standard schema exposes `MessageChannelPlatform` as a **free-text** field, which produces the classic attribution problem: `Instagram`, `instagram`, `IG`, and `insta` all become distinct values, and rollups fragment. FQS introduces a custom picklist field, **Platform** (`FQS_Platform__c`), that constrains input to a governed set of options (Facebook, Instagram, Google Ads, Mailchimp, Direct Mail House, etc.). Users pick from the picklist, which keeps channel-level attribution clean and rollup-friendly on the OSC record even though it is not used in the SourceCode string itself.
-
-The FQS convention maps UTM parameters to the Outreach Source Code data model as follows, using a **campaign-anchored** Code Formula: `{Campaign.FQS_Short_Name__c}`
-
-| UTM Parameter | Maps to object | Maps to field | Why |
-|---|---|---|---|
-| UTM Source | Outreach Source Code | `FQS_Platform__c` (Platform) | The specific platform or source within a channel (e.g., `Instagram`, `Mailchimp`, `Google Ads`), governed as a picklist for rollup consistency |
-| UTM Medium | Outreach Source Code | `MessageChannel` (Message Channel) | The delivery channel type (Email, Direct Mail, Social Paid, etc.) |
-| UTM Campaign | Campaign | `FQS_Short_Name__c` (Short Name) | A short, URL-safe campaign identifier (e.g., `fy26-yearend`) rather than the full campaign name |
-
-**Steps**
-
-1. From **Setup**, in the **Quick Find** box, enter **Fundraising**, and then select **Outreach Source Codes**.
-
-2. **Set the UTM parameter mappings**
-   1. For **UTM Source**, set **Custom Object** to **Outreach Source Code** and **Custom Field** to **Platform** (`FQS_Platform__c`).
-   2. For **UTM Medium**, set **Custom Object** to **Outreach Source Code** and **Custom Field** to **Message Channel** (`MessageChannel`).
-   3. For **UTM Campaign**, set **Custom Object** to **Campaign** and **Custom Field** to **Short Name** (`FQS_Short_Name__c`).
-
-3. **Turn on Outreach Source Code Generation**
-   1. Toggle **Outreach Source Code Generation** to on.
-   2. The **Code Formula Structure** section opens.
-
-4. **Build the code generation formula**
-   1. Using the reference fields, functions, and operators in the formula builder, construct the following formula:
-      ```
-      {Campaign.FQS_Short_Name__c}
-      ```
-   2. Add the token by selecting it from the reference fields panel rather than typing it manually — this ensures the syntax is valid.
-   3. Salesforce will **append random characters to the SourceCode automatically to guarantee uniqueness** whenever the Code Formula alone doesn't resolve to a distinct value (per the platform's own note: *"Random numbers are appended to the source code to ensure uniqueness if a code structure is not set or the Reference field is not referable."*). Because every Outreach Source Code under a single campaign shares the same Short Name, this uniqueness suffix is what makes the code distinct across the campaign's OSCs — the FQS convention leans on that behavior instead of hand-composing a multi-segment formula.
-
-5. **Validate and save**
-   1. Click **Validate Syntax** to confirm the formula is valid. Fix any errors before proceeding.
-   2. Click **Save**.
-
-Once saved, Salesforce will auto-populate the `SourceCode` field on new Outreach Source Code records with `{Campaign.FQS_Short_Name__c}` plus the platform-appended uniqueness suffix. For example, three OSCs on a campaign with Short Name `fy26-yearend` might generate `fy26-yearend`, `fy26-yearend-a7f2`, and `fy26-yearend-9x31` — the campaign anchor is human-legible while Salesforce guarantees each row's SourceCode is unique.
-
-*Notice: The formula acts on the value of `FQS_Short_Name__c` at the time the Outreach Source Code record is saved. If Campaign Short Name is blank, only the auto-appended random suffix will populate the SourceCode. Ensure the Campaign Short Name is populated before creating Outreach Source Codes against a campaign.*
-
-**Graduating to a richer SourceCode.** If your team decides to encode more attribution directly in the SourceCode string rather than relying on the platform's uniqueness suffix, consider **replacing the campaign-anchored formula above with a multi-segment Code Formula** that composes several fields. You have three field families to choose between as building blocks:
-
-- The FQS custom **Platform** picklist (`FQS_Platform__c`) — governed values, best for rollup consistency
-- The standard **Message Channel Platform** (`MessageChannelPlatform`) free-text field — flexible catch-all
-- The standard **Message Channel Account** field — when attribution needs to tie to a specific account/handle (e.g., a specific Instagram business account or ad account) rather than the platform in the abstract
-
-Mix and match those inputs in your Code Formula Structure to match how your organization actually reports on channel performance (for example: `{FQS_Platform__c} + "-" + {MessageChannel} + "-" + {Campaign.FQS_Short_Name__c}`).
-
-Supporting documentation:
-
-* [Set Up Outreach Source Codes](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_set_up_outreach_source_codes.htm&type=5)
-
----
-
-**VII. Review and Customize Donor Tiers**
+**VIII. Review and Customize Donor Tiers**
 
 The accelerator ships with a `FQS_Donor_Tier__mdt` custom metadata type that defines three donor tiers — Entry, Mid, and Major. These records serve two purposes: (1) they set the dollar thresholds used by flows and formula fields to classify each gift, and (2) they control how the Gift Acknowledgement flow routes each donor tier between automated emails and personal-touch tasks. **Review and adjust these before activating the Gift Acknowledgement flow.**
 
@@ -1110,7 +1190,7 @@ Supporting documentation:
 
 ---
 
-**VIII. Review and Activate the Gift Acknowledgement Flow**
+**IX. Review and Activate the Gift Acknowledgement Flow**
 
 The **FQS Gift Acknowledgement** flow is a daily-scheduled AutoLaunched flow on the Gift Transaction object. It picks up gifts with `Status='Paid'` and no acknowledgement stamp yet, then routes each to either an automated email or a personal-touch Task based on a universal rule — every donor with a valid email address receives the acknowledgement email; opt-outs and blank emails route to a Task in the acknowledgement queue. The follow-on **FQS Stewardship Response** flow (scheduled daily, fires ~14 days after acknowledgement) is what consults the `FQS_Auto_Stewardship__c` per-tier setting configured in the previous section.
 
@@ -1130,7 +1210,7 @@ The **FQS Gift Acknowledgement** flow is a daily-scheduled AutoLaunched flow on 
 
 **Before you activate**
 
-1. **Complete section VII** — Confirm that your Donor Tier thresholds and Auto Stewardship settings reflect your organization's donor tiers and outreach philosophy.
+1. **Complete section VIII** — Confirm that your Donor Tier thresholds and Auto Stewardship settings reflect your organization's donor tiers and outreach philosophy.
 
 2. **Review and customize the email content** — The flow uses the platform's `emailSimple` action with the shipped Classic email templates in the **FQS Templates** folder. Two templates carry the acknowledgement body:
    * `FQS_Gift_Acknowledgement` — universal thank-you.
@@ -1167,35 +1247,18 @@ Supporting documentation:
 
 ---
 
-**IX. Configure App Access**
+**XII. Home Page Review and Walkthrough**
 
-1. **Change Access to Lightning Apps**
-   1. From Setup, in the Quick Find box, enter 'App Manager', and then select **App Manager**.
-   2. Click the icon on the **Fundraising Quick Start** app's row, and select **Edit**.
-   3. Under 'App Settings', click on **User Profiles**.
-   4. Select the appropriate Profiles in the **Available Profiles** column and move to **Selected Profiles**.
-   5. Click **Save**.
+With Post-Install steps I through XI complete, the FQS home page inside the Fundraising Quick Start Lightning app becomes your review checkpoint and end-user walkthrough surface. The main accordion mirrors the nine day-to-day fundraising milestones FQS expects an org to master — Gift Designations, Campaign Hierarchy / Outreach Source Codes, Donor Tiers, Gift Entry Grid, Guided Gift Entry, Acknowledgement and Stewardship, Stewardship Response Settings, Automation and Queue Membership, and finally Home Page replacement. Walk each accordion section top-to-bottom to confirm the corresponding setup work is in place and to introduce new admins to the accelerator's shape.
 
-2. **Navigate to Fundraising Quick Start**
-   1. Click the **App Launcher** icon (nine dots) on the far left of the top navigation bar.
-   2. Select **Fundraising Quick Start**. If unavailable use the **Search apps and items** box.
-
-## Post-Install Considerations: Making This Work For You In Your Existing Setup
-
-While this package installs a standalone custom app, it is highly likely that your fundraising operation is already entangled with other processes across your organization (stakeholder management, programs, grants, case management, marketing). Rather than forcing users to switch between disconnected apps, **the goal of this post-install process is to adopt and integrate these new components—the modular flows, custom fields, dynamic pages, and record types—into your primary, existing business apps.** Use the following steps to review, adjust, and embed the accelerator into your live environment.
-
-### 1. Review Component Configurations via the Home Page
-
-The homepage of the **Fundraising Quick Start** Lightning app serves as your starting point for learning and mastering the various components of the accelerator. The main accordion walks you through the nine post-install milestones in the order FQS expects an org to complete them; the accordion body carries the guidance, links, and quick actions for each. Review the page and follow the accordion sections top-to-bottom.
-
-* **1. Set Up Gift Designations** — establish your active designation catalog, flag the org-wide default, and align `FQS_Restriction_Type__c` values with your finance team's chart of accounts. Ties back to Post-Install step V.1.
-* **2. Establish Solicitation and Outreach Tracking (Campaign Hierarchy)** — build your first Campaign Hierarchy with the FQS Campaign Hierarchy Setup flow, then let the platform auto-create placeholder Outreach Source Codes on each Tactical campaign. Ties back to Post-Install step VI.3.
-* **3. Define Donor Tiers and Thresholds** — review the packaged Entry / Mid / Major tier defaults and adjust the dollar thresholds and credit-type settings to match your development team's definitions. Ties back to Post-Install step VII.
+* **1. Set Up Gift Designations** — establish your active designation catalog, flag the org-wide default, and align `FQS_Restriction_Type__c` values with your finance team's chart of accounts. Ties back to Post-Install step VI.1.
+* **2. Establish Solicitation and Outreach Tracking (Campaign Hierarchy)** — build your first Campaign Hierarchy with the FQS Campaign Hierarchy Setup flow, then let the platform auto-create placeholder Outreach Source Codes on each Tactical campaign. Ties back to Post-Install step VII.3.
+* **3. Define Donor Tiers and Thresholds** — review the packaged Entry / Mid / Major tier defaults and adjust the dollar thresholds and credit-type settings to match your development team's definitions. Ties back to Post-Install step VIII.
 * **4. Enter Gift Batches with Gift Entry Grid** — the batch-oriented gift-entry surface for development staff. Walks the reader through creating a Gift Batch and posting gifts through the grid.
 * **5. Review Guided Gift Entry** — the FQS guided single-gift-entry flow. Walks the reader through launching from a donor's Account or the FQS launcher tile on the home page.
-* **6. Guidance on Acknowledgement, Stewardship, and Tax Receipting** — the FQS date model (Transaction Date vs. Donor Tax Date vs. Acknowledgement Date vs. Tax Receipt Date) and the two-flow acknowledgement + stewardship pattern. Cross-references Post-Install Considerations §9 (How FQS Thinks About Gift Dates) and §10 (Email Templates).
-* **7. Configure Stewardship Response Settings** — the per-tier Auto Stewardship setting (Include All / Exclude Lifetime / Exclude All) that controls how the Gift Stewardship flow routes each donor. Ties back to Post-Install step VII.
-* **8. Review Automation and Queue Membership** — audit the FQS record-triggered and scheduled flows, verify the four FQS queues (`FQS_Gift_Acknowledgements`, `FQS_Stewardship_Tasks`, `FQS_Gift_Processing_Tasks`, `FQS_Executive_Fundraising_Tasks`, `FQS_Major_Donor_Tasks`) have the right members, and confirm the Gift Acknowledgement flow is only activated after §VIII is complete.
+* **6. Guidance on Acknowledgement, Stewardship, and Tax Receipting** — the FQS date model (Transaction Date vs. Donor Tax Date vs. Acknowledgement Date vs. Tax Receipt Date) and the two-flow acknowledgement + stewardship pattern. Cross-references Post-Install Considerations §8 (How FQS Thinks About Gift Dates) and §9 (Email Templates).
+* **7. Configure Stewardship Response Settings** — the per-tier Auto Stewardship setting (Include All / Exclude Lifetime / Exclude All) that controls how the Gift Stewardship flow routes each donor. Ties back to Post-Install step VIII.
+* **8. Review Automation and Queue Membership** — audit the FQS record-triggered and scheduled flows, verify the four FQS queues (`FQS_Gift_Acknowledgements`, `FQS_Stewardship_Tasks`, `FQS_Gift_Processing_Tasks`, `FQS_Executive_Fundraising_Tasks`, `FQS_Major_Donor_Tasks`) have the right members, and confirm the Gift Acknowledgement flow is only activated after §IX is complete.
 * **9. Update Home Page** — replace the FQS-shipped home page with your organization's operational home page once setup is complete. The FQS home page is a walkthrough surface, not a day-to-day dashboard; day-to-day users should land on a page tuned to your team's workflows.
 
 **Flow Resources:**
@@ -1205,7 +1268,11 @@ The homepage of the **Fundraising Quick Start** Lightning app serves as your sta
 * **Core Documentation:** [Platform Automation Overview](https://help.salesforce.com/s/articleView?id=platform.platform_automation.htm&type=5)
 * **Trailhead Trail:** [Build Flows with Flow Builder](https://trailhead.salesforce.com/content/learn/trails/build-flows-with-flow-builder)
 
-### 2. Review Agentforce Nonprofit / Nonprofit Cloud Fundraising Setup Steps
+## Post-Install Considerations: Making This Work For You In Your Existing Setup
+
+While this package installs a standalone custom app, it is highly likely that your fundraising operation is already entangled with other processes across your organization (stakeholder management, programs, grants, case management, marketing). Rather than forcing users to switch between disconnected apps, **the goal of this post-install process is to adopt and integrate these new components—the modular flows, custom fields, dynamic pages, and record types—into your primary, existing business apps.** Use the following steps to review, adjust, and embed the accelerator into your live environment.
+
+### 1. Review Agentforce Nonprofit / Nonprofit Cloud Fundraising Setup Steps
 
 Fundraising is a component of Agentforce Nonprofit / Nonprofit Cloud and has substantial additional functionality beyond what this accelerator configures. Beyond the settings enabled in "Before You Install," looking at the applicability of Gift Entry Batches, Gift Matching, Recurring Donations, Interaction Summaries, and Timeline features may be relevant to your use of Fundraising.
 
@@ -1222,7 +1289,7 @@ Fundraising is a component of Agentforce Nonprofit / Nonprofit Cloud and has sub
 * **Setup Guide:** [Complete Nonprofit Cloud Prerequisites](https://help.salesforce.com/s/articleView?id=sfdo.npc_prerequisites.htm&type=5)
 * **Trailhead Module:** <!-- TODO: link to a Fundraising-in-Nonprofit-Cloud Trailhead module -->
 
-### 3. Review Profiles and Permission Sets
+### 2. Review Profiles and Permission Sets
 
 The package does not include rigid, pre-packaged permission sets for field, object, and flow access. You will need to design your own access strategy based on your data governance model:
 
@@ -1236,7 +1303,7 @@ The package does not include rigid, pre-packaged permission sets for field, obje
 * **Assignment Guide:** [Manage Permission Set Assignments](https://help.salesforce.com/s/articleView?id=platform.perm_sets_manage_assignments.htm&language=en_US&type=5)
 * **Best Practices:** [Guidelines for Creating Permission Sets and Permission Set Groups](https://help.salesforce.com/s/articleView?id=platform.perm_sets_best_practices.htm&language=en_US&type=5)
 
-### 4. Review Lightning Apps, Pages, and Page Layouts
+### 3. Review Lightning Apps, Pages, and Page Layouts
 
 To deliver a seamless user experience, transition the components from the standalone package app into your primary operational apps:
 
@@ -1250,7 +1317,7 @@ To deliver a seamless user experience, transition the components from the standa
 * **Access Control:** [Assign Record Types and Page Layouts in Profiles](https://help.salesforce.com/s/articleView?id=platform.users_profiles_record_types.htm&type=5)
 * **Trailhead Module:** [Lightning App Builder](https://trailhead.salesforce.com/content/learn/modules/lightning_app_builder)
 
-### 5. Establish Data Integrity Guardrails
+### 4. Establish Data Integrity Guardrails
 
 Because the accelerator relies on background automation and admin-configured picklists without hardcoded restrictions, you should establish your own guardrails before roll-out:
 
@@ -1288,7 +1355,7 @@ Standard `Standard_Account_Duplicate_Rule` and `Standard_Contact_Duplicate_Rule`
 * **Duplicate Rules Framework:** [Things to Know About Duplicate Rules](https://help.salesforce.com/s/articleView?id=sales.duplicate_rules_overview.htm&type=5)
 * **Standard OOTB Rules:** [Standard Duplicate Rules Reference](https://help.salesforce.com/s/articleView?id=sales.duplicate_rules_standard_rules.htm&type=5)
 
-### 6. Reporting and Dashboards
+### 5. Reporting and Dashboards
 
 The accelerator ships three Custom Report Types, seven reports, and one dashboard as a starting analytics library. All three CRTs use a "kitchen-sink" pattern (broad column availability on the base object plus common parent lookups) — extend them or clone into narrower CRTs as your reporting practice matures.
 
@@ -1306,7 +1373,7 @@ The accelerator ships three Custom Report Types, seven reports, and one dashboar
 * **FQS Major Commitments Active** — outstanding major-donor pledges grouped by `Status`, filtered to `Status IN ('Active', 'Failing', 'Paused')` — excludes Completed and Lapsed. Chart shows both record count and `SUM(ExpectedTotalCmtAmount)` for at-a-glance pipeline visibility.
 * **FQS Mid to Major Upgrade Pipeline** — mid-tier annual donors (`FQS_Is_Mid_Annual_Donor__c = TRUE AND FQS_Is_Major_Annual_Donor__c = FALSE`) ranked by current fiscal-year giving. Use to prioritize cultivation conversations.
 * **FQS Stewardship Pipeline** — Matrix report of Paid contribution transactions over the last six months grouped by `FQS_Stewardship_Status__c` × `FQS_Gift_Transaction_Category__c`. Surfaces gifts stuck in "To Be Sent" past SLA — the operational surface for the daily 07:00 UTC stewardship batch. Excludes fee-for-service and payment transactions by design (those don't warrant stewardship touches).
-* **FQS Campaign Performance By Depth** — Summary report of paid-gift totals grouped by `Campaign.FQS_Hierarchy_Depth__c` (1 = rollup, 5 = leaf). Validates that the optional lookup filter shipped on `GiftTransaction.CampaignId` and `GiftCommitment.CampaignId` (see Post-Install step IV) is being honored — depth-3 (ask-level) attribution should dominate healthy data. If most gifts land on depth 1 or 2, users are attributing to rollups and reporting is being skewed.
+* **FQS Campaign Performance By Depth** — Summary report of paid-gift totals grouped by `Campaign.FQS_Hierarchy_Depth__c` (1 = rollup, 5 = leaf). Validates that the optional lookup filter shipped on `GiftTransaction.CampaignId` and `GiftCommitment.CampaignId` (see Post-Install step V) is being honored — depth-3 (ask-level) attribution should dominate healthy data. If most gifts land on depth 1 or 2, users are attributing to rollups and reporting is being skewed.
 
 **Dashboard (`force-app/main/default/dashboards/FQSDashboards/`):**
 
@@ -1315,7 +1382,7 @@ The accelerator ships three Custom Report Types, seven reports, and one dashboar
 **Adopt or extend:**
 
 * All seven reports live in the shared **FQS Donor Tier Reports** folder with `Shared` access and `ReadWrite` public-folder access — change this to match your access model.
-* The lookup filters on `GiftTransaction.CampaignId` and `GiftCommitment.CampaignId` are shipped as `isOptional = true` (warn only, users can bypass). Consider tightening to `isOptional = false` if you want to hard-enforce ask-level attribution — see Post-Install steps IV.2 and IV.3 for the click-path.
+* The lookup filters on `GiftTransaction.CampaignId` and `GiftCommitment.CampaignId` are shipped as `isOptional = true` (warn only, users can bypass). Consider tightening to `isOptional = false` if you want to hard-enforce ask-level attribution — see Post-Install steps V.2 and V.3 for the click-path.
 * Deferred future additions the seed already supports but which need policy decisions from your org first: **recurring giving retention** (needs a rolling snapshot policy), **refund and adjustment audit** (needs your refund-reason taxonomy), **outreach source-code attribution** (needs your UTM / channel definitions locked in), and **restriction-type breakdown of committed revenue** (needs your finance team's chart-of-accounts mapping to `FQS_Restriction_Type__c` locked in — see Section 5 above).
 
 **Salesforce Documentation:**
@@ -1324,7 +1391,7 @@ The accelerator ships three Custom Report Types, seven reports, and one dashboar
 * **Custom Report Types:** [Set Up a Custom Report Type](https://help.salesforce.com/s/articleView?id=platform.reports_report_types.htm&type=5)
 * **Dynamic Dashboards:** [Set Up Dynamic Dashboards](https://help.salesforce.com/s/articleView?id=platform.dashboards_dynamic_setup.htm&type=5)
 
-### 7. Currency, Fiscal Year, and Multi-Entity Considerations
+### 6. Currency, Fiscal Year, and Multi-Entity Considerations
 
 Nonprofit fundraising reporting almost always follows the organization's fiscal calendar rather than the calendar year — year-end appeals, board reporting, 990 preparation, and donor giving history all key off the fiscal year. Salesforce Fiscal Year settings are an org-wide decision, not an FQS toggle, but FQS reports and rollups inherit them, so it is worth a deliberate pass before you activate the accelerator against real data.
 
@@ -1357,7 +1424,7 @@ Supporting documentation:
 * [Customize the Fiscal Year Structure](https://help.salesforce.com/s/articleView?id=platform.customize_fiscalyear.htm&type=5)
 * [Define a Custom Fiscal Year](https://help.salesforce.com/s/articleView?id=platform.customize_fyf.htm&type=5)
 
-### 8. Campaign Influence for Complex Major Gift Attribution
+### 7. Campaign Influence for Complex Major Gift Attribution
 
 The `FQS_Fundraising` Campaign record type included in this accelerator works well for organizations that tie each Gift Transaction to a single campaign. However, major gift programs often involve multiple cultivation touchpoints — events, direct mail, personal visits, grant cycles — spread across several campaigns before a gift closes. A single Campaign lookup cannot represent this complexity.
 
@@ -1388,7 +1455,7 @@ Rather than creating one large "Major Gifts FY26" campaign and assigning all maj
 
 * [Campaign Influence](https://help.salesforce.com/s/articleView?id=sales.campaign_influence_parent.htm&type=5)
 
-### 9. How FQS Thinks About Gift Dates
+### 8. How FQS Thinks About Gift Dates
 
 FQS separates two ideas that many orgs blur together:
 
@@ -1403,7 +1470,7 @@ Many orgs don't have a meaningful gap between the two — low volume, mostly car
 * **Tax Receipt Date** — when the year-end tax receipt was issued. Manual field; managed by whatever year-end receipting process your org runs.
 * **Stewardship Date** — when the follow-up stewardship touch was delivered. Written automatically by the FQS Stewardship Response flow.
 
-### 10. Email Templates for Acknowledgement and Stewardship
+### 9. Email Templates for Acknowledgement and Stewardship
 
 FQS ships three plain-text email templates in a dedicated **FQS Templates** Classic email folder. They are sent by the FQS_Gift_Acknowledgement and FQS_Stewardship_Response scheduled flows.
 
