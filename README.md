@@ -480,35 +480,6 @@ Supporting documentation:
 
 ---
 
-**XI. Turn On RFM Scoring**
-
-Nonprofit Cloud Fundraising ships a Donor Gift Summary (DGS) rollup engine backed by three Data Processing Engine (DPE) definitions: **Donor Gift Summary**, **Outreach Summary**, and **Gift Designation Summary**. When enabled, the platform runs the DPEs nightly to populate Recency / Frequency / Monetary (RFM) scoring, current-year vs prior-year giving totals, best gift year, giving-level classification, and campaign / OSC / designation rollups. FQS depends on these fields — the Donor Tier resolution (`FQS_Is_Major_Gift__c`, `FQS_Is_Mid_Gift__c`, `FQS_Is_Entry_Gift__c`), the Donor Gift Summary record page, the Major Gifts Stale list view on the home page, and the Gift Acknowledgement flow's tier-based routing all read DGS values.
-
-FQS also ships the **FQS Rollup DPE Read** permission set to grant the Analytics Cloud Integration User read access to the standard fields the DPEs need to run. Without that permission set assignment, the DPEs save but fail on execution with FLS errors on standard fields the profile does not natively expose.
-
-1. **Assign the FQS Rollup DPE Read permission set to the Analytics Cloud Integration User**
-   1. From Setup, in the Quick Find box, enter **Users**, and then select **Users**.
-   2. Filter the list to **All Users** and locate the **Analytics Cloud Integration User** (also known as the Analytics Integration User).
-   3. Open the user record and click **Permission Set Assignments** → **Edit Assignments**.
-   4. Add **FQS Rollup DPE Read** to the Enabled Permission Sets column and click **Save**.
-
-2. **Enable Fundraising Analytics and turn on the DPEs**
-   1. From **Setup**, in the **Quick Find** box, enter **Fundraising**, and select **Fundraising Analytics** (or the equivalent Nonprofit Cloud Analytics setup page in your org).
-   2. Locate the three DPE definitions — **Donor Gift Summary**, **Outreach Summary**, and **Gift Designation Summary** — and toggle each to **Active**.
-   3. If your org has never run these DPEs before, kick off a **one-time backfill run** from the DPE definition page so historical Donor Gift Summary, Outreach Summary, and Gift Designation Summary records populate before the first nightly schedule fires. The backfill can take several minutes to several hours depending on gift volume.
-
-3. **Verify the DPEs are populating data**
-   1. Open a Person Account or organization Account with historical gifts.
-   2. On the Account, open the related Donor Gift Summary record.
-   3. Confirm the RFM scoring fields (`RecencyScore`, `FrequencyScore`, `MonetaryScore`, `CompositeRfmScore`), the giving totals, and the FQS-authored formula fields (`FQS_Is_Entry_Annual_Donor__c`, `FQS_Is_Mid_Annual_Donor__c`, `FQS_Is_Major_Annual_Donor__c` and their Lifetime counterparts) are populated.
-
-Supporting documentation:
-
-* [Set Up Fundraising Analytics](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_set_up_analytics.htm&type=5)
-* [Data Processing Engine Overview](https://help.salesforce.com/s/articleView?id=platform.data_processing_engine.htm&type=5)
-
----
-
 **II. Configure App Access**
 
 Assign the Fundraising Quick Start Lightning app to the right profiles before any downstream configuration. The remaining post-install steps assume you are working inside the FQS app — its navigation, home page walkthrough (§XII), and shipped list views are the intended context for every setup task that follows.
@@ -654,7 +625,7 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
    * **FQS Naming Opt Out** — grants the `FQS_Skip_Record_Naming` custom permission plus edit FLS on `FQS_Skip_Naming__c` for GiftCommitment, GiftTransaction, and Opportunity. Assign to migration users and to any ongoing integration whose upstream system owns the record Name — this prevents FQS's auto-naming flows from overwriting names coming from that system.
 
-   * **FQS Email Template Builder Permission** — grants the `AccessContentBuilder` user permission, needed to edit templates in the Lightning Email Template Builder. Assign only to admins who want to rebuild the shipped Classic email templates in the drag-and-drop Builder (see Post-Install Considerations §9). Day-to-day use of the FQS Gift Acknowledgement and Stewardship flows does not require this permset — the flows send with the Classic templates as-is.
+   * **FQS Email Template Builder Permission** — grants the `AccessContentBuilder` user permission, needed to edit templates in the Lightning Email Template Builder. Assign only to admins who want to rebuild the shipped Classic email templates in the drag-and-drop Builder (see Post-Install Considerations §10). Day-to-day use of the FQS Gift Acknowledgement and Stewardship flows does not require this permset — the flows send with the Classic templates as-is.
 
    To assign any of these:
    1. From Setup, in the Quick Find box, enter **Users** (for named users) or **Permission Sets** (for direct permset assignment).
@@ -1256,7 +1227,7 @@ With Post-Install steps I through XI complete, the FQS home page inside the Fund
 * **3. Define Donor Tiers and Thresholds** — review the packaged Entry / Mid / Major tier defaults and adjust the dollar thresholds and credit-type settings to match your development team's definitions. Ties back to Post-Install step VIII.
 * **4. Enter Gift Batches with Gift Entry Grid** — the batch-oriented gift-entry surface for development staff. Walks the reader through creating a Gift Batch and posting gifts through the grid.
 * **5. Review Guided Gift Entry** — the FQS guided single-gift-entry flow. Walks the reader through launching from a donor's Account or the FQS launcher tile on the home page.
-* **6. Guidance on Acknowledgement, Stewardship, and Tax Receipting** — the FQS date model (Transaction Date vs. Donor Tax Date vs. Acknowledgement Date vs. Tax Receipt Date) and the two-flow acknowledgement + stewardship pattern. Cross-references Post-Install Considerations §8 (How FQS Thinks About Gift Dates) and §9 (Email Templates).
+* **6. Guidance on Acknowledgement, Stewardship, and Tax Receipting** — the FQS date model (Transaction Date vs. Donor Tax Date vs. Acknowledgement Date vs. Tax Receipt Date) and the two-flow acknowledgement + stewardship pattern. Cross-references Post-Install Considerations §9 (How FQS Thinks About Gift Dates) and §10 (Email Templates).
 * **7. Configure Stewardship Response Settings** — the per-tier Auto Stewardship setting (Include All / Exclude Lifetime / Exclude All) that controls how the Gift Stewardship flow routes each donor. Ties back to Post-Install step VIII.
 * **8. Review Automation and Queue Membership** — audit the FQS record-triggered and scheduled flows, verify the four FQS queues (`FQS_Gift_Acknowledgements`, `FQS_Stewardship_Tasks`, `FQS_Gift_Processing_Tasks`, `FQS_Executive_Fundraising_Tasks`, `FQS_Major_Donor_Tasks`) have the right members, and confirm the Gift Acknowledgement flow is only activated after §IX is complete.
 * **9. Update Home Page** — replace the FQS-shipped home page with your organization's operational home page once setup is complete. The FQS home page is a walkthrough surface, not a day-to-day dashboard; day-to-day users should land on a page tuned to your team's workflows.
@@ -1391,7 +1362,72 @@ The accelerator ships three Custom Report Types, seven reports, and one dashboar
 * **Custom Report Types:** [Set Up a Custom Report Type](https://help.salesforce.com/s/articleView?id=platform.reports_report_types.htm&type=5)
 * **Dynamic Dashboards:** [Set Up Dynamic Dashboards](https://help.salesforce.com/s/articleView?id=platform.dashboards_dynamic_setup.htm&type=5)
 
-### 6. Currency, Fiscal Year, and Multi-Entity Considerations
+### 6. Turn On RFM Scoring
+
+Nonprofit Cloud Fundraising ships a **Recency / Frequency / Monetary (RFM) Score** engine backed by the platform's Data Processing Engine (DPE). When configured, the RFM Score Calculation DPE writes recency, frequency, monetary, and composite RFM scores to the Donor Gift Summary object on a schedule you control via a scheduled Flow. FQS depends on Donor Gift Summary values for the Donor Tier resolution formula fields (`FQS_Is_Entry_Annual_Donor__c`, `FQS_Is_Mid_Annual_Donor__c`, `FQS_Is_Major_Annual_Donor__c` and their Lifetime counterparts), the Donor Gift Summary record page, and the Major Gifts Stale list view on the FQS home page. Without RFM scoring configured and scheduled, those fields remain null and the tier-based automation defaults every donor to Entry.
+
+RFM scoring is authored by each organization because the source fields, weight percentages, range banding, and cadence are org-specific judgment calls that FQS cannot ship as one-size-fits-all defaults. FQS ships an **FQS Rollup DPE Read** permission set to give the Analytics Integration User read access to the standard fields the DPE needs — assign this before you configure RFM so the DPE doesn't fail on FLS during execution.
+
+**Step 1 — Assign the FQS Rollup DPE Read permission set to the Analytics Integration User**
+
+1. From Setup, in the Quick Find box, enter **Users**, and then select **Users**.
+2. Filter the list to **All Users** and locate the **Analytics Integration User** (also labeled Analytics Cloud Integration User).
+3. Open the user record and click **Permission Set Assignments** → **Edit Assignments**.
+4. Add **FQS Rollup DPE Read** to the Enabled Permission Sets column and click **Save**.
+
+**Step 2 — Configure the RFM Score Calculation DPE**
+
+Follow the Salesforce Help article [Set Up RFM Scoring in Nonprofit](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_set_up_rfm_scoring.htm&type=5). The workflow, summarized:
+
+1. From Setup, in the Quick Find box, enter **RFM**, and then select **Recency, Frequency, Monetary Value (RFM) Score**.
+2. Click **Configure Scoring**.
+3. Set the number of source fields to use for each of the three scoring methods, and click **Next**.
+4. **Configure the recency score.** Pick a destination object and field (typically **Donor Gift Summary** → **Recency Score**), pick the source object and field(s) — note that Salesforce uses the same source object for all three scores — set the weight per source (whole-number percentages that sum to 100), and pick the related lookup field that ties the source records to the destination. Click **Next**.
+5. **Configure the frequency score.** Same shape as recency; typical destination is Donor Gift Summary → **Frequency Score**. Click **Next**.
+6. **Configure the monetary value score.** Same shape as recency; typical destination is Donor Gift Summary → **Monetary Score**. The monetary score can be in any currency as long as the source data is consistent (the DPE does not perform currency conversion).
+7. Set the destination for the **composite RFM score** — typically Donor Gift Summary → **Composite RFM Score**. Click **Next**.
+8. Select the number of ranges for each score component (e.g., 3 produces low / middle / high bands) and click **Next**.
+9. Set the ranges:
+   * **Recency** — ascending order, best-scoring band first. Ranges cannot overlap or duplicate.
+   * **Frequency** — descending order, most donations first.
+   * **Monetary** — descending order, largest gift totals first.
+10. Review your settings and **Save**.
+
+**Step 3 — Schedule the RFM Score Calculation DPE via a Schedule-Triggered Flow**
+
+The DPE runs only when invoked. Salesforce Fundraising exposes the DPE as an action inside a Schedule-Triggered Flow, giving you full control of frequency and start time. Follow the Salesforce Help article [Schedule RFM Score Calculation in Nonprofit](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_create_schedule_triggered_flow_to_run_dpe_jobs.htm&type=5). The workflow, summarized:
+
+1. From Setup, in the Quick Find box, enter **Flows**, and then select **Flows**.
+2. Click **New Flow** → **Start From Scratch** → **Next**.
+3. Select the **Schedule-Triggered Flow** template and click **Create**.
+4. In the **Start** node, click **Set Schedule** and specify the date, time, and frequency the flow should run. Nightly (off-hours) is the FQS-recommended cadence — RFM banding is stable and does not need intra-day refresh.
+5. Click **Add Element** → **Action**.
+6. In the **Category** section, select **Data Processing Engine**.
+7. In the **Action** field, select the **RFM Score Calculation** data processing engine definition (the one you configured in Step 2).
+8. Enter a label and API name for the action.
+9. Enter a flow label, save, and **activate** the flow.
+
+**Step 4 — Verify RFM scores are populating**
+
+After the flow's first scheduled run:
+
+1. From the App Launcher, open **Donor Gift Summaries** (or open a Person Account with historical gifts and view its related Donor Gift Summary).
+2. Confirm the four scoring fields (`RecencyScore`, `FrequencyScore`, `MonetaryScore`, `CompositeRfmScore`) are populated.
+3. Confirm the FQS-authored formula fields on Donor Gift Summary (`FQS_Is_Entry_Annual_Donor__c`, `FQS_Is_Mid_Annual_Donor__c`, `FQS_Is_Major_Annual_Donor__c`, and their Lifetime counterparts) evaluate correctly against your Donor Tier thresholds (§VIII).
+
+If scores are all null after the scheduled run, check that:
+
+* The Analytics Integration User has FQS Rollup DPE Read assigned (Step 1).
+* The source object contains at least some non-null values in the source fields you selected.
+* The scheduled flow ran successfully — from Setup → **Flows** → **Paused and Failed Flow Interviews**, verify no failures.
+
+Supporting documentation:
+
+* **Set Up RFM Scoring:** [Set Up Recency, Frequency, Monetary Value (RFM) Scoring in Nonprofit](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_set_up_rfm_scoring.htm&type=5)
+* **Schedule the DPE:** [Create a Schedule-Triggered Flow to Run Data Processing Engine Jobs](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_create_schedule_triggered_flow_to_run_dpe_jobs.htm&type=5)
+* **DPE Reference:** [Data Processing Engine Overview](https://help.salesforce.com/s/articleView?id=platform.data_processing_engine.htm&type=5)
+
+### 7. Currency, Fiscal Year, and Multi-Entity Considerations
 
 Nonprofit fundraising reporting almost always follows the organization's fiscal calendar rather than the calendar year — year-end appeals, board reporting, 990 preparation, and donor giving history all key off the fiscal year. Salesforce Fiscal Year settings are an org-wide decision, not an FQS toggle, but FQS reports and rollups inherit them, so it is worth a deliberate pass before you activate the accelerator against real data.
 
@@ -1424,7 +1460,7 @@ Supporting documentation:
 * [Customize the Fiscal Year Structure](https://help.salesforce.com/s/articleView?id=platform.customize_fiscalyear.htm&type=5)
 * [Define a Custom Fiscal Year](https://help.salesforce.com/s/articleView?id=platform.customize_fyf.htm&type=5)
 
-### 7. Campaign Influence for Complex Major Gift Attribution
+### 8. Campaign Influence for Complex Major Gift Attribution
 
 The `FQS_Fundraising` Campaign record type included in this accelerator works well for organizations that tie each Gift Transaction to a single campaign. However, major gift programs often involve multiple cultivation touchpoints — events, direct mail, personal visits, grant cycles — spread across several campaigns before a gift closes. A single Campaign lookup cannot represent this complexity.
 
@@ -1455,7 +1491,7 @@ Rather than creating one large "Major Gifts FY26" campaign and assigning all maj
 
 * [Campaign Influence](https://help.salesforce.com/s/articleView?id=sales.campaign_influence_parent.htm&type=5)
 
-### 8. How FQS Thinks About Gift Dates
+### 9. How FQS Thinks About Gift Dates
 
 FQS separates two ideas that many orgs blur together:
 
@@ -1470,7 +1506,7 @@ Many orgs don't have a meaningful gap between the two — low volume, mostly car
 * **Tax Receipt Date** — when the year-end tax receipt was issued. Manual field; managed by whatever year-end receipting process your org runs.
 * **Stewardship Date** — when the follow-up stewardship touch was delivered. Written automatically by the FQS Stewardship Response flow.
 
-### 9. Email Templates for Acknowledgement and Stewardship
+### 10. Email Templates for Acknowledgement and Stewardship
 
 FQS ships three plain-text email templates in a dedicated **FQS Templates** Classic email folder. They are sent by the FQS_Gift_Acknowledgement and FQS_Stewardship_Response scheduled flows.
 
