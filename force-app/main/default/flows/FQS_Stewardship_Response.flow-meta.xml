@@ -169,66 +169,6 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
             <targetReference>Route_Email_Or_Task</targetReference>
         </connector>
     </assignments>
-    <assignments>
-        <description>Reached when no open opportunity exists for the donor. Falls back to the donor Account as the task WhatId so the task still appears on the donor record and is visible to the gift officer.</description>
-        <name>Set_WhatId_To_Account</name>
-        <label>Set WhatId to Account</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>varTaskWhatId</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>Get_Donor_Account.Id</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Create_Stewardship_Task</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <description>Reached when Get_Open_Opportunity found a record. Sets varTaskWhatId to the open opportunity Id so the stewardship task surfaces alongside active pipeline for the donor, giving the gift officer the most relevant context for the outreach.</description>
-        <name>Set_WhatId_To_Opportunity</name>
-        <label>Set WhatId to Opportunity</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>varTaskWhatId</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>Get_Open_Opportunity.Id</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Create_Stewardship_Task</targetReference>
-        </connector>
-    </assignments>
-    <decisions>
-        <description>Determines the WhatId for the stewardship task. If an open opportunity exists (Get_Open_Opportunity returned a non-null Id), the task is linked to that opportunity to surface alongside active pipeline. If no open opportunity exists, falls back to the donor Account. Opportunity is ordered by soonest CloseDate to prioritise the most time-sensitive pipeline record.</description>
-        <name>Opp_Found</name>
-        <label>Open Opportunity Found?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Set_WhatId_To_Account</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No Open Opportunity — use Account</defaultConnectorLabel>
-        <rules>
-            <name>Opp_Found_Yes</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>Get_Open_Opportunity.Id</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Set_WhatId_To_Opportunity</targetReference>
-            </connector>
-            <label>Open Opportunity Found</label>
-        </rules>
-    </decisions>
     <decisions>
         <description>Determines the donor tier for the current GiftTransaction using the pre-calculated formula fields on GiftTransaction. Evaluated in priority order: Major first (highest tier wins), then Mid, then Entry as the default. Sub-Entry gifts — amounts below the Entry one-time minimum where no Is_*_Gift field fires — fall through to Entry. The resolved tier drives varAutoStewardshipSetting, task priority, activity date, and subject.</description>
         <name>Resolve_Gift_Tier</name>
@@ -277,7 +217,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Get_Open_Opportunity</targetReference>
+            <targetReference>Create_Stewardship_Task</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Task Path</defaultConnectorLabel>
         <rules>
@@ -349,16 +289,14 @@ CMDT rows and the Queue Id are fetched once before the loop to minimise SOQL que
 )</expression>
     </formulas>
     <formulas>
-        <description>Populates the task Description with context the queue member needs to personalise the stewardship outreach: the donor&apos;s lifetime giving tier name, whether email is blocked (so they know why this wasn&apos;t auto-emailed), and the name of the related open opportunity if one exists. Evaluated after Get_Open_Opportunity has run so the opportunity name is available.</description>
+        <description>Populates the task Description with context the queue member needs to personalise the stewardship outreach: the donor&apos;s lifetime giving tier name and whether email is blocked.</description>
         <name>frmTaskDescription</name>
         <dataType>String</dataType>
         <expression>&quot;Personal stewardship outreach needed. Donor lifetime tier: &quot; &amp;
 IF(ISBLANK({!Get_DonorGiftSummary.FQS_Lifetime_Donor_Level_Name__c}),
   &quot;None on record&quot;,
   {!Get_DonorGiftSummary.FQS_Lifetime_Donor_Level_Name__c}
-) &amp; &quot;. Email opt-out: &quot; &amp; IF({!Get_Contact.HasOptedOutOfEmail}, &quot;Yes&quot;, &quot;No&quot;) &amp;
-&quot;. Related open opportunity: &quot; &amp;
-IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportunity.Name}) &amp; &quot;.&quot;</expression>
+) &amp; &quot;. Email opt-out: &quot; &amp; IF({!Get_Contact.HasOptedOutOfEmail}, &quot;Yes&quot;, &quot;No&quot;) &amp; &quot;.&quot;</expression>
     </formulas>
     <formulas>
         <description>Sets Task.Priority based on gift tier. Major gifts are High priority to prompt immediate personal stewardship outreach. Mid and Entry gifts are Normal priority.</description>
@@ -408,7 +346,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
     <recordCreates>
-        <description>Creates the personal-outreach Task assigned to the FQS Stewardship Response queue (Id fetched pre-loop). WhoId is the donor PersonContactId so the task appears on the Contact timeline. WhatId is the open opportunity (if found) or the donor Account. Subject, Priority, ActivityDate, and Description are all formula-driven and vary by tier and opt-out status.</description>
+        <description>Creates the personal-outreach Task assigned to the FQS Stewardship Response queue (Id fetched pre-loop). WhoId is the donor PersonContactId so the task appears on the Contact timeline. Subject, Priority, ActivityDate, and Description are all formula-driven and vary by tier and opt-out status.</description>
         <name>Create_Stewardship_Task</name>
         <label>Create Stewardship Task</label>
         <locationX>0</locationX>
@@ -457,12 +395,6 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
             </value>
         </inputAssignments>
         <inputAssignments>
-            <field>WhatId</field>
-            <value>
-                <elementReference>varTaskWhatId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
             <field>WhoId</field>
             <value>
                 <elementReference>Get_Donor_Account.PersonContactId</elementReference>
@@ -497,7 +429,7 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Fetches the donor Account for the current loop GiftTransaction. PersonContactId is required for the email recipient and task WhoId. Account.Id is the task WhatId fallback when no open opportunity exists. Account.Name populates the task subject via frmTaskSubject.</description>
+        <description>Fetches the donor Account for the current loop GiftTransaction. PersonContactId is required for the email recipient and task WhoId. Account.Name populates the task subject via frmTaskSubject.</description>
         <name>Get_Donor_Account</name>
         <label>Get Donor Account</label>
         <locationX>0</locationX>
@@ -672,39 +604,6 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
-        <description>Fetches the open Opportunity on the donor Account with the soonest CloseDate, to use as the task WhatId. Surfacing the task on the most time-sensitive pipeline record gives gift officers the most relevant context for outreach. assignNullValuesIfNoRecordsFound is false so a missing opportunity leaves Get_Open_Opportunity.Id null; the Opp_Found decision downstream handles the null case gracefully.</description>
-        <name>Get_Open_Opportunity</name>
-        <label>Get Soonest Open Opportunity</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Opp_Found</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>AccountId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Loop_GiftTransactions.DonorId</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>IsClosed</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Opportunity</object>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>Name</queriedFields>
-        <sortField>CloseDate</sortField>
-        <sortOrder>Asc</sortOrder>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
         <description>Fetches the FQS_Stewardship_Response queue Group record by DeveloperName so its Id can be used as Task.OwnerId in Create_Stewardship_Task inside the loop. Fetching once pre-loop avoids one SOQL call per iteration. If the queue does not exist the fault path surfaces the error before the loop starts.</description>
         <name>Get_Queue_Id</name>
         <label>Get FQS Stewardship Response Queue</label>
@@ -838,13 +737,5 @@ IF(ISBLANK({!Get_Open_Opportunity.Name}), &quot;none&quot;, {!Get_Open_Opportuni
         <value>
             <stringValue>Entry</stringValue>
         </value>
-    </variables>
-    <variables>
-        <description>Holds the WhatId for the stewardship Task for the current loop iteration. Set by Set_WhatId_To_Opportunity (open opportunity Id) or Set_WhatId_To_Account (donor Account Id) based on the Opp_Found decision. Implicitly reset each iteration as the assignment elements always write a new value before Create_Stewardship_Task runs.</description>
-        <name>varTaskWhatId</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
     </variables>
 </Flow>

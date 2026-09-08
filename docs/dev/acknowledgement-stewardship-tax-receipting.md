@@ -48,7 +48,7 @@ Most online donation platforms send a receipt email automatically when the card 
 Two options for handling this without double-sending:
 
 - **Turn off the Gift Acknowledgement flow entirely** if your donation tool covers every gift. Simplest.
-- **Leave it on** and have your donation tool set Acknowledgement Status as 'Sent'. The flow only acknowledges gifts where that field is still blank, so online gifts are skipped automatically and offline gifts (checks, cash, stock, in-kind) still get covered. See [docs/external-tool-integration.md](external-tool-integration.md).
+- **Leave it on** and have your donation tool set Acknowledgement Status as 'Sent'. The flow only acknowledges gifts where that field is still blank, so online gifts are skipped automatically and offline gifts (checks, cash, stock, in-kind) still get covered.
 
 **Physical gifts always need something.** Checks in the mail, cash walked in, stock transfers, in-kind donations — none of these pass through your online tool, and none get an automatic receipt. If the flow is deactivated, you'll need to handle these manually. If the flow is on, it only acknowledges gifts where Acknowledgement Status is still blank or 'To Be Sent'.
 
@@ -60,7 +60,7 @@ The acknowledgement (or the donation tool's receipt) closes the transaction. A s
 
 Very few donation tools send this follow-up. Even if your donation tool handles acknowledgement end-to-end, you likely still want stewardship running.
 
-- **Yes, I want a mission touch** → turn on the **Stewardship Response** flow. It fires ~14 days after the acknowledgement. Entry-tier donors get an automated email; major donors always route to a task for personal outreach. Full admin guide: [docs/gift-stewardship-flow.md](gift-stewardship-flow.md).
+- **Yes, I want a mission touch** → turn on the **Stewardship Response** flow. It fires ~14 days after the acknowledgement. Entry-tier donors get an automated email; major donors always route to a task for personal outreach. Full admin guide: [FQS Stewardship Response](../fqs-flow-overview.md#fqs-stewardship-response).
 - **No, the acknowledgement is enough** → leave the Stewardship Response flow off. Rewrite the acknowledgement template so it carries the mission voice too — gratitude, one line about impact, done.
 
 ---
@@ -80,7 +80,7 @@ Automated stewardship works well for entry- and mid-tier donors. Major donors ty
 
 The shipped stewardship routing already handles this: the **Major** tier is seeded to route every gift to a task in the Stewardship Tasks queue, so major-gift officers see the task and deliver the personal outreach themselves. No automated email fires for those gifts.
 
-If you want to change that — say, send all donors the same automated email regardless of tier — you can retune the routing in the Setup Flow (Configure Donor Groupings branch). Details in [docs/gift-stewardship-flow.md](gift-stewardship-flow.md).
+If you want to change that — say, send all donors the same automated email regardless of tier — you can retune the routing in the Setup Flow (Configure Donor Groupings branch). Details in [FQS Stewardship Response](../fqs-flow-overview.md#fqs-stewardship-response).
 
 ---
 
@@ -154,8 +154,8 @@ Two flows and three email templates. Both flows ship with placeholder templates 
 
 | Flow | Fires | Purpose |
 |---|---|---|
-| **Gift Acknowledgement** | Daily, 06:00 UTC | Emails or creates a task for every paid gift older than 3 days that hasn't been acknowledged. Routes to email if the donor has a valid opted-in email address; otherwise creates a task for a human to handle. Deep-dive: [docs/gift-acknowledgement-flow.md](gift-acknowledgement-flow.md). |
-| **Stewardship Response** | Daily, 07:00 UTC | Sends a tier-differentiated mission touch ~14 days after the acknowledgement. Entry-tier donors get an automated email; major donors always route to a task for personal outreach. Deep-dive: [docs/gift-stewardship-flow.md](gift-stewardship-flow.md). |
+| **Gift Acknowledgement** | Daily, 06:00 UTC | Emails or creates a task for every paid gift older than 3 days that hasn't been acknowledged. Routes to email if the donor has a valid opted-in email address; otherwise creates a task for a human to handle. Deep-dive: [FQS Gift Acknowledgement](../fqs-flow-overview.md#fqs-gift-acknowledgement). |
+| **Stewardship Response** | Daily, 07:00 UTC | Sends a tier-differentiated mission touch ~14 days after the acknowledgement. Entry-tier donors get an automated email; major donors always route to a task for personal outreach. Deep-dive: [FQS Stewardship Response](../fqs-flow-overview.md#fqs-stewardship-response). |
 
 **Email templates** (Setup → Email Templates → Public folder):
 
@@ -169,7 +169,7 @@ Two flows and three email templates. Both flows ship with placeholder templates 
 
 ## Related documentation
 
-- [docs/gift-acknowledgement-flow.md](gift-acknowledgement-flow.md) — full admin guide for the acknowledgement flow.
-- [docs/gift-stewardship-flow.md](gift-stewardship-flow.md) — full admin guide for the stewardship flow, including tier routing and CMDT configuration.
-- [docs/external-tool-integration.md](external-tool-integration.md) — contract for suppressing automation when a third-party donation tool owns receipts.
+- [FQS Gift Acknowledgement](../fqs-flow-overview.md#fqs-gift-acknowledgement) — full admin guide for the acknowledgement flow.
+- [FQS Stewardship Response](../fqs-flow-overview.md#fqs-stewardship-response) — full admin guide for the stewardship flow, including tier routing and CMDT configuration.
+
 - [Salesforce — Set Up Gift Acknowledgments and Tax Receipts](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_set_up_gift_acknowledgments_and_tax_receipts.htm&type=5) — Salesforce's native gift-acknowledgement and tax-receipt engine.

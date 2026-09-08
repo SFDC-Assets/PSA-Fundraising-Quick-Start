@@ -1,4 +1,4 @@
-# FQS Single-Donor Gift Entry — Data Model Reference by Gift Type
+# Common Gift Entry Scenario Data Requirements
 
 **Audience:** Salesforce admins, developers, and implementation partners who need to record fundraising activity against a single donor Account — whether by hand, in Data Loader, via Apex, or from a custom flow / LWC. Describes the records and fields to create for each gift type, and the platform-managed fields to leave alone.
 
@@ -328,7 +328,7 @@ Honor or Memorial recognition for a `GiftTransaction`. Create one `GiftTribute` 
 
 ## Platform contracts
 
-Hard rules that produce misleading errors or silent data loss when violated. Full reference: [docs/npc-automation-notes.md](./npc-automation-notes.md).
+Hard rules that produce misleading errors or silent data loss when violated.
 
 | Rule | What happens if you violate it |
 |---|---|
@@ -347,6 +347,6 @@ Hard rules that produce misleading errors or silent data loss when violated. Ful
 
 - **Batch entry / multi-gift ingest** — use the platform's Gift Entry Manager, Data Loader, or a bulk Apex path.
 - **Refunds / adjustments** — insert a [`GiftRefund`](../../force-app/main/default/objects/GiftRefund/) child, do not mutate `CurrentAmount` on the original `GiftTransaction`.
-- **Grant Payment category** — [`FQS_Gift_Transaction_Category__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) supports `Grant Payment`, but that flow uses `Opportunity` (Grant record type) + `GiftCommitment` (`CommitmentType = 'Grant'`) as the source of truth. See [docs/npc-automation-notes.md § Opportunity](./npc-automation-notes.md).
+- **Grant Payment category** — [`FQS_Gift_Transaction_Category__c`](../../force-app/main/default/objects/GiftTransaction/fields/FQS_Gift_Transaction_Category__c.field-meta.xml) supports `Grant Payment`, but that flow uses `Opportunity` (Grant record type) + `GiftCommitment` (`CommitmentType = 'Grant'`) as the source of truth.
 - **Fee decomposition** — `GatewayTransactionFee`, `ProcessorTransactionFee`, `DonorCoverAmount` are populated by payment-processor integrations, not by manual entry paths.
 - **Standalone `GiftTribute` entry** — tributes always attach to a `GiftTransaction`. There is no standalone tribute entry point in FQS.

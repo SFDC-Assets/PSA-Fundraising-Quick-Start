@@ -236,11 +236,6 @@ Package Manager cannot add Queues to unmanaged packages on this org. Installing 
 - `FQS_Major_Donor_Tasks`
 - `FQS_Stewardship_Tasks`
 
-### ReportFolder — 2
-
-- `FQSDonorTierReports`
-- `FQSRecordPageReports`
-
 ### StandardValueSet — 2  [POST-INSTALL]
 
 Package Manager rejects StandardValueSet as an addable component type. Installing admin adds the picklist values to `GiftBatchScreenTempName` + `OpportunityStage` via Setup UI as post-install steps (README §III).
@@ -252,75 +247,10 @@ Package Manager rejects StandardValueSet as an addable component type. Installin
 
 ## Section B — REMOVE from ProdFund package (31)
 
-For each entry: Setup → Package Manager → Fundraising Quick Start → find the row in the Components table → click **Remove**.
-
-### ActionPlanTemplate — 2
-
-- `Moves_Management_65c3e74a_90d4_11f1_9ffa_750d1a89e526`
-- `Stewardship_38e8d861_90da_11f1_b64a_f1bc2df97554`
-
-### ApexClass — 3
-
-- `FQS_MatchCandidate`
-- `FQS_MatchCandidateService`
-- `FQS_MatchCommitService`
-
-### CustomField — 5
-
-- `FQS_Donor_Grouping__mdt.Branded_Name__c`
-- `FQS_Donor_Grouping__mdt.Grouping_Key__c`
-- `FQS_Donor_Grouping__mdt.Min_Amount__c`
-- `FQS_Donor_Grouping__mdt.Sort_Order__c`
-- `OutreachSourceCode.FQS_Channel_Segment__c`
-
-### CustomMetadata — 3
-
-- `FQS_Donor_Grouping.Entry`
-- `FQS_Donor_Grouping.Major`
-- `FQS_Donor_Grouping.Mid`
-
-### CustomObject — 1
-
-- `FQS_Donor_Grouping__mdt`
-
-### Dashboard — 1
-
-- `FQSDashboards`
-
-### EmailTemplate — 1
-
-- `FQS_Templates`
-
-### Flow — 1
-
-- `FQS_Manage_Gift_Commitment_Actions`
-
-### Layout — 1
-
-- `FQS_Donor_Grouping__mdt-FQS Donor Grouping Layout`
-
 ### ListView — 3
 
 - `DonorGiftSummary.All_DonorGiftSummaries`
 - `GiftTransaction.In_Kind_Gifts`
 - `Opportunity.MyOpportunities`
 
-### RecordType — 2
-
-- `Account.Organization`
-- `PersonAccount.PersonAccount`
-
-### Report — 2
-
-- `FQSDonorTierReports`
-- `FQSRecordPageReports`
-
-### WebLink — 6
-
-- `Account.GoogleMaps`
-- `Account.GoogleNews`
-- `Account.GoogleSearch`
-- `Account.HooversProfile`
-- `Campaign.ViewAllCampaignMembers`
-- `Campaign.ViewCampaignInfluenceReport`
-
+Can you confirm all record types have FQS as a prefix?

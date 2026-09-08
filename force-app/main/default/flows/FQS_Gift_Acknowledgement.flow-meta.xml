@@ -227,34 +227,6 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
                 <booleanValue>false</booleanValue>
             </value>
         </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varCurrentOppId</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varCurrentOppName</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varOppFound</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varTaskWhatId</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue></stringValue>
-            </value>
-        </assignmentItems>
         <connector>
             <targetReference>Loop_Match_Account</targetReference>
         </connector>
@@ -315,71 +287,6 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
         </connector>
     </assignments>
     <assignments>
-        <description>Captures the first (soonest CloseDate) open Opportunity for this donor. Pre-fetched collection is already sorted CloseDate ASC, so the first inner-loop iteration is the soonest — the varOppFound flag prevents subsequent iterations from overwriting.</description>
-        <name>Set_Opp_Vars</name>
-        <label>Set Opportunity Match Variables (First Only)</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>varCurrentOppId</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>Loop_Match_Opp.Id</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varCurrentOppName</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>Loop_Match_Opp.Name</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varOppFound</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Loop_Match_Opp</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <description>No open opportunity found — task WhatId falls back to the donor Account.</description>
-        <name>Set_WhatId_To_Account</name>
-        <label>Set WhatId to Account</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>varTaskWhatId</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>varCurrentAccountId</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Build_Task_Record</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <description>Open opportunity found — task WhatId is the soonest-closing open opportunity Id so the acknowledgement task surfaces alongside active pipeline.</description>
-        <name>Set_WhatId_To_Opportunity</name>
-        <label>Set WhatId to Opportunity</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignmentItems>
-            <assignToReference>varTaskWhatId</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>varCurrentOppId</elementReference>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Build_Task_Record</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
         <description>Builds a Task sObject in memory using the per-iteration variables and appends it to the varTasksToInsert record collection for post-loop bulk insert. Replaces the per-iteration Create_Acknowledgement_Task DML from the pre-bulkification design.</description>
         <name>Build_Task_Record</name>
         <label>Build Task Record and Append</label>
@@ -425,13 +332,6 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
             <operator>Assign</operator>
             <value>
                 <elementReference>frmTaskSubject</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varTaskBuilder.WhatId</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>varTaskWhatId</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
@@ -565,54 +465,6 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
             <targetReference>Loop_Match_Contact</targetReference>
         </connector>
     </collectionProcessors>
-    <collectionProcessors>
-        <description>Filters the pre-fetched open-Opportunity collection to just those on the current donor Account. Pre-fetch is already sorted CloseDate ASC so first-hit inside Loop_Match_Opp is the soonest.</description>
-        <name>Filter_Opps_By_Donor</name>
-        <elementSubtype>FilterCollectionProcessor</elementSubtype>
-        <label>Filter: Open Opportunities by DonorId</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNextValueToReference>filterItem_Opp</assignNextValueToReference>
-        <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
-        <collectionReference>Get_Open_Opportunities</collectionReference>
-        <conditionLogic>and</conditionLogic>
-        <conditions>
-            <leftValueReference>filterItem_Opp.AccountId</leftValueReference>
-            <operator>EqualTo</operator>
-            <rightValue>
-                <elementReference>Loop_GiftTransactions.DonorId</elementReference>
-            </rightValue>
-        </conditions>
-        <connector>
-            <targetReference>Loop_Match_Opp</targetReference>
-        </connector>
-    </collectionProcessors>
-    <decisions>
-        <description>WhatId resolution. Open opportunity if found (soonest CloseDate); donor Account otherwise. Gates on varOppFound rather than dereferencing the Opp variable directly.</description>
-        <name>Opp_Found</name>
-        <label>Open Opportunity Found?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Set_WhatId_To_Account</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No Open Opportunity — use Account</defaultConnectorLabel>
-        <rules>
-            <name>Opp_Found_Yes</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>varOppFound</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Set_WhatId_To_Opportunity</targetReference>
-            </connector>
-            <label>Open Opportunity Found</label>
-        </rules>
-    </decisions>
     <decisions>
         <description>Full-vs-partial-deduction template selection. Uses partial template when TaxDeductionAmount is non-null and less than CurrentAmount; otherwise uses the full-deduction template.</description>
         <name>Route_Email_Template</name>
@@ -653,7 +505,7 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
         <locationX>0</locationX>
         <locationY>0</locationY>
         <defaultConnector>
-            <targetReference>Filter_Opps_By_Donor</targetReference>
+            <targetReference>Build_Task_Record</targetReference>
         </defaultConnector>
         <defaultConnectorLabel>Task Path</defaultConnectorLabel>
         <rules>
@@ -679,43 +531,17 @@ Interview: {!$Flow.CurrentDateTime}</stringValue>
             <label>Email Path</label>
         </rules>
     </decisions>
-    <decisions>
-        <description>Ensures Set_Opp_Vars fires only on the first inner-loop iteration (the soonest opportunity, because the pre-fetch is sorted ASC). Subsequent iterations skip back to the inner loop without overwriting.</description>
-        <name>Decide_First_Opp</name>
-        <label>Decide: First Opportunity Iteration?</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Loop_Match_Opp</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Not First — Skip</defaultConnectorLabel>
-        <rules>
-            <name>First_Opp</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>varOppFound</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Set_Opp_Vars</targetReference>
-            </connector>
-            <label>First Iteration</label>
-        </rules>
-    </decisions>
     <description>Bulk-safe scheduled flow that runs daily at 06:00 UTC and processes GiftTransaction records where Status = Paid, TransactionDate is at least 3 days in the past, AcknowledgementStatus is blank, and category is not Other. The 3-day window lets digital-platform ingest and refunds/reversals settle before an acknowledgement fires. Other category is excluded — donors don&apos;t get receipts for earned income / event registration / processing-fee records.
 
 Acknowledgement is the universal &quot;we got your gift, thanks, here is your deduction info&quot; touch — every donor with a valid email address receives one. No donor-tier / lifetime-donor filtering; every eligible gift gets a receipt. Tier-based routing lives in the FQS_Stewardship_Response flow.
 
-Bulkification design: all SOQL fires pre-loop (Queue, GiftTransactions, donor Accounts, donor Contacts, open Opportunities) and all DML fires post-loop (bulk-insert acknowledgement Tasks, bulk-update GiftTransaction acknowledgement stamps). The main loop performs no SOQL and no DML — it uses Collection Filter elements against pre-fetched collections to resolve donor Account, donor Contact, and soonest open Opportunity, then either dispatches an emailSimple action or appends a Task record and a GT-update record to post-loop collections. Email dispatch is unavoidably per-recipient and stays inside the loop.
+Bulkification design: all SOQL fires pre-loop (Queue, GiftTransactions, donor Accounts, donor Contacts) and all DML fires post-loop (bulk-insert acknowledgement Tasks, bulk-update GiftTransaction acknowledgement stamps). The main loop performs no SOQL and no DML — it uses Collection Filter elements against pre-fetched collections to resolve donor Account and donor Contact, then either dispatches an emailSimple action or appends a Task record and a GT-update record to post-loop collections. Email dispatch is unavoidably per-recipient and stays inside the loop.
 
-For each qualifying gift the flow: (1) resolves donor Account, donor Contact, and soonest open Opportunity from pre-fetched collections; (2) routes to email or task on a universal rule — email if HasOptedOutOfEmail = false AND Email is not blank, task otherwise; (3) builds the appropriate Sent or To Be Sent GT stamp into a collection.
+For each qualifying gift the flow: (1) resolves donor Account and donor Contact from pre-fetched collections; (2) routes to email or task on a universal rule — email if HasOptedOutOfEmail = false AND Email is not blank, task otherwise; (3) builds the appropriate Sent or To Be Sent GT stamp into a collection.
 
 Email path: sends the FQS Gift Acknowledgement template (or the Partial Deduction variant when TaxDeductionAmount &lt; CurrentAmount) via the emailSimple v3 template-aware action to the donor PersonContact; appends AcknowledgementStatus = Sent, AcknowledgementDate = today to the update collection.
 
-Task path: appends a Task record owned by the FQS Gift Acknowledgements queue with WhatId set to the soonest open opportunity (or donor Account fallback) to the insert collection; appends AcknowledgementStatus = To Be Sent to the update collection. Queue member completes the personal outreach and closes the task manually, then sets AcknowledgementStatus = Sent.
+Task path: appends a Task record owned by the FQS Gift Acknowledgements queue to the insert collection; appends AcknowledgementStatus = To Be Sent to the update collection. Queue member completes the personal outreach and closes the task manually, then sets AcknowledgementStatus = Sent.
 
 Pickup filter is AcknowledgementStatus IS NULL only. Records stamped To Be Sent are excluded from future runs so the task path does not create duplicate tasks day-over-day. Once the queue member closes out the outreach they set AcknowledgementStatus = Sent.
 
@@ -738,14 +564,12 @@ Fault connectors on all SOQL, DML, and action elements route to Send_Fault_Email
         <expression>{!$Flow.CurrentDate} + 7</expression>
     </formulas>
     <formulas>
-        <description>Task Description. Explains why the acknowledgement couldn&apos;t be auto-emailed (opt-out or missing email) and surfaces related open opportunity context if any.</description>
+        <description>Task Description. Explains why the acknowledgement couldn&apos;t be auto-emailed (opt-out or missing email).</description>
         <name>frmTaskDescription</name>
         <dataType>String</dataType>
         <expression>&quot;Personal acknowledgement needed — automated email could not be sent. Reason: &quot; &amp;
 IF({!varCurrentContactOptedOut}, &quot;Contact opted out of email.&quot;,
-   IF(ISBLANK({!varCurrentContactEmail}), &quot;No email address on Contact.&quot;, &quot;Unknown.&quot;)) &amp;
-&quot; Related open opportunity: &quot; &amp;
-IF({!varOppFound}, {!varCurrentOppName}, &quot;none&quot;) &amp; &quot;.&quot;</expression>
+   IF(ISBLANK({!varCurrentContactEmail}), &quot;No email address on Contact.&quot;, &quot;Unknown.&quot;))</expression>
     </formulas>
     <formulas>
         <description>Task subject. Prepends [OPT-OUT — send by mail] when the donor has opted out of email so the queue member knows immediately to use a non-email channel.</description>
@@ -832,21 +656,6 @@ IF({!varOppFound}, {!varCurrentOppName}, &quot;none&quot;) &amp; &quot;.&quot;</
             <targetReference>Route_Email_Or_Task</targetReference>
         </noMoreValuesConnector>
     </loops>
-    <loops>
-        <description>Iterates over the filtered open Opportunities for this donor. Pre-fetch is sorted CloseDate ASC and the Set_Opp_Vars assignment only overwrites when varOppFound is false, so the first (soonest) opportunity is captured. Zero iterations when the donor has no open opportunities.</description>
-        <name>Loop_Match_Opp</name>
-        <label>Loop: Match Soonest Open Opportunity</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <collectionReference>Filter_Opps_By_Donor</collectionReference>
-        <iterationOrder>Asc</iterationOrder>
-        <nextValueConnector>
-            <targetReference>Decide_First_Opp</targetReference>
-        </nextValueConnector>
-        <noMoreValuesConnector>
-            <targetReference>Opp_Found</targetReference>
-        </noMoreValuesConnector>
-    </loops>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -918,7 +727,7 @@ IF({!varOppFound}, {!varCurrentOppName}, &quot;none&quot;) &amp; &quot;.&quot;</
         <locationY>0</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_Open_Opportunities</targetReference>
+            <targetReference>Loop_GiftTransactions</targetReference>
         </connector>
         <faultConnector>
             <isGoTo>true</isGoTo>
@@ -980,45 +789,6 @@ IF({!varOppFound}, {!varCurrentOppName}, &quot;none&quot;) &amp; &quot;.&quot;</
         </filters>
         <getFirstRecordOnly>false</getFirstRecordOnly>
         <object>GiftTransaction</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <description>Bulk-fetches all open Opportunities on donor Accounts referenced by the qualifying gifts in one query, sorted CloseDate ASC so the first-matching per-donor record inside Loop_Match_Opp is the soonest. Most donors — especially one-time entry donors — will have no open opportunity; the empty case is handled by the varOppFound flag.</description>
-        <name>Get_Open_Opportunities</name>
-        <label>Get Open Opportunities (Bulk)</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Loop_GiftTransactions</targetReference>
-        </connector>
-        <faultConnector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Send_Fault_Email</targetReference>
-        </faultConnector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>AccountId</field>
-            <operator>In</operator>
-            <value>
-                <elementReference>varDonorIds</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>IsClosed</field>
-            <operator>EqualTo</operator>
-            <value>
-                <booleanValue>false</booleanValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>false</getFirstRecordOnly>
-        <object>Opportunity</object>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>Name</queriedFields>
-        <queriedFields>AccountId</queriedFields>
-        <queriedFields>CloseDate</queriedFields>
-        <sortField>CloseDate</sortField>
-        <sortOrder>Asc</sortOrder>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
@@ -1102,15 +872,6 @@ IF({!varOppFound}, {!varCurrentOppName}, &quot;none&quot;) &amp; &quot;.&quot;</
         <objectType>Contact</objectType>
     </variables>
     <variables>
-        <description>Scratch iterator required by Filter_Opps_By_Donor. Never read outside the filter&apos;s conditions block.</description>
-        <name>filterItem_Opp</name>
-        <dataType>SObject</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <objectType>Opportunity</objectType>
-    </variables>
-    <variables>
         <description>Collection of donor Ids extracted from Get_GiftTransactions for the bulk Account and Opportunity queries.</description>
         <name>varDonorIds</name>
         <dataType>String</dataType>
@@ -1127,7 +888,7 @@ IF({!varOppFound}, {!varCurrentOppName}, &quot;none&quot;) &amp; &quot;.&quot;</
         <isOutput>false</isOutput>
     </variables>
     <variables>
-        <description>Per-iteration scalar copy of the matched donor Account Id. Used as Task WhatId fallback when the donor has no open opportunity.</description>
+        <description>Per-iteration scalar copy of the matched donor Account Id.</description>
         <name>varCurrentAccountId</name>
         <dataType>String</dataType>
         <isCollection>false</isCollection>
@@ -1162,38 +923,6 @@ IF({!varOppFound}, {!varCurrentOppName}, &quot;none&quot;) &amp; &quot;.&quot;</
         <description>Per-iteration scalar copy of the matched donor Contact&apos;s HasOptedOutOfEmail flag. Drives Route_Email_Or_Task and the opt-out prefix in the task subject.</description>
         <name>varCurrentContactOptedOut</name>
         <dataType>Boolean</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <description>Per-iteration scalar copy of the soonest open Opportunity Id for the current donor, or blank when no open opportunity exists.</description>
-        <name>varCurrentOppId</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <description>Per-iteration scalar copy of the soonest open Opportunity Name for the current donor. Surfaces in the task Description formula when present.</description>
-        <name>varCurrentOppName</name>
-        <dataType>String</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <description>Per-iteration flag toggled by Set_Opp_Vars on the first inner-loop iteration. Prevents subsequent iterations of Loop_Match_Opp from overwriting the soonest opportunity, and gates the Opp_Found decision.</description>
-        <name>varOppFound</name>
-        <dataType>Boolean</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-    </variables>
-    <variables>
-        <description>Holds the WhatId for the acknowledgement Task for the current loop iteration. Set by Set_WhatId_To_Opportunity or Set_WhatId_To_Account.</description>
-        <name>varTaskWhatId</name>
-        <dataType>String</dataType>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
