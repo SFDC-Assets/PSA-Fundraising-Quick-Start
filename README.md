@@ -91,7 +91,7 @@ It is recommended (but not required) that the [Stakeholder Management Quick Star
       * **Create Recurring Schedule Transaction** — controls whether the platform auto-fans-out scheduled Gift Transaction records ahead of the payment date. FQS assumes this is **on**; several FQS reports and the Gift Acknowledgement flow depend on Expected-status GTs being present.
       * **Auto Close Recurring Commitment** — auto-closes recurring commitments when their end date passes. Leave on unless your finance team explicitly manages recurring closure by hand.
    4. **Gift Entry Grid** — turn **on**. FQS ships four Gift Entry Grid templates (`FQS_Event_Registrations`, `FQS_Individual_Outright_Gifts`, `FQS_Pledge_Payments`, `FQS_Single_Payment_Pledges`) and the Home Page walkthrough (§XII, accordion item 4) uses the Grid as the primary batch-entry surface. Leaving this toggle off hides the Grid tab and the shipped templates aren't reachable.
-   5. **NextGen Commitment Processing** — leave off unless your org has high recurring-gift volume and has coordinated the switch with Salesforce Support. FQS is authored against the current commitment processing engine; NextGen changes fanout timing.
+   5. **NextGen Commitment Processing** — turn **on**. FQS ships the **FQS Coordinate Gift Commitment Processing** flow to walk you through the NextGen configuration steps.
    6. **Gift Entry — External ID** — leave blank at pre-install. FQS does not ship a donor-matching external-ID field; revisit this after go-live only if you introduce a custom donor-matching field.
    7. **Donor Matching Method** — set to **No Matching** at pre-install. The **Duplicate Management Rules** option depends on the FQS Duplicate Rules being deployed and active, which happens during package install. Return to this setting during post-install and flip to **Duplicate Management Rules** once the `FQS_Contact_Dupe` and `FQS_Account_*_Dupe` rules are confirmed active.
    8. **Philanthropic Research Topics in Agentforce** — leave off unless Agentforce is provisioned and your org has explicitly opted in to Einstein Generative AI features. Consumes Einstein Requests.
@@ -121,9 +121,24 @@ It is recommended (but not required) that the [Stakeholder Management Quick Star
 3. **Enable Person Accounts for Fundraising** (skip if already enabled via Stakeholder Management Quick Start)
 
    1. From **Setup**, in the **Quick Find** box, enter **Person Accounts**, and follow the steps on the Setup page.
-   2. Click **View Org Impacts**, review the Org Impact Acknowledgement, and click **Enable Person Accounts**.
-   3. Once Person Accounts is enabled, follow [Enable Person Accounts for Fundraising](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_enable_person_accounts_for_fundraising.htm&type=5) to complete the fundraising-specific configuration (record-type mapping, layout adjustments).
-   4. **Recommended:** rename the platform-created Person Account record type to **Individual** for consistency with the Stakeholder Management Quick Start and with the everyday-language conventions used across both accelerators. From **Setup → Object Manager → Person Account → Record Types**, click **Person Account**, then **Edit**, and set the Record Type Label and Record Type Name to `Individual`. Suggested description: *Select this for any individual. This will create a person account.* You can pick a different name if your organization prefers — just apply the same choice consistently, since a later post-install step (§IV) grants record type visibility on that same record type by name.
+   2. Click **View Org Impacts**, review the Org Impact Acknowledgement, check the box next to *"I understand that enabling this feature results in permanent changes to my Salesforce org,"* then click **Continue**.
+   3. **Create the Organization record type for Account:**
+      1. From Setup, click the **Object Manager** tab, then click **Account**.
+      2. Select **Record Types** on the left-hand side, then click **New**.
+      3. Select **Master** from the Existing Record Type dropdown.
+      4. Enter a **Record Type Label** of **Organization**. Suggested description: *Select this for any type of organization, formal or informal. This will create a business account.*
+      5. Select **Active**, set profile visibility and defaults as appropriate, then click **Next**.
+      6. Choose a page layout option and click **Save**.
+   4. Click **Enable Person Accounts**.
+   5. Once Person Accounts is enabled, follow [Enable Person Accounts for Fundraising](https://help.salesforce.com/s/articleView?id=sfdo.fundraising_enable_person_accounts_for_fundraising.htm&type=5) to complete the fundraising-specific configuration (record-type mapping, layout adjustments).
+   6. **Recommended:** rename the platform-created Person Account record type to **Individual** for consistency with the Stakeholder Management Quick Start and with the everyday-language conventions used across both accelerators. You can pick a different name if your organization prefers — just apply the same choice consistently, since a later post-install step (§IV) grants record type visibility on that same record type by name.
+   7. **Create the Individual record type for Account:**
+      1. From Setup, click the **Object Manager** tab, then click **Account**.
+      2. Select **Record Types** on the left-hand side, then click **New**.
+      3. Select **Master** from the Existing Record Type dropdown.
+      4. Enter a **Record Type Label** of **Individual**. Suggested description: *Select this for any individual. This will create a person account.*
+      5. Select **Active**, set profile visibility and defaults as appropriate, then click **Next**.
+      6. Choose a page layout option and click **Save**.
 
    *Notice: Person Accounts is a one-way switch — once enabled it cannot be disabled without Salesforce Support involvement. Coordinate with your finance and stakeholder-management leads before enabling.*
 4. **Enable Group Membership** (skip if already enabled via Stakeholder Management Quick Start)
@@ -172,10 +187,11 @@ It is recommended (but not required) that the [Stakeholder Management Quick Star
       Review these with your development director and finance lead before install. Field selection for other objects (Gift Transaction, Gift Commitment, Gift Designation, etc.) is covered in Post-Install Considerations §2.
 
 
-      | Object          | Suggested fields to track                                                              | Why                                                |
-      | --------------- | -------------------------------------------------------------------------------------- | -------------------------------------------------- |
-      | **Campaign**    | Status, StartDate, EndDate, BudgetedCost, FQS_Campaign_Category__c                     | Campaign lifecycle and budget tracking             |
-      | **Opportunity** | StageName, Amount, CloseDate, OwnerId, FQS_Solicitation_Date__c, FQS_Grant_Deadline__c | Major gift and grant cultivation pipeline tracking |
+      | Object          | Suggested fields to track                                          | Why                                                |
+      | --------------- | ------------------------------------------------------------------ | -------------------------------------------------- |
+      | **Account**     | Account Name, Email, Phone, Mobile                                 | Key personal and contact details                   |
+      | **Campaign**    | Budgeted Cost in Campaign, End Date, Start Date, Status            | Campaign lifecycle and budget tracking             |
+      | **Opportunity** | Amount, Close Date, Opportunity Owner, Stage                       | Major gift and grant cultivation pipeline tracking |
    3. **Note the package's deployed state**
 
       1. **Campaign** — the package deploys Campaign with `enableHistory: true`. History tracking is active on Campaign from the moment the package is installed; you only need to select which fields to track in the post-install step (§I.1).
@@ -477,9 +493,9 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
       4. Click **Save**.
 
       *Notice: Removing New from the list view button layout removes it from the list-view page, but does not prevent Apex, integration, or flow creation of Gift Transaction records. That is intended — the three supported creation paths all bypass the UI list view and continue to work.*
-   2. **Configure Search Layouts.** Search Layouts control which fields appear on the object's Tab list view, search results, and lookup dialogs. Apply the following field selections so fundraising staff can identify a gift at a glance.
+   2. **Configure Search Layouts.** Apply the following field selections so fundraising staff can identify a gift at a glance.
 
-      Recommended fields on all four search layouts (**Default Layout** / Tab, **Search Results**, **Lookup Dialogs**, **Lookup Phone Dialogs**):
+      Recommended fields on the **Default Layout**:
 
       * Donor
       * Transaction Date
@@ -490,7 +506,6 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
       1. Still in **Search Layouts** for Gift Transaction, click **Edit** on **Default Layout**.
       2. Move the six fields above into the **Selected Fields** column and click **Save**.
-      3. Repeat for **Search Results**, **Lookup Dialogs**, and **Lookup Phone Dialogs**.
    3. **Add the leaf-Campaign lookup filter to `Campaign`.** The filter steers users to attribute each gift to a level-3 (ask) Campaign — the concrete solicitation — rather than a level-1 rollup or level-2 strategy. Ask-level attribution keeps performance reports honest; rollup-level attribution hides the ask from the numbers you were trying to measure. The filter uses `FQS_Hierarchy_Depth__c` on Campaign — a formula field the package installs (1 = top rollup, 2 = strategy, 3 = ask, up to 5 levels). It ships as **Optional** so users can override for exceptions.
 
       1. In Object Manager for Gift Transaction, select **Fields & Relationships**.
@@ -543,7 +558,7 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
       2. Locate the row named **List View** and click **Edit**.
       3. Move **New** from the **Selected Buttons** column to the **Available Buttons** column.
       4. Click **Save**.
-   2. **Configure Search Layouts.** Recommended fields on both search layouts (**Default Layout** / Tab, **Search Results**):
+   2. **Configure Search Layouts.** Recommended fields on the **Default Layout**:
 
       * Status
       * FQS Gift Commitment Category
@@ -552,7 +567,6 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
       1. Still in **Search Layouts** for Gift Commitment, click **Edit** on **Default Layout**.
       2. Move the four fields above into the **Selected Fields** column and click **Save**.
-      3. Repeat for **Search Results**.
    3. **Add the leaf-Campaign lookup filter to `Campaign`.** Same rationale and settings as Gift Transaction step 2.3.
 
       1. In Object Manager for Gift Commitment, select **Fields & Relationships**.
@@ -577,14 +591,14 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
       1. In Object Manager for Gift Commitment → **Fields & Relationships**, click the field **Formal Commitment Type**.
       2. Click **Edit**.
-      3. In the **Help Text** field, enter: *How the donor made this commitment. Pick Written when you have a signed agreement or email; Verbal for a phone or in-person conversation.*
+      3. In the **Help Text** field, enter: *How the donor made this commitment. Pick Written when you have a documented agreement in some format (preferably signed); Verbal for a phone or in-person conversation.*
       4. In the **Description** field, enter: *Allowed values: Verbal, Written.*
       5. Click **Save**.
    6. **Add help text and description to `Fulfillment Type`.** *Unconditional* vs *Conditional* determines whether committed funds are usable on arrival or contingent on milestones (typical for grants). Reporting-only in FQS but distinguishes grant management flows from unconditional pledges.
 
       1. In Object Manager for Gift Commitment → **Fields & Relationships**, click the field **Fulfillment Type**.
       2. Click **Edit**.
-      3. In the **Help Text** field, enter: *Choose Unconditional when the committed funds are usable as soon as they arrive. Choose Conditional when the gift is contingent on specific milestones being met — typical for grants with reporting or programmatic conditions.*
+      3. In the **Help Text** field, enter: *Maintained by automation based on the Designation's restriction type or a value in Restricted Release Date.*
       4. In the **Description** field, enter: *Restricted picklist. Legal values: Unconditional, Conditional. Reporting-only in FQS. Default: Unconditional.*
       5. Click **Save**.
    7. **Add help text and description to `Recurrence Type`.** *Fixed Length* vs *Open Ended* is the difference between a pledge (has an end) and a recurring gift (no end). The platform does **not** derive this from the child schedule — it has to be set explicitly on the parent commitment.
@@ -610,14 +624,9 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
 
    Complete the following edit in a **Setup → Object Manager → Campaign** visit.
 
-   1. **Configure Search Layouts.** Campaign is in the FQS Console app; apply the following field selections so the Campaign tab, search results, and lookup dialogs surface the fields fundraising staff need to identify the right campaign fast (particularly when picking one during gift entry).
+   1. **Configure Search Layouts.** Apply the following field selections so fundraising staff can identify the right campaign fast (particularly when picking one during gift entry).
 
-      Recommended fields on **Default Layout** (Tab):
-
-      * Campaign Name
-      * FQS Campaign Category
-
-      Recommended fields on **Search Results**:
+      Recommended fields on the **Default Layout**:
 
       * Campaign Name
       * FQS Campaign Category
@@ -627,27 +636,15 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
       * End Date
       * Parent Campaign
 
-      Recommended field on **Lookup Dialogs** and **Lookup Phone Dialogs**:
-
-      * Campaign Name
-
       1. In Object Manager for Campaign, select **Search Layouts**.
-      2. For each layout row above, click **Edit**, move the recommended fields into **Selected Fields**, and click **Save**.
+      2. Click **Edit** on **Default Layout**, move the recommended fields into **Selected Fields**, and click **Save**.
 5. **Configure Opportunity**
 
    Complete the following edits in a single **Setup → Object Manager → Opportunity** visit.
 
-   1. **Configure Search Layouts.** Opportunity is in the FQS Console app; apply the following field selections so gift officers can find a cultivation record by donor + stage at a glance.
+   1. **Configure Search Layouts.** Apply the following field selections so gift officers can find a cultivation record by donor + stage at a glance.
 
-      Recommended fields on **Default Layout** (Tab):
-
-      * Opportunity Name
-      * Account Name
-      * Stage
-      * Amount
-      * Close Date
-
-      Recommended fields on **Search Results**:
+      Recommended fields on the **Default Layout**:
 
       * Opportunity Name
       * Account Name
@@ -656,42 +653,36 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
       * Close Date
       * Owner Alias
 
-      Recommended fields on **Lookup Dialogs** and **Lookup Phone Dialogs**:
-
-      * Opportunity Name
-      * Account Name
-      * Account Site
-
       1. In Object Manager for Opportunity, select **Search Layouts**.
-      2. For each layout row above, click **Edit**, move the recommended fields into **Selected Fields**, and click **Save**.
+      2. Click **Edit** on **Default Layout**, move the recommended fields into **Selected Fields**, and click **Save**.
    2. **Add help text and description to `Amount`.** On close-won, the FQS Opportunity launcher writes this into the resulting `GiftCommitment.ExpectedTotalCmtAmount` or `GiftTransaction.OriginalAmount`. The Opportunity here represents an expected gift — the value the donor is anticipated to give — not a raised total.
 
       1. In Object Manager for Opportunity → **Fields & Relationships**, click the field **Amount**.
       2. Click **Edit**.
-      3. In the **Help Text** field, enter: *The dollar value the donor is expected to give if this Opportunity closes-won. For grants, the request amount; for major gifts, the ask amount.*
+      3. In the **Help Text** field, enter: *The dollar value the donor is expected to give. For grants, the request amount; for major gifts, the ask amount.*
       4. In the **Description** field, enter: *On close-won, the FQS Opportunity launcher writes this value into the resulting `GiftCommitment.ExpectedTotalCmtAmount` or `GiftTransaction.OriginalAmount`.*
       5. Click **Save**.
    3. **Add help text and description to `Close Date`.** Required by the platform. On close-won, the FQS launcher writes this into `GiftCommitment.EffectiveStartDate` or `GiftTransaction.TransactionDate` — so it functions as the "when the ask lands" date, not the "when we asked" date.
 
       1. In Object Manager for Opportunity → **Fields & Relationships**, click the field **Close Date**.
       2. Click **Edit**.
-      3. In the **Help Text** field, enter: *The date this Opportunity is expected to close — award decision date for grants, expected commitment date for major gifts.*
+      3. In the **Help Text** field, enter: *The date this Opportunity is expected to close, not the day the money is received — award decision date for grants, expected commitment date for major gifts.*
       4. In the **Description** field, enter: *Required by the platform. On close-won, the FQS launcher writes this into `GiftCommitment.EffectiveStartDate` or `GiftTransaction.TransactionDate`.*
       5. Click **Save**.
    4. **Add help text and description to `Probability (%)`.** Probability defaults from the selected Stage — the platform maintains a Stage → Probability mapping in Opportunity Stage setup. Users can override on a per-record basis, but the override is not reflected back in the stage default. FQS forecasting reports weight expected revenue by this field.
 
       1. In Object Manager for Opportunity → **Fields & Relationships**, click the field **Probability (%)**.
       2. Click **Edit**.
-      3. In the **Help Text** field, enter: *Likelihood this Opportunity closes-won, as a percentage. Defaults from the selected Stage — override only when you have Opportunity-specific intelligence.*
+      3. In the **Help Text** field, enter: *Likelihood this gift occurs, as a percentage. Defaults from the selected Stage — override only when you have Opportunity-specific intelligence.*
       4. In the **Description** field, enter: *Stage → Probability mapping is managed at the platform level. Manual override is per-record and does not update the stage default.*
       5. Click **Save**.
 6. **Configure Gift Designation**
 
    Complete the following edit in a **Setup → Object Manager → Gift Designation** visit.
 
-   1. **Configure Search Layouts.** Gift Designation is in the FQS Console app; apply the following field selections so admins can spot at a glance which designations are active, which is the org-wide default, and how much has been credited to each.
+   1. **Configure Search Layouts.** Apply the following field selections so admins can spot at a glance which designations are active, which is the org-wide default, and how much has been credited to each.
 
-      Recommended fields on both search layouts (**Default Layout** / Tab, **Search Results**):
+      Recommended fields on the **Default Layout**:
 
       * FQS Restriction Type
       * Active
@@ -699,9 +690,7 @@ The **Automation** Lightning app gives admins a central place to monitor, activa
       * Total Transaction Amount
 
       1. In Object Manager for Gift Designation, select **Search Layouts**.
-      2. Click **Edit** on **Default Layout**.
-      3. Move the four fields above into **Selected Fields** and click **Save**.
-      4. Repeat for **Search Results**.
+      2. Click **Edit** on **Default Layout**, move the four fields above into **Selected Fields**, and click **Save**.
 7. **Apply the additional standard-field help text and descriptions**
 
    Beyond the fields covered in the per-object steps above, FQS recommends Help Text and Description on additional Nonprofit Cloud–owned standard fields across Gift Commitment Schedule, Outreach Source Code, Campaign, Gift Transaction, Gift Tribute, Gift Refund, Campaign Member, Gift Batch, and other objects. Salesforce does not ship help-text or description edits to standard fields in unmanaged packages, so these are applied manually.

@@ -2,5 +2,5 @@
 <CustomField xmlns="urn:metadata.tooling.soap.sforce.com">
     <fullName>FulfillmentType</fullName>
     <description>Restricted picklist. Legal values: **Unconditional**, **Conditional**. Reporting-only in FQS. Default: `Unconditional`.</description>
-    <inlineHelpText>Choose *Unconditional* when the committed funds are usable as soon as they arrive. Choose *Conditional* when the gift is contingent on specific milestones being met — typical for grants with reporting or programmatic conditions.</inlineHelpText>
+    <inlineHelpText>Maintained by automation based on the Designation&apos;s restriction type or a value in Restricted Release Date.</inlineHelpText>
 </CustomField>
