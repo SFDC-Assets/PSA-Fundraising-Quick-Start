@@ -228,10 +228,10 @@ It is recommended (but not required) that the [Stakeholder Management Quick Star
 1. Install the unmanaged package
    1. Log in to your sandbox or scratch org.
    2. Choose the appropriate URL:
-      1. For Sandboxes and Scratch Orgs: <!-- TODO: paste install URL once package is uploaded -->
-         `https://test.salesforce.com/packaging/installPackage.apexp?p0=<PACKAGE_ID>`
-      2. For Production Environments: <!-- TODO: paste install URL once package is uploaded -->
-         `https://login.salesforce.com/packaging/installPackage.apexp?p0=<PACKAGE_ID>`
+      1. For Sandboxes and Scratch Orgs:
+         `https://test.salesforce.com/packaging/installPackage.apexp?p0=04ta500000E4CiT`
+      2. For Production Environments:
+         `https://login.salesforce.com/packaging/installPackage.apexp?p0=04ta500000E4CiT`
    3. Paste the URL into your browser navigation bar and press Enter.
    4. Select Installation Scope. Choose how to install the package:
       1. Recommended: **Install for Admins Only** — components are only accessible by users with the Administrator profile.
