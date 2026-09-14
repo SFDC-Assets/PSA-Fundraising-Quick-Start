@@ -19,7 +19,6 @@ Use the Issues tab to submit issues, enhancement requests, and discuss ideas.
 ### Bug Reports and Fixes
 -  If you find a bug, please search for it in the [Issue](../../issues) tab first. If it isn't already tracked, [create a new issue](../../issues/new). Fill out the "Bug Report" section of the issue template. Even if an Issue is closed, feel free to comment and add details, it will still be reviewed.
 -  Issues that have already been identified as a bug (note: able to reproduce) will be labelled `bug`.
--  If you'd like to submit a fix for a bug, [send a Pull Request](#creating_a_pull_request) and mention the Issue number.
 -  Include tests that isolate the bug and verifies that it was fixed.
 
 ### New Features
